@@ -339,38 +339,6 @@ function ProductCard({
               )}
             </AnimatePresence>
 
-            {/* Quick add overlay — desktop */}
-            <AnimatePresence>
-              {hovered && (
-                <motion.div
-                  className="absolute bottom-0 left-0 right-0 z-10 hidden md:flex gap-2 p-3"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 12 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <button
-                    onClick={handleQuickBuy}
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-accent text-accent-foreground font-sans text-xs font-bold py-2.5 transition-all hover:brightness-110 active:scale-[0.97] shadow-lg"
-                  >
-                    <Zap className="w-3.5 h-3.5" />
-                    Comprar
-                  </button>
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={cartLoading || product.stock <= 0}
-                    className="flex items-center justify-center rounded-xl bg-card/90 backdrop-blur-md border border-border/50 px-3 py-2.5 hover:bg-muted transition-colors shadow-lg disabled:opacity-50"
-                    title="Adicionar ao carrinho"
-                  >
-                    {cartLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <ShoppingCart className="w-4 h-4" />
-                    )}
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
 
           {/* ── Variant Swatches ── */}
