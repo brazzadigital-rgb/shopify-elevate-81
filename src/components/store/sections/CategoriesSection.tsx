@@ -20,7 +20,7 @@ export function CategoriesSection() {
         .select("id, name, slug, image_url")
         .eq("is_active", true)
         .order("sort_order")
-        .limit(10);
+        .limit(12);
       setCollections((data as Category[]) || []);
     };
     fetchData();
@@ -40,41 +40,40 @@ export function CategoriesSection() {
           Categorias
         </motion.h3>
 
-        <div className="flex gap-5 md:gap-8 overflow-x-auto pb-4 scrollbar-hide justify-start md:justify-center px-2">
+        <div className="flex gap-4 md:gap-6 overflow-x-auto pb-4 scrollbar-hide px-1 snap-x snap-mandatory md:justify-center">
           {collections.map((cat, i) => (
             <motion.div
               key={cat.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.07, type: "spring", stiffness: 200 }}
+              transition={{ delay: i * 0.06, type: "spring", stiffness: 200 }}
+              className="snap-center"
             >
               <Link
                 to={`/colecao/${cat.slug}`}
-                className="flex flex-col items-center gap-3 group shrink-0 w-24 md:w-28"
+                className="flex flex-col items-center gap-3 group shrink-0"
               >
-                {/* Circle with glow effect */}
-                <div className="relative">
-                  {/* Glow ring */}
-                  <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-accent/40 via-accent/10 to-transparent opacity-0 group-hover:opacity-100 blur-md transition-all duration-500" />
-                  
-                  <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-border bg-card flex items-center justify-center overflow-hidden transition-all duration-400 group-hover:-translate-y-1.5 group-hover:border-accent group-hover:shadow-[0_8px_30px_-8px_hsl(var(--accent)/0.4)]">
-                    {cat.image_url ? (
-                      <img
-                        src={cat.image_url}
-                        alt={cat.name}
-                        className="w-full h-full object-cover rounded-full transition-transform duration-500 group-hover:scale-110"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-                        <span className="text-3xl">📦</span>
-                      </div>
-                    )}
-                  </div>
+                {/* Card container */}
+                <div className="relative w-[88px] h-[88px] md:w-[100px] md:h-[100px] rounded-2xl overflow-hidden bg-card border border-border transition-all duration-400 group-hover:border-accent group-hover:shadow-[0_0_24px_-4px_hsl(var(--accent)/0.35)] group-hover:-translate-y-1">
+                  {cat.image_url ? (
+                    <img
+                      src={cat.image_url}
+                      alt={cat.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                      <span className="text-2xl">📦</span>
+                    </div>
+                  )}
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-accent/0 group-hover:bg-accent/10 transition-colors duration-300" />
                 </div>
 
                 {/* Label */}
-                <span className="font-sans text-[11px] md:text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground group-hover:text-accent transition-colors duration-300 text-center leading-tight">
+                <span className="font-sans text-[10px] md:text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground group-hover:text-accent transition-colors duration-300 text-center leading-tight max-w-[90px] truncate">
                   {cat.name}
                 </span>
               </Link>
