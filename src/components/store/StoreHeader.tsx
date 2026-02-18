@@ -75,13 +75,17 @@ export function StoreHeader() {
 
           {/* Actions */}
           <div className="flex items-center gap-1 sm:gap-2">
-            <Button variant="ghost" size="icon" className="rounded-xl w-10 h-10 hidden sm:flex">
-              <Search className="w-[18px] h-[18px]" />
-            </Button>
-            {isEnabled("wishlist_enabled") && (
+            <Link to="/busca">
               <Button variant="ghost" size="icon" className="rounded-xl w-10 h-10 hidden sm:flex">
-                <Heart className="w-[18px] h-[18px]" />
+                <Search className="w-[18px] h-[18px]" />
               </Button>
+            </Link>
+            {isEnabled("wishlist_enabled") && (
+              <Link to="/conta/favoritos">
+                <Button variant="ghost" size="icon" className="rounded-xl w-10 h-10 hidden sm:flex">
+                  <Heart className="w-[18px] h-[18px]" />
+                </Button>
+              </Link>
             )}
             <Button variant="ghost" size="icon" className="rounded-xl w-10 h-10 relative" onClick={() => cartCtx.setIsOpen(true)}>
               <ShoppingCart className="w-[18px] h-[18px]" />

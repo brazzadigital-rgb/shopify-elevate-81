@@ -17,6 +17,10 @@ import Dashboard from "./pages/admin/Dashboard";
 import Products from "./pages/admin/Products";
 import Collections from "./pages/admin/Collections";
 import StoreSettings from "./pages/admin/StoreSettings";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminCustomers from "./pages/admin/AdminCustomers";
+import AdminCoupons from "./pages/admin/AdminCoupons";
+import AdminSections from "./pages/admin/AdminSections";
 import Placeholder from "./pages/admin/Placeholder";
 import AccountLayout from "./pages/account/AccountLayout";
 import Orders from "./pages/account/Orders";
@@ -24,15 +28,15 @@ import OrderDetail from "./pages/account/OrderDetail";
 import Favorites from "./pages/account/Favorites";
 import Addresses from "./pages/account/Addresses";
 import ProfileData from "./pages/account/ProfileData";
+import SearchPage from "./pages/store/SearchPage";
+import CollectionPage from "./pages/store/CollectionPage";
+import CollectionsListPage from "./pages/store/CollectionsListPage";
+import OffersPage from "./pages/store/OffersPage";
+import FaqPage from "./pages/store/FaqPage";
+import ContactPage from "./pages/store/ContactPage";
+import PoliciesPage from "./pages/store/PoliciesPage";
 
 const queryClient = new QueryClient();
-
-const PlaceholderPage = ({ title }: { title: string }) => (
-  <div className="container py-20 text-center">
-    <h1 className="font-display text-3xl font-bold mb-2">{title}</h1>
-    <p className="text-muted-foreground font-sans">Em breve</p>
-  </div>
-);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -48,11 +52,13 @@ const App = () => (
                 <Route path="/produto/:slug" element={<ProductPage />} />
                 <Route path="/carrinho" element={<CartPage />} />
                 <Route path="/checkout" element={<Checkout />} />
-                <Route path="/colecoes" element={<PlaceholderPage title="Coleções" />} />
-                <Route path="/colecao/:slug" element={<PlaceholderPage title="Coleção" />} />
-                <Route path="/ofertas" element={<PlaceholderPage title="Ofertas" />} />
-                <Route path="/contato" element={<PlaceholderPage title="Contato" />} />
-                <Route path="/faq" element={<PlaceholderPage title="FAQ" />} />
+                <Route path="/busca" element={<SearchPage />} />
+                <Route path="/colecoes" element={<CollectionsListPage />} />
+                <Route path="/colecao/:slug" element={<CollectionPage />} />
+                <Route path="/ofertas" element={<OffersPage />} />
+                <Route path="/contato" element={<ContactPage />} />
+                <Route path="/faq" element={<FaqPage />} />
+                <Route path="/politicas" element={<PoliciesPage />} />
                 <Route path="/conta" element={<AccountLayout />}>
                   <Route index element={<Orders />} />
                   <Route path="pedidos" element={<Orders />} />
@@ -67,11 +73,11 @@ const App = () => (
                 <Route index element={<Dashboard />} />
                 <Route path="produtos" element={<Products />} />
                 <Route path="colecoes" element={<Collections />} />
+                <Route path="pedidos" element={<AdminOrders />} />
+                <Route path="clientes" element={<AdminCustomers />} />
+                <Route path="cupons" element={<AdminCoupons />} />
+                <Route path="secoes" element={<AdminSections />} />
                 <Route path="configuracoes" element={<StoreSettings />} />
-                <Route path="pedidos" element={<Placeholder />} />
-                <Route path="clientes" element={<Placeholder />} />
-                <Route path="cupons" element={<Placeholder />} />
-                <Route path="secoes" element={<Placeholder />} />
                 <Route path="relatorios" element={<Placeholder />} />
               </Route>
               <Route path="*" element={<NotFound />} />

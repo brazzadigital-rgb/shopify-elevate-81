@@ -47,10 +47,10 @@ export function StoreFooter() {
             {
               title: "Políticas",
               links: [
-                { label: "Privacidade", to: "/politicas/privacidade" },
-                { label: "Trocas e Devoluções", to: "/politicas/trocas" },
-                { label: "Frete", to: "/politicas/frete" },
-                { label: "Termos de Uso", to: "/politicas/termos" },
+                { label: "Privacidade", to: "/politicas" },
+                { label: "Trocas e Devoluções", to: "/politicas" },
+                { label: "Frete", to: "/politicas" },
+                { label: "Termos de Uso", to: "/politicas" },
               ],
             },
             {
