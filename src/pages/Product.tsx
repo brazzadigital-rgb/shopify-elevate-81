@@ -122,12 +122,12 @@ export default function ProductPage() {
     <div className="min-h-screen">
       {/* Breadcrumb */}
       <div className="container py-4">
-        <nav className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans">
+        <nav className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans font-medium uppercase tracking-wider">
           <Link to="/" className="hover:text-accent transition-colors">Início</Link>
           <ChevronRight className="w-3 h-3" />
           <Link to="/colecoes" className="hover:text-accent transition-colors">Coleções</Link>
           <ChevronRight className="w-3 h-3" />
-          <span className="text-foreground font-medium truncate max-w-[200px]">{product.name}</span>
+          <span className="text-foreground truncate max-w-[200px]">{product.name}</span>
         </nav>
       </div>
 
@@ -340,7 +340,7 @@ export default function ProductPage() {
               {/* Buy now */}
               <Button
                 size="lg"
-                className="w-full h-13 rounded-xl bg-success hover:bg-success/90 text-success-foreground font-sans font-bold text-base shine"
+                className="w-full h-14 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground font-sans font-bold text-base uppercase tracking-wider shine glow-orange hover:glow-orange-lg transition-all duration-300"
                 onClick={async () => { await cart.addItem(product.id, null, quantity); navigate("/checkout"); }}
               >
                 <Zap className="w-5 h-5 mr-2" /> Comprar agora
@@ -350,7 +350,7 @@ export default function ProductPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full h-13 rounded-xl font-sans font-semibold text-base border-2"
+                className="w-full h-14 rounded-2xl font-sans font-bold text-base uppercase tracking-wider border-2 border-border hover:border-accent hover:text-accent transition-all duration-300"
                 onClick={() => cart.addItem(product.id, null, quantity)}
               >
                 <ShoppingCart className="w-5 h-5 mr-2" /> Adicionar ao carrinho
@@ -362,7 +362,7 @@ export default function ProductPage() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="w-full h-13 rounded-xl font-sans font-semibold text-base border-success/30 text-success hover:bg-success/5"
+                    className="w-full h-14 rounded-2xl font-sans font-bold text-base border-success/30 text-success hover:bg-success/5 uppercase tracking-wider"
                   >
                     <MessageCircle className="w-5 h-5 mr-2" /> Comprar pelo WhatsApp
                   </Button>
@@ -437,10 +437,10 @@ export default function ProductPage() {
       </div>
 
       {/* Mobile fixed CTA */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 p-3 bg-background/90 backdrop-blur-xl border-t">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 p-3 bg-primary/95 backdrop-blur-xl border-t border-primary-foreground/10">
         <div className="flex gap-2">
           <Button
-            className="flex-1 h-12 rounded-xl bg-success hover:bg-success/90 text-success-foreground font-sans font-bold shine"
+            className="flex-1 h-12 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground font-sans font-bold shine uppercase tracking-wider glow-orange"
             onClick={async () => { await cart.addItem(product.id, null, quantity); navigate("/checkout"); }}
           >
             <Zap className="w-4 h-4 mr-1.5" /> Comprar — R$ {product.price.toFixed(2)}
@@ -448,7 +448,7 @@ export default function ProductPage() {
           <Button
             variant="outline"
             size="icon"
-            className="h-12 w-12 rounded-xl border-2 shrink-0"
+            className="h-12 w-12 rounded-xl border-2 border-primary-foreground/20 text-primary-foreground hover:border-accent hover:text-accent shrink-0"
             onClick={() => cart.addItem(product.id, null, quantity)}
           >
             <ShoppingCart className="w-5 h-5" />
