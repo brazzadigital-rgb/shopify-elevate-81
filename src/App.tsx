@@ -22,6 +22,11 @@ import AdminCustomers from "./pages/admin/AdminCustomers";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminSections from "./pages/admin/AdminSections";
 import Placeholder from "./pages/admin/Placeholder";
+import AdminSuppliers from "./pages/admin/AdminSuppliers";
+import AdminSellers from "./pages/admin/AdminSellers";
+import AdminRoles from "./pages/admin/AdminRoles";
+import AdminCommissions from "./pages/admin/AdminCommissions";
+import AdminReports from "./pages/admin/AdminReports";
 import AccountLayout from "./pages/account/AccountLayout";
 import Orders from "./pages/account/Orders";
 import OrderDetail from "./pages/account/OrderDetail";
@@ -78,7 +83,11 @@ function AppContent() {
             <Route path="cupons" element={<AdminCoupons />} />
             <Route path="secoes" element={<AdminSections />} />
             <Route path="configuracoes" element={<StoreSettings />} />
-            <Route path="relatorios" element={<Placeholder />} />
+            <Route path="vendedores" element={<AdminSellers />} />
+            <Route path="fornecedores" element={<AdminSuppliers />} />
+            <Route path="funcoes" element={<AdminRoles />} />
+            <Route path="comissoes" element={<AdminCommissions />} />
+            <Route path="relatorios" element={<AdminReports />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
