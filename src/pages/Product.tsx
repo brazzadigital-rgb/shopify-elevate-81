@@ -170,6 +170,8 @@ export default function ProductPage() {
   const whatsappEnabled = isEnabled("whatsapp_enabled");
   const whatsappNumber = getSetting("whatsapp_number", "");
   const whatsappMessage = getSetting("whatsapp_message", "");
+  const blackFridayEnabled = isEnabled("black_friday_enabled");
+  const blackFridayText = getSetting("black_friday_text", "🔥 BLACK FRIDAY — Descontos imperdíveis!");
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -258,6 +260,13 @@ export default function ProductPage() {
 
   return (
     <div className="min-h-screen">
+      {/* Black Friday Banner */}
+      {blackFridayEnabled && blackFridayText && (
+        <div className="bg-foreground text-background py-2.5 text-center">
+          <p className="font-sans text-sm font-bold tracking-wide">{blackFridayText}</p>
+        </div>
+      )}
+
       {/* Breadcrumb */}
       <div className="container py-4">
         <nav className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans font-medium uppercase tracking-wider">
