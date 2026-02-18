@@ -8,11 +8,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Package } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+
+interface Supplier {
+  id: string;
+  trade_name: string;
+}
 
 interface Product {
   id: string;
@@ -35,15 +41,22 @@ const emptyProduct = {
   name: "", slug: "", description: "", short_description: "",
   price: 0, compare_at_price: null as number | null,
   sku: "", stock: 0, is_active: true, is_featured: false, is_new: false,
+  supplier_id: null as string | null,
 };
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyProduct);
   const [saving, setSaving] = useState(false);
+
+  const fetchSuppliers = async () => {
+    const { data } = await supabase.from("suppliers").select("id, trade_name").eq("status", "active").order("trade_name");
+    setSuppliers((data as Supplier[]) || []);
+  };
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -52,7 +65,7 @@ export default function Products() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchProducts(); }, []);
+  useEffect(() => { fetchProducts(); fetchSuppliers(); }, []);
 
   const generateSlug = (name: string) =>
     name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -89,6 +102,7 @@ export default function Products() {
       price: product.price, compare_at_price: product.compare_at_price,
       sku: product.sku || "", stock: product.stock,
       is_active: product.is_active, is_featured: product.is_featured, is_new: product.is_new,
+      supplier_id: (product as any).supplier_id || null,
     });
     setDialogOpen(true);
   };
@@ -152,6 +166,20 @@ export default function Products() {
                   <Label className="font-sans text-sm font-medium">Estoque</Label>
                   <Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: parseInt(e.target.value) || 0 })} className="h-11 rounded-xl" />
                 </div>
+              </div>
+              <div className="grid gap-2">
+                <Label className="font-sans text-sm font-medium">Fornecedor</Label>
+                <Select value={form.supplier_id || "none"} onValueChange={(v) => setForm({ ...form, supplier_id: v === "none" ? null : v })}>
+                  <SelectTrigger className="h-11 rounded-xl">
+                    <SelectValue placeholder="Selecione um fornecedor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none" className="font-sans text-sm">Nenhum</SelectItem>
+                    {suppliers.map((s) => (
+                      <SelectItem key={s.id} value={s.id} className="font-sans text-sm">{s.trade_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex flex-wrap gap-6">
                 <div className="flex items-center gap-2">
