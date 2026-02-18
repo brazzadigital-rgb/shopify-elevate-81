@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
-import { useCart } from "@/hooks/useCart";
+import { useCartStore } from "@/stores/cartStore";
 import { ShoppingCart, Search, User, Menu, X, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,7 +13,8 @@ export function StoreHeader() {
   const [searchQuery, setSearchQuery] = useState("");
   const { user, isAdmin } = useAuth();
   const { getSetting } = useStoreSettings();
-  const cartCtx = useCart();
+  const { isOpen, setIsOpen } = useCartStore();
+  const itemCount = useCartStore(s => s.items.reduce((sum, i) => sum + i.quantity, 0));
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -55,11 +56,11 @@ export function StoreHeader() {
             <Link to={user ? (isAdmin ? "/admin" : "/conta") : "/auth"} className="hover:text-accent transition-colors flex items-center gap-1">
               <User className="w-3 h-3" /> {user ? "Minha conta" : "Entrar"}
             </Link>
-            <button onClick={() => cartCtx.setIsOpen(true)} className="hover:text-accent transition-colors flex items-center gap-1 relative">
+            <button onClick={() => setIsOpen(true)} className="hover:text-accent transition-colors flex items-center gap-1 relative">
               <ShoppingCart className="w-3 h-3" /> Carrinho
-              {cartCtx.itemCount > 0 && (
+              {itemCount > 0 && (
                 <span className="absolute -top-1.5 -right-3 rounded-full bg-accent text-accent-foreground text-[9px] font-bold min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
-                  {cartCtx.itemCount}
+                  {itemCount}
                 </span>
               )}
             </button>
@@ -104,7 +105,6 @@ export function StoreHeader() {
 
           {/* Right actions */}
           <div className="flex items-center gap-1 sm:gap-3 shrink-0">
-            {/* Mobile search */}
             <Link to="/busca" className="md:hidden">
               <Button variant="ghost" size="icon" className="rounded-xl w-9 h-9 text-primary-foreground/60 hover:text-accent hover:bg-primary-foreground/10">
                 <Search className="w-[18px] h-[18px]" />
@@ -128,24 +128,23 @@ export function StoreHeader() {
             </Link>
 
             <button
-              onClick={() => cartCtx.setIsOpen(true)}
+              onClick={() => setIsOpen(true)}
               className="flex items-center gap-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors relative ml-1"
             >
               <div className="relative">
                 <ShoppingCart className="w-5 h-5" />
-                {cartCtx.itemCount > 0 && (
+                {itemCount > 0 && (
                   <span className="absolute -top-1.5 -right-2 rounded-full bg-accent text-accent-foreground text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center px-1 font-sans">
-                    {cartCtx.itemCount}
+                    {itemCount}
                   </span>
                 )}
               </div>
               <div className="hidden lg:block text-left">
-                <p className="text-[10px] text-primary-foreground/40 font-sans leading-none">{cartCtx.itemCount} {cartCtx.itemCount === 1 ? "item" : "itens"}</p>
+                <p className="text-[10px] text-primary-foreground/40 font-sans leading-none">{itemCount} {itemCount === 1 ? "item" : "itens"}</p>
                 <p className="text-xs font-sans font-semibold leading-tight">Carrinho</p>
               </div>
             </button>
 
-            {/* Mobile menu toggle */}
             <Button
               variant="ghost"
               size="icon"
@@ -190,7 +189,6 @@ export function StoreHeader() {
               className="md:hidden overflow-hidden border-t border-primary-foreground/10"
             >
               <nav className="container py-3 flex flex-col gap-1">
-                {/* Mobile search */}
                 <form onSubmit={handleSearch} className="mb-2">
                   <div className="relative">
                     <input
