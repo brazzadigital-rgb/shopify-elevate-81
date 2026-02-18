@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useCart } from "@/hooks/useCart";
-import { ShoppingCart, Search, User, Menu, X, MapPin } from "lucide-react";
+import { ShoppingCart, Search, User, Menu, X, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -41,112 +41,114 @@ export function StoreHeader() {
 
   return (
     <>
-      {/* Bar 1 — Topbar informativa */}
+      {/* Topbar — info strip */}
       {isEnabled("topbar_enabled") && (
-        <div className="bg-background border-b border-border">
-          <div className="container flex items-center justify-between h-9">
-            <div className="hidden sm:block" />
-            <p className="text-xs font-sans text-muted-foreground tracking-wide text-center flex-1 sm:flex-none">
+        <div className="bg-foreground">
+          <div className="container flex items-center justify-center h-8">
+            <p className="text-[11px] font-sans font-medium text-background/80 tracking-widest uppercase">
               {getSetting("topbar_text", "✈️ Frete Grátis para todo Brasil")}
             </p>
-            <div className="hidden sm:flex items-center gap-5 text-xs font-sans text-muted-foreground">
-              <Link to="/conta/pedidos" className="hover:text-accent transition-colors flex items-center gap-1">
-                <MapPin className="w-3 h-3" /> Rastrear pedido
-              </Link>
-              <Link to={user ? (isAdmin ? "/admin" : "/conta") : "/auth"} className="hover:text-accent transition-colors flex items-center gap-1">
-                <User className="w-3 h-3" /> {user ? "Minha conta" : "Entrar"}
-              </Link>
-              <button onClick={() => setIsOpen(true)} className="hover:text-accent transition-colors flex items-center gap-1 relative">
-                <ShoppingCart className="w-3 h-3" /> Carrinho
-                {itemCount > 0 && (
-                  <span className="absolute -top-1.5 -right-3 rounded-full bg-accent text-accent-foreground text-[9px] font-bold min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
-                    {itemCount}
-                  </span>
-                )}
-              </button>
-            </div>
           </div>
         </div>
       )}
 
-      {/* Bar 2 — Header principal */}
+      {/* Main header */}
       <header
-        className={`sticky top-0 z-50 transition-all duration-300 ${
+        className={`sticky top-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-primary/98 backdrop-blur-xl shadow-lg"
-            : "bg-primary"
+            ? "bg-background/95 backdrop-blur-2xl shadow-[0_1px_0_0_hsl(var(--border)),0_4px_24px_-4px_rgba(0,0,0,0.08)]"
+            : "bg-background border-b border-border"
         }`}
       >
-        <div className="container flex items-center justify-between gap-4 h-16 md:h-[72px]">
+        <div className="container flex items-center justify-between gap-3 h-16 md:h-[68px]">
+          {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center glow-orange group-hover:glow-orange-lg transition-all duration-300">
-              <span className="text-accent-foreground font-display font-bold text-base">🐆</span>
+            <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center glow-orange group-hover:scale-110 transition-transform duration-300">
+              <span className="text-accent-foreground font-bold text-base">🐆</span>
             </div>
-            <span className="font-display text-lg font-bold tracking-tight text-primary-foreground uppercase hidden sm:block">
+            <span className="font-display text-lg font-bold tracking-tight text-foreground uppercase hidden sm:block">
               {getSetting("store_name", "SPORT STORE")}
             </span>
           </Link>
 
-          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md mx-4">
-            <div className="relative w-full">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="O que está buscando?"
-                className="w-full h-10 rounded-full bg-primary-foreground/10 border border-primary-foreground/15 text-primary-foreground placeholder:text-primary-foreground/40 text-sm font-sans pl-4 pr-10 focus:outline-none focus:border-accent/50 focus:bg-primary-foreground/15 transition-all"
-              />
-              <button type="submit" className="absolute right-1 top-1 w-8 h-8 rounded-full bg-accent flex items-center justify-center hover:bg-accent/90 transition-colors">
-                <Search className="w-4 h-4 text-accent-foreground" />
-              </button>
-            </div>
-          </form>
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`relative px-3.5 py-2 font-sans text-[13px] font-semibold uppercase tracking-wider transition-colors rounded-lg ${
+                  location.pathname === link.to
+                    ? "text-accent"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                }`}
+              >
+                {link.label}
+                {location.pathname === link.to && (
+                  <motion.div
+                    layoutId="nav-pill"
+                    className="absolute bottom-0.5 left-3 right-3 h-[2px] bg-accent rounded-full"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
+              </Link>
+            ))}
+          </nav>
 
-          <div className="flex items-center gap-1 sm:gap-3 shrink-0">
-            <Link to="/busca" className="md:hidden">
-              <Button variant="ghost" size="icon" className="rounded-xl w-9 h-9 text-primary-foreground/60 hover:text-accent hover:bg-primary-foreground/10">
+          {/* Search + Actions */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Desktop search */}
+            <form onSubmit={handleSearch} className="hidden lg:flex">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar..."
+                  className="w-44 xl:w-56 h-9 rounded-full bg-muted/60 border border-border text-foreground placeholder:text-muted-foreground text-sm font-sans pl-4 pr-9 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/40 focus:w-64 transition-all duration-300"
+                />
+                <button type="submit" className="absolute right-1 top-1 w-7 h-7 rounded-full bg-accent/10 hover:bg-accent/20 flex items-center justify-center transition-colors">
+                  <Search className="w-3.5 h-3.5 text-accent" />
+                </button>
+              </div>
+            </form>
+
+            {/* Mobile search */}
+            <Link to="/busca" className="lg:hidden">
+              <Button variant="ghost" size="icon" className="rounded-full w-9 h-9 text-muted-foreground hover:text-foreground hover:bg-muted/50">
                 <Search className="w-[18px] h-[18px]" />
               </Button>
             </Link>
 
-            <Link to={user ? (isAdmin ? "/admin" : "/conta") : "/auth"} className="hidden sm:flex items-center gap-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors">
-              <User className="w-5 h-5" />
-              <div className="hidden lg:block text-left">
-                <p className="text-[10px] text-primary-foreground/40 font-sans leading-none">{user ? "Olá!" : "Entrar / Cadastrar"}</p>
-                <p className="text-xs font-sans font-semibold leading-tight">Minha conta</p>
-              </div>
+            {/* Account */}
+            <Link to={user ? (isAdmin ? "/admin" : "/conta") : "/auth"}>
+              <Button variant="ghost" size="icon" className="rounded-full w-9 h-9 text-muted-foreground hover:text-foreground hover:bg-muted/50">
+                <User className="w-[18px] h-[18px]" />
+              </Button>
             </Link>
 
-            <Link to="/conta/pedidos" className="hidden lg:flex items-center gap-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors">
-              <MapPin className="w-5 h-5" />
-              <div className="text-left">
-                <p className="text-[10px] text-primary-foreground/40 font-sans leading-none">Onde está meu produto?</p>
-                <p className="text-xs font-sans font-semibold leading-tight">Rastrear pedido</p>
-              </div>
-            </Link>
-
+            {/* Cart */}
             <button
               onClick={() => setIsOpen(true)}
-              className="flex items-center gap-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors relative ml-1"
+              className="relative flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
             >
-              <div className="relative">
-                <ShoppingCart className="w-5 h-5" />
-                {itemCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 rounded-full bg-accent text-accent-foreground text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center px-1 font-sans">
-                    {itemCount}
-                  </span>
-                )}
-              </div>
-              <div className="hidden lg:block text-left">
-                <p className="text-[10px] text-primary-foreground/40 font-sans leading-none">{itemCount} {itemCount === 1 ? "item" : "itens"}</p>
-                <p className="text-xs font-sans font-semibold leading-tight">Carrinho</p>
-              </div>
+              <ShoppingCart className="w-[18px] h-[18px]" />
+              {itemCount > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-0.5 -right-0.5 rounded-full bg-accent text-accent-foreground text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center px-1 font-sans shadow-sm"
+                >
+                  {itemCount}
+                </motion.span>
+              )}
             </button>
 
+            {/* Mobile menu toggle */}
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-xl w-9 h-9 md:hidden text-primary-foreground/60 hover:text-accent hover:bg-primary-foreground/10"
+              className="rounded-full w-9 h-9 md:hidden text-muted-foreground hover:text-foreground hover:bg-muted/50"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -154,48 +156,28 @@ export function StoreHeader() {
           </div>
         </div>
 
-        <nav className="hidden md:block border-t border-primary-foreground/10">
-          <div className="container flex items-center justify-center gap-8 h-10">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`font-sans text-xs font-bold uppercase tracking-wider transition-colors relative py-2 ${
-                  location.pathname === link.to
-                    ? "text-accent"
-                    : "text-primary-foreground/60 hover:text-primary-foreground"
-                }`}
-              >
-                {link.label}
-                {location.pathname === link.to && (
-                  <motion.div layoutId="nav-underline" className="absolute -bottom-0 left-0 right-0 h-0.5 bg-accent rounded-full" />
-                )}
-              </Link>
-            ))}
-          </div>
-        </nav>
-
+        {/* Mobile menu */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="md:hidden overflow-hidden border-t border-primary-foreground/10"
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="md:hidden overflow-hidden border-t border-border"
             >
-              <nav className="container py-3 flex flex-col gap-1">
-                <form onSubmit={handleSearch} className="mb-2">
+              <nav className="container py-3 flex flex-col gap-0.5">
+                <form onSubmit={handleSearch} className="mb-3">
                   <div className="relative">
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="O que está buscando?"
-                      className="w-full h-10 rounded-full bg-primary-foreground/10 border border-primary-foreground/15 text-primary-foreground placeholder:text-primary-foreground/40 text-sm font-sans pl-4 pr-10 focus:outline-none focus:border-accent/50 transition-all"
+                      className="w-full h-10 rounded-xl bg-muted/60 border border-border text-foreground placeholder:text-muted-foreground text-sm font-sans pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all"
                     />
-                    <button type="submit" className="absolute right-1 top-1 w-8 h-8 rounded-full bg-accent flex items-center justify-center">
-                      <Search className="w-4 h-4 text-accent-foreground" />
+                    <button type="submit" className="absolute right-1.5 top-1.5 w-7 h-7 rounded-lg bg-accent flex items-center justify-center">
+                      <Search className="w-3.5 h-3.5 text-accent-foreground" />
                     </button>
                   </div>
                 </form>
@@ -203,18 +185,19 @@ export function StoreHeader() {
                   <Link
                     key={link.to}
                     to={link.to}
-                    className={`py-2.5 px-4 rounded-xl font-sans text-sm font-bold uppercase tracking-wider transition-colors ${
+                    className={`flex items-center justify-between py-3 px-4 rounded-xl font-sans text-sm font-semibold transition-colors ${
                       location.pathname === link.to
                         ? "bg-accent/10 text-accent"
-                        : "text-primary-foreground/60 hover:bg-primary-foreground/5 hover:text-primary-foreground"
+                        : "text-foreground hover:bg-muted/50"
                     }`}
                   >
                     {link.label}
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </Link>
                 ))}
                 {!user && (
-                  <Link to="/auth" className="mt-2">
-                    <Button className="w-full rounded-xl font-sans h-11 shine bg-accent text-accent-foreground font-bold uppercase tracking-wider">
+                  <Link to="/auth" className="mt-3">
+                    <Button className="w-full rounded-xl font-sans h-11 bg-accent text-accent-foreground font-bold uppercase tracking-wider shine">
                       Entrar / Cadastrar
                     </Button>
                   </Link>
