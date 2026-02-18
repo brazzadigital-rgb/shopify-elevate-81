@@ -1,5 +1,6 @@
 import {
-  LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, BarChart3, LogOut, ShoppingBag, Zap
+  LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, BarChart3, LogOut, ShoppingBag,
+  Truck, UserCheck, Shield, Percent, TrendingUp
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,7 +10,7 @@ import {
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter,
 } from "@/components/ui/sidebar";
 
-const menuItems = [
+const mainMenu = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Produtos", url: "/admin/produtos", icon: Package },
   { title: "Coleções", url: "/admin/colecoes", icon: FolderOpen },
@@ -18,8 +19,47 @@ const menuItems = [
   { title: "Cupons", url: "/admin/cupons", icon: Tag },
   { title: "Banners & Seções", url: "/admin/secoes", icon: Image },
   { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
-  { title: "Relatórios", url: "/admin/relatorios", icon: BarChart3 },
 ];
+
+const usersMenu = [
+  { title: "Vendedores", url: "/admin/vendedores", icon: UserCheck },
+  { title: "Fornecedores", url: "/admin/fornecedores", icon: Truck },
+  { title: "Funções e Permissões", url: "/admin/funcoes", icon: Shield },
+  { title: "Comissões", url: "/admin/comissoes", icon: Percent },
+  { title: "Relatórios", url: "/admin/relatorios", icon: TrendingUp },
+];
+
+const linkClass = "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 font-sans text-sm font-medium";
+const activeClass = "bg-accent/10 text-accent font-bold border border-accent/20";
+
+function MenuGroup({ label, items }: { label: string; items: typeof mainMenu }) {
+  return (
+    <SidebarGroup>
+      <SidebarGroupLabel className="text-sidebar-foreground/30 uppercase text-[10px] tracking-widest font-sans font-bold mb-2">
+        {label}
+      </SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild>
+                <NavLink
+                  to={item.url}
+                  end={item.url === "/admin"}
+                  className={linkClass}
+                  activeClassName={activeClass}
+                >
+                  <item.icon className="w-[18px] h-[18px]" />
+                  <span>{item.title}</span>
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
 
 export function AdminSidebar() {
   const { signOut } = useAuth();
@@ -44,31 +84,9 @@ export function AdminSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-3 py-4">
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/30 uppercase text-[10px] tracking-widest font-sans font-bold mb-2">
-            Menu
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === "/admin"}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 font-sans text-sm font-medium"
-                      activeClassName="bg-accent/10 text-accent font-bold border border-accent/20"
-                    >
-                      <item.icon className="w-[18px] h-[18px]" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent className="px-3 py-4 space-y-4">
+        <MenuGroup label="Menu" items={mainMenu} />
+        <MenuGroup label="Usuários e Operações" items={usersMenu} />
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border">

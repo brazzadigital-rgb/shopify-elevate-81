@@ -159,6 +159,60 @@ export type Database = {
         }
         Relationships: []
       }
+      commissions: {
+        Row: {
+          commission_amount: number
+          commission_rate: number
+          created_at: string
+          id: string
+          order_id: string | null
+          paid_at: string | null
+          payment_status: string
+          sale_amount: number
+          seller_id: string
+          updated_at: string
+        }
+        Insert: {
+          commission_amount?: number
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          paid_at?: string | null
+          payment_status?: string
+          sale_amount?: number
+          seller_id: string
+          updated_at?: string
+        }
+        Update: {
+          commission_amount?: number
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          paid_at?: string | null
+          payment_status?: string
+          sale_amount?: number
+          seller_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commissions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coupons: {
         Row: {
           code: string
@@ -204,6 +258,33 @@ export type Database = {
           starts_at?: string | null
           updated_at?: string
           used_count?: number
+        }
+        Relationships: []
+      }
+      custom_roles: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_system: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_system?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_system?: boolean
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -393,6 +474,7 @@ export type Database = {
           order_number: string
           payment_method: string | null
           payment_status: string
+          seller_id: string | null
           shipping_address: Json | null
           shipping_cost: number
           status: string
@@ -412,6 +494,7 @@ export type Database = {
           order_number: string
           payment_method?: string | null
           payment_status?: string
+          seller_id?: string | null
           shipping_address?: Json | null
           shipping_cost?: number
           status?: string
@@ -431,6 +514,7 @@ export type Database = {
           order_number?: string
           payment_method?: string | null
           payment_status?: string
+          seller_id?: string | null
           shipping_address?: Json | null
           shipping_cost?: number
           status?: string
@@ -439,7 +523,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_badges: {
         Row: {
@@ -596,6 +688,7 @@ export type Database = {
           slug: string
           sold_count: number
           stock: number
+          supplier_id: string | null
           updated_at: string
           weight: number | null
         }
@@ -618,6 +711,7 @@ export type Database = {
           slug: string
           sold_count?: number
           stock?: number
+          supplier_id?: string | null
           updated_at?: string
           weight?: number | null
         }
@@ -640,10 +734,19 @@ export type Database = {
           slug?: string
           sold_count?: number
           stock?: number
+          supplier_id?: string | null
           updated_at?: string
           weight?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -719,6 +822,95 @@ export type Database = {
           },
         ]
       }
+      role_permissions: {
+        Row: {
+          can_create: boolean
+          can_delete: boolean
+          can_edit: boolean
+          can_export: boolean
+          can_view: boolean
+          created_at: string
+          id: string
+          module: string
+          role_id: string
+        }
+        Insert: {
+          can_create?: boolean
+          can_delete?: boolean
+          can_edit?: boolean
+          can_export?: boolean
+          can_view?: boolean
+          created_at?: string
+          id?: string
+          module: string
+          role_id: string
+        }
+        Update: {
+          can_create?: boolean
+          can_delete?: boolean
+          can_edit?: boolean
+          can_export?: boolean
+          can_view?: boolean
+          created_at?: string
+          id?: string
+          module?: string
+          role_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "custom_roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sellers: {
+        Row: {
+          avatar_url: string | null
+          commission_rate: number | null
+          created_at: string
+          document: string | null
+          email: string
+          id: string
+          monthly_goal: number | null
+          name: string
+          phone: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          commission_rate?: number | null
+          created_at?: string
+          document?: string | null
+          email: string
+          id?: string
+          monthly_goal?: number | null
+          name: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          commission_rate?: number | null
+          created_at?: string
+          document?: string | null
+          email?: string
+          id?: string
+          monthly_goal?: number | null
+          name?: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       store_settings: {
         Row: {
           id: string
@@ -737,6 +929,57 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: string
+        }
+        Relationships: []
+      }
+      suppliers: {
+        Row: {
+          address: Json | null
+          contact_person: string | null
+          created_at: string
+          document: string | null
+          email: string | null
+          id: string
+          legal_name: string | null
+          notes: string | null
+          phone: string | null
+          shipping_days: number | null
+          status: string
+          trade_name: string
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          address?: Json | null
+          contact_person?: string | null
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: string
+          legal_name?: string | null
+          notes?: string | null
+          phone?: string | null
+          shipping_days?: number | null
+          status?: string
+          trade_name: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: Json | null
+          contact_person?: string | null
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: string
+          legal_name?: string | null
+          notes?: string | null
+          phone?: string | null
+          shipping_days?: number | null
+          status?: string
+          trade_name?: string
+          updated_at?: string
+          whatsapp?: string | null
         }
         Relationships: []
       }
