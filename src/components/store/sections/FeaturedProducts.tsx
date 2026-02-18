@@ -429,7 +429,7 @@ function ProductCard({
         )}
 
         {/* ── Content ── */}
-        <div className="flex flex-col flex-1 px-3 pb-3 pt-1.5 md:px-4 md:pb-4 md:pt-2">
+        <div className="flex flex-col flex-1 px-3 pb-3 pt-1 md:px-4 md:pb-4 md:pt-2">
           {/* Name */}
           <Link to={`/produto/${product.slug}`}>
             <p className="font-sans text-[13px] md:text-sm font-semibold leading-snug line-clamp-2 hover:text-accent transition-colors">
@@ -456,7 +456,7 @@ function ProductCard({
           )}
 
           {/* Prices */}
-          <div className="mt-auto pt-1.5">
+          <div className="mt-auto pt-1">
             {product.compare_at_price && product.compare_at_price > product.price && (
               <p className="font-sans text-[11px] text-muted-foreground line-through leading-none">
                 R$ {fmt(product.compare_at_price)}
