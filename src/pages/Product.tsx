@@ -54,9 +54,10 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
   );
 }
 
-function PriceBlock({ price, comparePrice, discount, currency, pixEnabled, pixDiscount, installmentsEnabled, maxInstallments }: {
+function PriceBlock({ price, comparePrice, discount, currency, pixEnabled, pixDiscount, installmentsEnabled, maxInstallments, blackFridayEnabled, blackFridayText }: {
   price: number; comparePrice: number; discount: number; currency: string;
   pixEnabled: boolean; pixDiscount: number; installmentsEnabled: boolean; maxInstallments: number;
+  blackFridayEnabled?: boolean; blackFridayText?: string;
 }) {
   const installmentValue = maxInstallments > 0 ? (price / maxInstallments).toFixed(2) : "0";
   return (
@@ -81,6 +82,11 @@ function PriceBlock({ price, comparePrice, discount, currency, pixEnabled, pixDi
       {pixEnabled && pixDiscount > 0 && (
         <Badge variant="outline" className="text-xs font-sans border-success text-success mt-1">
           ✅ Até {pixDiscount}% OFF no PIX
+        </Badge>
+      )}
+      {blackFridayEnabled && blackFridayText && (
+        <Badge variant="outline" className="text-xs font-sans border-accent text-accent mt-1">
+          🔥 {blackFridayText}
         </Badge>
       )}
     </div>
@@ -260,12 +266,6 @@ export default function ProductPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Black Friday Banner */}
-      {blackFridayEnabled && blackFridayText && (
-        <div className="bg-foreground text-background py-2.5 text-center">
-          <p className="font-sans text-sm font-bold tracking-wide">{blackFridayText}</p>
-        </div>
-      )}
 
       {/* Breadcrumb */}
       <div className="container py-4">
@@ -333,6 +333,8 @@ export default function ProductPage() {
               pixDiscount={pixDiscount}
               installmentsEnabled={installmentsEnabled}
               maxInstallments={maxInstallments}
+              blackFridayEnabled={blackFridayEnabled}
+              blackFridayText={blackFridayText}
             />
 
             {/* Stock indicator */}
