@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { storefrontApiRequest, PRODUCT_BY_HANDLE_QUERY, ShopifyProduct } from "@/lib/shopify";
 import { useCartStore } from "@/stores/cartStore";
 import { Button } from "@/components/ui/button";
@@ -9,12 +9,131 @@ import { toast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import {
   ShoppingCart, Zap, Minus, Plus, ChevronRight,
-  Loader2, ExternalLink,
+  Loader2, Truck, ShieldCheck, CreditCard, Package,
 } from "lucide-react";
+
+/* ── Sub-components ────────────────────────────────────── */
+
+function ProductGallery({ images, title, discount, selectedImage, setSelectedImage }: {
+  images: Array<{ node: { url: string; altText: string | null } }>;
+  title: string;
+  discount: number;
+  selectedImage: number;
+  setSelectedImage: (i: number) => void;
+}) {
+  const primaryImage = images[selectedImage]?.node?.url || "/placeholder.svg";
+  return (
+    <div className="sticky top-24">
+      <div className="bg-card rounded-2xl border overflow-hidden">
+        {/* Thumbnails on the left */}
+        <div className="flex">
+          {images.length > 1 && (
+            <div className="flex flex-col gap-2 p-3 border-r">
+              {images.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedImage(i)}
+                  className={`shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 transition-all ${
+                    i === selectedImage ? "border-accent" : "border-transparent hover:border-border"
+                  }`}
+                >
+                  <img src={img.node.url} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="relative flex-1 aspect-square">
+            <img src={primaryImage} alt={title} className="w-full h-full object-cover" />
+            {discount > 0 && (
+              <Badge className="absolute top-4 right-4 bg-destructive text-destructive-foreground font-sans text-xs rounded-lg">-{discount}%</Badge>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PriceBlock({ price, comparePrice, discount, currency }: {
+  price: number; comparePrice: number; discount: number; currency: string;
+}) {
+  const installments = 12;
+  const installmentValue = (price / installments).toFixed(2);
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground font-sans">
+        <span>Preço:</span>
+      </div>
+      <div className="flex items-end gap-3 flex-wrap">
+        <span className="text-3xl font-bold font-sans">R$ {price.toFixed(2).replace('.', ',')}</span>
+        {discount > 0 && (
+          <Badge className="bg-destructive text-destructive-foreground text-xs font-sans rounded-lg">-{discount}% OFF</Badge>
+        )}
+      </div>
+      {comparePrice > price && (
+        <span className="text-sm text-muted-foreground line-through font-sans">R$ {comparePrice.toFixed(2).replace('.', ',')}</span>
+      )}
+      <p className="text-sm text-muted-foreground font-sans">
+        em até {installments}x de <span className="font-semibold text-foreground">R$ {installmentValue.replace('.', ',')}</span>
+      </p>
+      <Badge variant="outline" className="text-xs font-sans border-success text-success mt-1">
+        ✅ Até 5% OFF no PIX
+      </Badge>
+    </div>
+  );
+}
+
+function ShippingInfo() {
+  return (
+    <div className="border-2 border-success/40 rounded-2xl p-4 flex items-center justify-between gap-3">
+      <div className="flex items-center gap-3">
+        <Truck className="w-8 h-8 text-success shrink-0" />
+        <div>
+          <p className="font-sans text-sm font-semibold">Receba entre 1 à 7 Dias</p>
+          <p className="font-sans text-xs text-muted-foreground">Envio para todo o Brasil</p>
+        </div>
+      </div>
+      <Badge className="bg-success text-success-foreground font-sans text-xs shrink-0">Frete Grátis</Badge>
+    </div>
+  );
+}
+
+function PaymentMethods() {
+  const methods = ["Visa", "Master", "Elo", "Amex", "Pix", "Boleto"];
+  return (
+    <div className="bg-muted/60 rounded-2xl p-4 space-y-3">
+      <div className="flex items-center gap-2">
+        <CreditCard className="w-5 h-5 text-muted-foreground" />
+        <p className="font-sans text-sm font-semibold">Parcele suas compras</p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {methods.map((m) => (
+          <span key={m} className="px-3 py-1 rounded-lg bg-card border text-xs font-sans font-medium">{m}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SecurePayment() {
+  return (
+    <div className="bg-card border rounded-2xl p-5 space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="font-display text-base font-bold flex items-center gap-2">
+          <ShieldCheck className="w-5 h-5 text-success" /> Pagamento Seguro
+        </h3>
+      </div>
+      <p className="font-sans text-xs text-muted-foreground leading-relaxed">
+        Suas informações de pagamento são processadas com segurança. Nós não armazenamos dados do cartão de crédito nem temos acesso aos números do seu cartão.
+      </p>
+    </div>
+  );
+}
+
+/* ── Main Page ─────────────────────────────────────────── */
 
 export default function ProductPage() {
   const { slug } = useParams();
-  const navigate = useNavigate();
   const { addItem, isLoading: cartLoading, getCheckoutUrl, setIsOpen } = useCartStore();
   const [product, setProduct] = useState<ShopifyProduct["node"] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,7 +142,7 @@ export default function ProductPage() {
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchProduct = async () => {
       if (!slug) return;
       try {
         const data = await storefrontApiRequest(PRODUCT_BY_HANDLE_QUERY, { handle: slug });
@@ -33,7 +152,7 @@ export default function ProductPage() {
       }
       setLoading(false);
     };
-    fetch();
+    fetchProduct();
   }, [slug]);
 
   if (loading) {
@@ -63,7 +182,6 @@ export default function ProductPage() {
   }
 
   const images = product.images?.edges || [];
-  const primaryImage = images[selectedImage]?.node?.url || "/placeholder.svg";
   const variants = product.variants?.edges || [];
   const selectedVariant = variants[selectedVariantIdx]?.node;
   const price = selectedVariant ? parseFloat(selectedVariant.price.amount) : parseFloat(product.priceRange.minVariantPrice.amount);
@@ -71,13 +189,12 @@ export default function ProductPage() {
   const comparePrice = selectedVariant?.compareAtPrice ? parseFloat(selectedVariant.compareAtPrice.amount) : 0;
   const discount = comparePrice > price ? Math.round(((comparePrice - price) / comparePrice) * 100) : 0;
 
+  const hasMultipleOptions = product.options && product.options.length > 0 && !(product.options.length === 1 && product.options[0].values.length === 1 && product.options[0].values[0] === "Default Title");
+
   const handleAddToCart = async () => {
     if (!selectedVariant) return;
-    const shopifyProduct: ShopifyProduct = {
-      node: product,
-    };
     await addItem({
-      product: shopifyProduct,
+      product: { node: product },
       variantId: selectedVariant.id,
       variantTitle: selectedVariant.title,
       price: selectedVariant.price,
@@ -90,11 +207,8 @@ export default function ProductPage() {
 
   const handleBuyNow = async () => {
     if (!selectedVariant) return;
-    const shopifyProduct: ShopifyProduct = {
-      node: product,
-    };
     await addItem({
-      product: shopifyProduct,
+      product: { node: product },
       variantId: selectedVariant.id,
       variantTitle: selectedVariant.title,
       price: selectedVariant.price,
@@ -104,8 +218,6 @@ export default function ProductPage() {
     const checkoutUrl = getCheckoutUrl();
     if (checkoutUrl) window.open(checkoutUrl, '_blank');
   };
-
-  const hasMultipleOptions = product.options && product.options.length > 0 && !(product.options.length === 1 && product.options[0].values.length === 1 && product.options[0].values[0] === "Default Title");
 
   return (
     <div className="min-h-screen">
@@ -120,51 +232,52 @@ export default function ProductPage() {
 
       <div className="container pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* GALLERY */}
+          {/* LEFT — Gallery */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
-            <div className="sticky top-24">
-              <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted mb-3">
-                <img src={primaryImage} alt={product.title} className="w-full h-full object-cover" />
-                {discount > 0 && (
-                  <Badge className="absolute top-4 right-4 bg-destructive text-destructive-foreground font-sans text-xs rounded-lg">-{discount}%</Badge>
-                )}
+            <ProductGallery
+              images={images}
+              title={product.title}
+              discount={discount}
+              selectedImage={selectedImage}
+              setSelectedImage={setSelectedImage}
+            />
+
+            {/* Description below gallery */}
+            {product.description && (
+              <div className="mt-6 bg-card border rounded-2xl p-6">
+                <h3 className="font-display text-lg font-bold mb-3 text-center">Descrição</h3>
+                <p className="font-sans text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{product.description}</p>
               </div>
-              {images.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto pb-1">
-                  {images.map((img, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setSelectedImage(i)}
-                      className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
-                        i === selectedImage ? "border-accent" : "border-transparent hover:border-border"
-                      }`}
-                    >
-                      <img src={img.node.url} alt="" className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
+            )}
+
+            {/* Secure Payment below description */}
+            <div className="mt-6">
+              <SecurePayment />
             </div>
           </motion.div>
 
-          {/* PRODUCT INFO */}
+          {/* RIGHT — Product Info */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }} className="space-y-5">
+            {/* Title & availability badge */}
             <div>
+              {selectedVariant?.availableForSale && (
+                <p className="text-xs text-success font-sans font-medium mb-1">Disponível em estoque</p>
+              )}
               <h1 className="text-2xl md:text-3xl font-display font-bold leading-tight">{product.title}</h1>
             </div>
 
-            {/* PRICE BLOCK */}
-            <div className="bg-muted/50 rounded-2xl p-5 space-y-3">
-              <div className="flex items-end gap-3 flex-wrap">
-                <span className="text-3xl font-bold font-sans">{currency} {price.toFixed(2)}</span>
-                {comparePrice > price && (
-                  <span className="text-base text-muted-foreground line-through font-sans">{currency} {comparePrice.toFixed(2)}</span>
-                )}
-                {discount > 0 && (
-                  <Badge className="bg-destructive text-destructive-foreground text-xs font-sans rounded-lg">-{discount}% OFF</Badge>
-                )}
+            {/* Price */}
+            <PriceBlock price={price} comparePrice={comparePrice} discount={discount} currency={currency} />
+
+            {/* Stock indicator */}
+            {selectedVariant && (
+              <div className="flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${selectedVariant.availableForSale ? "bg-success animate-pulse" : "bg-destructive"}`} />
+                <span className={`font-sans text-xs font-semibold ${selectedVariant.availableForSale ? "text-success" : "text-destructive"}`}>
+                  {selectedVariant.availableForSale ? "Em estoque" : "Indisponível"}
+                </span>
               </div>
-            </div>
+            )}
 
             {/* Variant selector */}
             {hasMultipleOptions && (
@@ -176,12 +289,10 @@ export default function ProductPage() {
                       {variants.map((v, idx) => {
                         const optVal = v.node.selectedOptions.find(o => o.name === option.name)?.value;
                         if (!optVal) return null;
-                        // Only show unique values per option
                         const alreadyShown = variants.slice(0, idx).some(prev =>
                           prev.node.selectedOptions.find(o => o.name === option.name)?.value === optVal
                         );
                         if (alreadyShown) return null;
-
                         const isSelected = selectedVariant?.selectedOptions.find(o => o.name === option.name)?.value === optVal;
                         return (
                           <button
@@ -204,44 +315,34 @@ export default function ProductPage() {
               </div>
             )}
 
-            {/* Availability */}
-            {selectedVariant && (
-              <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${selectedVariant.availableForSale ? "bg-success animate-pulse" : "bg-destructive"}`} />
-                <span className={`font-sans text-xs font-medium ${selectedVariant.availableForSale ? "text-success" : "text-destructive"}`}>
-                  {selectedVariant.availableForSale ? "Disponível em estoque" : "Indisponível"}
-                </span>
+            {/* Shipping */}
+            <ShippingInfo />
+
+            {/* Buy Now */}
+            <Button
+              size="lg"
+              className="w-full h-14 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground font-sans font-bold text-base uppercase tracking-wider shine glow-orange hover:glow-orange-lg transition-all duration-300"
+              onClick={handleBuyNow}
+              disabled={cartLoading || !selectedVariant?.availableForSale}
+            >
+              {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Zap className="w-5 h-5 mr-2" /> Comprar agora</>}
+            </Button>
+
+            {/* Quantity + Add to Cart */}
+            <div className="flex gap-3">
+              <div className="flex items-center border rounded-xl overflow-hidden shrink-0">
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 flex items-center justify-center hover:bg-muted transition-colors">
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="w-10 text-center font-sans text-sm font-semibold">{quantity}</span>
+                <button onClick={() => setQuantity(quantity + 1)} className="w-10 h-10 flex items-center justify-center hover:bg-muted transition-colors">
+                  <Plus className="w-4 h-4" />
+                </button>
               </div>
-            )}
-
-            {/* Quantity & CTAs */}
-            <div className="space-y-3 pt-2">
-              <div className="flex items-center gap-3">
-                <span className="font-sans text-sm font-medium text-muted-foreground">Qtd:</span>
-                <div className="flex items-center border rounded-xl overflow-hidden">
-                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 flex items-center justify-center hover:bg-muted transition-colors">
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <span className="w-12 text-center font-sans text-sm font-semibold">{quantity}</span>
-                  <button onClick={() => setQuantity(quantity + 1)} className="w-10 h-10 flex items-center justify-center hover:bg-muted transition-colors">
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              <Button
-                size="lg"
-                className="w-full h-14 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground font-sans font-bold text-base uppercase tracking-wider shine glow-orange hover:glow-orange-lg transition-all duration-300"
-                onClick={handleBuyNow}
-                disabled={cartLoading || !selectedVariant?.availableForSale}
-              >
-                {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Zap className="w-5 h-5 mr-2" /> Comprar agora</>}
-              </Button>
-
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full h-14 rounded-2xl font-sans font-bold text-base uppercase tracking-wider border-2 border-border hover:border-accent hover:text-accent transition-all duration-300"
+                className="flex-1 h-10 rounded-xl font-sans font-bold text-sm uppercase tracking-wider border-2 border-border hover:border-accent hover:text-accent transition-all duration-300"
                 onClick={handleAddToCart}
                 disabled={cartLoading || !selectedVariant?.availableForSale}
               >
@@ -249,13 +350,8 @@ export default function ProductPage() {
               </Button>
             </div>
 
-            {/* Description */}
-            {product.description && (
-              <div className="pt-4 border-t">
-                <h3 className="font-display text-lg font-bold mb-3">Descrição</h3>
-                <p className="font-sans text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{product.description}</p>
-              </div>
-            )}
+            {/* Payment methods */}
+            <PaymentMethods />
           </motion.div>
         </div>
       </div>
