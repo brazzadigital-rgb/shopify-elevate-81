@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useCart } from "@/hooks/useCart";
-import { ShoppingCart, Search, User, Menu, X, ChevronRight } from "lucide-react";
+import { ShoppingCart, Search, User, Menu, X, ChevronRight, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -32,6 +32,12 @@ export function StoreHeader() {
     }
   };
 
+  const logoUrl = getSetting("logo_url", "");
+  const logoMobileUrl = getSetting("logo_mobile_url", "") || logoUrl;
+  const storeName = getSetting("store_name", "SPORT STORE");
+  const topbarLinkText = getSetting("topbar_link_text", "Rastrear Pedido");
+  const topbarLinkUrl = getSetting("topbar_link_url", "/conta/pedidos");
+
   const navLinks = [
     { label: "Início", to: "/" },
     { label: "Catálogo", to: "/colecoes" },
@@ -39,20 +45,45 @@ export function StoreHeader() {
     { label: "Contato", to: "/contato" },
   ];
 
+  const LogoComponent = ({ mobile = false }: { mobile?: boolean }) => {
+    const src = mobile ? logoMobileUrl : logoUrl;
+    if (src) {
+      return <img src={src} alt={storeName} className="h-7 md:h-8 object-contain" />;
+    }
+    return (
+      <>
+        <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-accent flex items-center justify-center glow-orange group-hover:scale-110 transition-transform duration-300">
+          <span className="text-accent-foreground font-bold text-sm md:text-base">🐆</span>
+        </div>
+        <span className="font-display text-base md:text-lg font-bold tracking-tight text-foreground uppercase hidden sm:block">
+          {storeName}
+        </span>
+      </>
+    );
+  };
+
   return (
     <>
-      {/* Topbar — info strip */}
+      {/* Top bar — info strip with links */}
       {isEnabled("topbar_enabled") && (
         <div className="bg-foreground">
-          <div className="container flex items-center justify-center h-8">
-            <p className="text-[11px] font-sans font-medium text-background/80 tracking-widest uppercase">
+          <div className="container flex items-center justify-between h-8 gap-4">
+            <p className="text-[11px] font-sans font-medium text-background/80 tracking-widest uppercase truncate flex-1 text-center sm:text-left">
               {getSetting("topbar_text", "✈️ Frete Grátis para todo Brasil")}
             </p>
+            <div className="hidden sm:flex items-center gap-4">
+              <Link to={topbarLinkUrl} className="text-[11px] font-sans font-medium text-background/60 hover:text-background transition-colors flex items-center gap-1 min-h-[unset]">
+                <Package className="w-3 h-3" /> {topbarLinkText}
+              </Link>
+              <Link to={user ? "/conta" : "/auth"} className="text-[11px] font-sans font-medium text-background/60 hover:text-background transition-colors min-h-[unset]">
+                {user ? "Minha Conta" : "Entrar"}
+              </Link>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Main header */}
+      {/* Main header — sticky */}
       <header
         className={`sticky top-0 z-50 transition-all duration-500 ${
           scrolled
@@ -60,6 +91,7 @@ export function StoreHeader() {
             : "bg-background border-b border-border"
         }`}
       >
+        {/* Main bar */}
         <div className="container flex items-center justify-between gap-2 h-14 md:h-[68px]">
           {/* Mobile: hamburger left */}
           <Button
@@ -71,66 +103,38 @@ export function StoreHeader() {
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
 
-          {/* Logo — centered on mobile */}
-          <Link to="/" className="flex items-center gap-2 shrink-0 group md:mr-auto">
-            <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-accent flex items-center justify-center glow-orange group-hover:scale-110 transition-transform duration-300">
-              <span className="text-accent-foreground font-bold text-sm md:text-base">🐆</span>
-            </div>
-            <span className="font-display text-base md:text-lg font-bold tracking-tight text-foreground uppercase hidden sm:block">
-              {getSetting("store_name", "SPORT STORE")}
-            </span>
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 shrink-0 group md:mr-4">
+            <span className="md:hidden"><LogoComponent mobile /></span>
+            <span className="hidden md:flex items-center gap-2"><LogoComponent /></span>
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`relative px-3.5 py-2 font-sans text-[13px] font-semibold uppercase tracking-wider transition-colors rounded-lg ${
-                  location.pathname === link.to
-                    ? "text-accent"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
-                {link.label}
-                {location.pathname === link.to && (
-                  <motion.div
-                    layoutId="nav-pill"
-                    className="absolute bottom-0.5 left-3 right-3 h-[2px] bg-accent rounded-full"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-              </Link>
-            ))}
-          </nav>
+          {/* Desktop search — big central */}
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-auto">
+            <div className="relative w-full">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar produtos..."
+                className="w-full h-10 rounded-full bg-muted/60 border border-border text-foreground placeholder:text-muted-foreground text-sm font-sans pl-5 pr-11 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/40 transition-all duration-300"
+              />
+              <button type="submit" className="absolute right-1.5 top-1.5 w-7 h-7 rounded-full bg-accent hover:bg-accent/90 flex items-center justify-center transition-colors min-h-[unset] min-w-[unset]">
+                <Search className="w-3.5 h-3.5 text-accent-foreground" />
+              </button>
+            </div>
+          </form>
 
           {/* Actions — right side */}
           <div className="flex items-center gap-1 shrink-0">
-            {/* Desktop search */}
-            <form onSubmit={handleSearch} className="hidden lg:flex">
-              <div className="relative">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Buscar..."
-                  className="w-44 xl:w-56 h-9 rounded-full bg-muted/60 border border-border text-foreground placeholder:text-muted-foreground text-sm font-sans pl-4 pr-9 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/40 focus:w-64 transition-all duration-300"
-                />
-                <button type="submit" className="absolute right-1 top-1 w-7 h-7 rounded-full bg-accent/10 hover:bg-accent/20 flex items-center justify-center transition-colors min-h-[unset] min-w-[unset]">
-                  <Search className="w-3.5 h-3.5 text-accent" />
-                </button>
-              </div>
-            </form>
-
             {/* Mobile search */}
-            <Link to="/busca" className="lg:hidden">
+            <Link to="/busca" className="md:hidden">
               <Button variant="ghost" size="icon" className="rounded-full w-10 h-10 text-muted-foreground hover:text-foreground hover:bg-muted/50">
                 <Search className="w-[18px] h-[18px]" />
               </Button>
             </Link>
 
-            {/* Account — hidden on small mobile */}
+            {/* Account */}
             <Link to={user ? (isAdmin ? "/admin" : "/conta") : "/auth"} className="hidden sm:block">
               <Button variant="ghost" size="icon" className="rounded-full w-10 h-10 text-muted-foreground hover:text-foreground hover:bg-muted/50">
                 <User className="w-[18px] h-[18px]" />
@@ -156,11 +160,36 @@ export function StoreHeader() {
           </div>
         </div>
 
-        {/* Mobile menu — full height drawer */}
+        {/* Desktop category nav bar */}
+        <nav className="hidden md:block border-t border-border/50">
+          <div className="container flex items-center justify-center gap-1 h-10">
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`relative px-4 py-1.5 font-sans text-[12px] font-semibold uppercase tracking-wider transition-colors rounded-lg ${
+                  location.pathname === link.to
+                    ? "text-accent"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                }`}
+              >
+                {link.label}
+                {location.pathname === link.to && (
+                  <motion.div
+                    layoutId="nav-pill"
+                    className="absolute bottom-0 left-3 right-3 h-[2px] bg-accent rounded-full"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
+              </Link>
+            ))}
+          </div>
+        </nav>
+
+        {/* Mobile menu drawer */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <>
-              {/* Backdrop */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -177,10 +206,7 @@ export function StoreHeader() {
               >
                 <div className="p-5 border-b border-border flex items-center justify-between">
                   <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-accent flex items-center justify-center">
-                      <span className="text-sm">🐆</span>
-                    </div>
-                    <span className="font-display text-base font-bold uppercase">{getSetting("store_name", "SPORT STORE")}</span>
+                    <LogoComponent mobile />
                   </Link>
                   <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full" onClick={() => setMobileMenuOpen(false)}>
                     <X className="w-5 h-5" />
@@ -206,27 +232,15 @@ export function StoreHeader() {
                 {/* Quick access */}
                 <div className="px-4 pb-3">
                   <div className="grid grid-cols-3 gap-2">
-                    <Link
-                      to={user ? "/conta" : "/auth"}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-                    >
+                    <Link to={user ? "/conta" : "/auth"} onClick={() => setMobileMenuOpen(false)} className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors">
                       <User className="w-5 h-5 text-muted-foreground" />
                       <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-muted-foreground">Conta</span>
                     </Link>
-                    <Link
-                      to="/conta/pedidos"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-                    >
-                      <ShoppingCart className="w-5 h-5 text-muted-foreground" />
-                      <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-muted-foreground">Pedidos</span>
+                    <Link to="/conta/pedidos" onClick={() => setMobileMenuOpen(false)} className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors">
+                      <Package className="w-5 h-5 text-muted-foreground" />
+                      <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-muted-foreground">Rastrear</span>
                     </Link>
-                    <Link
-                      to="/colecoes"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-                    >
+                    <Link to="/colecoes" onClick={() => setMobileMenuOpen(false)} className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors">
                       <ChevronRight className="w-5 h-5 text-muted-foreground" />
                       <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-muted-foreground">Catálogo</span>
                     </Link>

@@ -1,24 +1,33 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
-import { Instagram, Facebook, Twitter, Zap } from "lucide-react";
+import { Instagram, Facebook, Twitter } from "lucide-react";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 
 export function StoreFooter() {
   const { getSetting } = useStoreSettings();
   const storeName = getSetting("store_name", "SPORT STORE");
+  const logoUrl = getSetting("logo_url", "");
 
   return (
     <footer className="bg-primary text-primary-foreground relative overflow-hidden">
       <div className="absolute inset-0 bg-mesh opacity-20" />
       
-      <div className="container py-16 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+      <div className="container py-12 md:py-16 relative z-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
           {/* Brand */}
-          <div className="md:col-span-1">
+          <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center glow-orange">
-                <span className="text-lg">🐆</span>
-              </div>
-              <span className="font-display text-xl font-bold uppercase">{storeName}</span>
+              {logoUrl ? (
+                <img src={logoUrl} alt={storeName} className="h-8 object-contain brightness-0 invert" />
+              ) : (
+                <>
+                  <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center glow-orange">
+                    <span className="text-lg">🐆</span>
+                  </div>
+                  <span className="font-display text-xl font-bold uppercase">{storeName}</span>
+                </>
+              )}
             </div>
             <p className="text-primary-foreground/40 font-sans text-sm leading-relaxed">
               Performance, estilo e confiança. A melhor experiência de compra esportiva.
