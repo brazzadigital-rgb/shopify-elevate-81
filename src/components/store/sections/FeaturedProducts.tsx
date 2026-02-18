@@ -1,14 +1,13 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, TouchEvent as ReactTouchEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/useCart";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   ShoppingCart,
   Loader2,
   Truck,
-  TrendingUp,
   Heart,
   Eye,
   Zap,
@@ -18,20 +17,10 @@ import {
   Minus,
   Plus,
 } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
 
 /* ── types ─────────────────────────────────────────── */
-interface ProductImage {
-  url: string;
-  is_primary: boolean;
-}
-
-interface ProductVariant {
-  id: string;
-  name: string;
-  price: number | null;
-  stock: number;
-}
+interface ProductImage { url: string; is_primary: boolean }
+interface ProductVariant { id: string; name: string; price: number | null; stock: number }
 
 interface Product {
   id: string;
@@ -54,26 +43,107 @@ interface FeaturedProductsProps {
 
 /* ── helpers ───────────────────────────────────────── */
 const fmt = (v: number) => v.toFixed(2).replace(".", ",");
-
-const getImages = (p: Product) => {
-  const imgs = p.product_images ?? [];
-  const primary = imgs.find((i) => i.is_primary);
-  const first = primary?.url || imgs[0]?.url || "/placeholder.svg";
-  const second = imgs.find((i) => i.url !== first)?.url || null;
-  return { first, second };
-};
-
 const getDiscount = (p: Product) => {
   if (!p.compare_at_price || p.compare_at_price <= p.price) return 0;
   return Math.round(((p.compare_at_price - p.price) / p.compare_at_price) * 100);
 };
+const installment = (price: number) => `12x de R$ ${fmt(price / 12)} s/ juros`;
 
-const installmentText = (price: number) => {
-  const val = price / 12;
-  return `12x de R$ ${fmt(val)} sem juros`;
+const getAllImages = (p: Product) => {
+  const imgs = p.product_images ?? [];
+  if (imgs.length === 0) return ["/placeholder.svg"];
+  const primary = imgs.find((i) => i.is_primary);
+  const sorted = primary
+    ? [primary.url, ...imgs.filter((i) => i.url !== primary.url).map((i) => i.url)]
+    : imgs.map((i) => i.url);
+  return sorted;
 };
 
-/* ── QuickBuyModal ─────────────────────────────────── */
+/* ── ImageCarousel (touch swipe) ───────────────────── */
+function ImageCarousel({
+  images,
+  alt,
+  onTap,
+}: {
+  images: string[];
+  alt: string;
+  onTap: () => void;
+}) {
+  const [current, setCurrent] = useState(0);
+  const touchStart = useRef<number | null>(null);
+  const touchDelta = useRef(0);
+  const swiped = useRef(false);
+  const count = images.length;
+
+  const handleTouchStart = (e: ReactTouchEvent) => {
+    touchStart.current = e.touches[0].clientX;
+    touchDelta.current = 0;
+    swiped.current = false;
+  };
+
+  const handleTouchMove = (e: ReactTouchEvent) => {
+    if (touchStart.current === null) return;
+    touchDelta.current = e.touches[0].clientX - touchStart.current;
+  };
+
+  const handleTouchEnd = () => {
+    if (Math.abs(touchDelta.current) > 40 && count > 1) {
+      swiped.current = true;
+      if (touchDelta.current < 0) setCurrent((c) => (c + 1) % count);
+      else setCurrent((c) => (c - 1 + count) % count);
+    }
+    touchStart.current = null;
+  };
+
+  const handleClick = () => {
+    if (!swiped.current) onTap();
+  };
+
+  // Desktop hover swap
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      className="relative aspect-square bg-muted/20 overflow-hidden touch-pan-y"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onClick={handleClick}
+      onMouseEnter={() => count > 1 && setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {images.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt={i === 0 ? alt : `${alt} - ${i + 1}`}
+          className={`absolute inset-0 w-full h-full object-contain p-3 md:p-4 transition-opacity duration-400 ease-out will-change-[opacity] ${
+            i === current ? "opacity-100" : "opacity-0"
+          } ${i === 0 && hovered && count > 1 && current === 0 ? "md:opacity-0" : ""}
+          ${i === 1 && hovered && count > 1 && current === 0 ? "md:opacity-100" : ""}`}
+          loading={i === 0 ? "eager" : "lazy"}
+          draggable={false}
+        />
+      ))}
+
+      {/* Dots */}
+      {count > 1 && (
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+          {images.map((_, i) => (
+            <span
+              key={i}
+              className={`block w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+                i === current ? "bg-accent w-3" : "bg-foreground/20"
+              }`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── QuickBuyModal (bottom sheet mobile) ───────────── */
 function QuickBuyModal({
   product,
   onClose,
@@ -90,10 +160,14 @@ function QuickBuyModal({
   );
   const [qty, setQty] = useState(1);
   const disc = getDiscount(product);
-  const { first } = getImages(product);
+  const images = getAllImages(product);
   const variants = product.product_variants ?? [];
   const activeVariant = variants.find((v) => v.id === selectedVariant);
   const finalPrice = activeVariant?.price ?? product.price;
+
+  // Swipe-to-close
+  const dragRef = useRef<number | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const handleBuy = async () => {
     await addItem(product.id, selectedVariant, qty);
@@ -107,18 +181,27 @@ function QuickBuyModal({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-foreground/40 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Panel */}
       <motion.div
+        ref={panelRef}
         className="relative w-full md:max-w-lg max-h-[90vh] overflow-y-auto bg-card rounded-t-3xl md:rounded-3xl shadow-2xl border border-border/50"
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
-        transition={{ type: "spring", damping: 28, stiffness: 300 }}
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={{ type: "spring", damping: 30, stiffness: 320 }}
+        drag="y"
+        dragConstraints={{ top: 0 }}
+        dragElastic={0.2}
+        onDragEnd={(_, info) => {
+          if (info.offset.y > 100) onClose();
+        }}
       >
-        {/* Close */}
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-1 md:hidden">
+          <div className="w-10 h-1 rounded-full bg-border" />
+        </div>
+
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"
@@ -126,11 +209,11 @@ function QuickBuyModal({
           <X className="w-4 h-4" />
         </button>
 
-        <div className="p-5 md:p-6 space-y-4">
+        <div className="p-5 md:p-6 space-y-5">
           {/* Header */}
           <div className="flex gap-4">
-            <div className="w-28 h-28 rounded-2xl bg-muted/30 flex-shrink-0 overflow-hidden">
-              <img src={first} alt={product.name} className="w-full h-full object-contain p-2" />
+            <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-muted/30 flex-shrink-0 overflow-hidden">
+              <img src={images[0]} alt={product.name} className="w-full h-full object-contain p-2" />
             </div>
             <div className="flex-1 min-w-0 space-y-1">
               <p className="font-sans text-sm font-semibold leading-snug line-clamp-2">{product.name}</p>
@@ -140,7 +223,7 @@ function QuickBuyModal({
                 </p>
               )}
               <p className="font-display text-2xl font-bold">R$ {fmt(finalPrice)}</p>
-              <p className="font-sans text-[11px] text-muted-foreground">{installmentText(finalPrice)}</p>
+              <p className="font-sans text-[11px] text-muted-foreground">{installment(finalPrice)}</p>
               {disc > 0 && (
                 <span className="inline-flex px-2 py-[2px] rounded bg-destructive/10 text-destructive text-[10px] font-bold">
                   -{disc}% OFF
@@ -159,7 +242,7 @@ function QuickBuyModal({
                     key={v.id}
                     onClick={() => setSelectedVariant(v.id)}
                     disabled={v.stock <= 0}
-                    className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                    className={`min-h-[44px] px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
                       selectedVariant === v.id
                         ? "border-accent bg-accent/10 text-accent"
                         : "border-border text-foreground hover:border-accent/50"
@@ -179,14 +262,14 @@ function QuickBuyModal({
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setQty(Math.max(1, qty - 1))}
-                className="w-9 h-9 rounded-lg border border-border flex items-center justify-center hover:bg-muted transition-colors"
+                className="w-11 h-11 rounded-xl border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
               >
                 <Minus className="w-4 h-4" />
               </button>
-              <span className="font-sans text-sm font-bold w-8 text-center">{qty}</span>
+              <span className="font-sans text-base font-bold w-10 text-center">{qty}</span>
               <button
                 onClick={() => setQty(qty + 1)}
-                className="w-9 h-9 rounded-lg border border-border flex items-center justify-center hover:bg-muted transition-colors"
+                className="w-11 h-11 rounded-xl border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -197,14 +280,14 @@ function QuickBuyModal({
           <button
             onClick={handleBuy}
             disabled={cartLoading || product.stock <= 0}
-            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-accent text-accent-foreground font-sans text-base font-bold py-4 transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
+            className="w-full min-h-[52px] flex items-center justify-center gap-2 rounded-2xl bg-accent text-accent-foreground font-sans text-base font-bold py-4 transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
           >
             {cartLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <>
                 <ShoppingCart className="w-5 h-5" />
-                Comprar agora — R$ {fmt(finalPrice * qty)}
+                Comprar — R$ {fmt(finalPrice * qty)}
               </>
             )}
           </button>
@@ -228,10 +311,10 @@ function ProductCard({
   cartLoading: boolean;
   onQuickBuy: (p: Product) => void;
 }) {
+  const navigate = useNavigate();
   const [hovered, setHovered] = useState(false);
-  const [showSecondImg, setShowSecondImg] = useState(false);
   const disc = getDiscount(product);
-  const { first, second } = getImages(product);
+  const images = getAllImages(product);
   const isBestseller = product.sold_count >= 10;
   const lowStock = product.stock > 0 && product.stock <= 5;
   const variants = product.product_variants ?? [];
@@ -248,193 +331,173 @@ function ProductCard({
     onQuickBuy(product);
   };
 
-  // Image swap on hover with delay
-  useEffect(() => {
-    if (!second) return;
-    let timer: ReturnType<typeof setTimeout>;
-    if (hovered) {
-      timer = setTimeout(() => setShowSecondImg(true), 200);
-    } else {
-      setShowSecondImg(false);
-    }
-    return () => clearTimeout(timer);
-  }, [hovered, second]);
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.05, duration: 0.4 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ delay: index * 0.04, duration: 0.35 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      className="h-full"
     >
-      <Link to={`/produto/${product.slug}`} className="group block h-full">
-        <div className="relative flex flex-col h-full bg-card rounded-[20px] border border-border/40 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-1">
-          {/* ── Image Area ── */}
-          <div className="relative aspect-square bg-muted/20">
-            <div className="absolute inset-0 overflow-hidden">
-              {/* Primary image */}
-              <img
-                src={first}
-                alt={product.name}
-                className={`absolute inset-0 w-full h-full object-contain p-4 transition-all duration-500 ease-out group-hover:scale-105 ${
-                  showSecondImg ? "opacity-0" : "opacity-100"
-                }`}
-                loading="lazy"
-              />
-              {/* Secondary image */}
-              {second && (
-                <img
-                  src={second}
-                  alt={`${product.name} - imagem 2`}
-                  className={`absolute inset-0 w-full h-full object-contain p-4 transition-all duration-500 ease-out group-hover:scale-105 ${
-                    showSecondImg ? "opacity-100" : "opacity-0"
-                  }`}
-                  loading="lazy"
-                />
-              )}
-            </div>
+      <div className="relative flex flex-col h-full bg-card rounded-2xl md:rounded-[20px] border border-border/40 overflow-hidden shadow-sm md:hover:shadow-2xl transition-all duration-300 md:group-hover:-translate-y-1 group">
+        {/* ── Image ── */}
+        <div className="relative">
+          <ImageCarousel
+            images={images}
+            alt={product.name}
+            onTap={() => navigate(`/produto/${product.slug}`)}
+          />
 
-            {/* Badges on image */}
-            <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
-              {disc > 0 && (
-                <span className="px-2.5 py-1 rounded-lg bg-destructive text-destructive-foreground text-[10px] font-bold uppercase tracking-wide shadow-md">
-                  {disc}% OFF
-                </span>
-              )}
-              {product.is_new && (
-                <span className="px-2.5 py-1 rounded-lg bg-accent text-accent-foreground text-[10px] font-bold uppercase tracking-wide shadow-md">
-                  Novo
-                </span>
-              )}
-            </div>
-
-            {/* Hover actions — desktop */}
-            <AnimatePresence>
-              {hovered && (
-                <motion.div
-                  className="absolute top-3 right-3 z-10 hidden md:flex flex-col gap-2"
-                  initial={{ opacity: 0, x: 8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 8 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <button
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    className="w-9 h-9 rounded-xl bg-card/90 backdrop-blur-md border border-border/50 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors shadow-lg"
-                    title="Favoritar"
-                  >
-                    <Heart className="w-4 h-4" />
-                  </button>
-                  <Link
-                    to={`/produto/${product.slug}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-9 h-9 rounded-xl bg-card/90 backdrop-blur-md border border-border/50 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors shadow-lg"
-                    title="Ver detalhes"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </Link>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
+          {/* Badges */}
+          <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1">
+            {disc > 0 && (
+              <span className="px-2 py-0.5 rounded-lg bg-destructive text-destructive-foreground text-[10px] font-bold uppercase tracking-wide shadow">
+                {disc}% OFF
+              </span>
+            )}
+            {product.is_new && (
+              <span className="px-2 py-0.5 rounded-lg bg-accent text-accent-foreground text-[10px] font-bold uppercase tracking-wide shadow">
+                Novo
+              </span>
+            )}
           </div>
 
-          {/* ── Variant Swatches ── */}
-          {variants.length > 0 && (
-            <div className="px-4 pt-3 flex flex-wrap gap-1.5">
-              {variants.slice(0, 6).map((v) => (
-                <span
-                  key={v.id}
-                  className={`px-2 py-[2px] rounded-md border text-[10px] font-medium ${
-                    v.stock > 0
-                      ? "border-border text-foreground"
-                      : "border-border/50 text-muted-foreground line-through opacity-50"
-                  }`}
+          {/* Desktop hover actions */}
+          <AnimatePresence>
+            {hovered && (
+              <motion.div
+                className="absolute top-2.5 right-2.5 z-10 hidden md:flex flex-col gap-1.5"
+                initial={{ opacity: 0, x: 6 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <button
+                  onClick={handleFavorite}
+                  className="w-9 h-9 rounded-xl bg-card/90 backdrop-blur border border-border/50 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors shadow-md"
+                  title="Favoritar"
                 >
-                  {v.name}
-                </span>
-              ))}
-              {variants.length > 6 && (
-                <span className="px-2 py-[2px] rounded-md text-[10px] text-muted-foreground">
-                  +{variants.length - 6}
-                </span>
-              )}
-            </div>
-          )}
+                  <Heart className="w-4 h-4" />
+                </button>
+                <Link
+                  to={`/produto/${product.slug}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-9 h-9 rounded-xl bg-card/90 backdrop-blur border border-border/50 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors shadow-md"
+                  title="Ver detalhes"
+                >
+                  <Eye className="w-4 h-4" />
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {/* ── Content ── */}
-          <div className="flex flex-col flex-1 p-4 md:p-5 gap-1">
-            {/* Name */}
-            <p className="font-sans text-sm md:text-[15px] font-semibold leading-snug line-clamp-2 group-hover:text-accent transition-colors min-h-[2.4em]">
+          {/* Mobile favorite */}
+          <button
+            onClick={handleFavorite}
+            className="absolute top-2.5 right-2.5 z-10 md:hidden w-8 h-8 rounded-full bg-card/80 backdrop-blur flex items-center justify-center shadow"
+          >
+            <Heart className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* ── Variant pills ── */}
+        {variants.length > 0 && (
+          <div className="px-3 pt-2.5 flex flex-wrap gap-1">
+            {variants.slice(0, 4).map((v) => (
+              <span
+                key={v.id}
+                className={`px-1.5 py-[1px] rounded border text-[9px] font-medium ${
+                  v.stock > 0
+                    ? "border-border text-muted-foreground"
+                    : "border-border/40 text-muted-foreground/40 line-through"
+                }`}
+              >
+                {v.name}
+              </span>
+            ))}
+            {variants.length > 4 && (
+              <span className="px-1.5 py-[1px] text-[9px] text-muted-foreground">+{variants.length - 4}</span>
+            )}
+          </div>
+        )}
+
+        {/* ── Content ── */}
+        <div className="flex flex-col flex-1 px-3 pb-3 pt-2 md:px-4 md:pb-4 md:pt-2.5 gap-1">
+          {/* Name */}
+          <Link to={`/produto/${product.slug}`}>
+            <p className="font-sans text-[13px] md:text-sm font-semibold leading-snug line-clamp-2 hover:text-accent transition-colors min-h-[2.4em]">
               {product.name}
             </p>
+          </Link>
 
-            {/* Conversion indicators */}
-            <div className="flex flex-wrap items-center gap-1.5 mt-1">
-              {isBestseller && (
-                <span className="inline-flex items-center gap-1 px-1.5 py-[1px] rounded bg-warning/10 text-warning text-[10px] font-semibold">
-                  <Flame className="w-3 h-3" />
-                  Mais vendido
-                </span>
-              )}
-              {lowStock && (
-                <span className="inline-flex items-center gap-1 px-1.5 py-[1px] rounded bg-destructive/10 text-destructive text-[10px] font-semibold">
-                  <Zap className="w-3 h-3" />
-                  Últimas {product.stock} un.
-                </span>
-              )}
-            </div>
-
-            {/* Prices */}
-            <div className="mt-auto pt-2 space-y-0.5">
-              {product.compare_at_price && product.compare_at_price > product.price && (
-                <p className="font-sans text-xs text-muted-foreground line-through">
-                  R$ {fmt(product.compare_at_price)}
-                </p>
-              )}
-              <p className="font-display text-xl md:text-2xl font-bold text-foreground">
-                R$ {fmt(product.price)}
-              </p>
-              <p className="font-sans text-[11px] text-muted-foreground flex items-center gap-1">
-                <CreditCard className="w-3 h-3" />
-                {installmentText(product.price)}
-              </p>
-            </div>
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-1.5 mt-2">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-success/10 text-success text-[10px] font-medium">
-                <Truck className="w-3 h-3" />
-                Frete grátis
+          {/* Conversion badges */}
+          <div className="flex flex-wrap gap-1 mt-0.5">
+            {isBestseller && (
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded bg-warning/10 text-warning text-[9px] font-semibold">
+                <Flame className="w-2.5 h-2.5" />
+                Mais vendido
               </span>
-            </div>
+            )}
+            {lowStock && (
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded bg-destructive/10 text-destructive text-[9px] font-semibold">
+                <Zap className="w-2.5 h-2.5" />
+                Só {product.stock} restam
+              </span>
+            )}
+          </div>
 
-            {/* CTA — always at bottom */}
-            <div className="flex gap-2 mt-3">
-              <button
-                onClick={handleQuickBuy}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-accent text-accent-foreground font-sans text-sm font-bold py-3 transition-all hover:brightness-110 active:scale-[0.97]"
-              >
-                <Zap className="w-4 h-4" />
-                Comprar agora
-              </button>
-              <button
-                onClick={handleAddToCart}
-                disabled={cartLoading || product.stock <= 0}
-                className="w-12 flex items-center justify-center rounded-xl border border-border hover:bg-muted transition-colors disabled:opacity-50"
-              >
-                {cartLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <ShoppingCart className="w-4 h-4" />
-                )}
-              </button>
-            </div>
+          {/* Prices */}
+          <div className="mt-auto pt-1.5 space-y-0">
+            {product.compare_at_price && product.compare_at_price > product.price && (
+              <p className="font-sans text-[11px] text-muted-foreground line-through leading-none">
+                R$ {fmt(product.compare_at_price)}
+              </p>
+            )}
+            <p className="font-display text-lg md:text-xl font-bold text-foreground leading-tight">
+              R$ {fmt(product.price)}
+            </p>
+            <p className="font-sans text-[10px] text-muted-foreground flex items-center gap-0.5 leading-none mt-0.5">
+              <CreditCard className="w-2.5 h-2.5 flex-shrink-0" />
+              {installment(product.price)}
+            </p>
+          </div>
+
+          {/* Frete grátis */}
+          <span className="inline-flex items-center gap-1 self-start px-1.5 py-0.5 rounded-full bg-success/10 text-success text-[9px] font-medium mt-1">
+            <Truck className="w-2.5 h-2.5" />
+            Frete grátis
+          </span>
+
+          {/* CTA */}
+          <div className="flex gap-1.5 mt-2.5">
+            <button
+              onClick={handleQuickBuy}
+              className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl bg-accent text-accent-foreground font-sans text-[13px] font-bold py-2.5 transition-all hover:brightness-110 active:scale-[0.96]"
+            >
+              <Zap className="w-3.5 h-3.5" />
+              Comprar
+            </button>
+            <button
+              onClick={handleAddToCart}
+              disabled={cartLoading || product.stock <= 0}
+              className="min-h-[44px] w-11 flex items-center justify-center rounded-xl border border-border hover:bg-muted active:scale-95 transition-all disabled:opacity-50"
+            >
+              {cartLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <ShoppingCart className="w-4 h-4" />
+              )}
+            </button>
           </div>
         </div>
-      </Link>
+      </div>
     </motion.div>
   );
 }
@@ -465,27 +528,27 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
 
   return (
     <>
-      <section className="py-16 md:py-24">
-        <div className="container">
+      <section className="py-10 md:py-24">
+        <div className="container px-3 md:px-4">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 md:mb-12"
           >
             <span className="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent font-sans text-xs font-bold uppercase tracking-wider mb-3">
               Destaques
             </span>
-            <h2 className="text-3xl md:text-4xl font-display font-bold">{title}</h2>
+            <h2 className="text-2xl md:text-4xl font-display font-bold">{title}</h2>
           </motion.div>
 
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="space-y-3">
-                  <Skeleton className="aspect-square rounded-[20px]" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
+                <div key={i} className="space-y-2">
+                  <Skeleton className="aspect-square rounded-2xl" />
+                  <Skeleton className="h-3 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
                 </div>
               ))}
             </div>
@@ -495,7 +558,7 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
               <p className="text-sm text-muted-foreground/60 font-sans">Adicione produtos no painel admin.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
               {products.map((product, i) => (
                 <ProductCard
                   key={product.id}
@@ -511,7 +574,6 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
         </div>
       </section>
 
-      {/* Quick Buy Modal */}
       <AnimatePresence>
         {quickBuyProduct && (
           <QuickBuyModal
