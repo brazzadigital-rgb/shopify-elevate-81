@@ -79,7 +79,7 @@ function PriceBlock({ price, comparePrice, discount, currency, pixEnabled, pixDi
           em até {maxInstallments}x de <span className="font-semibold text-foreground">R$ {installmentValue.replace('.', ',')}</span>
         </p>
       )}
-      <div className="flex flex-wrap items-center gap-2 mt-1">
+      <div className="flex flex-col items-start gap-1.5 mt-1">
         {pixEnabled && pixDiscount > 0 && (
           <Badge variant="outline" className="text-xs font-sans border-success text-success">
             ✅ Até {pixDiscount}% OFF no PIX
