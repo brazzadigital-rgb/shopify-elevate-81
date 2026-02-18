@@ -10,6 +10,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { ShoppingCart, Eye, Package } from "lucide-react";
 
+interface Seller {
+  id: string;
+  name: string;
+}
+
 interface Order {
   id: string;
   order_number: string;
@@ -52,10 +57,16 @@ const paymentLabels: Record<string, string> = {
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [sellers, setSellers] = useState<Seller[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
+
+  const fetchSellers = async () => {
+    const { data } = await supabase.from("sellers").select("id, name").eq("status", "active").order("name");
+    setSellers((data as Seller[]) || []);
+  };
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -67,7 +78,13 @@ export default function AdminOrders() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => { fetchOrders(); fetchSellers(); }, []);
+
+  const updateSeller = async (orderId: string, seller_id: string | null) => {
+    const { error } = await supabase.from("orders").update({ seller_id }).eq("id", orderId);
+    if (error) toast({ title: "Erro", description: error.message, variant: "destructive" });
+    else { toast({ title: "Vendedor atualizado!" }); fetchOrders(); }
+  };
 
   const viewOrder = async (order: Order) => {
     setSelectedOrder(order);
@@ -116,6 +133,7 @@ export default function AdminOrders() {
                   <TableHead className="font-sans">Total</TableHead>
                   <TableHead className="font-sans">Status</TableHead>
                   <TableHead className="font-sans">Pagamento</TableHead>
+                  <TableHead className="font-sans">Vendedor</TableHead>
                   <TableHead className="font-sans">Data</TableHead>
                   <TableHead className="font-sans text-right">Ações</TableHead>
                 </TableRow>
@@ -151,6 +169,19 @@ export default function AdminOrders() {
                         <SelectContent>
                           {Object.entries(paymentLabels).map(([k, v]) => (
                             <SelectItem key={k} value={k} className="font-sans text-xs">{v}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <Select value={(order as any).seller_id || "none"} onValueChange={(v) => updateSeller(order.id, v === "none" ? null : v)}>
+                        <SelectTrigger className="h-8 w-32 rounded-lg text-xs font-sans">
+                          <SelectValue placeholder="Nenhum" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none" className="font-sans text-xs">Nenhum</SelectItem>
+                          {sellers.map((s) => (
+                            <SelectItem key={s.id} value={s.id} className="font-sans text-xs">{s.name}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
