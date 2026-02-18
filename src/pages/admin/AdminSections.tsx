@@ -5,12 +5,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Image, GripVertical } from "lucide-react";
+import { Plus, Pencil, Trash2, Image } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -31,16 +30,95 @@ const sectionTypes = [
   { value: "newsletter", label: "Newsletter" },
 ];
 
-const emptySection = {
-  section_type: "hero", title: "", config_json: "{}", sort_order: 0, is_active: true,
+interface FormState {
+  section_type: string;
+  title: string;
+  sort_order: number;
+  is_active: boolean;
+  // Hero fields
+  hero_title: string;
+  hero_subtitle: string;
+  hero_cta_text: string;
+  hero_cta_link: string;
+  hero_image_url: string;
+  // Products fields
+  limit: number;
+  filter: string;
+  // Newsletter fields
+  newsletter_title: string;
+  newsletter_subtitle: string;
+}
+
+const emptyForm: FormState = {
+  section_type: "hero",
+  title: "",
+  sort_order: 0,
+  is_active: true,
+  hero_title: "",
+  hero_subtitle: "",
+  hero_cta_text: "CONFERIR",
+  hero_cta_link: "/colecoes",
+  hero_image_url: "",
+  limit: 8,
+  filter: "featured",
+  newsletter_title: "",
+  newsletter_subtitle: "",
 };
+
+function configToForm(section_type: string, config: any): Partial<FormState> {
+  if (!config) return {};
+  switch (section_type) {
+    case "hero":
+      return {
+        hero_title: config.title || "",
+        hero_subtitle: config.subtitle || "",
+        hero_cta_text: config.cta_text || "CONFERIR",
+        hero_cta_link: config.cta_link || "/colecoes",
+        hero_image_url: config.image_url || "",
+      };
+    case "featured_products":
+      return {
+        limit: config.limit || 8,
+        filter: config.filter || "featured",
+      };
+    case "newsletter":
+      return {
+        newsletter_title: config.title || "",
+        newsletter_subtitle: config.subtitle || "",
+      };
+    default:
+      return {};
+  }
+}
+
+function formToConfig(form: FormState): any {
+  switch (form.section_type) {
+    case "hero":
+      return {
+        title: form.hero_title || undefined,
+        subtitle: form.hero_subtitle || undefined,
+        cta_text: form.hero_cta_text || undefined,
+        cta_link: form.hero_cta_link || undefined,
+        image_url: form.hero_image_url || undefined,
+      };
+    case "featured_products":
+      return { limit: form.limit, filter: form.filter };
+    case "newsletter":
+      return {
+        title: form.newsletter_title || undefined,
+        subtitle: form.newsletter_subtitle || undefined,
+      };
+    default:
+      return {};
+  }
+}
 
 export default function AdminSections() {
   const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState(emptySection);
+  const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
 
   const fetchSections = async () => {
@@ -54,9 +132,7 @@ export default function AdminSections() {
 
   const handleSave = async () => {
     setSaving(true);
-    let config: any;
-    try { config = JSON.parse(form.config_json); } catch { toast({ title: "JSON inválido", variant: "destructive" }); setSaving(false); return; }
-
+    const config = formToConfig(form);
     const payload = {
       section_type: form.section_type,
       title: form.title || null,
@@ -78,18 +154,20 @@ export default function AdminSections() {
     setSaving(false);
     setDialogOpen(false);
     setEditingId(null);
-    setForm(emptySection);
+    setForm(emptyForm);
     fetchSections();
   };
 
   const handleEdit = (s: Section) => {
     setEditingId(s.id);
+    const configFields = configToForm(s.section_type, s.config);
     setForm({
+      ...emptyForm,
       section_type: s.section_type,
       title: s.title || "",
-      config_json: JSON.stringify(s.config, null, 2),
       sort_order: s.sort_order,
       is_active: s.is_active,
+      ...configFields,
     });
     setDialogOpen(true);
   };
@@ -100,6 +178,81 @@ export default function AdminSections() {
     else { toast({ title: "Seção removida" }); fetchSections(); }
   };
 
+  const renderConfigFields = () => {
+    switch (form.section_type) {
+      case "hero":
+        return (
+          <>
+            <div className="grid gap-2">
+              <Label className="font-sans text-sm font-medium">Título do Banner</Label>
+              <Input value={form.hero_title} onChange={(e) => setForm({ ...form, hero_title: e.target.value })} className="h-11 rounded-xl" placeholder="Nova coleção disponível" />
+            </div>
+            <div className="grid gap-2">
+              <Label className="font-sans text-sm font-medium">Subtítulo</Label>
+              <Input value={form.hero_subtitle} onChange={(e) => setForm({ ...form, hero_subtitle: e.target.value })} className="h-11 rounded-xl" placeholder="Qualidade e confiança em cada compra." />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label className="font-sans text-sm font-medium">Texto do Botão</Label>
+                <Input value={form.hero_cta_text} onChange={(e) => setForm({ ...form, hero_cta_text: e.target.value })} className="h-11 rounded-xl" />
+              </div>
+              <div className="grid gap-2">
+                <Label className="font-sans text-sm font-medium">Link do Botão</Label>
+                <Input value={form.hero_cta_link} onChange={(e) => setForm({ ...form, hero_cta_link: e.target.value })} className="h-11 rounded-xl" placeholder="/colecoes" />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label className="font-sans text-sm font-medium">URL da Imagem (opcional)</Label>
+              <Input value={form.hero_image_url} onChange={(e) => setForm({ ...form, hero_image_url: e.target.value })} className="h-11 rounded-xl" placeholder="https://..." />
+            </div>
+          </>
+        );
+      case "featured_products":
+        return (
+          <>
+            <div className="grid gap-2">
+              <Label className="font-sans text-sm font-medium">Quantidade de Produtos</Label>
+              <Input type="number" value={form.limit} onChange={(e) => setForm({ ...form, limit: parseInt(e.target.value) || 8 })} className="h-11 rounded-xl" min={1} max={20} />
+            </div>
+            <div className="grid gap-2">
+              <Label className="font-sans text-sm font-medium">Filtro</Label>
+              <Select value={form.filter} onValueChange={(v) => setForm({ ...form, filter: v })}>
+                <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="featured">Em Destaque</SelectItem>
+                  <SelectItem value="new">Novidades</SelectItem>
+                  <SelectItem value="bestsellers">Mais Vendidos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        );
+      case "newsletter":
+        return (
+          <>
+            <div className="grid gap-2">
+              <Label className="font-sans text-sm font-medium">Título da Newsletter</Label>
+              <Input value={form.newsletter_title} onChange={(e) => setForm({ ...form, newsletter_title: e.target.value })} className="h-11 rounded-xl" placeholder="Fique por dentro" />
+            </div>
+            <div className="grid gap-2">
+              <Label className="font-sans text-sm font-medium">Subtítulo</Label>
+              <Input value={form.newsletter_subtitle} onChange={(e) => setForm({ ...form, newsletter_subtitle: e.target.value })} className="h-11 rounded-xl" placeholder="Receba ofertas exclusivas" />
+            </div>
+          </>
+        );
+      case "featured_collections":
+      case "benefits":
+        return (
+          <p className="text-sm text-muted-foreground font-sans py-2">
+            Esta seção não possui configurações adicionais. Basta ativar e definir a ordem.
+          </p>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -107,7 +260,7 @@ export default function AdminSections() {
           <h1 className="text-3xl font-display font-bold">Seções da Home</h1>
           <p className="text-muted-foreground font-sans mt-1">Configure as seções da página inicial</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingId(null); setForm(emptySection); } }}>
+        <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingId(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
             <Button className="gap-2 rounded-xl shine h-11 font-sans"><Plus className="w-4 h-4" /> Nova Seção</Button>
           </DialogTrigger>
@@ -118,7 +271,7 @@ export default function AdminSections() {
             <div className="grid gap-5 py-4">
               <div className="grid gap-2">
                 <Label className="font-sans text-sm font-medium">Tipo</Label>
-                <Select value={form.section_type} onValueChange={(v) => setForm({ ...form, section_type: v })}>
+                <Select value={form.section_type} onValueChange={(v) => setForm({ ...emptyForm, section_type: v, title: form.title, sort_order: form.sort_order, is_active: form.is_active })}>
                   <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {sectionTypes.map((t) => <SelectItem key={t.value} value={t.value} className="font-sans">{t.label}</SelectItem>)}
@@ -126,19 +279,16 @@ export default function AdminSections() {
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label className="font-sans text-sm font-medium">Título (opcional)</Label>
-                <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="h-11 rounded-xl" />
+                <Label className="font-sans text-sm font-medium">Título da Seção (opcional)</Label>
+                <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="h-11 rounded-xl" placeholder="Ex: Destaques da Semana" />
               </div>
-              <div className="grid gap-2">
-                <Label className="font-sans text-sm font-medium">Configuração (JSON)</Label>
-                <Textarea
-                  value={form.config_json}
-                  onChange={(e) => setForm({ ...form, config_json: e.target.value })}
-                  rows={6}
-                  className="rounded-xl font-mono text-xs"
-                  placeholder='{"title":"...", "limit": 8}'
-                />
+
+              {/* Dynamic config fields based on section type */}
+              <div className="border-t border-border pt-4 space-y-4">
+                <p className="text-xs font-sans font-semibold text-muted-foreground uppercase tracking-wider">Configurações</p>
+                {renderConfigFields()}
               </div>
+
               <div className="grid gap-2">
                 <Label className="font-sans text-sm font-medium">Ordem</Label>
                 <Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })} className="h-11 rounded-xl" />
