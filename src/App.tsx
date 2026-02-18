@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CartProvider } from "@/hooks/useCart";
-import { useCartSync } from "@/hooks/useCartSync";
+
 import StoreLayout from "./layouts/StoreLayout";
 import Index from "./pages/Index";
 import ProductPage from "./pages/Product";
@@ -40,7 +40,6 @@ import CheckoutPage from "./pages/store/CheckoutPage";
 const queryClient = new QueryClient();
 
 function AppContent() {
-  useCartSync();
 
   return (
     <>

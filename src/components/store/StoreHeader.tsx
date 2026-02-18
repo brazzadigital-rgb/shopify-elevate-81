@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
-import { useCartStore } from "@/stores/cartStore";
+import { useCart } from "@/hooks/useCart";
 import { ShoppingCart, Search, User, Menu, X, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,8 +13,7 @@ export function StoreHeader() {
   const [searchQuery, setSearchQuery] = useState("");
   const { user, isAdmin } = useAuth();
   const { getSetting, isEnabled } = useStoreSettings();
-  const { isOpen, setIsOpen } = useCartStore();
-  const itemCount = useCartStore(s => s.items.reduce((sum, i) => sum + i.quantity, 0));
+  const { isOpen, setIsOpen, itemCount } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -79,7 +78,6 @@ export function StoreHeader() {
         }`}
       >
         <div className="container flex items-center justify-between gap-4 h-16 md:h-[72px]">
-          {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
             <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center glow-orange group-hover:glow-orange-lg transition-all duration-300">
               <span className="text-accent-foreground font-display font-bold text-base">🐆</span>
@@ -89,7 +87,6 @@ export function StoreHeader() {
             </span>
           </Link>
 
-          {/* Search - centro */}
           <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md mx-4">
             <div className="relative w-full">
               <input
@@ -105,7 +102,6 @@ export function StoreHeader() {
             </div>
           </form>
 
-          {/* Right actions */}
           <div className="flex items-center gap-1 sm:gap-3 shrink-0">
             <Link to="/busca" className="md:hidden">
               <Button variant="ghost" size="icon" className="rounded-xl w-9 h-9 text-primary-foreground/60 hover:text-accent hover:bg-primary-foreground/10">
@@ -158,7 +154,6 @@ export function StoreHeader() {
           </div>
         </div>
 
-        {/* Nav menu — desktop */}
         <nav className="hidden md:block border-t border-primary-foreground/10">
           <div className="container flex items-center justify-center gap-8 h-10">
             {navLinks.map((link) => (
@@ -180,7 +175,6 @@ export function StoreHeader() {
           </div>
         </nav>
 
-        {/* Mobile menu */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
