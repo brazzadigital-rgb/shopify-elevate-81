@@ -3,9 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/useCart";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ShoppingCart, Loader2 } from "lucide-react";
+import { ShoppingCart, Loader2, Truck, Sparkles, TrendingUp } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface Product {
@@ -16,6 +15,8 @@ interface Product {
   compare_at_price: number | null;
   stock: number;
   is_featured: boolean;
+  is_new: boolean;
+  sold_count: number;
   product_images: { url: string; is_primary: boolean }[];
 }
 
@@ -33,7 +34,7 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
     const fetch = async () => {
       const { data } = await supabase
         .from("products")
-        .select("id, name, slug, price, compare_at_price, stock, is_featured, product_images(url, is_primary)")
+        .select("id, name, slug, price, compare_at_price, stock, is_featured, is_new, sold_count, product_images(url, is_primary)")
         .eq("is_active", true)
         .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false })
@@ -52,6 +53,12 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
   const getDiscount = (p: Product) => {
     if (!p.compare_at_price || p.compare_at_price <= p.price) return 0;
     return Math.round(((p.compare_at_price - p.price) / p.compare_at_price) * 100);
+  };
+
+  const getInstallment = (price: number) => {
+    const installments = 12;
+    const value = price / installments;
+    return `em até ${installments}x de R$ ${value.toFixed(2).replace(".", ",")}`;
   };
 
   const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
@@ -77,10 +84,10 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
         </motion.div>
 
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-7">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="space-y-3">
-                <Skeleton className="aspect-square rounded-2xl" />
+                <Skeleton className="aspect-square rounded-[18px]" />
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-4 w-1/2" />
               </div>
@@ -92,61 +99,103 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
             <p className="text-sm text-muted-foreground/60 font-sans">Adicione produtos no painel admin.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-7">
             {products.map((product, i) => {
               const disc = getDiscount(product);
+              const isBestseller = product.sold_count >= 10;
               return (
                 <motion.div
                   key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.05 }}
+                  transition={{ delay: i * 0.06, duration: 0.4 }}
                 >
-                  <Link to={`/produto/${product.slug}`} className="group block">
-                    <div className="rounded-2xl overflow-hidden bg-card border border-border/50 hover-energy">
-                      <div className="relative aspect-square bg-muted overflow-hidden">
+                  <Link to={`/produto/${product.slug}`} className="group block h-full">
+                    <div className="relative flex flex-col h-full bg-card rounded-[18px] border border-border/40 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
+                      {/* Image */}
+                      <div className="relative aspect-square bg-muted/30 overflow-hidden">
                         <img
                           src={getImage(product)}
                           alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500 ease-out"
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
+                        {/* Badges top-left */}
                         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
                           {disc > 0 && (
-                            <Badge className="bg-destructive text-destructive-foreground font-sans text-[10px] px-2.5 py-1 rounded-lg font-bold">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-destructive/90 text-destructive-foreground text-[11px] font-bold backdrop-blur-sm">
                               -{disc}%
-                            </Badge>
+                            </span>
                           )}
-                        </div>
-
-                        <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
-                          <button
-                            onClick={(e) => handleAddToCart(e, product)}
-                            disabled={cartLoading || product.stock <= 0}
-                            className="w-9 h-9 rounded-xl bg-primary/80 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors"
-                          >
-                            {cartLoading ? <Loader2 className="w-4 h-4 text-primary-foreground animate-spin" /> : <ShoppingCart className="w-4 h-4 text-primary-foreground" />}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="p-3 md:p-4">
-                        <p className="font-sans text-sm font-medium truncate group-hover:text-accent transition-colors">
-                          {product.name}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1.5">
-                          <span className="font-display text-lg font-bold">
-                            R$ {product.price.toFixed(2)}
-                          </span>
-                          {product.compare_at_price && product.compare_at_price > product.price && (
-                            <span className="font-sans text-xs text-muted-foreground line-through">
-                              R$ {product.compare_at_price.toFixed(2)}
+                          {product.is_new && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-accent/90 text-accent-foreground text-[11px] font-bold backdrop-blur-sm">
+                              <Sparkles className="w-3 h-3" />
+                              Novo
+                            </span>
+                          )}
+                          {isBestseller && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/90 text-primary-foreground text-[11px] font-bold backdrop-blur-sm">
+                              <TrendingUp className="w-3 h-3" />
+                              + Vendido
                             </span>
                           )}
                         </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex flex-col flex-1 p-4 md:p-5 gap-2">
+                        {/* Brand placeholder */}
+                        <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-sans">
+                          Loja Oficial
+                        </span>
+
+                        {/* Name */}
+                        <p className="font-sans text-sm md:text-base font-semibold leading-snug line-clamp-2 group-hover:text-accent transition-colors min-h-[2.5em]">
+                          {product.name}
+                        </p>
+
+                        {/* Prices */}
+                        <div className="mt-auto pt-2 space-y-0.5">
+                          {product.compare_at_price && product.compare_at_price > product.price && (
+                            <p className="font-sans text-xs text-muted-foreground line-through">
+                              de R$ {product.compare_at_price.toFixed(2).replace(".", ",")}
+                            </p>
+                          )}
+                          <p className="font-display text-xl md:text-2xl font-bold text-foreground">
+                            R$ {product.price.toFixed(2).replace(".", ",")}
+                          </p>
+                          <p className="font-sans text-[11px] text-muted-foreground">
+                            {getInstallment(product.price)}
+                          </p>
+                        </div>
+
+                        {/* Free shipping badge */}
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-success/10 text-success text-[11px] font-medium">
+                            <Truck className="w-3 h-3" />
+                            Frete grátis
+                          </span>
+                        </div>
+
+                        {/* CTA Button */}
+                        <button
+                          onClick={(e) => handleAddToCart(e, product)}
+                          disabled={cartLoading || product.stock <= 0}
+                          className="mt-3 w-full flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-foreground font-sans text-sm font-bold py-3 px-4 transition-all duration-200 hover:brightness-110 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {cartLoading ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : product.stock <= 0 ? (
+                            "Esgotado"
+                          ) : (
+                            <>
+                              <ShoppingCart className="w-4 h-4" />
+                              Comprar agora
+                            </>
+                          )}
+                        </button>
                       </div>
                     </div>
                   </Link>
