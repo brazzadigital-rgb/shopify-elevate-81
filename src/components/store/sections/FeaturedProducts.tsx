@@ -409,7 +409,7 @@ function ProductCard({
 
         {/* ── Variant pills ── */}
         {variants.length > 0 && (
-          <div className="px-3 pt-2.5 flex flex-wrap gap-1">
+          <div className="px-3 pt-2 flex flex-wrap gap-1">
             {variants.slice(0, 4).map((v) => (
               <span
                 key={v.id}
@@ -429,32 +429,34 @@ function ProductCard({
         )}
 
         {/* ── Content ── */}
-        <div className="flex flex-col flex-1 px-3 pb-3 pt-2 md:px-4 md:pb-4 md:pt-2.5 gap-1">
+        <div className="flex flex-col flex-1 px-3 pb-3 pt-1.5 md:px-4 md:pb-4 md:pt-2">
           {/* Name */}
           <Link to={`/produto/${product.slug}`}>
-            <p className="font-sans text-[13px] md:text-sm font-semibold leading-snug line-clamp-2 hover:text-accent transition-colors min-h-[2.4em]">
+            <p className="font-sans text-[13px] md:text-sm font-semibold leading-snug line-clamp-2 hover:text-accent transition-colors">
               {product.name}
             </p>
           </Link>
 
-          {/* Conversion badges */}
-          <div className="flex flex-wrap gap-1 mt-0.5">
-            {isBestseller && (
-              <span className="inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded bg-warning/10 text-warning text-[9px] font-semibold">
-                <Flame className="w-2.5 h-2.5" />
-                Mais vendido
-              </span>
-            )}
-            {lowStock && (
-              <span className="inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded bg-destructive/10 text-destructive text-[9px] font-semibold">
-                <Zap className="w-2.5 h-2.5" />
-                Só {product.stock} restam
-              </span>
-            )}
-          </div>
+          {/* Conversion badges — tight under name */}
+          {(isBestseller || lowStock) && (
+            <div className="flex flex-wrap gap-1 mt-1">
+              {isBestseller && (
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded bg-warning/10 text-warning text-[9px] font-semibold">
+                  <Flame className="w-2.5 h-2.5" />
+                  Mais vendido
+                </span>
+              )}
+              {lowStock && (
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded bg-destructive/10 text-destructive text-[9px] font-semibold">
+                  <Zap className="w-2.5 h-2.5" />
+                  Só {product.stock} restam
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Prices */}
-          <div className="mt-auto pt-1.5 space-y-0">
+          <div className="mt-auto pt-1.5">
             {product.compare_at_price && product.compare_at_price > product.price && (
               <p className="font-sans text-[11px] text-muted-foreground line-through leading-none">
                 R$ {fmt(product.compare_at_price)}
@@ -463,7 +465,7 @@ function ProductCard({
             <p className="font-display text-lg md:text-xl font-bold text-foreground leading-tight">
               R$ {fmt(product.price)}
             </p>
-            <p className="font-sans text-[10px] text-muted-foreground flex items-center gap-0.5 leading-none mt-0.5">
+            <p className="font-sans text-[10px] text-muted-foreground flex items-center gap-0.5 mt-0.5">
               <CreditCard className="w-2.5 h-2.5 flex-shrink-0" />
               {installment(product.price)}
             </p>
@@ -476,7 +478,7 @@ function ProductCard({
           </span>
 
           {/* CTA */}
-          <div className="flex gap-1.5 mt-2.5">
+          <div className="flex gap-1.5 mt-2">
             <button
               onClick={handleQuickBuy}
               className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl bg-accent text-accent-foreground font-sans text-[13px] font-bold py-2.5 transition-all hover:brightness-110 active:scale-[0.96]"
