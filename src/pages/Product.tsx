@@ -79,16 +79,18 @@ function PriceBlock({ price, comparePrice, discount, currency, pixEnabled, pixDi
           em até {maxInstallments}x de <span className="font-semibold text-foreground">R$ {installmentValue.replace('.', ',')}</span>
         </p>
       )}
-      {pixEnabled && pixDiscount > 0 && (
-        <Badge variant="outline" className="text-xs font-sans border-success text-success mt-1">
-          ✅ Até {pixDiscount}% OFF no PIX
-        </Badge>
-      )}
-      {blackFridayEnabled && blackFridayText && (
-        <Badge variant="outline" className="text-xs font-sans border-accent text-accent mt-1">
-          🔥 {blackFridayText}
-        </Badge>
-      )}
+      <div className="flex flex-wrap items-center gap-2 mt-1">
+        {pixEnabled && pixDiscount > 0 && (
+          <Badge variant="outline" className="text-xs font-sans border-success text-success">
+            ✅ Até {pixDiscount}% OFF no PIX
+          </Badge>
+        )}
+        {blackFridayEnabled && blackFridayText && (
+          <Badge variant="outline" className="text-xs font-sans border-accent text-accent">
+            🔥 {blackFridayText}
+          </Badge>
+        )}
+      </div>
     </div>
   );
 }
