@@ -1,12 +1,12 @@
 import {
-  LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, BarChart3, LogOut, ChevronLeft, ShoppingBag
+  LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, BarChart3, LogOut, ShoppingBag, Zap
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
-  SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarTrigger,
+  SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter,
 } from "@/components/ui/sidebar";
 
 const menuItems = [
@@ -34,19 +34,19 @@ export function AdminSidebar() {
     <Sidebar className="border-r-0">
       <SidebarHeader className="p-5 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-sidebar-primary flex items-center justify-center">
-            <ShoppingBag className="w-5 h-5 text-sidebar-primary-foreground" />
+          <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center glow-orange">
+            <span className="text-lg">🐆</span>
           </div>
           <div className="flex flex-col">
-            <span className="font-display text-base font-bold text-sidebar-foreground">Admin</span>
-            <span className="text-xs text-sidebar-foreground/50 font-sans">Painel de Gestão</span>
+            <span className="font-display text-base font-bold text-sidebar-foreground uppercase">Admin</span>
+            <span className="text-[10px] text-accent font-sans font-bold uppercase tracking-wider">Painel de Gestão</span>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent className="px-3 py-4">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/40 uppercase text-[10px] tracking-widest font-sans font-semibold mb-2">
+          <SidebarGroupLabel className="text-sidebar-foreground/30 uppercase text-[10px] tracking-widest font-sans font-bold mb-2">
             Menu
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -57,8 +57,8 @@ export function AdminSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === "/admin"}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 font-sans text-sm"
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 font-sans text-sm font-medium"
+                      activeClassName="bg-accent/10 text-accent font-bold border border-accent/20"
                     >
                       <item.icon className="w-[18px] h-[18px]" />
                       <span>{item.title}</span>
@@ -73,8 +73,15 @@ export function AdminSidebar() {
 
       <SidebarFooter className="p-4 border-t border-sidebar-border">
         <button
+          onClick={() => navigate("/")}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/40 hover:text-accent hover:bg-sidebar-accent transition-all duration-200 w-full font-sans text-sm mb-1"
+        >
+          <ShoppingBag className="w-[18px] h-[18px]" />
+          <span>Ver Loja</span>
+        </button>
+        <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/50 hover:text-destructive hover:bg-sidebar-accent transition-all duration-200 w-full font-sans text-sm"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/40 hover:text-destructive hover:bg-sidebar-accent transition-all duration-200 w-full font-sans text-sm"
         >
           <LogOut className="w-[18px] h-[18px]" />
           <span>Sair</span>

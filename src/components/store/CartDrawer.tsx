@@ -1,8 +1,7 @@
 import { useCart, CartItem } from "@/hooks/useCart";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, X } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingCart, ArrowRight, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -17,21 +16,21 @@ export function CartDrawer() {
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent className="w-full sm:max-w-md p-0 flex flex-col">
-        <SheetHeader className="p-5 pb-4 border-b">
+      <SheetContent className="w-full sm:max-w-md p-0 flex flex-col bg-primary border-l border-primary-foreground/10">
+        <SheetHeader className="p-5 pb-4 border-b border-primary-foreground/10">
           <div className="flex items-center justify-between">
-            <SheetTitle className="font-display text-lg">
-              Carrinho {itemCount > 0 && <span className="text-muted-foreground font-sans text-sm font-normal ml-1">({itemCount})</span>}
+            <SheetTitle className="font-display text-lg text-primary-foreground uppercase">
+              Carrinho {itemCount > 0 && <span className="text-accent font-sans text-sm font-bold ml-1">({itemCount})</span>}
             </SheetTitle>
           </div>
         </SheetHeader>
 
         {items.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-muted-foreground">
-            <ShoppingBag className="w-16 h-16 mb-4 opacity-30" />
-            <p className="font-display text-lg mb-1">Carrinho vazio</p>
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-primary-foreground/40">
+            <ShoppingCart className="w-16 h-16 mb-4 opacity-30" />
+            <p className="font-display text-lg uppercase mb-1 text-primary-foreground/60">Carrinho vazio</p>
             <p className="font-sans text-sm">Adicione produtos para continuar</p>
-            <Button onClick={() => setIsOpen(false)} className="mt-6 rounded-xl font-sans" asChild>
+            <Button onClick={() => setIsOpen(false)} className="mt-6 rounded-xl font-sans bg-accent text-accent-foreground hover:bg-accent/90 shine" asChild>
               <Link to="/">Explorar produtos</Link>
             </Button>
           </div>
@@ -48,34 +47,34 @@ export function CartDrawer() {
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
-                      className="flex gap-3"
+                      className="flex gap-3 p-3 rounded-xl bg-primary-foreground/5 border border-primary-foreground/10"
                     >
-                      <div className="w-20 h-20 rounded-xl overflow-hidden bg-muted shrink-0">
+                      <div className="w-20 h-20 rounded-xl overflow-hidden bg-primary-foreground/10 shrink-0">
                         <img src={getImage(item)} alt={item.product?.name} className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <Link
                           to={`/produto/${item.product?.slug}`}
                           onClick={() => setIsOpen(false)}
-                          className="font-sans text-sm font-medium hover:text-accent transition-colors line-clamp-2"
+                          className="font-sans text-sm font-medium text-primary-foreground hover:text-accent transition-colors line-clamp-2"
                         >
                           {item.product?.name}
                         </Link>
                         {item.variant && (
-                          <p className="text-xs text-muted-foreground font-sans mt-0.5">{item.variant.name}</p>
+                          <p className="text-xs text-primary-foreground/40 font-sans mt-0.5">{item.variant.name}</p>
                         )}
-                        <p className="font-sans text-sm font-bold mt-1">R$ {(Number(price) * item.quantity).toFixed(2)}</p>
+                        <p className="font-display text-base font-bold text-accent mt-1">R$ {(Number(price) * item.quantity).toFixed(2)}</p>
                         <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center border rounded-lg overflow-hidden">
-                            <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center hover:bg-muted transition-colors">
+                          <div className="flex items-center border border-primary-foreground/20 rounded-lg overflow-hidden">
+                            <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center hover:bg-primary-foreground/10 text-primary-foreground/60 transition-colors">
                               <Minus className="w-3 h-3" />
                             </button>
-                            <span className="w-8 text-center font-sans text-xs font-semibold">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-7 h-7 flex items-center justify-center hover:bg-muted transition-colors">
+                            <span className="w-8 text-center font-sans text-xs font-semibold text-primary-foreground">{item.quantity}</span>
+                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-7 h-7 flex items-center justify-center hover:bg-primary-foreground/10 text-primary-foreground/60 transition-colors">
                               <Plus className="w-3 h-3" />
                             </button>
                           </div>
-                          <button onClick={() => removeItem(item.id)} className="text-muted-foreground hover:text-destructive transition-colors">
+                          <button onClick={() => removeItem(item.id)} className="text-primary-foreground/30 hover:text-destructive transition-colors">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -86,19 +85,19 @@ export function CartDrawer() {
               </AnimatePresence>
             </div>
 
-            <div className="p-5 border-t bg-muted/30 space-y-4">
+            <div className="p-5 border-t border-primary-foreground/10 space-y-4">
               <div className="flex items-center justify-between font-sans">
-                <span className="text-sm text-muted-foreground">Subtotal</span>
-                <span className="text-lg font-bold">R$ {subtotal.toFixed(2)}</span>
+                <span className="text-sm text-primary-foreground/50">Subtotal</span>
+                <span className="text-xl font-display font-bold text-accent">R$ {subtotal.toFixed(2)}</span>
               </div>
-              <p className="text-xs text-muted-foreground font-sans">Frete calculado no checkout</p>
+              <p className="text-xs text-primary-foreground/30 font-sans">Frete calculado no checkout</p>
               <div className="flex flex-col gap-2">
-                <Button asChild className="h-12 rounded-xl shine font-sans font-bold bg-success hover:bg-success/90 text-success-foreground">
+                <Button asChild className="h-13 rounded-xl shine font-sans font-bold bg-accent text-accent-foreground hover:bg-accent/90 uppercase tracking-wider glow-orange">
                   <Link to="/checkout" onClick={() => setIsOpen(false)}>
-                    Finalizar compra <ArrowRight className="ml-2 w-4 h-4" />
+                    <Zap className="w-4 h-4 mr-2" /> Finalizar compra
                   </Link>
                 </Button>
-                <Button asChild variant="outline" className="h-11 rounded-xl font-sans">
+                <Button asChild variant="outline" className="h-11 rounded-xl font-sans border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10">
                   <Link to="/carrinho" onClick={() => setIsOpen(false)}>
                     Ver carrinho completo
                   </Link>

@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useCart } from "@/hooks/useCart";
-import { ShoppingBag, Search, Heart, User, Menu, X, ShoppingCart } from "lucide-react";
+import { ShoppingCart, Search, Heart, User, Menu, X, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -34,7 +34,8 @@ export function StoreHeader() {
     <>
       {/* TopBar */}
       {isEnabled("topbar_enabled") && (
-        <div className="bg-primary text-primary-foreground text-center py-2 text-xs sm:text-sm font-sans tracking-wide">
+        <div className="bg-accent text-accent-foreground text-center py-2 text-xs font-sans font-bold uppercase tracking-wider">
+          <Zap className="w-3 h-3 inline mr-1" />
           {getSetting("topbar_text", "🚚 Frete grátis para compras acima de R$ 199")}
         </div>
       )}
@@ -43,18 +44,18 @@ export function StoreHeader() {
       <header
         className={`sticky top-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-background/85 backdrop-blur-xl shadow-sm border-b"
-            : "bg-background border-b"
+            ? "bg-primary/95 backdrop-blur-xl shadow-lg border-b border-primary-foreground/10"
+            : "bg-primary border-b border-primary-foreground/10"
         }`}
       >
         <div className="container flex items-center justify-between h-16 md:h-[72px]">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
-              <ShoppingBag className="w-5 h-5 text-primary-foreground" />
+          <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
+            <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center glow-orange group-hover:glow-orange-lg transition-all duration-300">
+              <span className="text-accent-foreground font-display font-bold text-lg">🐆</span>
             </div>
-            <span className="font-display text-lg md:text-xl font-bold tracking-tight">
-              {getSetting("store_name", "Premium Store")}
+            <span className="font-display text-lg md:text-xl font-bold tracking-tight text-primary-foreground uppercase">
+              {getSetting("store_name", "SPORT STORE")}
             </span>
           </Link>
 
@@ -64,11 +65,16 @@ export function StoreHeader() {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`font-sans text-sm font-medium transition-colors hover:text-accent ${
-                  location.pathname === link.to ? "text-accent" : "text-muted-foreground"
+                className={`font-sans text-xs font-bold uppercase tracking-wider transition-colors relative py-1 ${
+                  location.pathname === link.to
+                    ? "text-accent"
+                    : "text-primary-foreground/60 hover:text-primary-foreground"
                 }`}
               >
                 {link.label}
+                {location.pathname === link.to && (
+                  <motion.div layoutId="nav-underline" className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-accent rounded-full" />
+                )}
               </Link>
             ))}
           </nav>
@@ -76,21 +82,26 @@ export function StoreHeader() {
           {/* Actions */}
           <div className="flex items-center gap-1 sm:gap-2">
             <Link to="/busca">
-              <Button variant="ghost" size="icon" className="rounded-xl w-10 h-10 hidden sm:flex">
+              <Button variant="ghost" size="icon" className="rounded-xl w-10 h-10 hidden sm:flex text-primary-foreground/60 hover:text-accent hover:bg-primary-foreground/10">
                 <Search className="w-[18px] h-[18px]" />
               </Button>
             </Link>
             {isEnabled("wishlist_enabled") && (
               <Link to="/conta/favoritos">
-                <Button variant="ghost" size="icon" className="rounded-xl w-10 h-10 hidden sm:flex">
+                <Button variant="ghost" size="icon" className="rounded-xl w-10 h-10 hidden sm:flex text-primary-foreground/60 hover:text-accent hover:bg-primary-foreground/10">
                   <Heart className="w-[18px] h-[18px]" />
                 </Button>
               </Link>
             )}
-            <Button variant="ghost" size="icon" className="rounded-xl w-10 h-10 relative" onClick={() => cartCtx.setIsOpen(true)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-xl w-10 h-10 relative text-primary-foreground/60 hover:text-accent hover:bg-primary-foreground/10"
+              onClick={() => cartCtx.setIsOpen(true)}
+            >
               <ShoppingCart className="w-[18px] h-[18px]" />
               {cartCtx.itemCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center font-sans min-w-[18px] h-[18px] px-1">
+                <span className="absolute -top-0.5 -right-0.5 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center font-sans min-w-[18px] h-[18px] px-1 animate-glow-pulse">
                   {cartCtx.itemCount}
                 </span>
               )}
@@ -98,13 +109,13 @@ export function StoreHeader() {
 
             {user ? (
               <Link to={isAdmin ? "/admin" : "/conta"}>
-                <Button variant="ghost" size="icon" className="rounded-xl w-10 h-10">
+                <Button variant="ghost" size="icon" className="rounded-xl w-10 h-10 text-primary-foreground/60 hover:text-accent hover:bg-primary-foreground/10">
                   <User className="w-[18px] h-[18px]" />
                 </Button>
               </Link>
             ) : (
               <Link to="/auth">
-                <Button variant="outline" size="sm" className="rounded-xl font-sans text-xs h-9 px-4 hidden sm:flex">
+                <Button size="sm" className="rounded-xl font-sans text-xs h-9 px-5 hidden sm:flex bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wider shine">
                   Entrar
                 </Button>
               </Link>
@@ -114,7 +125,7 @@ export function StoreHeader() {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-xl w-10 h-10 lg:hidden"
+              className="rounded-xl w-10 h-10 lg:hidden text-primary-foreground/60 hover:text-accent hover:bg-primary-foreground/10"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -130,17 +141,17 @@ export function StoreHeader() {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="lg:hidden overflow-hidden border-t"
+              className="lg:hidden overflow-hidden border-t border-primary-foreground/10"
             >
               <nav className="container py-4 flex flex-col gap-1">
                 {navLinks.map((link) => (
                   <Link
                     key={link.to}
                     to={link.to}
-                    className={`py-3 px-4 rounded-xl font-sans text-sm font-medium transition-colors ${
+                    className={`py-3 px-4 rounded-xl font-sans text-sm font-bold uppercase tracking-wider transition-colors ${
                       location.pathname === link.to
-                        ? "bg-muted text-accent"
-                        : "text-foreground hover:bg-muted"
+                        ? "bg-accent/10 text-accent"
+                        : "text-primary-foreground/60 hover:bg-primary-foreground/5 hover:text-primary-foreground"
                     }`}
                   >
                     {link.label}
@@ -148,7 +159,9 @@ export function StoreHeader() {
                 ))}
                 {!user && (
                   <Link to="/auth" className="mt-2">
-                    <Button className="w-full rounded-xl font-sans h-11 shine">Entrar / Cadastrar</Button>
+                    <Button className="w-full rounded-xl font-sans h-12 shine bg-accent text-accent-foreground font-bold uppercase tracking-wider">
+                      Entrar / Cadastrar
+                    </Button>
                   </Link>
                 )}
               </nav>

@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 
 interface Product {
   id: string;
@@ -53,16 +52,18 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
   };
 
   return (
-    <section className="py-14 md:py-20">
+    <section className="py-16 md:py-24">
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-10"
+          className="text-center mb-12"
         >
-          <h2 className="text-2xl md:text-3xl font-display font-bold">{title}</h2>
-          <p className="text-muted-foreground font-sans text-sm mt-2">Selecionados especialmente para você</p>
+          <span className="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent font-sans text-xs font-bold uppercase tracking-wider mb-3">
+            Destaques
+          </span>
+          <h2 className="text-3xl md:text-4xl font-display font-bold">{title}</h2>
         </motion.div>
 
         {loading ? (
@@ -88,38 +89,48 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
                 transition={{ delay: i * 0.05 }}
               >
                 <Link to={`/produto/${product.slug}`} className="group block">
-                  <Card className="border-0 shadow-none hover:shadow-premium-lg transition-all duration-300 overflow-hidden rounded-2xl bg-transparent">
-                    <div className="relative aspect-square bg-muted rounded-2xl overflow-hidden">
+                  <div className="rounded-2xl overflow-hidden bg-card border border-border/50 hover-energy">
+                    <div className="relative aspect-square bg-muted overflow-hidden">
                       <img
                         src={getImage(product)}
                         alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         loading="lazy"
                       />
+                      {/* Overlay on hover */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      
                       {/* Badges */}
                       <div className="absolute top-3 left-3 flex flex-col gap-1.5">
                         {product.is_new && (
-                          <Badge className="bg-accent text-accent-foreground font-sans text-[10px] px-2 py-0.5 rounded-lg">
+                          <Badge className="bg-accent text-accent-foreground font-sans text-[10px] px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider">
                             Novo
                           </Badge>
                         )}
                         {discount(product) > 0 && (
-                          <Badge className="bg-destructive text-destructive-foreground font-sans text-[10px] px-2 py-0.5 rounded-lg">
+                          <Badge className="bg-destructive text-destructive-foreground font-sans text-[10px] px-2.5 py-1 rounded-lg font-bold">
                             -{discount(product)}%
                           </Badge>
                         )}
                       </div>
-                      {/* Wishlist */}
-                      <button className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-background">
-                        <Heart className="w-4 h-4" />
-                      </button>
+
+                      {/* Quick actions */}
+                      <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+                        <button className="w-9 h-9 rounded-xl bg-primary/80 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors">
+                          <Heart className="w-4 h-4 text-primary-foreground" />
+                        </button>
+                        <button className="w-9 h-9 rounded-xl bg-primary/80 backdrop-blur-sm flex items-center justify-center hover:bg-accent transition-colors">
+                          <ShoppingCart className="w-4 h-4 text-primary-foreground" />
+                        </button>
+                      </div>
                     </div>
-                    <CardContent className="px-1 pt-3 pb-0">
+                    
+                    <div className="p-3 md:p-4">
                       <p className="font-sans text-sm font-medium truncate group-hover:text-accent transition-colors">
                         {product.name}
                       </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="font-sans text-base font-bold">
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className="font-display text-lg font-bold">
                           R$ {Number(product.price).toFixed(2)}
                         </span>
                         {product.compare_at_price && product.compare_at_price > product.price && (
@@ -128,8 +139,8 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
                           </span>
                         )}
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 </Link>
               </motion.div>
             ))}

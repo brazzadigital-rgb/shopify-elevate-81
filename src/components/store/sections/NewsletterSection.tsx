@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send } from "lucide-react";
+import { Send, Zap } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface NewsletterSectionProps {
@@ -24,18 +24,23 @@ export function NewsletterSection({ config }: NewsletterSectionProps) {
   };
 
   return (
-    <section className="py-16 md:py-20 bg-primary text-primary-foreground">
-      <div className="container">
+    <section className="py-20 md:py-28 relative overflow-hidden">
+      {/* Background glow */}
+      <div className="absolute inset-0 bg-mesh" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-accent/5 blur-3xl" />
+      
+      <div className="container relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="max-w-xl mx-auto text-center"
         >
-          <h2 className="text-2xl md:text-3xl font-display font-bold mb-3">
-            {config.title || "Receba nossas novidades"}
+          <Zap className="w-8 h-8 text-accent mx-auto mb-4" />
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-3">
+            {config.title || "Fique por dentro"}
           </h2>
-          <p className="text-primary-foreground/50 font-sans text-sm mb-8">
+          <p className="text-muted-foreground font-sans text-sm mb-8">
             {config.subtitle || "Cadastre-se e ganhe 10% de desconto na primeira compra"}
           </p>
           <form onSubmit={handleSubmit} className="flex gap-2">
@@ -45,14 +50,14 @@ export function NewsletterSection({ config }: NewsletterSectionProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="h-12 rounded-xl bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/30 font-sans flex-1"
+              className="h-14 rounded-2xl font-sans flex-1 border-border/50 focus:border-accent"
             />
             <Button
               type="submit"
               size="lg"
-              className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl shine h-12 px-6 font-sans shrink-0"
+              className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-2xl shine h-14 px-8 font-sans font-bold uppercase tracking-wider shrink-0 glow-orange"
             >
-              <Send className="w-4 h-4 mr-2" /> Cadastrar
+              <Send className="w-4 h-4 mr-2" /> Enviar
             </Button>
           </form>
         </motion.div>
