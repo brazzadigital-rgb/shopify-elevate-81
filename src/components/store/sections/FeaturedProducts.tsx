@@ -409,54 +409,55 @@ function ProductCard({
 
         {/* ── Content ── */}
         <div className="flex flex-col flex-1 px-3 pb-3 pt-1 md:px-4 md:pb-4 md:pt-2">
-          {/* Variant pills */}
-          {variants.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-1">
-              {variants.slice(0, 4).map((v) => (
-                <span
-                  key={v.id}
-                  className={`px-1.5 py-[1px] rounded border text-[9px] font-medium ${
-                    v.stock > 0
-                      ? "border-border text-muted-foreground"
-                      : "border-border/40 text-muted-foreground/40 line-through"
-                  }`}
-                >
-                  {v.name}
-                </span>
-              ))}
-              {variants.length > 4 && (
-                <span className="px-1.5 py-[1px] text-[9px] text-muted-foreground">+{variants.length - 4}</span>
-              )}
-            </div>
-          )}
-
-          {/* Name */}
+          {/* Name — always first, always aligned */}
           <Link to={`/produto/${product.slug}`}>
-            <p className="font-sans text-[13px] md:text-sm font-semibold leading-snug line-clamp-2 hover:text-accent transition-colors">
+            <p className="font-sans text-[13px] md:text-sm font-semibold leading-snug line-clamp-2 hover:text-accent transition-colors min-h-[2.5em]">
               {product.name}
             </p>
           </Link>
 
-          {/* Conversion badges — tight under name */}
-          {(isBestseller || lowStock) && (
-            <div className="flex flex-wrap gap-1 mt-1">
-              {isBestseller && (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded bg-warning/10 text-warning text-[9px] font-semibold">
-                  <Flame className="w-2.5 h-2.5" />
-                  Mais vendido
-                </span>
-              )}
-              {lowStock && (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded bg-destructive/10 text-destructive text-[9px] font-semibold">
-                  <Zap className="w-2.5 h-2.5" />
-                  Só {product.stock} restam
-                </span>
-              )}
-            </div>
-          )}
+          {/* Variant pills + Conversion badges — variable height zone */}
+          <div className="mt-1 space-y-1">
+            {variants.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {variants.slice(0, 4).map((v) => (
+                  <span
+                    key={v.id}
+                    className={`px-1.5 py-[1px] rounded border text-[9px] font-medium ${
+                      v.stock > 0
+                        ? "border-border text-muted-foreground"
+                        : "border-border/40 text-muted-foreground/40 line-through"
+                    }`}
+                  >
+                    {v.name}
+                  </span>
+                ))}
+                {variants.length > 4 && (
+                  <span className="px-1.5 py-[1px] text-[9px] text-muted-foreground">+{variants.length - 4}</span>
+                )}
+              </div>
+            )}
 
-          {/* Prices */}
-          <div className="mt-auto pt-1">
+            {(isBestseller || lowStock) && (
+              <div className="flex flex-wrap gap-1">
+                {isBestseller && (
+                  <span className="inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded bg-warning/10 text-warning text-[9px] font-semibold">
+                    <Flame className="w-2.5 h-2.5" />
+                    Mais vendido
+                  </span>
+                )}
+                {lowStock && (
+                  <span className="inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded bg-destructive/10 text-destructive text-[9px] font-semibold">
+                    <Zap className="w-2.5 h-2.5" />
+                    Só {product.stock} restam
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Prices — pushed to bottom */}
+          <div className="mt-auto pt-2">
             {product.compare_at_price && product.compare_at_price > product.price && (
               <p className="font-sans text-[11px] text-muted-foreground line-through leading-none">
                 R$ {fmt(product.compare_at_price)}
