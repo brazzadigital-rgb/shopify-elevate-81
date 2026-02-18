@@ -103,6 +103,8 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -110,6 +112,30 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.02em;
+  }
+
+  /* Responsive typography with clamp */
+  h1 { font-size: clamp(1.5rem, 4vw, 2.25rem); }
+  h2 { font-size: clamp(1.25rem, 3.5vw, 2rem); }
+  h3 { font-size: clamp(1.1rem, 3vw, 1.5rem); }
+
+  /* Minimum tap target */
+  button, a, [role="button"], input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Exceptions for inline/icon elements */
+  .min-h-auto, span > a, p > a, td button, th button,
+  [data-radix-collection-item], [role="option"],
+  [role="menuitem"], [role="tab"] {
+    min-height: unset;
+    min-width: unset;
+  }
+
+  input, select, textarea {
+    min-width: unset;
+    width: 100%;
   }
 }
 

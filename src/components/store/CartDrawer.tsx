@@ -21,7 +21,7 @@ export function CartDrawer() {
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent className="w-full sm:max-w-md p-0 flex flex-col bg-primary border-l border-primary-foreground/10">
+      <SheetContent className="w-[90%] sm:max-w-md p-0 flex flex-col bg-primary border-l border-primary-foreground/10">
         <SheetHeader className="p-5 pb-4 border-b border-primary-foreground/10">
           <div className="flex items-center justify-between">
             <SheetTitle className="font-display text-lg text-primary-foreground uppercase">
@@ -70,15 +70,15 @@ export function CartDrawer() {
                         </p>
                         <div className="flex items-center justify-between mt-2">
                           <div className="flex items-center border border-primary-foreground/20 rounded-lg overflow-hidden">
-                            <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center hover:bg-primary-foreground/10 text-primary-foreground/60 transition-colors" disabled={loading}>
+                            <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-9 h-9 flex items-center justify-center hover:bg-primary-foreground/10 text-primary-foreground/60 transition-colors min-h-[unset] min-w-[unset]" disabled={loading}>
                               <Minus className="w-3 h-3" />
                             </button>
                             <span className="w-8 text-center font-sans text-xs font-semibold text-primary-foreground">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-7 h-7 flex items-center justify-center hover:bg-primary-foreground/10 text-primary-foreground/60 transition-colors" disabled={loading}>
+                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-9 h-9 flex items-center justify-center hover:bg-primary-foreground/10 text-primary-foreground/60 transition-colors min-h-[unset] min-w-[unset]" disabled={loading}>
                               <Plus className="w-3 h-3" />
                             </button>
                           </div>
-                          <button onClick={() => removeItem(item.id)} className="text-primary-foreground/30 hover:text-destructive transition-colors" disabled={loading}>
+                          <button onClick={() => removeItem(item.id)} className="text-primary-foreground/30 hover:text-destructive transition-colors min-h-[unset] min-w-[unset] p-2" disabled={loading}>
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>

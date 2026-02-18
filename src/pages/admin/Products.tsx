@@ -124,11 +124,11 @@ export default function Products() {
       : products.filter(p => p.supplier_id === filterSupplier);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 md:space-y-6 overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-display font-bold">Produtos</h1>
-          <p className="text-muted-foreground font-sans mt-1">Gerencie o catálogo da loja</p>
+          <h1 className="text-2xl md:text-3xl font-display font-bold">Produtos</h1>
+          <p className="text-muted-foreground font-sans text-sm mt-1">Gerencie o catálogo da loja</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingId(null); setForm(emptyProduct); } }}>
           <DialogTrigger asChild>
@@ -231,8 +231,8 @@ export default function Products() {
         </div>
       )}
 
-      <Card className="shadow-premium border-0">
-        <CardContent className="p-0">
+      <Card className="shadow-premium border-0 overflow-hidden">
+        <CardContent className="p-0 overflow-x-auto">
           {loading ? (
             <div className="p-6 space-y-4">
               {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
