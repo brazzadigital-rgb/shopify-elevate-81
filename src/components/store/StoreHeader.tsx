@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
+import { useCart } from "@/hooks/useCart";
 import { ShoppingBag, Search, Heart, User, Menu, X, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,6 +12,7 @@ export function StoreHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, isAdmin } = useAuth();
   const { getSetting, isEnabled } = useStoreSettings();
+  const cartCtx = useCart();
   const location = useLocation();
 
   useEffect(() => {
@@ -81,8 +83,13 @@ export function StoreHeader() {
                 <Heart className="w-[18px] h-[18px]" />
               </Button>
             )}
-            <Button variant="ghost" size="icon" className="rounded-xl w-10 h-10 relative">
+            <Button variant="ghost" size="icon" className="rounded-xl w-10 h-10 relative" onClick={() => cartCtx.setIsOpen(true)}>
               <ShoppingCart className="w-[18px] h-[18px]" />
+              {cartCtx.itemCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center font-sans min-w-[18px] h-[18px] px-1">
+                  {cartCtx.itemCount}
+                </span>
+              )}
             </Button>
 
             {user ? (
