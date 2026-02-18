@@ -407,29 +407,29 @@ function ProductCard({
           </button>
         </div>
 
-        {/* ── Variant pills ── */}
-        {variants.length > 0 && (
-          <div className="px-3 pt-2 flex flex-wrap gap-1">
-            {variants.slice(0, 4).map((v) => (
-              <span
-                key={v.id}
-                className={`px-1.5 py-[1px] rounded border text-[9px] font-medium ${
-                  v.stock > 0
-                    ? "border-border text-muted-foreground"
-                    : "border-border/40 text-muted-foreground/40 line-through"
-                }`}
-              >
-                {v.name}
-              </span>
-            ))}
-            {variants.length > 4 && (
-              <span className="px-1.5 py-[1px] text-[9px] text-muted-foreground">+{variants.length - 4}</span>
-            )}
-          </div>
-        )}
-
         {/* ── Content ── */}
         <div className="flex flex-col flex-1 px-3 pb-3 pt-1 md:px-4 md:pb-4 md:pt-2">
+          {/* Variant pills */}
+          {variants.length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-1">
+              {variants.slice(0, 4).map((v) => (
+                <span
+                  key={v.id}
+                  className={`px-1.5 py-[1px] rounded border text-[9px] font-medium ${
+                    v.stock > 0
+                      ? "border-border text-muted-foreground"
+                      : "border-border/40 text-muted-foreground/40 line-through"
+                  }`}
+                >
+                  {v.name}
+                </span>
+              ))}
+              {variants.length > 4 && (
+                <span className="px-1.5 py-[1px] text-[9px] text-muted-foreground">+{variants.length - 4}</span>
+              )}
+            </div>
+          )}
+
           {/* Name */}
           <Link to={`/produto/${product.slug}`}>
             <p className="font-sans text-[13px] md:text-sm font-semibold leading-snug line-clamp-2 hover:text-accent transition-colors">
