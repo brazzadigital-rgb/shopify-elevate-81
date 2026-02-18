@@ -29,11 +29,13 @@ export function HeroSection({ config }: HeroSectionProps) {
     <section className="bg-background py-6 md:py-10">
       <div className="container">
         <div
-          className="relative w-full rounded-2xl overflow-hidden min-h-[320px] md:min-h-[420px] lg:min-h-[480px] flex items-end"
+          className="relative w-full rounded-2xl overflow-hidden min-h-[380px] md:min-h-[480px] lg:min-h-[540px] flex items-end"
           style={{
             backgroundImage: `url(${bannerImage})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundSize: "contain",
+            backgroundPosition: "right center",
+            backgroundRepeat: "no-repeat",
+            backgroundColor: "hsl(var(--primary))",
           }}
         >
           {/* Dark overlay for text readability */}
