@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { storefrontApiRequest, PRODUCT_BY_HANDLE_QUERY, ShopifyProduct } from "@/lib/shopify";
-import { useCartStore } from "@/stores/cartStore";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/hooks/useCart";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,16 +13,31 @@ import {
   Loader2, Truck, ShieldCheck, CreditCard, Package,
 } from "lucide-react";
 
+/* ── Types ────────────────────────────────────── */
+interface ProductData {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  price: number;
+  compare_at_price: number | null;
+  stock: number;
+  sku: string | null;
+  sold_count: number;
+  product_images: { url: string; is_primary: boolean; alt_text: string | null }[];
+  product_variants: { id: string; name: string; price: number | null; stock: number }[];
+}
+
 /* ── Sub-components ────────────────────────────────────── */
 
 function ProductGallery({ images, title, discount, selectedImage, setSelectedImage }: {
-  images: Array<{ node: { url: string; altText: string | null } }>;
+  images: ProductData["product_images"];
   title: string;
   discount: number;
   selectedImage: number;
   setSelectedImage: (i: number) => void;
 }) {
-  const primaryImage = images[selectedImage]?.node?.url || "/placeholder.svg";
+  const primaryImage = images[selectedImage]?.url || "/placeholder.svg";
   return (
     <div className="sticky top-24">
       <div className="bg-card rounded-2xl border overflow-hidden">
@@ -37,7 +52,7 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
                     i === selectedImage ? "border-accent" : "border-transparent hover:border-border"
                   }`}
                 >
-                  <img src={img.node.url} alt="" className="w-full h-full object-cover" />
+                  <img src={img.url} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -54,22 +69,18 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
   );
 }
 
-function PriceBlock({ price, comparePrice, discount, currency, pixEnabled, pixDiscount, installmentsEnabled, maxInstallments, blackFridayEnabled, blackFridayText }: {
-  price: number; comparePrice: number; discount: number; currency: string;
+function PriceBlock({ price, comparePrice, discount, pixEnabled, pixDiscount, installmentsEnabled, maxInstallments, blackFridayEnabled, blackFridayText }: {
+  price: number; comparePrice: number; discount: number;
   pixEnabled: boolean; pixDiscount: number; installmentsEnabled: boolean; maxInstallments: number;
   blackFridayEnabled?: boolean; blackFridayText?: string;
 }) {
   const installmentValue = maxInstallments > 0 ? (price / maxInstallments).toFixed(2) : "0";
   return (
     <div className="space-y-1">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground font-sans">
-        <span>Preço:</span>
-      </div>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground font-sans"><span>Preço:</span></div>
       <div className="flex items-end gap-3 flex-wrap">
         <span className="text-3xl font-bold font-sans">R$ {price.toFixed(2).replace('.', ',')}</span>
-        {discount > 0 && (
-          <Badge className="bg-destructive text-destructive-foreground text-xs font-sans rounded-lg">-{discount}% OFF</Badge>
-        )}
+        {discount > 0 && <Badge className="bg-destructive text-destructive-foreground text-xs font-sans rounded-lg">-{discount}% OFF</Badge>}
       </div>
       {comparePrice > price && (
         <span className="text-sm text-muted-foreground line-through font-sans">R$ {comparePrice.toFixed(2).replace('.', ',')}</span>
@@ -81,23 +92,17 @@ function PriceBlock({ price, comparePrice, discount, currency, pixEnabled, pixDi
       )}
       <div className="flex flex-col items-start gap-1.5 mt-1">
         {pixEnabled && pixDiscount > 0 && (
-          <Badge variant="outline" className="text-xs font-sans border-success text-success">
-            ✅ Até {pixDiscount}% OFF no PIX
-          </Badge>
+          <Badge variant="outline" className="text-xs font-sans border-success text-success">✅ Até {pixDiscount}% OFF no PIX</Badge>
         )}
         {blackFridayEnabled && blackFridayText && (
-          <Badge variant="outline" className="text-xs font-sans border-accent text-accent">
-            🔥 {blackFridayText}
-          </Badge>
+          <Badge variant="outline" className="text-xs font-sans border-accent text-accent">🔥 {blackFridayText}</Badge>
         )}
       </div>
     </div>
   );
 }
 
-function ShippingInfo({ shippingEnabled, freeShippingText, shippingDays }: {
-  shippingEnabled: boolean; freeShippingText: string; shippingDays: number;
-}) {
+function ShippingInfo({ shippingEnabled, shippingDays }: { shippingEnabled: boolean; shippingDays: number }) {
   if (!shippingEnabled) return null;
   return (
     <div className="border-2 border-success/40 rounded-2xl p-4 flex items-center justify-between gap-3">
@@ -150,13 +155,14 @@ function SecurePayment() {
 
 export default function ProductPage() {
   const { slug } = useParams();
-  const { addItem, isLoading: cartLoading, getCheckoutUrl, setIsOpen } = useCartStore();
+  const navigate = useNavigate();
+  const { addItem, loading: cartLoading } = useCart();
   const { isEnabled, getSetting } = useStoreSettings();
-  const [product, setProduct] = useState<ShopifyProduct["node"] | null>(null);
+  const [product, setProduct] = useState<ProductData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
+  const [selectedVariantIdx, setSelectedVariantIdx] = useState<number | null>(null);
 
   // Settings
   const pixEnabled = isEnabled("pix_enabled");
@@ -168,11 +174,9 @@ export default function ProductPage() {
   const stockWarningEnabled = isEnabled("stock_warning_enabled");
   const stockWarningThreshold = parseInt(getSetting("stock_warning_threshold", "3"), 10);
   const shippingEnabled = isEnabled("shipping_enabled");
-  const freeShippingText = getSetting("free_shipping_text", "Frete grátis para todo o Brasil");
   const shippingDays = parseInt(getSetting("shipping_default_days", "7"), 10);
-  const skuEnabled = isEnabled("sku_enabled");
-  const soldCountEnabled = isEnabled("sold_count_enabled");
   const verifiedBadgeEnabled = isEnabled("verified_badge_enabled");
+  const soldCountEnabled = isEnabled("sold_count_enabled");
   const soldByEnabled = isEnabled("sold_by_enabled");
   const soldByName = getSetting("sold_by_name", "Minha Loja Premium");
   const whatsappEnabled = isEnabled("whatsapp_enabled");
@@ -184,12 +188,13 @@ export default function ProductPage() {
   useEffect(() => {
     const fetchProduct = async () => {
       if (!slug) return;
-      try {
-        const data = await storefrontApiRequest(PRODUCT_BY_HANDLE_QUERY, { handle: slug });
-        setProduct(data?.data?.product || null);
-      } catch (e) {
-        console.error(e);
-      }
+      const { data } = await supabase
+        .from("products")
+        .select("id, name, slug, description, price, compare_at_price, stock, sku, sold_count, product_images(url, is_primary, alt_text), product_variants(id, name, price, stock)")
+        .eq("slug", slug)
+        .eq("is_active", true)
+        .maybeSingle();
+      setProduct(data as ProductData | null);
       setLoading(false);
     };
     fetchProduct();
@@ -221,60 +226,38 @@ export default function ProductPage() {
     );
   }
 
-  const images = product.images?.edges || [];
-  const variants = product.variants?.edges || [];
-  const selectedVariant = variants[selectedVariantIdx]?.node;
-  const price = selectedVariant ? parseFloat(selectedVariant.price.amount) : parseFloat(product.priceRange.minVariantPrice.amount);
-  const currency = selectedVariant?.price.currencyCode || product.priceRange.minVariantPrice.currencyCode;
-  const comparePrice = selectedVariant?.compareAtPrice ? parseFloat(selectedVariant.compareAtPrice.amount) : 0;
+  const images = product.product_images || [];
+  const variants = product.product_variants || [];
+  const selectedVariant = selectedVariantIdx !== null ? variants[selectedVariantIdx] : null;
+  const price = selectedVariant?.price ?? product.price;
+  const comparePrice = product.compare_at_price ?? 0;
   const discount = comparePrice > price ? Math.round(((comparePrice - price) / comparePrice) * 100) : 0;
-
-  const hasMultipleOptions = product.options && product.options.length > 0 && !(product.options.length === 1 && product.options[0].values.length === 1 && product.options[0].values[0] === "Default Title");
+  const currentStock = selectedVariant ? selectedVariant.stock : product.stock;
+  const inStock = currentStock > 0;
 
   const handleAddToCart = async () => {
-    if (!selectedVariant) return;
-    await addItem({
-      product: { node: product },
-      variantId: selectedVariant.id,
-      variantTitle: selectedVariant.title,
-      price: selectedVariant.price,
-      quantity,
-      selectedOptions: selectedVariant.selectedOptions || [],
-    });
-    setIsOpen(true);
-    toast({ title: "Adicionado ao carrinho! 🛒" });
+    await addItem(product.id, selectedVariant?.id || null, quantity);
   };
 
   const handleBuyNow = async () => {
-    if (!selectedVariant) return;
-    await addItem({
-      product: { node: product },
-      variantId: selectedVariant.id,
-      variantTitle: selectedVariant.title,
-      price: selectedVariant.price,
-      quantity,
-      selectedOptions: selectedVariant.selectedOptions || [],
-    });
-    const checkoutUrl = getCheckoutUrl();
-    if (checkoutUrl) window.open(checkoutUrl, '_blank');
+    await addItem(product.id, selectedVariant?.id || null, quantity);
+    navigate('/checkout');
   };
 
   const handleWhatsApp = () => {
     const msg = whatsappMessage
-      .replace("{product}", product.title)
+      .replace("{product}", product.name)
       .replace("{price}", `R$ ${price.toFixed(2).replace('.', ',')}`);
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   return (
     <div className="min-h-screen">
-
-      {/* Breadcrumb */}
       <div className="container py-4">
         <nav className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans font-medium uppercase tracking-wider">
           <Link to="/" className="hover:text-accent transition-colors">Início</Link>
           <ChevronRight className="w-3 h-3" />
-          <span className="text-foreground truncate max-w-[200px]">{product.title}</span>
+          <span className="text-foreground truncate max-w-[200px]">{product.name}</span>
         </nav>
       </div>
 
@@ -282,36 +265,23 @@ export default function ProductPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* LEFT — Gallery */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
-            <ProductGallery
-              images={images}
-              title={product.title}
-              discount={discount}
-              selectedImage={selectedImage}
-              setSelectedImage={setSelectedImage}
-            />
-
-            {/* Description below gallery */}
+            <ProductGallery images={images} title={product.name} discount={discount} selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
             {product.description && (
               <div className="mt-6 bg-card border rounded-2xl p-6">
                 <h3 className="font-display text-lg font-bold mb-3 text-center">Descrição</h3>
                 <p className="font-sans text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{product.description}</p>
               </div>
             )}
-
-            {/* Secure Payment below description */}
-            <div className="mt-6">
-              <SecurePayment />
-            </div>
+            <div className="mt-6"><SecurePayment /></div>
           </motion.div>
 
           {/* RIGHT — Product Info */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }} className="space-y-5">
-            {/* Title & availability badge */}
             <div>
-              {stockStatusEnabled && selectedVariant?.availableForSale && (
+              {stockStatusEnabled && inStock && (
                 <p className="text-xs text-success font-sans font-medium mb-1">Disponível em estoque</p>
               )}
-              <h1 className="text-2xl md:text-3xl font-display font-bold leading-tight">{product.title}</h1>
+              <h1 className="text-2xl md:text-3xl font-display font-bold leading-tight">{product.name}</h1>
               {verifiedBadgeEnabled && (
                 <div className="flex items-center gap-1 mt-1">
                   <ShieldCheck className="w-4 h-4 text-accent" />
@@ -320,17 +290,14 @@ export default function ProductPage() {
               )}
             </div>
 
-            {/* Sold count */}
-            {soldCountEnabled && (
-              <p className="text-xs text-muted-foreground font-sans">🔥 Produto popular</p>
+            {soldCountEnabled && product.sold_count > 0 && (
+              <p className="text-xs text-muted-foreground font-sans">🔥 {product.sold_count} vendidos</p>
             )}
 
-            {/* Price */}
             <PriceBlock
               price={price}
               comparePrice={comparePrice}
               discount={discount}
-              currency={currency}
               pixEnabled={pixEnabled}
               pixDiscount={pixDiscount}
               installmentsEnabled={installmentsEnabled}
@@ -340,67 +307,47 @@ export default function ProductPage() {
             />
 
             {/* Stock indicator */}
-            {selectedVariant && (
-              <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${selectedVariant.availableForSale ? "bg-success animate-pulse" : "bg-destructive"}`} />
-                <span className={`font-sans text-xs font-semibold ${selectedVariant.availableForSale ? "text-success" : "text-destructive"}`}>
-                  {selectedVariant.availableForSale ? "Em estoque" : "Indisponível"}
-                </span>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${inStock ? "bg-success animate-pulse" : "bg-destructive"}`} />
+              <span className={`font-sans text-xs font-semibold ${inStock ? "text-success" : "text-destructive"}`}>
+                {inStock ? `Em estoque (${currentStock})` : "Indisponível"}
+              </span>
+            </div>
 
-            {/* Stock warning */}
-            {stockWarningEnabled && selectedVariant?.availableForSale && (
+            {stockWarningEnabled && inStock && currentStock <= stockWarningThreshold && (
               <Badge variant="outline" className="border-warning text-warning text-xs font-sans">
-                ⚡ Estoque limitado!
+                ⚡ Últimas {currentStock} unidades!
               </Badge>
             )}
 
             {/* Variant selector */}
-            {hasMultipleOptions && (
-              <div className="space-y-3">
-                {product.options.map((option) => (
-                  <div key={option.name}>
-                    <p className="font-sans text-sm font-semibold mb-2">{option.name}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {variants.map((v, idx) => {
-                        const optVal = v.node.selectedOptions.find(o => o.name === option.name)?.value;
-                        if (!optVal) return null;
-                        const alreadyShown = variants.slice(0, idx).some(prev =>
-                          prev.node.selectedOptions.find(o => o.name === option.name)?.value === optVal
-                        );
-                        if (alreadyShown) return null;
-                        const isSelected = selectedVariant?.selectedOptions.find(o => o.name === option.name)?.value === optVal;
-                        return (
-                          <button
-                            key={`${option.name}-${optVal}`}
-                            onClick={() => {
-                              const match = variants.findIndex(vr => vr.node.selectedOptions.find(o => o.name === option.name)?.value === optVal);
-                              if (match >= 0) setSelectedVariantIdx(match);
-                            }}
-                            className={`px-4 py-2 rounded-xl font-sans text-sm border-2 transition-all ${
-                              isSelected ? "border-accent bg-accent/10 text-accent font-semibold" : "border-border hover:border-muted-foreground/30"
-                            }`}
-                          >
-                            {optVal}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
+            {variants.length > 0 && (
+              <div className="space-y-2">
+                <p className="font-sans text-sm font-semibold">Variante</p>
+                <div className="flex flex-wrap gap-2">
+                  {variants.map((v, idx) => (
+                    <button
+                      key={v.id}
+                      onClick={() => setSelectedVariantIdx(idx)}
+                      className={`px-4 py-2 rounded-xl font-sans text-sm border-2 transition-all ${
+                        selectedVariantIdx === idx ? "border-accent bg-accent/10 text-accent font-semibold" : "border-border hover:border-muted-foreground/30"
+                      }`}
+                    >
+                      {v.name}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
-            {/* Shipping */}
-            <ShippingInfo shippingEnabled={shippingEnabled} freeShippingText={freeShippingText} shippingDays={shippingDays} />
+            <ShippingInfo shippingEnabled={shippingEnabled} shippingDays={shippingDays} />
 
             {/* Buy Now */}
             <Button
               size="lg"
               className="w-full h-14 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground font-sans font-bold text-base uppercase tracking-wider shine glow-orange hover:glow-orange-lg transition-all duration-300"
               onClick={handleBuyNow}
-              disabled={cartLoading || !selectedVariant?.availableForSale}
+              disabled={cartLoading || !inStock}
             >
               {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Zap className="w-5 h-5 mr-2" /> Comprar agora</>}
             </Button>
@@ -421,13 +368,12 @@ export default function ProductPage() {
                 variant="outline"
                 className="flex-1 h-10 rounded-xl font-sans font-bold text-sm uppercase tracking-wider border-2 border-border hover:border-accent hover:text-accent transition-all duration-300"
                 onClick={handleAddToCart}
-                disabled={cartLoading || !selectedVariant?.availableForSale}
+                disabled={cartLoading || !inStock}
               >
                 {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ShoppingCart className="w-5 h-5 mr-2" /> Adicionar ao carrinho</>}
               </Button>
             </div>
 
-            {/* WhatsApp */}
             {whatsappEnabled && whatsappNumber && (
               <Button
                 variant="outline"
@@ -438,10 +384,8 @@ export default function ProductPage() {
               </Button>
             )}
 
-            {/* Payment methods */}
             <PaymentMethods enabled={paymentBadgesEnabled} />
 
-            {/* Sold by */}
             {soldByEnabled && (
               <div className="bg-muted/40 rounded-xl p-3 flex items-center gap-2">
                 <Package className="w-4 h-4 text-muted-foreground" />
