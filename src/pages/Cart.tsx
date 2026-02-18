@@ -1,19 +1,17 @@
-import { useCartStore } from "@/stores/cartStore";
+import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Minus, Plus, Trash2, ShoppingBag, ExternalLink, Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Minus, Plus, Trash2, ShoppingBag, Lock, Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 export default function CartPage() {
-  const { items, isLoading, isSyncing, updateQuantity, removeItem, getCheckoutUrl } = useCartStore();
-  const itemCount = useCartStore(s => s.items.reduce((sum, i) => sum + i.quantity, 0));
-  const subtotal = useCartStore(s => s.items.reduce((sum, i) => sum + parseFloat(i.price.amount) * i.quantity, 0));
+  const navigate = useNavigate();
+  const { items, loading, itemCount, subtotal, updateQuantity, removeItem } = useCart();
 
   const handleCheckout = () => {
-    const checkoutUrl = getCheckoutUrl();
-    if (checkoutUrl) window.open(checkoutUrl, '_blank');
+    navigate('/checkout');
   };
 
   if (items.length === 0) {
@@ -29,7 +27,10 @@ export default function CartPage() {
     );
   }
 
-  const currencyCode = items[0]?.price.currencyCode || 'BRL';
+  const getItemImage = (item: any) => {
+    const primary = item.product?.product_images?.find((i: any) => i.is_primary);
+    return primary?.url || item.product?.product_images?.[0]?.url || "/placeholder.svg";
+  };
 
   return (
     <div className="container py-8 md:py-12">
@@ -38,36 +39,36 @@ export default function CartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => {
-            const price = parseFloat(item.price.amount);
-            const imageUrl = item.product?.node?.images?.edges?.[0]?.node?.url || "/placeholder.svg";
+            const price = item.variant?.price ?? item.product?.price ?? 0;
+            const imageUrl = getItemImage(item);
             return (
-              <motion.div key={item.variantId} layout>
+              <motion.div key={item.id} layout>
                 <Card className="border-0 shadow-premium">
                   <CardContent className="p-4 flex gap-4">
                     <div className="w-24 h-24 rounded-xl overflow-hidden bg-muted shrink-0">
-                      <img src={imageUrl} alt={item.product?.node?.title} className="w-full h-full object-cover" />
+                      <img src={imageUrl} alt={item.product?.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <Link to={`/produto/${item.product?.node?.handle}`} className="font-sans text-sm font-medium hover:text-accent transition-colors line-clamp-2">
-                        {item.product?.node?.title}
+                      <Link to={`/produto/${item.product?.slug}`} className="font-sans text-sm font-medium hover:text-accent transition-colors line-clamp-2">
+                        {item.product?.name}
                       </Link>
-                      {item.variantTitle && item.variantTitle !== "Default Title" && (
-                        <p className="text-xs text-muted-foreground font-sans mt-0.5">{item.variantTitle}</p>
+                      {item.variant && (
+                        <p className="text-xs text-muted-foreground font-sans mt-0.5">{item.variant.name}</p>
                       )}
-                      <p className="font-sans text-xs text-muted-foreground mt-1">{currencyCode} {price.toFixed(2)} un.</p>
+                      <p className="font-sans text-xs text-muted-foreground mt-1">R$ {Number(price).toFixed(2)} un.</p>
                       <div className="flex items-center justify-between mt-3">
                         <div className="flex items-center border rounded-xl overflow-hidden">
-                          <button onClick={() => updateQuantity(item.variantId, item.quantity - 1)} className="w-9 h-9 flex items-center justify-center hover:bg-muted transition-colors" disabled={isLoading}>
+                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-9 h-9 flex items-center justify-center hover:bg-muted transition-colors" disabled={loading}>
                             <Minus className="w-3.5 h-3.5" />
                           </button>
                           <span className="w-10 text-center font-sans text-sm font-semibold">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.variantId, item.quantity + 1)} className="w-9 h-9 flex items-center justify-center hover:bg-muted transition-colors" disabled={isLoading}>
+                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-9 h-9 flex items-center justify-center hover:bg-muted transition-colors" disabled={loading}>
                             <Plus className="w-3.5 h-3.5" />
                           </button>
                         </div>
                         <div className="flex items-center gap-4">
-                          <span className="font-sans font-bold">{currencyCode} {(price * item.quantity).toFixed(2)}</span>
-                          <button onClick={() => removeItem(item.variantId)} className="text-muted-foreground hover:text-destructive transition-colors" disabled={isLoading}>
+                          <span className="font-sans font-bold">R$ {(Number(price) * item.quantity).toFixed(2)}</span>
+                          <button onClick={() => removeItem(item.id)} className="text-muted-foreground hover:text-destructive transition-colors" disabled={loading}>
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -90,7 +91,7 @@ export default function CartPage() {
               <div className="space-y-2 font-sans text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>{currencyCode} {subtotal.toFixed(2)}</span>
+                  <span>R$ {subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Frete</span>
@@ -102,11 +103,11 @@ export default function CartPage() {
 
               <div className="flex justify-between font-sans">
                 <span className="font-semibold">Total</span>
-                <span className="text-xl font-bold">{currencyCode} {subtotal.toFixed(2)}</span>
+                <span className="text-xl font-bold">R$ {subtotal.toFixed(2)}</span>
               </div>
 
-              <Button onClick={handleCheckout} disabled={isLoading || isSyncing} className="w-full h-12 rounded-xl shine font-sans font-bold bg-success hover:bg-success/90 text-success-foreground">
-                {isLoading || isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <><ExternalLink className="w-4 h-4 mr-2" /> Finalizar no Shopify</>}
+              <Button onClick={handleCheckout} disabled={loading} className="w-full h-12 rounded-xl shine font-sans font-bold bg-success hover:bg-success/90 text-success-foreground">
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Lock className="w-4 h-4 mr-2" /> Finalizar Compra</>}
               </Button>
 
               <Button asChild variant="ghost" className="w-full font-sans text-sm">
