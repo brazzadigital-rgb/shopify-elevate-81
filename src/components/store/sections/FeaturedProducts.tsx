@@ -443,14 +443,14 @@ function ProductCard({
               </span>
             </div>
 
-            {/* CTA — Mobile always visible */}
-            <div className="flex gap-2 mt-3 md:hidden">
+            {/* CTA — always at bottom */}
+            <div className="flex gap-2 mt-3">
               <button
                 onClick={handleQuickBuy}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-accent text-accent-foreground font-sans text-sm font-bold py-3 transition-all active:scale-[0.97]"
+                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-accent text-accent-foreground font-sans text-sm font-bold py-3 transition-all hover:brightness-110 active:scale-[0.97]"
               >
                 <Zap className="w-4 h-4" />
-                Comprar
+                Comprar agora
               </button>
               <button
                 onClick={handleAddToCart}
