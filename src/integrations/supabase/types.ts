@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      banners: {
+        Row: {
+          border_radius: string | null
+          content_position: string
+          created_at: string
+          cta_text: string | null
+          desktop_image_url: string | null
+          full_width: boolean
+          height: string | null
+          id: string
+          is_active: boolean
+          link: string | null
+          location: string
+          mobile_image_url: string | null
+          overlay_opacity: number
+          show_text: boolean
+          sort_order: number
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          border_radius?: string | null
+          content_position?: string
+          created_at?: string
+          cta_text?: string | null
+          desktop_image_url?: string | null
+          full_width?: boolean
+          height?: string | null
+          id?: string
+          is_active?: boolean
+          link?: string | null
+          location?: string
+          mobile_image_url?: string | null
+          overlay_opacity?: number
+          show_text?: boolean
+          sort_order?: number
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          border_radius?: string | null
+          content_position?: string
+          created_at?: string
+          cta_text?: string | null
+          desktop_image_url?: string | null
+          full_width?: boolean
+          height?: string | null
+          id?: string
+          is_active?: boolean
+          link?: string | null
+          location?: string
+          mobile_image_url?: string | null
+          overlay_opacity?: number
+          show_text?: boolean
+          sort_order?: number
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           cart_id: string
