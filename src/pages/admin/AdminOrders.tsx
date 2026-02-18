@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
-import { ShoppingCart, Eye, Package } from "lucide-react";
+import { ShoppingCart, Eye, Package, Filter } from "lucide-react";
 
 interface Seller {
   id: string;
@@ -28,6 +28,7 @@ interface Order {
   discount: number;
   total: number;
   created_at: string;
+  seller_id: string | null;
 }
 
 interface OrderItem {
@@ -62,6 +63,9 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [filterSeller, setFilterSeller] = useState<string>("all");
+
+  const sellerMap = Object.fromEntries(sellers.map(s => [s.id, s.name]));
 
   const fetchSellers = async () => {
     const { data } = await supabase.from("sellers").select("id, name").eq("status", "active").order("name");
@@ -108,6 +112,12 @@ export default function AdminOrders() {
     else { toast({ title: "Pagamento atualizado!" }); fetchOrders(); }
   };
 
+  const filteredOrders = filterSeller === "all"
+    ? orders
+    : filterSeller === "none"
+      ? orders.filter(o => !o.seller_id)
+      : orders.filter(o => o.seller_id === filterSeller);
+
   return (
     <div className="space-y-6">
       <div>
@@ -115,14 +125,32 @@ export default function AdminOrders() {
         <p className="text-muted-foreground font-sans mt-1">Gerencie os pedidos da loja</p>
       </div>
 
+      {sellers.length > 0 && (
+        <div className="flex items-center gap-3">
+          <Filter className="w-4 h-4 text-muted-foreground" />
+          <Select value={filterSeller} onValueChange={setFilterSeller}>
+            <SelectTrigger className="h-9 w-48 rounded-lg text-sm font-sans">
+              <SelectValue placeholder="Filtrar por vendedor" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="font-sans text-sm">Todos os vendedores</SelectItem>
+              <SelectItem value="none" className="font-sans text-sm">Sem vendedor</SelectItem>
+              {sellers.map((s) => (
+                <SelectItem key={s.id} value={s.id} className="font-sans text-sm">{s.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       <Card className="shadow-premium border-0">
         <CardContent className="p-0">
           {loading ? (
             <div className="p-6 space-y-4">{[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
-          ) : orders.length === 0 ? (
+          ) : filteredOrders.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
               <ShoppingCart className="w-12 h-12 mb-4 opacity-40" />
-              <p className="font-sans text-lg">Nenhum pedido ainda</p>
+              <p className="font-sans text-lg">Nenhum pedido encontrado</p>
             </div>
           ) : (
             <Table>
@@ -139,7 +167,7 @@ export default function AdminOrders() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {orders.map((order) => (
+                {filteredOrders.map((order) => (
                   <TableRow key={order.id} className="hover:bg-muted/50 transition-colors">
                     <TableCell className="font-sans font-semibold">#{order.order_number}</TableCell>
                     <TableCell>
@@ -174,7 +202,7 @@ export default function AdminOrders() {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Select value={(order as any).seller_id || "none"} onValueChange={(v) => updateSeller(order.id, v === "none" ? null : v)}>
+                      <Select value={order.seller_id || "none"} onValueChange={(v) => updateSeller(order.id, v === "none" ? null : v)}>
                         <SelectTrigger className="h-8 w-32 rounded-lg text-xs font-sans">
                           <SelectValue placeholder="Nenhum" />
                         </SelectTrigger>

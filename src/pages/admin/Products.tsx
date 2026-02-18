@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Package } from "lucide-react";
+import { Plus, Pencil, Trash2, Package, Filter } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,6 +35,7 @@ interface Product {
   is_new: boolean;
   sold_count: number;
   created_at: string;
+  supplier_id: string | null;
 }
 
 const emptyProduct = {
@@ -52,6 +53,9 @@ export default function Products() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyProduct);
   const [saving, setSaving] = useState(false);
+  const [filterSupplier, setFilterSupplier] = useState<string>("all");
+
+  const supplierMap = Object.fromEntries(suppliers.map(s => [s.id, s.trade_name]));
 
   const fetchSuppliers = async () => {
     const { data } = await supabase.from("suppliers").select("id, trade_name").eq("status", "active").order("trade_name");
@@ -102,7 +106,7 @@ export default function Products() {
       price: product.price, compare_at_price: product.compare_at_price,
       sku: product.sku || "", stock: product.stock,
       is_active: product.is_active, is_featured: product.is_featured, is_new: product.is_new,
-      supplier_id: (product as any).supplier_id || null,
+      supplier_id: product.supplier_id || null,
     });
     setDialogOpen(true);
   };
@@ -112,6 +116,12 @@ export default function Products() {
     if (error) toast({ title: "Erro ao deletar", description: error.message, variant: "destructive" });
     else { toast({ title: "Produto removido" }); fetchProducts(); }
   };
+
+  const filteredProducts = filterSupplier === "all"
+    ? products
+    : filterSupplier === "none"
+      ? products.filter(p => !p.supplier_id)
+      : products.filter(p => p.supplier_id === filterSupplier);
 
   return (
     <div className="space-y-6">
@@ -203,16 +213,34 @@ export default function Products() {
         </Dialog>
       </div>
 
+      {suppliers.length > 0 && (
+        <div className="flex items-center gap-3">
+          <Filter className="w-4 h-4 text-muted-foreground" />
+          <Select value={filterSupplier} onValueChange={setFilterSupplier}>
+            <SelectTrigger className="h-9 w-48 rounded-lg text-sm font-sans">
+              <SelectValue placeholder="Filtrar por fornecedor" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="font-sans text-sm">Todos os fornecedores</SelectItem>
+              <SelectItem value="none" className="font-sans text-sm">Sem fornecedor</SelectItem>
+              {suppliers.map((s) => (
+                <SelectItem key={s.id} value={s.id} className="font-sans text-sm">{s.trade_name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       <Card className="shadow-premium border-0">
         <CardContent className="p-0">
           {loading ? (
             <div className="p-6 space-y-4">
               {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
             </div>
-          ) : products.length === 0 ? (
+          ) : filteredProducts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
               <Package className="w-12 h-12 mb-4 opacity-40" />
-              <p className="font-sans text-lg">Nenhum produto cadastrado</p>
+              <p className="font-sans text-lg">Nenhum produto encontrado</p>
               <p className="font-sans text-sm mt-1">Clique em "Novo Produto" para começar</p>
             </div>
           ) : (
@@ -220,6 +248,7 @@ export default function Products() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="font-sans">Nome</TableHead>
+                  <TableHead className="font-sans">Fornecedor</TableHead>
                   <TableHead className="font-sans">Preço</TableHead>
                   <TableHead className="font-sans">Estoque</TableHead>
                   <TableHead className="font-sans">Status</TableHead>
@@ -227,13 +256,20 @@ export default function Products() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <TableRow key={product.id} className="hover:bg-muted/50 transition-colors">
                     <TableCell>
                       <div className="font-sans">
                         <p className="font-medium">{product.name}</p>
                         <p className="text-xs text-muted-foreground">{product.sku || "—"}</p>
                       </div>
+                    </TableCell>
+                    <TableCell className="font-sans text-sm">
+                      {product.supplier_id ? (
+                        <Badge variant="outline" className="text-xs font-sans">{supplierMap[product.supplier_id] || "—"}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">—</span>
+                      )}
                     </TableCell>
                     <TableCell className="font-sans">
                       <p className="font-semibold">R$ {Number(product.price).toFixed(2)}</p>
