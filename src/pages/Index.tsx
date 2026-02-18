@@ -6,6 +6,7 @@ import { FeaturedProducts } from "@/components/store/sections/FeaturedProducts";
 import { FeaturedCollections } from "@/components/store/sections/FeaturedCollections";
 import { BenefitsSection } from "@/components/store/sections/BenefitsSection";
 import { NewsletterSection } from "@/components/store/sections/NewsletterSection";
+import { MascotPromoPanel } from "@/components/store/sections/MascotPromoPanel";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface HomeSection {
@@ -55,27 +56,37 @@ const Index = () => {
 
   return (
     <main className="min-h-screen">
-      {sections.map((section) => {
-        switch (section.section_type) {
-          case "hero":
-            return (
-              <div key={section.id}>
-                <HeroSection config={section.config} />
-                <CategoriesSection />
-              </div>
-            );
-          case "featured_products":
-            return <FeaturedProducts key={section.id} config={section.config} title={section.title || undefined} />;
-          case "featured_collections":
-            return <FeaturedCollections key={section.id} config={section.config} title={section.title || undefined} />;
-          case "benefits":
-            return <BenefitsSection key={section.id} config={section.config} />;
-          case "newsletter":
-            return <NewsletterSection key={section.id} config={section.config} />;
-          default:
-            return null;
-        }
-      })}
+      {(() => {
+        let featuredProductsCount = 0;
+        return sections.map((section) => {
+          switch (section.section_type) {
+            case "hero":
+              return (
+                <div key={section.id}>
+                  <HeroSection config={section.config} />
+                  <CategoriesSection />
+                </div>
+              );
+            case "featured_products": {
+              featuredProductsCount++;
+              return (
+                <div key={section.id}>
+                  <FeaturedProducts config={section.config} title={section.title || undefined} />
+                  {featuredProductsCount === 1 && <MascotPromoPanel />}
+                </div>
+              );
+            }
+            case "featured_collections":
+              return <FeaturedCollections key={section.id} config={section.config} title={section.title || undefined} />;
+            case "benefits":
+              return <BenefitsSection key={section.id} config={section.config} />;
+            case "newsletter":
+              return <NewsletterSection key={section.id} config={section.config} />;
+            default:
+              return null;
+          }
+        });
+      })()}
     </main>
   );
 };
