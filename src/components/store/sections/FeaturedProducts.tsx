@@ -114,16 +114,18 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
                   <Link to={`/produto/${product.slug}`} className="group block h-full">
                     <div className="relative flex flex-col h-full bg-card rounded-[18px] border border-border/40 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
                       {/* Image */}
-                      <div className="relative aspect-square bg-muted/30 overflow-hidden">
-                        <img
-                          src={getImage(product)}
-                          alt={product.name}
-                          className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500 ease-out"
-                          loading="lazy"
-                        />
+                      <div className="relative aspect-square bg-muted/30">
+                        <div className="absolute inset-0 overflow-hidden">
+                          <img
+                            src={getImage(product)}
+                            alt={product.name}
+                            className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500 ease-out"
+                            loading="lazy"
+                          />
+                        </div>
 
                         {/* Badges top-left */}
-                        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                        <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
                           {disc > 0 && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-destructive/90 text-destructive-foreground text-[11px] font-bold backdrop-blur-sm">
                               -{disc}%
