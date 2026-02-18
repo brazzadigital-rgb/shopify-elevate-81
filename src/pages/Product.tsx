@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
+import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +36,8 @@ interface Product {
 
 export default function ProductPage() {
   const { slug } = useParams();
+  const navigate = useNavigate();
+  const cart = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -338,7 +341,7 @@ export default function ProductPage() {
               <Button
                 size="lg"
                 className="w-full h-13 rounded-xl bg-success hover:bg-success/90 text-success-foreground font-sans font-bold text-base shine"
-                onClick={() => toast({ title: "Redirecionando ao checkout..." })}
+                onClick={async () => { await cart.addItem(product.id, null, quantity); navigate("/checkout"); }}
               >
                 <Zap className="w-5 h-5 mr-2" /> Comprar agora
               </Button>
@@ -348,7 +351,7 @@ export default function ProductPage() {
                 size="lg"
                 variant="outline"
                 className="w-full h-13 rounded-xl font-sans font-semibold text-base border-2"
-                onClick={() => toast({ title: "Produto adicionado ao carrinho!" })}
+                onClick={() => cart.addItem(product.id, null, quantity)}
               >
                 <ShoppingCart className="w-5 h-5 mr-2" /> Adicionar ao carrinho
               </Button>
@@ -438,7 +441,7 @@ export default function ProductPage() {
         <div className="flex gap-2">
           <Button
             className="flex-1 h-12 rounded-xl bg-success hover:bg-success/90 text-success-foreground font-sans font-bold shine"
-            onClick={() => toast({ title: "Redirecionando ao checkout..." })}
+            onClick={async () => { await cart.addItem(product.id, null, quantity); navigate("/checkout"); }}
           >
             <Zap className="w-4 h-4 mr-1.5" /> Comprar — R$ {product.price.toFixed(2)}
           </Button>
@@ -446,7 +449,7 @@ export default function ProductPage() {
             variant="outline"
             size="icon"
             className="h-12 w-12 rounded-xl border-2 shrink-0"
-            onClick={() => toast({ title: "Adicionado ao carrinho!" })}
+            onClick={() => cart.addItem(product.id, null, quantity)}
           >
             <ShoppingCart className="w-5 h-5" />
           </Button>
