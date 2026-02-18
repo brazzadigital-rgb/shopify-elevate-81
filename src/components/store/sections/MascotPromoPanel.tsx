@@ -51,35 +51,28 @@ export function MascotPromoPanel() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-primary/95 to-primary/80 flex flex-col justify-between min-h-[280px] md:min-h-full"
+            className="relative rounded-2xl overflow-hidden min-h-[320px] md:min-h-full"
+            style={{
+              backgroundImage: `url(${mascotPromo})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center top",
+            }}
           >
-            {/* Subtle glow */}
-            <div className="absolute top-0 right-0 w-40 h-40 bg-accent/15 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-accent/10 rounded-full blur-2xl" />
+            {/* Dark overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/80 to-primary/30" />
 
-            <div className="relative z-10 p-6 md:p-8 flex flex-col h-full">
-              <div className="flex-1">
-                <h3 className="font-display text-xl md:text-2xl lg:text-[1.65rem] font-bold leading-tight text-primary-foreground mb-3">
-                  Os produtos mais vendidos da sua coleção
-                </h3>
-                <p className="text-sm text-primary-foreground/50 font-sans mb-5 leading-relaxed">
-                  Veja mais produtos relacionados clicando no botão abaixo
-                </p>
-                <Link to="/colecoes">
-                  <Button className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full font-sans h-11 px-8 text-sm font-bold uppercase tracking-wider shine glow-orange transition-all duration-300 hover:glow-orange-lg">
-                    Ver mais produtos
-                  </Button>
-                </Link>
-              </div>
-
-              {/* Mascot image */}
-              <div className="flex justify-center mt-4">
-                <img
-                  src={mascotPromo}
-                  alt="Mascote da loja"
-                  className="w-32 md:w-40 lg:w-48 object-contain drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)]"
-                />
-              </div>
+            <div className="relative z-10 p-6 md:p-8 flex flex-col justify-end h-full min-h-[320px] md:min-h-[420px]">
+              <h3 className="font-display text-xl md:text-2xl lg:text-[1.65rem] font-bold leading-tight text-primary-foreground mb-3">
+                Os produtos mais vendidos da sua coleção
+              </h3>
+              <p className="text-sm text-primary-foreground/50 font-sans mb-5 leading-relaxed">
+                Veja mais produtos relacionados clicando no botão abaixo
+              </p>
+              <Link to="/colecoes">
+                <Button className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full font-sans h-11 px-8 text-sm font-bold uppercase tracking-wider shine glow-orange transition-all duration-300 hover:glow-orange-lg">
+                  Ver mais produtos
+                </Button>
+              </Link>
             </div>
           </motion.div>
 
