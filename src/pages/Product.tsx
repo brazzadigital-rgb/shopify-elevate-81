@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { storefrontApiRequest, PRODUCT_BY_HANDLE_QUERY, ShopifyProduct } from "@/lib/shopify";
 import { useCartStore } from "@/stores/cartStore";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,7 +26,6 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
   return (
     <div className="sticky top-24">
       <div className="bg-card rounded-2xl border overflow-hidden">
-        {/* Thumbnails on the left */}
         <div className="flex">
           {images.length > 1 && (
             <div className="flex flex-col gap-2 p-3 border-r">
@@ -54,11 +54,11 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
   );
 }
 
-function PriceBlock({ price, comparePrice, discount, currency }: {
+function PriceBlock({ price, comparePrice, discount, currency, pixEnabled, pixDiscount, installmentsEnabled, maxInstallments }: {
   price: number; comparePrice: number; discount: number; currency: string;
+  pixEnabled: boolean; pixDiscount: number; installmentsEnabled: boolean; maxInstallments: number;
 }) {
-  const installments = 12;
-  const installmentValue = (price / installments).toFixed(2);
+  const installmentValue = maxInstallments > 0 ? (price / maxInstallments).toFixed(2) : "0";
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-2 text-sm text-muted-foreground font-sans">
@@ -73,23 +73,30 @@ function PriceBlock({ price, comparePrice, discount, currency }: {
       {comparePrice > price && (
         <span className="text-sm text-muted-foreground line-through font-sans">R$ {comparePrice.toFixed(2).replace('.', ',')}</span>
       )}
-      <p className="text-sm text-muted-foreground font-sans">
-        em até {installments}x de <span className="font-semibold text-foreground">R$ {installmentValue.replace('.', ',')}</span>
-      </p>
-      <Badge variant="outline" className="text-xs font-sans border-success text-success mt-1">
-        ✅ Até 5% OFF no PIX
-      </Badge>
+      {installmentsEnabled && maxInstallments > 1 && (
+        <p className="text-sm text-muted-foreground font-sans">
+          em até {maxInstallments}x de <span className="font-semibold text-foreground">R$ {installmentValue.replace('.', ',')}</span>
+        </p>
+      )}
+      {pixEnabled && pixDiscount > 0 && (
+        <Badge variant="outline" className="text-xs font-sans border-success text-success mt-1">
+          ✅ Até {pixDiscount}% OFF no PIX
+        </Badge>
+      )}
     </div>
   );
 }
 
-function ShippingInfo() {
+function ShippingInfo({ shippingEnabled, freeShippingText, shippingDays }: {
+  shippingEnabled: boolean; freeShippingText: string; shippingDays: number;
+}) {
+  if (!shippingEnabled) return null;
   return (
     <div className="border-2 border-success/40 rounded-2xl p-4 flex items-center justify-between gap-3">
       <div className="flex items-center gap-3">
         <Truck className="w-8 h-8 text-success shrink-0" />
         <div>
-          <p className="font-sans text-sm font-semibold">Receba entre 1 à 7 Dias</p>
+          <p className="font-sans text-sm font-semibold">Receba entre 1 à {shippingDays} Dias</p>
           <p className="font-sans text-xs text-muted-foreground">Envio para todo o Brasil</p>
         </div>
       </div>
@@ -98,7 +105,8 @@ function ShippingInfo() {
   );
 }
 
-function PaymentMethods() {
+function PaymentMethods({ enabled }: { enabled: boolean }) {
+  if (!enabled) return null;
   const methods = ["Visa", "Master", "Elo", "Amex", "Pix", "Boleto"];
   return (
     <div className="bg-muted/60 rounded-2xl p-4 space-y-3">
@@ -135,11 +143,33 @@ function SecurePayment() {
 export default function ProductPage() {
   const { slug } = useParams();
   const { addItem, isLoading: cartLoading, getCheckoutUrl, setIsOpen } = useCartStore();
+  const { isEnabled, getSetting } = useStoreSettings();
   const [product, setProduct] = useState<ShopifyProduct["node"] | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
+
+  // Settings
+  const pixEnabled = isEnabled("pix_enabled");
+  const pixDiscount = parseInt(getSetting("pix_discount_percent", "5"), 10);
+  const installmentsEnabled = isEnabled("installments_enabled");
+  const maxInstallments = parseInt(getSetting("max_installments", "12"), 10);
+  const paymentBadgesEnabled = isEnabled("payment_badges_enabled");
+  const stockStatusEnabled = isEnabled("stock_status_enabled");
+  const stockWarningEnabled = isEnabled("stock_warning_enabled");
+  const stockWarningThreshold = parseInt(getSetting("stock_warning_threshold", "3"), 10);
+  const shippingEnabled = isEnabled("shipping_enabled");
+  const freeShippingText = getSetting("free_shipping_text", "Frete grátis para todo o Brasil");
+  const shippingDays = parseInt(getSetting("shipping_default_days", "7"), 10);
+  const skuEnabled = isEnabled("sku_enabled");
+  const soldCountEnabled = isEnabled("sold_count_enabled");
+  const verifiedBadgeEnabled = isEnabled("verified_badge_enabled");
+  const soldByEnabled = isEnabled("sold_by_enabled");
+  const soldByName = getSetting("sold_by_name", "Minha Loja Premium");
+  const whatsappEnabled = isEnabled("whatsapp_enabled");
+  const whatsappNumber = getSetting("whatsapp_number", "");
+  const whatsappMessage = getSetting("whatsapp_message", "");
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -219,6 +249,13 @@ export default function ProductPage() {
     if (checkoutUrl) window.open(checkoutUrl, '_blank');
   };
 
+  const handleWhatsApp = () => {
+    const msg = whatsappMessage
+      .replace("{product}", product.title)
+      .replace("{price}", `R$ ${price.toFixed(2).replace('.', ',')}`);
+    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
   return (
     <div className="min-h-screen">
       {/* Breadcrumb */}
@@ -260,14 +297,34 @@ export default function ProductPage() {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }} className="space-y-5">
             {/* Title & availability badge */}
             <div>
-              {selectedVariant?.availableForSale && (
+              {stockStatusEnabled && selectedVariant?.availableForSale && (
                 <p className="text-xs text-success font-sans font-medium mb-1">Disponível em estoque</p>
               )}
               <h1 className="text-2xl md:text-3xl font-display font-bold leading-tight">{product.title}</h1>
+              {verifiedBadgeEnabled && (
+                <div className="flex items-center gap-1 mt-1">
+                  <ShieldCheck className="w-4 h-4 text-accent" />
+                  <span className="text-xs font-sans text-muted-foreground">Produto verificado</span>
+                </div>
+              )}
             </div>
 
+            {/* Sold count */}
+            {soldCountEnabled && (
+              <p className="text-xs text-muted-foreground font-sans">🔥 Produto popular</p>
+            )}
+
             {/* Price */}
-            <PriceBlock price={price} comparePrice={comparePrice} discount={discount} currency={currency} />
+            <PriceBlock
+              price={price}
+              comparePrice={comparePrice}
+              discount={discount}
+              currency={currency}
+              pixEnabled={pixEnabled}
+              pixDiscount={pixDiscount}
+              installmentsEnabled={installmentsEnabled}
+              maxInstallments={maxInstallments}
+            />
 
             {/* Stock indicator */}
             {selectedVariant && (
@@ -277,6 +334,13 @@ export default function ProductPage() {
                   {selectedVariant.availableForSale ? "Em estoque" : "Indisponível"}
                 </span>
               </div>
+            )}
+
+            {/* Stock warning */}
+            {stockWarningEnabled && selectedVariant?.availableForSale && (
+              <Badge variant="outline" className="border-warning text-warning text-xs font-sans">
+                ⚡ Estoque limitado!
+              </Badge>
             )}
 
             {/* Variant selector */}
@@ -316,7 +380,7 @@ export default function ProductPage() {
             )}
 
             {/* Shipping */}
-            <ShippingInfo />
+            <ShippingInfo shippingEnabled={shippingEnabled} freeShippingText={freeShippingText} shippingDays={shippingDays} />
 
             {/* Buy Now */}
             <Button
@@ -350,8 +414,29 @@ export default function ProductPage() {
               </Button>
             </div>
 
+            {/* WhatsApp */}
+            {whatsappEnabled && whatsappNumber && (
+              <Button
+                variant="outline"
+                className="w-full h-11 rounded-xl font-sans font-bold text-sm border-2 border-success text-success hover:bg-success/10 transition-all"
+                onClick={handleWhatsApp}
+              >
+                📱 Comprar via WhatsApp
+              </Button>
+            )}
+
             {/* Payment methods */}
-            <PaymentMethods />
+            <PaymentMethods enabled={paymentBadgesEnabled} />
+
+            {/* Sold by */}
+            {soldByEnabled && (
+              <div className="bg-muted/40 rounded-xl p-3 flex items-center gap-2">
+                <Package className="w-4 h-4 text-muted-foreground" />
+                <span className="text-xs font-sans text-muted-foreground">
+                  Vendido e enviado por <span className="font-semibold text-foreground">{soldByName}</span>
+                </span>
+              </div>
+            )}
           </motion.div>
         </div>
       </div>

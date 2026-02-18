@@ -12,7 +12,7 @@ export function StoreHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { user, isAdmin } = useAuth();
-  const { getSetting } = useStoreSettings();
+  const { getSetting, isEnabled } = useStoreSettings();
   const { isOpen, setIsOpen } = useCartStore();
   const itemCount = useCartStore(s => s.items.reduce((sum, i) => sum + i.quantity, 0));
   const location = useLocation();
@@ -43,30 +43,32 @@ export function StoreHeader() {
   return (
     <>
       {/* Bar 1 — Topbar informativa */}
-      <div className="bg-background border-b border-border">
-        <div className="container flex items-center justify-between h-9">
-          <div className="hidden sm:block" />
-          <p className="text-xs font-sans text-muted-foreground tracking-wide text-center flex-1 sm:flex-none">
-            ✈️ <span className="font-semibold text-foreground">Frete Grátis</span> para todo Brasil
-          </p>
-          <div className="hidden sm:flex items-center gap-5 text-xs font-sans text-muted-foreground">
-            <Link to="/conta/pedidos" className="hover:text-accent transition-colors flex items-center gap-1">
-              <MapPin className="w-3 h-3" /> Rastrear pedido
-            </Link>
-            <Link to={user ? (isAdmin ? "/admin" : "/conta") : "/auth"} className="hover:text-accent transition-colors flex items-center gap-1">
-              <User className="w-3 h-3" /> {user ? "Minha conta" : "Entrar"}
-            </Link>
-            <button onClick={() => setIsOpen(true)} className="hover:text-accent transition-colors flex items-center gap-1 relative">
-              <ShoppingCart className="w-3 h-3" /> Carrinho
-              {itemCount > 0 && (
-                <span className="absolute -top-1.5 -right-3 rounded-full bg-accent text-accent-foreground text-[9px] font-bold min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
-                  {itemCount}
-                </span>
-              )}
-            </button>
+      {isEnabled("topbar_enabled") && (
+        <div className="bg-background border-b border-border">
+          <div className="container flex items-center justify-between h-9">
+            <div className="hidden sm:block" />
+            <p className="text-xs font-sans text-muted-foreground tracking-wide text-center flex-1 sm:flex-none">
+              {getSetting("topbar_text", "✈️ Frete Grátis para todo Brasil")}
+            </p>
+            <div className="hidden sm:flex items-center gap-5 text-xs font-sans text-muted-foreground">
+              <Link to="/conta/pedidos" className="hover:text-accent transition-colors flex items-center gap-1">
+                <MapPin className="w-3 h-3" /> Rastrear pedido
+              </Link>
+              <Link to={user ? (isAdmin ? "/admin" : "/conta") : "/auth"} className="hover:text-accent transition-colors flex items-center gap-1">
+                <User className="w-3 h-3" /> {user ? "Minha conta" : "Entrar"}
+              </Link>
+              <button onClick={() => setIsOpen(true)} className="hover:text-accent transition-colors flex items-center gap-1 relative">
+                <ShoppingCart className="w-3 h-3" /> Carrinho
+                {itemCount > 0 && (
+                  <span className="absolute -top-1.5 -right-3 rounded-full bg-accent text-accent-foreground text-[9px] font-bold min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
+                    {itemCount}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Bar 2 — Header principal */}
       <header
