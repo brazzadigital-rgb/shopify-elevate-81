@@ -234,6 +234,10 @@ export default function ProductPage() {
   const blackFridayText = getSetting("black_friday_text", "🔥 BLACK FRIDAY — Descontos imperdíveis!");
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
+
+  useEffect(() => {
     const fetchProduct = async () => {
       if (!slug) return;
       const { data } = await supabase
