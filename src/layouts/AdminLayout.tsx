@@ -1,0 +1,40 @@
+import { Outlet, Navigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
+
+export default function AdminLayout() {
+  const { user, isAdmin, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="space-y-4 w-64">
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) return <Navigate to="/auth" replace />;
+  if (!isAdmin) return <Navigate to="/" replace />;
+
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AdminSidebar />
+        <SidebarInset>
+          <header className="h-14 flex items-center gap-4 border-b px-6 bg-background/80 backdrop-blur-sm sticky top-0 z-10">
+            <SidebarTrigger className="text-muted-foreground" />
+          </header>
+          <main className="flex-1 p-6">
+            <Outlet />
+          </main>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
+  );
+}
