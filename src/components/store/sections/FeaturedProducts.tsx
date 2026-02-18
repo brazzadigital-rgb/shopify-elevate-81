@@ -127,20 +127,18 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
                         {/* Badges top-left */}
                         <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
                           {disc > 0 && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-destructive/90 text-destructive-foreground text-[11px] font-bold backdrop-blur-sm">
-                              -{disc}%
+                            <span className="inline-flex items-center gap-1 px-2 py-[3px] rounded-md bg-foreground text-background text-[10px] font-bold tracking-wide uppercase shadow-sm">
+                              {disc}% OFF
                             </span>
                           )}
                           {product.is_new && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-accent/90 text-accent-foreground text-[11px] font-bold backdrop-blur-sm">
-                              <Sparkles className="w-3 h-3" />
+                            <span className="inline-flex items-center gap-1 px-2 py-[3px] rounded-md bg-accent text-accent-foreground text-[10px] font-bold tracking-wide uppercase shadow-sm">
                               Novo
                             </span>
                           )}
                           {isBestseller && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/90 text-primary-foreground text-[11px] font-bold backdrop-blur-sm">
-                              <TrendingUp className="w-3 h-3" />
-                              + Vendido
+                            <span className="inline-flex items-center gap-1 px-2 py-[3px] rounded-md bg-success text-success-foreground text-[10px] font-bold tracking-wide uppercase shadow-sm">
+                              Top vendas
                             </span>
                           )}
                         </div>
