@@ -143,8 +143,8 @@ export default function AdminOrders() {
         </div>
       )}
 
-      <Card className="shadow-premium border-0">
-        <CardContent className="p-0">
+      <Card className="shadow-premium border-0 overflow-hidden">
+        <CardContent className="p-0 overflow-x-auto">
           {loading ? (
             <div className="p-6 space-y-4">{[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
           ) : filteredOrders.length === 0 ? (

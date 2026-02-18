@@ -39,16 +39,17 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
 }) {
   const primaryImage = images[selectedImage]?.url || "/placeholder.svg";
   return (
-    <div className="sticky top-24">
+    <div className="lg:sticky lg:top-24">
       <div className="bg-card rounded-2xl border overflow-hidden">
-        <div className="flex">
+        {/* Desktop: side thumbnails */}
+        <div className="hidden lg:flex">
           {images.length > 1 && (
             <div className="flex flex-col gap-2 p-3 border-r">
               {images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedImage(i)}
-                  className={`shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 transition-all ${
+                  className={`shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 transition-all min-h-[unset] min-w-[unset] ${
                     i === selectedImage ? "border-accent" : "border-transparent hover:border-border"
                   }`}
                 >
@@ -63,6 +64,53 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
               <Badge className="absolute top-4 right-4 bg-destructive text-destructive-foreground font-sans text-xs rounded-lg">-{discount}%</Badge>
             )}
           </div>
+        </div>
+
+        {/* Mobile: swipeable carousel */}
+        <div className="lg:hidden">
+          <div className="relative aspect-square overflow-hidden">
+            <div
+              className="flex transition-transform duration-300 ease-out h-full"
+              style={{ transform: `translateX(-${selectedImage * 100}%)`, width: `${images.length * 100}%` }}
+            >
+              {images.map((img, i) => (
+                <div key={i} className="w-full h-full shrink-0" style={{ width: `${100 / images.length}%` }}>
+                  <img src={img.url} alt={title} className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+            {discount > 0 && (
+              <Badge className="absolute top-3 right-3 bg-destructive text-destructive-foreground font-sans text-xs rounded-lg">-{discount}%</Badge>
+            )}
+            {/* Dots */}
+            {images.length > 1 && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                {images.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedImage(i)}
+                    className={`w-2 h-2 rounded-full transition-all min-h-[unset] min-w-[unset] ${i === selectedImage ? "bg-accent w-5" : "bg-white/60"}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+          {/* Thumbnails below on mobile */}
+          {images.length > 1 && (
+            <div className="flex gap-2 p-3 overflow-x-auto scrollbar-hide">
+              {images.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedImage(i)}
+                  className={`shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 transition-all min-h-[unset] min-w-[unset] ${
+                    i === selectedImage ? "border-accent" : "border-transparent"
+                  }`}
+                >
+                  <img src={img.url} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -252,27 +300,30 @@ export default function ProductPage() {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="container py-4">
-        <nav className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans font-medium uppercase tracking-wider">
-          <Link to="/" className="hover:text-accent transition-colors">Início</Link>
-          <ChevronRight className="w-3 h-3" />
-          <span className="text-foreground truncate max-w-[200px]">{product.name}</span>
+    <div className="min-h-screen pb-20 lg:pb-0">
+      <div className="container px-4 md:px-6 py-3 md:py-4">
+        <nav className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans font-medium uppercase tracking-wider overflow-hidden">
+          <Link to="/" className="hover:text-accent transition-colors shrink-0">Início</Link>
+          <ChevronRight className="w-3 h-3 shrink-0" />
+          <span className="text-foreground truncate">{product.name}</span>
         </nav>
       </div>
 
-      <div className="container pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+      <div className="container px-4 md:px-6 pb-8 lg:pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
           {/* LEFT — Gallery */}
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
             <ProductGallery images={images} title={product.name} discount={discount} selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
-            {product.description && (
-              <div className="mt-6 bg-card border rounded-2xl p-6">
-                <h3 className="font-display text-lg font-bold mb-3 text-center">Descrição</h3>
-                <p className="font-sans text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{product.description}</p>
-              </div>
-            )}
-            <div className="mt-6"><SecurePayment /></div>
+            {/* Description below gallery only on desktop */}
+            <div className="hidden lg:block">
+              {product.description && (
+                <div className="mt-6 bg-card border rounded-2xl p-6">
+                  <h3 className="font-display text-lg font-bold mb-3 text-center">Descrição</h3>
+                  <p className="font-sans text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{product.description}</p>
+                </div>
+              )}
+              <div className="mt-6"><SecurePayment /></div>
+            </div>
           </motion.div>
 
           {/* RIGHT — Product Info */}
@@ -395,6 +446,49 @@ export default function ProductPage() {
               </div>
             )}
           </motion.div>
+        </div>
+
+        {/* Description + secure payment on mobile (below grid) */}
+        <div className="lg:hidden mt-6 space-y-4">
+          {product.description && (
+            <div className="bg-card border rounded-2xl p-5">
+              <h3 className="font-display text-lg font-bold mb-3">Descrição</h3>
+              <p className="font-sans text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{product.description}</p>
+            </div>
+          )}
+          <SecurePayment />
+        </div>
+      </div>
+
+      {/* Sticky CTA bar — mobile only */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-background/95 backdrop-blur-xl border-t border-border px-4 py-3 safe-area-bottom">
+        <div className="flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="font-display text-lg font-bold text-accent truncate">
+              R$ {price.toFixed(2).replace('.', ',')}
+            </p>
+            {installmentsEnabled && maxInstallments > 1 && (
+              <p className="text-[10px] text-muted-foreground font-sans truncate">
+                {maxInstallments}x de R$ {(price / maxInstallments).toFixed(2).replace('.', ',')}
+              </p>
+            )}
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-11 w-11 rounded-xl shrink-0 border-2 p-0"
+            onClick={handleAddToCart}
+            disabled={cartLoading || !inStock}
+          >
+            <ShoppingCart className="w-5 h-5" />
+          </Button>
+          <Button
+            className="h-11 rounded-xl bg-accent text-accent-foreground font-sans font-bold text-sm uppercase tracking-wider shine flex-1 max-w-[180px]"
+            onClick={handleBuyNow}
+            disabled={cartLoading || !inStock}
+          >
+            {cartLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Comprar"}
+          </Button>
         </div>
       </div>
     </div>

@@ -43,19 +43,19 @@ export function NewsletterSection({ config }: NewsletterSectionProps) {
           <p className="text-muted-foreground font-sans text-sm mb-8">
             {config.subtitle || "Cadastre-se e ganhe 10% de desconto na primeira compra"}
           </p>
-          <form onSubmit={handleSubmit} className="flex gap-2">
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
             <Input
               type="email"
               placeholder="Seu melhor email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="h-14 rounded-2xl font-sans flex-1 border-border/50 focus:border-accent"
+              className="h-12 sm:h-14 rounded-2xl font-sans flex-1 border-border/50 focus:border-accent"
             />
             <Button
               type="submit"
               size="lg"
-              className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-2xl shine h-14 px-8 font-sans font-bold uppercase tracking-wider shrink-0 glow-orange"
+              className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-2xl shine h-12 sm:h-14 px-8 font-sans font-bold uppercase tracking-wider shrink-0 glow-orange w-full sm:w-auto"
             >
               <Send className="w-4 h-4 mr-2" /> Enviar
             </Button>

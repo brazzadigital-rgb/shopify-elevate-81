@@ -44,7 +44,7 @@ export function MascotPromoPanel() {
   return (
     <section className="py-8 md:py-14">
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[380px_1fr] gap-4 md:gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[380px_1fr] gap-4 md:gap-5 overflow-hidden">
           {/* Left mascot panel */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
