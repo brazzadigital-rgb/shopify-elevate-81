@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { HeroSection } from "@/components/store/sections/HeroSection";
+import { CategoriesSection } from "@/components/store/sections/CategoriesSection";
 import { FeaturedProducts } from "@/components/store/sections/FeaturedProducts";
 import { FeaturedCollections } from "@/components/store/sections/FeaturedCollections";
 import { BenefitsSection } from "@/components/store/sections/BenefitsSection";
@@ -57,7 +58,12 @@ const Index = () => {
       {sections.map((section) => {
         switch (section.section_type) {
           case "hero":
-            return <HeroSection key={section.id} config={section.config} />;
+            return (
+              <div key={section.id}>
+                <HeroSection config={section.config} />
+                <CategoriesSection />
+              </div>
+            );
           case "featured_products":
             return <FeaturedProducts key={section.id} config={section.config} title={section.title || undefined} />;
           case "featured_collections":
