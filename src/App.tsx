@@ -34,6 +34,7 @@ import OffersPage from "./pages/store/OffersPage";
 import FaqPage from "./pages/store/FaqPage";
 import ContactPage from "./pages/store/ContactPage";
 import PoliciesPage from "./pages/store/PoliciesPage";
+import CheckoutPage from "./pages/store/CheckoutPage";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ function AppContent() {
             <Route path="/contato" element={<ContactPage />} />
             <Route path="/faq" element={<FaqPage />} />
             <Route path="/politicas" element={<PoliciesPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/conta" element={<AccountLayout />}>
               <Route index element={<Orders />} />
               <Route path="pedidos" element={<Orders />} />
