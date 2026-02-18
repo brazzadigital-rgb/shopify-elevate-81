@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { CartProvider } from "@/hooks/useCart";
 import { useCartSync } from "@/hooks/useCartSync";
 import StoreLayout from "./layouts/StoreLayout";
 import Index from "./pages/Index";
@@ -90,9 +91,11 @@ function AppContent() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <AppContent />
-      </TooltipProvider>
+      <CartProvider>
+        <TooltipProvider>
+          <AppContent />
+        </TooltipProvider>
+      </CartProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
