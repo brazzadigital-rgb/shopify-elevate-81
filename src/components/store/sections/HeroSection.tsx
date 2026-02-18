@@ -26,10 +26,9 @@ export function HeroSection({ config }: HeroSectionProps) {
   const bannerImage = config.image_url || heroBanner;
 
   return (
-    <section className="bg-background py-6 md:py-10">
-      <div className="container">
-        <div
-          className="relative w-full rounded-2xl overflow-hidden min-h-[320px] md:min-h-[420px] lg:min-h-[480px] flex items-end"
+    <section className="bg-background">
+      <div
+        className="relative w-full overflow-hidden min-h-[320px] md:min-h-[420px] lg:min-h-[520px] flex items-end"
           style={{
             backgroundImage: `url(${bannerImage})`,
             backgroundSize: "cover",
@@ -67,7 +66,6 @@ export function HeroSection({ config }: HeroSectionProps) {
               <span className="w-2.5 h-2.5 rounded-full bg-white/30" />
             </div>
           </motion.div>
-        </div>
       </div>
     </section>
   );
