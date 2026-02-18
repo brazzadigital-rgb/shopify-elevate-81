@@ -1,8 +1,11 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroBanner from "@/assets/hero-banner.jpg";
+import { DynamicHeroBanner } from "@/components/store/DynamicHeroBanner";
 
 interface HeroSectionProps {
   config: {
@@ -16,6 +19,30 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ config }: HeroSectionProps) {
+  const [hasDynamicBanners, setHasDynamicBanners] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const check = async () => {
+      const { count } = await supabase.from("banners").select("id", { count: "exact", head: true }).eq("location", "hero").eq("is_active", true);
+      setHasDynamicBanners((count || 0) > 0);
+    };
+    check();
+  }, []);
+
+  // If dynamic banners exist, show them instead
+  if (hasDynamicBanners === true) {
+    return (
+      <section className="bg-background py-4 md:py-6 lg:py-10">
+        <div className="container px-4 md:px-6">
+          <div className="rounded-2xl overflow-hidden">
+            <DynamicHeroBanner />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Loading or no dynamic banners → show static fallback
   const {
     title = "Nova coleção disponível",
     subtitle = "Qualidade e confiança em cada compra.",

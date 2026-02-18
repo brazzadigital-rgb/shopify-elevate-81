@@ -21,6 +21,8 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import AdminCustomers from "./pages/admin/AdminCustomers";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminSections from "./pages/admin/AdminSections";
+import AdminBanners from "./pages/admin/AdminBanners";
+import AdminVisualIdentity from "./pages/admin/AdminVisualIdentity";
 import Placeholder from "./pages/admin/Placeholder";
 import AdminSuppliers from "./pages/admin/AdminSuppliers";
 import AdminSellers from "./pages/admin/AdminSellers";
@@ -82,6 +84,8 @@ function AppContent() {
             <Route path="clientes" element={<AdminCustomers />} />
             <Route path="cupons" element={<AdminCoupons />} />
             <Route path="secoes" element={<AdminSections />} />
+            <Route path="banners" element={<AdminBanners />} />
+            <Route path="aparencia" element={<AdminVisualIdentity />} />
             <Route path="configuracoes" element={<StoreSettings />} />
             <Route path="vendedores" element={<AdminSellers />} />
             <Route path="fornecedores" element={<AdminSuppliers />} />

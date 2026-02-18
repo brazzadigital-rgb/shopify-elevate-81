@@ -17,8 +17,13 @@ const mainMenu = [
   { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
   { title: "Clientes", url: "/admin/clientes", icon: Users },
   { title: "Cupons", url: "/admin/cupons", icon: Tag },
-  { title: "Banners & Seções", url: "/admin/secoes", icon: Image },
+  { title: "Seções da Home", url: "/admin/secoes", icon: Image },
   { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
+];
+
+const appearanceMenu = [
+  { title: "Banners", url: "/admin/banners", icon: Image },
+  { title: "Identidade Visual", url: "/admin/aparencia", icon: Settings },
 ];
 
 const usersMenu = [
@@ -86,6 +91,7 @@ export function AdminSidebar() {
 
       <SidebarContent className="px-3 py-4 space-y-4">
         <MenuGroup label="Menu" items={mainMenu} />
+        <MenuGroup label="Aparência" items={appearanceMenu} />
         <MenuGroup label="Usuários e Operações" items={usersMenu} />
       </SidebarContent>
 
