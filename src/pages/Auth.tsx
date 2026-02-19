@@ -61,9 +61,9 @@ export default function Auth() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mb-8"
           >
-            <div className="w-40 h-40 mx-auto flex items-center justify-center animate-float">
+            <div className="w-56 h-56 mx-auto flex items-center justify-center animate-float">
               {logoUrl ? (
-                <img src={logoUrl} alt="Logo da loja" className="w-36 h-36 object-contain drop-shadow-2xl" />
+                <img src={logoUrl} alt="Logo da loja" className="w-52 h-52 object-contain drop-shadow-2xl" />
               ) : (
                 <span className="text-7xl">🐆</span>
               )}
