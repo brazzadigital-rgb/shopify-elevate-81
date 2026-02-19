@@ -289,7 +289,7 @@ export function StoreHeader() {
         </div>
 
         {/* Desktop nav bar — white background like reference */}
-        <nav className="hidden md:block bg-background border-b border-border/50">
+        <nav className="hidden md:block relative z-10 bg-background border-b border-border/50">
           <div className="container flex items-center justify-center gap-8 h-12">
             {navLinks.map((link, idx) => (
               <Link
