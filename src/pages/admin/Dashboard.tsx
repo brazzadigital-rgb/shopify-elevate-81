@@ -37,7 +37,7 @@ export default function Dashboard() {
   const cards = [
     { title: "Produtos", value: stats.totalProducts, icon: Package, color: "text-accent" },
     { title: "Pedidos", value: stats.totalOrders, icon: ShoppingCart, color: "text-success" },
-    { title: "Receita", value: `R$ ${stats.totalRevenue.toFixed(2)}`, icon: DollarSign, color: "text-accent" },
+    { title: "Receita", value: `R$ ${stats.totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, icon: DollarSign, color: "text-accent" },
     { title: "Clientes", value: stats.totalCustomers, icon: Users, color: "text-primary" },
   ];
 
