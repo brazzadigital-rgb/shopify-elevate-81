@@ -109,10 +109,10 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
           </motion.span>
 
           <h2
-            className="text-3xl md:text-5xl lg:text-6xl text-foreground leading-tight"
-            style={{ fontFamily: "'Playwrite CU Guides', cursive" }}
+            className="text-3xl md:text-5xl lg:text-6xl text-foreground leading-tight capitalize"
+            style={{ fontFamily: "'Pinyon Script', cursive" }}
           >
-            {overrideTitle || "Coleções em Destaque"}
+            {(overrideTitle || "Coleções em Destaque").toLowerCase()}
           </h2>
 
           <div className="flex justify-center mt-3">
