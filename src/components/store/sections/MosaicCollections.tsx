@@ -109,7 +109,7 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
           </motion.span>
 
           <h2
-            className="text-3xl md:text-5xl lg:text-6xl text-foreground leading-tight capitalize"
+            className="text-3xl md:text-5xl lg:text-6xl leading-tight capitalize bg-gradient-to-r from-foreground via-foreground/70 to-primary bg-clip-text text-transparent"
             style={{ fontFamily: "'Pinyon Script', cursive" }}
           >
             {(overrideTitle || "Coleções em Destaque").toLowerCase()}
