@@ -502,12 +502,12 @@ export function ProductCard({
             <button
               onClick={handleAddToCart}
               disabled={cartLoading || product.stock <= 0}
-              className="min-h-[44px] w-11 flex items-center justify-center rounded-xl border border-border hover:bg-muted active:scale-95 transition-all disabled:opacity-50"
+              className="group/cart min-h-[44px] w-11 flex items-center justify-center rounded-xl border border-border hover:bg-accent hover:border-accent hover:text-accent-foreground active:scale-90 transition-all duration-300 disabled:opacity-50"
             >
               {cartLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <ShoppingCart className="w-4 h-4" />
+                <ShoppingCart className="w-4 h-4 transition-transform duration-300 group-hover/cart:scale-110 group-hover/cart:-rotate-12" />
               )}
             </button>
           </div>
