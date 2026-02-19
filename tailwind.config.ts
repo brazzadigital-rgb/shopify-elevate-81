@@ -26,10 +26,14 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          dark: "hsl(var(--primary-dark))",
+          light: "hsl(var(--primary-light))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
+          light: "hsl(var(--secondary-light))",
+          soft: "hsl(var(--secondary-soft))",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -53,7 +57,9 @@ export default {
         },
         buttons: {
           DEFAULT: "hsl(var(--buttons))",
+          foreground: "hsl(var(--buttons-foreground))",
         },
+        link: "hsl(var(--link))",
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -97,8 +103,8 @@ export default {
           to: { transform: "translateX(0)" },
         },
         "glow-pulse": {
-          "0%, 100%": { boxShadow: "0 0 15px hsla(18, 100%, 50%, 0.3)" },
-          "50%": { boxShadow: "0 0 30px hsla(18, 100%, 50%, 0.5)" },
+          "0%, 100%": { boxShadow: "0 0 15px hsl(var(--primary) / 0.2)" },
+          "50%": { boxShadow: "0 0 30px hsl(var(--primary) / 0.35)" },
         },
         "float": {
           "0%, 100%": { transform: "translateY(0px)" },
