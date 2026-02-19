@@ -60,6 +60,11 @@
     /* ─── Links ─── */
     --link: 345 45% 30%;
 
+    /* ─── Header (derived from primary) ─── */
+    --header-bg: 345 50% 18%;
+    --header-text: 30 20% 95%;
+    --header-bg-hover: 345 52% 14%;
+
     /* ─── Glow effects (adapts to primary) ─── */
     --glow-primary: 0 0 20px hsla(345, 45%, 25%, 0.2);
     --glow-primary-lg: 0 0 40px hsla(345, 45%, 25%, 0.15), 0 0 80px hsla(345, 45%, 25%, 0.08);
@@ -111,6 +116,10 @@
     --buttons: 345 40% 55%;
     --buttons-foreground: 30 15% 10%;
     --link: 345 35% 60%;
+
+    --header-bg: 345 45% 40%;
+    --header-text: 30 15% 10%;
+    --header-bg-hover: 345 48% 34%;
 
     --sidebar-background: 345 10% 7%;
     --sidebar-foreground: 30 12% 88%;

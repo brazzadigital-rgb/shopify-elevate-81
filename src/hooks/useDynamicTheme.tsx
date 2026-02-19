@@ -61,6 +61,11 @@ export function useDynamicTheme(): boolean {
       // Glow effects
       root.style.setProperty("--glow-primary", `0 0 20px hsla(${primaryParsed.h}, ${primaryParsed.s}%, ${primaryParsed.l}%, 0.2)`);
       root.style.setProperty("--glow-primary-lg", `0 0 40px hsla(${primaryParsed.h}, ${primaryParsed.s}%, ${primaryParsed.l}%, 0.15), 0 0 80px hsla(${primaryParsed.h}, ${primaryParsed.s}%, ${primaryParsed.l}%, 0.08)`);
+
+      // ─── Header colors (derived from primary) ───
+      root.style.setProperty("--header-bg", shades.dark);
+      root.style.setProperty("--header-text", shades.foreground);
+      root.style.setProperty("--header-bg-hover", hsl(primaryParsed.h, primaryParsed.s + 3, Math.max(primaryParsed.l - 12, 3)));
     }
 
     // ─── Secondary color ───
