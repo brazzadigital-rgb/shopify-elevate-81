@@ -115,10 +115,27 @@ export function StoreHeader() {
         style={headerStyle}
       >
         <div className="container flex items-center justify-between gap-4 h-full">
-          {/* LEFT — Logo */}
-          <Link to="/" className="flex items-center gap-2 shrink-0 group">
-            <span className="hidden md:flex"><LogoComponent /></span>
-            <span className="md:hidden"><LogoComponent mobile /></span>
+          {/* MOBILE LEFT — Hamburger */}
+          <div className="flex items-center md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full w-10 h-10 shrink-0 min-h-[unset] min-w-[unset]"
+              style={{ color: `hsl(${headerTextColor})` }}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          </div>
+
+          {/* DESKTOP LEFT — Logo */}
+          <Link to="/" className="hidden md:flex items-center gap-2 shrink-0 group">
+            <LogoComponent />
+          </Link>
+
+          {/* MOBILE CENTER — Logo */}
+          <Link to="/" className="flex md:hidden items-center justify-center shrink-0">
+            <LogoComponent mobile />
           </Link>
 
           {/* CENTER — Search bar (desktop) */}
@@ -216,7 +233,7 @@ export function StoreHeader() {
             )}
           </div>
 
-          {/* MOBILE — Actions */}
+          {/* MOBILE RIGHT — Search + Cart */}
           <div className="flex items-center gap-1 md:hidden">
             <button
               onClick={() => setMobileSearchOpen(true)}
@@ -244,16 +261,6 @@ export function StoreHeader() {
                 )}
               </button>
             )}
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full w-10 h-10 shrink-0 min-h-[unset] min-w-[unset]"
-              style={{ color: `hsl(${headerTextColor})` }}
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
           </div>
         </div>
 
