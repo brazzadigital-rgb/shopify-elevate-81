@@ -11,6 +11,7 @@ interface Collection {
   slug: string;
   description: string | null;
   image_url: string | null;
+  banner_url: string | null;
 }
 
 export function MosaicCollections() {
@@ -21,7 +22,7 @@ export function MosaicCollections() {
     const fetch = async () => {
       const { data } = await supabase
         .from("collections")
-        .select("id, name, slug, description, image_url")
+        .select("id, name, slug, description, image_url, banner_url")
         .eq("is_active", true)
         .order("sort_order")
         .limit(6);
@@ -98,10 +99,10 @@ export function MosaicCollections() {
                   to={`/colecao/${c.slug}`}
                   className="group relative block w-full h-full rounded-[22px] overflow-hidden"
                 >
-                  {/* Image */}
-                  {c.image_url ? (
+                  {/* Image — prefer banner_url for full-bleed mosaic */}
+                  {(c.banner_url || c.image_url) ? (
                     <img
-                      src={c.image_url}
+                      src={c.banner_url || c.image_url!}
                       alt={c.name}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                       loading="lazy"
@@ -147,9 +148,9 @@ export function MosaicCollections() {
                 className="group relative block w-full rounded-[18px] overflow-hidden"
                 style={{ height: i === 0 ? 220 : 160 }}
               >
-                {c.image_url ? (
+                {(c.banner_url || c.image_url) ? (
                   <img
-                    src={c.image_url}
+                    src={c.banner_url || c.image_url!}
                     alt={c.name}
                     className="w-full h-full object-cover"
                     loading="lazy"
