@@ -194,7 +194,7 @@ export function StoreHeader() {
             {/* Rastrear Pedido */}
             {trackEnabled && (
               <Link
-                to="/conta/pedidos"
+                to="/rastreamento"
                 className="group flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.97]"
               >
                 <div className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white/10" style={{ border: `1.5px solid hsl(${headerTextColor} / 0.25)` }}>
@@ -407,7 +407,7 @@ export function StoreHeader() {
                     )}
                     {trackEnabled && (
                       <Link
-                        to="/conta/pedidos"
+                        to="/rastreamento"
                         onClick={() => setMobileMenuOpen(false)}
                         className="flex items-center gap-3 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
                       >
