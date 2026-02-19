@@ -323,7 +323,7 @@ export default function ProductPage() {
               {product.description && (
                 <div className="mt-6 bg-card border rounded-2xl p-6">
                   <h3 className="font-display text-lg font-bold mb-3 text-center">Descrição</h3>
-                  <p className="font-sans text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{product.description}</p>
+                  <div className="font-sans text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: product.description }} />
                 </div>
               )}
               <div className="mt-6"><SecurePayment /></div>
@@ -457,7 +457,7 @@ export default function ProductPage() {
           {product.description && (
             <div className="bg-card border rounded-2xl p-5">
               <h3 className="font-display text-lg font-bold mb-3">Descrição</h3>
-              <p className="font-sans text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{product.description}</p>
+              <div className="font-sans text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: product.description }} />
             </div>
           )}
           <SecurePayment />
