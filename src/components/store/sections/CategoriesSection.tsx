@@ -40,7 +40,7 @@ export function CategoriesSection() {
           Categorias
         </motion.h3>
 
-        <div className="flex gap-4 px-4 overflow-x-auto scrollbar-hide sm:justify-center sm:flex-wrap sm:px-2 md:gap-8">
+        <div className="flex gap-4 px-4 overflow-x-auto no-scrollbar snap-x snap-mandatory sm:justify-center sm:flex-wrap sm:px-2 md:gap-8" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {collections.map((cat, i) => (
             <motion.div
               key={cat.id}
@@ -48,6 +48,7 @@ export function CategoriesSection() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05, type: "spring", stiffness: 260, damping: 20 }}
+              className="flex-shrink-0 snap-center"
             >
               <Link
                 to={`/colecao/${cat.slug}`}
