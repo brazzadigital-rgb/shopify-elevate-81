@@ -464,7 +464,7 @@ export function StoreHeader() {
               >
                 {/* Background image overlay */}
                 <div
-                  className="absolute inset-0 pointer-events-none opacity-[0.18]"
+                  className="absolute inset-0 pointer-events-none opacity-[0.12]"
                   style={{
                     backgroundImage: `url(${mobileMenuBg})`,
                     backgroundSize: "cover",
