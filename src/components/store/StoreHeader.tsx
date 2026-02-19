@@ -291,12 +291,12 @@ export function StoreHeader() {
 
         {/* Desktop nav bar — white background like reference */}
         <nav className="hidden md:block bg-background border-b border-border/50">
-          <div className="container flex items-center justify-center gap-10 h-14">
+          <div className="container flex items-center justify-center gap-8 h-12">
             {navLinks.map((link, idx) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`relative flex items-center gap-2 py-3.5 font-sans text-[15px] font-bold uppercase tracking-[0.12em] transition-colors duration-200 hover:text-accent ${
+                className={`relative flex items-center gap-1.5 py-3 font-sans text-[13px] font-bold uppercase tracking-[0.14em] transition-colors duration-200 hover:text-accent ${
                   location.pathname === link.to
                     ? "text-accent"
                     : "text-foreground/70 hover:text-foreground"
