@@ -564,32 +564,34 @@ export default function AllProductsPage() {
         <div className="flex gap-8">
           {/* Desktop sidebar filters */}
           <aside className="hidden md:block w-64 shrink-0">
-            <div className="sticky top-20 rounded-2xl border border-border/40 bg-card p-5 shadow-[0_1px_8px_-2px_rgba(0,0,0,0.04)]">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <SlidersHorizontal className="w-3.5 h-3.5" /> Filtros
-                </h2>
+            <div className="sticky top-20 space-y-4 max-h-[calc(100vh-6rem)] overflow-y-auto no-scrollbar">
+              <div className="rounded-2xl border border-border/40 bg-card p-5 shadow-[0_1px_8px_-2px_rgba(0,0,0,0.04)]">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <SlidersHorizontal className="w-3.5 h-3.5" /> Filtros
+                  </h2>
+                </div>
+                <FilterPanel {...filterPanelProps} />
               </div>
-              <FilterPanel {...filterPanelProps} />
-            </div>
 
-            {/* Desktop sort */}
-            <div className="mt-4 rounded-2xl border border-border/40 bg-card p-5 shadow-[0_1px_8px_-2px_rgba(0,0,0,0.04)]">
-              <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 mb-3">
-                <ArrowUpDown className="w-3.5 h-3.5" /> Ordenar por
-              </h2>
-              <div className="space-y-0.5">
-                {SORT_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setSort(opt.value)}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-sm font-sans transition-all min-h-[unset] ${
-                      sortBy === opt.value ? "bg-accent/10 text-accent font-semibold" : "hover:bg-muted/60 text-foreground/70"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
+              {/* Desktop sort */}
+              <div className="rounded-2xl border border-border/40 bg-card p-5 shadow-[0_1px_8px_-2px_rgba(0,0,0,0.04)]">
+                <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 mb-3">
+                  <ArrowUpDown className="w-3.5 h-3.5" /> Ordenar por
+                </h2>
+                <div className="space-y-0.5">
+                  {SORT_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setSort(opt.value)}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-sm font-sans transition-all min-h-[unset] ${
+                        sortBy === opt.value ? "bg-accent/10 text-accent font-semibold" : "hover:bg-muted/60 text-foreground/70"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </aside>
