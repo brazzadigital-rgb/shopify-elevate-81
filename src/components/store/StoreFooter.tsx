@@ -118,6 +118,7 @@ export function StoreFooter() {
   const { getSetting } = useStoreSettings();
   const storeName = getSetting("store_name", "Joalheria");
   const logoUrl = getSetting("logo_url", "");
+  const contactCnpj = getSetting("contact_cnpj", "");
   const isMobile = useIsMobile();
 
   const footerRef = useRef<HTMLElement>(null);
@@ -386,6 +387,7 @@ export function StoreFooter() {
         <div className="container px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="font-sans text-[11px] text-white/60 text-center sm:text-left">
             © {new Date().getFullYear()} {storeName}. Todos os direitos reservados.
+            {contactCnpj && <span className="ml-2">CNPJ: {contactCnpj}</span>}
           </p>
           <div className="flex items-center gap-3 text-[11px] font-sans text-white/60">
             <Link to="/politicas" className="hover:text-white transition-colors">Privacidade</Link>

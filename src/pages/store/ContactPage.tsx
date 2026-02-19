@@ -74,6 +74,7 @@ export default function ContactPage() {
   const hoursSunday = getSetting("contact_hours_sunday", "Fechado");
   const instagramLink = getSetting("contact_instagram", "");
   const facebookLink = getSetting("contact_facebook", "");
+  const contactCnpj = getSetting("contact_cnpj", "");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -357,6 +358,9 @@ export default function ContactPage() {
                   <div>
                     <p className="font-sans font-semibold text-sm">Endereço</p>
                     <p className="font-sans text-xs text-muted-foreground">{contactAddress}</p>
+                    {contactCnpj && (
+                      <p className="font-sans text-xs text-muted-foreground mt-0.5">CNPJ: {contactCnpj}</p>
+                    )}
                   </div>
                 </div>
               </div>
