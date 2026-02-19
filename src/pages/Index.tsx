@@ -131,18 +131,33 @@ const Index = () => {
           overrideCollections={showcaseCollections}
         />
 
-        {otherSections.map((section) => {
-          switch (section.section_type) {
-            case "featured_products":
-              return <FeaturedProducts key={section.id} config={section.config} title={section.title || undefined} />;
-            case "benefits":
-              return <BenefitsSection key={section.id} config={section.config} />;
-            case "newsletter":
-              return <NewsletterSection key={section.id} config={section.config} />;
-            default:
-              return null;
-          }
-        })}
+        {(() => {
+          let featuredProductsCount = 0;
+          return otherSections.map((section) => {
+            switch (section.section_type) {
+              case "featured_products": {
+                featuredProductsCount++;
+                return (
+                  <div key={section.id}>
+                    <FeaturedProducts config={section.config} title={section.title || undefined} />
+                    {featuredProductsCount === 1 && (
+                      <>
+                        <MascotPromoPanel />
+                        <PromoTriplePanel />
+                      </>
+                    )}
+                  </div>
+                );
+              }
+              case "benefits":
+                return <BenefitsSection key={section.id} config={section.config} />;
+              case "newsletter":
+                return <NewsletterSection key={section.id} config={section.config} />;
+              default:
+                return null;
+            }
+          });
+        })()}
       </main>
     );
   }
