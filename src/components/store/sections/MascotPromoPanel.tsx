@@ -101,7 +101,7 @@ export function MascotPromoPanel() {
                       <img
                         src={getImage(product)}
                         alt={product.name}
-                        className="absolute inset-0 w-full h-full object-contain p-3 md:p-4 transition-all duration-700 ease-out will-change-[opacity,transform] group-hover:scale-[1.03]"
+                        className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out will-change-[opacity,transform] group-hover:scale-[1.03]"
                         loading="lazy"
                       />
                       {disc > 0 && (
