@@ -14,6 +14,14 @@ import { Plus, Pencil, Trash2, Package, Filter } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ProductImageGallery } from "@/components/admin/ProductImageGallery";
+
+interface ProductImage {
+  id?: string;
+  url: string;
+  is_primary: boolean;
+  sort_order: number;
+}
 
 interface Supplier {
   id: string;
@@ -52,8 +60,10 @@ export default function Products() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyProduct);
+  const [formImages, setFormImages] = useState<ProductImage[]>([]);
   const [saving, setSaving] = useState(false);
   const [filterSupplier, setFilterSupplier] = useState<string>("all");
+  const [productThumbnails, setProductThumbnails] = useState<Record<string, string>>({});
 
   const supplierMap = Object.fromEntries(suppliers.map(s => [s.id, s.trade_name]));
 
@@ -66,6 +76,13 @@ export default function Products() {
     setLoading(true);
     const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
     setProducts((data as Product[]) || []);
+    
+    // Fetch primary thumbnails for all products
+    const { data: imgs } = await supabase.from("product_images").select("product_id, url").eq("is_primary", true);
+    const thumbs: Record<string, string> = {};
+    imgs?.forEach((img: any) => { thumbs[img.product_id] = img.url; });
+    setProductThumbnails(thumbs);
+    
     setLoading(false);
   };
 
@@ -81,24 +98,43 @@ export default function Products() {
     const slug = form.slug || generateSlug(form.name);
     const payload = { ...form, slug, price: Number(form.price), stock: Number(form.stock), compare_at_price: form.compare_at_price ? Number(form.compare_at_price) : null };
 
+    let productId = editingId;
+
     if (editingId) {
       const { error } = await supabase.from("products").update(payload).eq("id", editingId);
-      if (error) { toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" }); }
-      else { toast({ title: "Produto atualizado!" }); }
+      if (error) { toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" }); setSaving(false); return; }
     } else {
-      const { error } = await supabase.from("products").insert(payload);
-      if (error) { toast({ title: "Erro ao criar", description: error.message, variant: "destructive" }); }
-      else { toast({ title: "Produto criado!" }); }
+      const { data: newProduct, error } = await supabase.from("products").insert(payload).select("id").single();
+      if (error) { toast({ title: "Erro ao criar", description: error.message, variant: "destructive" }); setSaving(false); return; }
+      productId = newProduct.id;
     }
 
+    // Save images
+    if (productId) {
+      // Delete existing images
+      await supabase.from("product_images").delete().eq("product_id", productId);
+      // Insert new images
+      if (formImages.length > 0) {
+        const imageRows = formImages.map((img, i) => ({
+          product_id: productId!,
+          url: img.url,
+          is_primary: img.is_primary,
+          sort_order: i,
+        }));
+        await supabase.from("product_images").insert(imageRows);
+      }
+    }
+
+    toast({ title: editingId ? "Produto atualizado!" : "Produto criado!" });
     setSaving(false);
     setDialogOpen(false);
     setEditingId(null);
     setForm(emptyProduct);
+    setFormImages([]);
     fetchProducts();
   };
 
-  const handleEdit = (product: Product) => {
+  const handleEdit = async (product: Product) => {
     setEditingId(product.id);
     setForm({
       name: product.name, slug: product.slug, description: product.description || "",
@@ -108,6 +144,9 @@ export default function Products() {
       is_active: product.is_active, is_featured: product.is_featured, is_new: product.is_new,
       supplier_id: product.supplier_id || null,
     });
+    // Load existing images
+    const { data: imgs } = await supabase.from("product_images").select("*").eq("product_id", product.id).order("sort_order");
+    setFormImages((imgs as ProductImage[]) || []);
     setDialogOpen(true);
   };
 
@@ -130,7 +169,7 @@ export default function Products() {
           <h1 className="text-2xl md:text-3xl font-display font-bold">Produtos</h1>
           <p className="text-muted-foreground font-sans text-sm mt-1">Gerencie o catálogo da loja</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingId(null); setForm(emptyProduct); } }}>
+        <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingId(null); setForm(emptyProduct); setFormImages([]); } }}>
           <DialogTrigger asChild>
             <Button className="gap-2 rounded-xl shine h-11 font-sans">
               <Plus className="w-4 h-4" /> Novo Produto
@@ -156,6 +195,15 @@ export default function Products() {
               <div className="grid gap-2">
                 <Label className="font-sans text-sm font-medium">Descrição completa</Label>
                 <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Descrição detalhada do produto" rows={4} className="rounded-xl" />
+              </div>
+              
+              {/* Image Gallery */}
+              <div className="border-t border-border pt-4">
+                <ProductImageGallery
+                  productId={editingId}
+                  images={formImages}
+                  onChange={setFormImages}
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
@@ -247,6 +295,7 @@ export default function Products() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="font-sans w-16">Foto</TableHead>
                   <TableHead className="font-sans">Nome</TableHead>
                   <TableHead className="font-sans">Fornecedor</TableHead>
                   <TableHead className="font-sans">Preço</TableHead>
@@ -258,6 +307,15 @@ export default function Products() {
               <TableBody>
                 {filteredProducts.map((product) => (
                   <TableRow key={product.id} className="hover:bg-muted/50 transition-colors">
+                    <TableCell>
+                      {productThumbnails[product.id] ? (
+                        <img src={productThumbnails[product.id]} alt={product.name} className="w-10 h-10 rounded-lg object-cover border border-border" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                          <Package className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <div className="font-sans">
                         <p className="font-medium">{product.name}</p>
