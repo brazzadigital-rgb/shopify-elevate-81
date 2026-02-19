@@ -67,6 +67,7 @@ const settingsGroups = [
   {
     title: "📞 Página de Contato",
     settings: [
+      { key: "contact_cnpj", label: "CNPJ da Empresa", type: "text" },
       { key: "contact_email", label: "E-mail de contato", type: "text" },
       { key: "contact_phone", label: "Telefone", type: "text" },
       { key: "contact_address", label: "Endereço", type: "text" },
