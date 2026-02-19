@@ -294,6 +294,16 @@
 }
 
 /* Respect prefers-reduced-motion */
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes spin-border {
+  to { --border-angle: 360deg; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .studio-reflex-sweep {
     animation: none;
