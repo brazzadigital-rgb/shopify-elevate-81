@@ -481,20 +481,28 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const { data } = await supabase
+      let query = supabase
         .from("products")
         .select(
           "id, name, slug, price, compare_at_price, stock, is_featured, is_new, sold_count, product_images(url, is_primary), product_variants(id, name, price, stock)"
         )
-        .eq("is_active", true)
-        .order("is_featured", { ascending: false })
-        .order("created_at", { ascending: false })
-        .limit(config.limit || 8);
+        .eq("is_active", true);
+
+      const filter = (config as any).filter;
+      if (filter === "bestsellers") {
+        query = query.order("sold_count", { ascending: false });
+      } else if (filter === "new") {
+        query = query.eq("is_new", true).order("created_at", { ascending: false });
+      } else {
+        query = query.order("is_featured", { ascending: false }).order("created_at", { ascending: false });
+      }
+
+      const { data } = await query.limit(config.limit || 8);
       setProducts((data as Product[]) || []);
       setLoading(false);
     };
     fetchProducts();
-  }, [config.limit]);
+  }, [config.limit, (config as any).filter]);
 
   return (
     <>
