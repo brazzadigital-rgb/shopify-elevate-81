@@ -4,7 +4,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useCart } from "@/hooks/useCart";
-import { ShoppingBag, Search, User, Menu, X, ChevronRight, Package, MapPin } from "lucide-react";
+import { ShoppingBag, Search, User, Menu, X, ChevronRight, Package, MapPin, Heart } from "lucide-react";
+import { useWishlist } from "@/hooks/useWishlist";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -75,6 +76,7 @@ export function StoreHeader() {
   const { user, isAdmin } = useAuth();
   const { getSetting, isEnabled } = useStoreSettings();
   const { isOpen, setIsOpen, itemCount } = useCart();
+  const { count: wishlistCount } = useWishlist();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -209,6 +211,23 @@ export function StoreHeader() {
               </motion.div>
             </Link>
             <div className="flex items-center gap-0.5">
+              <Link
+                to="/conta/favoritos"
+                className="relative flex items-center justify-center w-10 h-10 rounded-full transition-colors min-h-[unset] min-w-[unset] hover:bg-white/10"
+              >
+                <Heart className="w-5 h-5" style={{ color: txtColor }} />
+                {wishlistCount > 0 && (
+                  <motion.span
+                    key={wishlistCount}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                    className="absolute -top-0.5 -right-0.5 rounded-full bg-accent text-accent-foreground text-[9px] font-bold min-w-[16px] h-[16px] flex items-center justify-center px-0.5 font-sans min-h-[unset]"
+                  >
+                    {wishlistCount}
+                  </motion.span>
+                )}
+              </Link>
               {cartEnabled && (
                 <motion.button
                   whileTap={{ scale: 0.9 }}
@@ -336,7 +355,32 @@ export function StoreHeader() {
               </Link>
             )}
 
-            {trackEnabled && cartEnabled && (
+            {/* Favorites */}
+            <div className="w-px h-9 mx-1 rounded-full" style={{ background: separatorBg }} />
+            <Link
+              to="/conta/favoritos"
+              className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.97]"
+            >
+              <div className="relative w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white/10" style={{ border: iconBorder }}>
+                <Heart className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ color: txtColor }} />
+                {wishlistCount > 0 && (
+                  <motion.span
+                    key={wishlistCount}
+                    initial={{ scale: 0, y: 5 }}
+                    animate={{ scale: 1, y: 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                    className="absolute -top-1.5 -right-1.5 rounded-full bg-accent text-accent-foreground text-[9px] font-bold min-w-[18px] h-[18px] flex items-center justify-center px-1 font-sans shadow-lg min-h-[unset]"
+                  >
+                    {wishlistCount}
+                  </motion.span>
+                )}
+              </div>
+              <span className="text-[13px] font-sans font-bold tracking-wide" style={{ color: txtColor }}>
+                Favoritos
+              </span>
+            </Link>
+
+            {cartEnabled && (
               <div className="w-px h-9 mx-1 rounded-full" style={{ background: separatorBg }} />
             )}
 
@@ -509,6 +553,17 @@ export function StoreHeader() {
                         </div>
                       </Link>
                     )}
+                    <Link
+                      to="/conta/favoritos"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+                    >
+                      <Heart className="w-5 h-5 text-accent" />
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-sans text-muted-foreground">Peças que você amou</span>
+                        <span className="text-sm font-sans font-semibold text-foreground">Favoritos {wishlistCount > 0 ? `(${wishlistCount})` : ""}</span>
+                      </div>
+                    </Link>
                   </div>
                 </div>
 
