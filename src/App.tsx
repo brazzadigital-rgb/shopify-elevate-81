@@ -48,7 +48,7 @@ import PoliciesPage from "./pages/store/PoliciesPage";
 import CheckoutPage from "./pages/store/CheckoutPage";
 import SellerLayout from "./layouts/SellerLayout";
 import SellerDashboard from "./pages/seller/SellerDashboard";
-import AdminImportProducts from "./pages/admin/AdminImportProducts";
+
 
 const queryClient = new QueryClient();
 
@@ -100,7 +100,7 @@ function AppContent() {
             <Route path="fornecedores" element={<AdminSuppliers />} />
             <Route path="funcoes" element={<AdminRoles />} />
             <Route path="comissoes" element={<AdminCommissions />} />
-            <Route path="importar" element={<AdminImportProducts />} />
+            
             <Route path="relatorios" element={<AdminReports />} />
           </Route>
           <Route path="/vendedor" element={<SellerLayout />}>

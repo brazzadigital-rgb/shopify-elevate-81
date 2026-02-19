@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,9 +6,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Package, Filter } from "lucide-react";
+import { Plus, Pencil, Trash2, Package, Filter, Upload, Download, Loader2, CheckCircle, AlertCircle, MoreVertical } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 interface Supplier { id: string; trade_name: string; }
 
@@ -35,6 +38,11 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [filterSupplier, setFilterSupplier] = useState<string>("all");
   const [productThumbnails, setProductThumbnails] = useState<Record<string, string>>({});
+  const [importOpen, setImportOpen] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [importResults, setImportResults] = useState<{ imported: number; errors: number; details: Array<{ name: string; status: string; error?: string }> } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const supplierMap = Object.fromEntries(suppliers.map(s => [s.id, s.trade_name]));
 
@@ -62,6 +70,86 @@ export default function Products() {
     else { toast({ title: "Produto removido" }); fetchProducts(); }
   };
 
+  const handleImport = async () => {
+    if (!importFile) return;
+    setImporting(true);
+    setImportResults(null);
+    try {
+      const csvText = await importFile.text();
+      const { data, error } = await supabase.functions.invoke("import-products", {
+        body: { csv: csvText },
+      });
+      if (error) throw error;
+      setImportResults({ imported: data.imported, errors: data.errors, details: data.details || [] });
+      toast({ title: "Importação concluída!", description: `${data.imported} produtos importados, ${data.errors} erros.` });
+      fetchProducts();
+    } catch (err: any) {
+      toast({ title: "Erro na importação", description: err.message, variant: "destructive" });
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const { data: allProducts } = await supabase.from("products").select("*").order("name");
+      const { data: allImages } = await supabase.from("product_images").select("product_id, url, is_primary, sort_order");
+      const { data: allVariants } = await supabase.from("product_variants").select("product_id, name, price, sku, stock, compare_at_price");
+
+      if (!allProducts?.length) {
+        toast({ title: "Nenhum produto para exportar", variant: "destructive" });
+        return;
+      }
+
+      const imagesByProduct: Record<string, any[]> = {};
+      allImages?.forEach((img: any) => {
+        if (!imagesByProduct[img.product_id]) imagesByProduct[img.product_id] = [];
+        imagesByProduct[img.product_id].push(img);
+      });
+
+      const variantsByProduct: Record<string, any[]> = {};
+      allVariants?.forEach((v: any) => {
+        if (!variantsByProduct[v.product_id]) variantsByProduct[v.product_id] = [];
+        variantsByProduct[v.product_id].push(v);
+      });
+
+      const headers = ["Handle", "Title", "Body (HTML)", "Vendor", "Type", "Tags", "Published", "Variant SKU", "Variant Price", "Variant Compare At Price", "Variant Inventory Qty", "Image Src", "Image Position", "Status"];
+      const rows: string[][] = [];
+
+      allProducts.forEach((p: any) => {
+        const images = (imagesByProduct[p.id] || []).sort((a: any, b: any) => a.sort_order - b.sort_order);
+        const variants = variantsByProduct[p.id] || [];
+        const maxRows = Math.max(1, images.length, variants.length);
+
+        for (let i = 0; i < maxRows; i++) {
+          const row: string[] = [];
+          if (i === 0) {
+            row.push(p.slug, p.name, p.description || "", p.brand || "", p.product_type || "", (p.tags || []).join(", "), p.is_active ? "true" : "false");
+          } else {
+            row.push("", "", "", "", "", "", "");
+          }
+          const v = variants[i];
+          row.push(v?.sku || p.sku || "", v?.price?.toString() || (i === 0 ? p.price?.toString() : ""), v?.compare_at_price?.toString() || (i === 0 ? p.compare_at_price?.toString() || "" : ""), v?.stock?.toString() || (i === 0 ? p.stock?.toString() : ""));
+          const img = images[i];
+          row.push(img?.url || "", img ? (i + 1).toString() : "", i === 0 ? (p.is_active ? "active" : "draft") : "");
+          rows.push(row);
+        }
+      });
+
+      const csvContent = [headers, ...rows].map(r => r.map(cell => `"${(cell || "").replace(/"/g, '""')}"`).join(",")).join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `produtos_export_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: "Exportação concluída!", description: `${allProducts.length} produtos exportados.` });
+    } catch (err: any) {
+      toast({ title: "Erro ao exportar", description: err.message, variant: "destructive" });
+    }
+  };
+
   const filteredProducts = filterSupplier === "all"
     ? products
     : filterSupplier === "none"
@@ -75,9 +163,26 @@ export default function Products() {
           <h1 className="text-2xl md:text-3xl font-display font-bold">Produtos</h1>
           <p className="text-muted-foreground font-sans text-sm mt-1">Gerencie o catálogo da loja</p>
         </div>
-        <Button onClick={() => navigate("/admin/produtos/novo")} className="gap-2 rounded-xl shine h-11 font-sans">
-          <Plus className="w-4 h-4" /> Novo Produto
-        </Button>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2 rounded-xl h-11 font-sans">
+                <MoreVertical className="w-4 h-4" /> Ações
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => setImportOpen(true)} className="gap-2 font-sans cursor-pointer">
+                <Upload className="w-4 h-4" /> Importar CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExport} className="gap-2 font-sans cursor-pointer">
+                <Download className="w-4 h-4" /> Exportar CSV
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button onClick={() => navigate("/admin/produtos/novo")} className="gap-2 rounded-xl shine h-11 font-sans">
+            <Plus className="w-4 h-4" /> Novo Produto
+          </Button>
+        </div>
       </div>
 
       {suppliers.length > 0 && (
@@ -181,6 +286,88 @@ export default function Products() {
           )}
         </CardContent>
       </Card>
+
+      {/* Import Dialog */}
+      <Dialog open={importOpen} onOpenChange={(open) => { setImportOpen(open); if (!open) { setImportFile(null); setImportResults(null); } }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-display text-lg flex items-center gap-2">
+              <Upload className="w-5 h-5 text-accent" /> Importar Produtos via CSV
+            </DialogTitle>
+            <DialogDescription className="font-sans text-sm">
+              Importe produtos a partir de um CSV exportado do Shopify
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="p-4 border-2 border-dashed border-border rounded-xl bg-muted/30">
+              <Input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+                className="border-0 bg-transparent"
+              />
+              {importFile && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Arquivo: {importFile.name} ({(importFile.size / 1024).toFixed(1)} KB)
+                </p>
+              )}
+            </div>
+
+            <div className="bg-destructive/10 text-destructive rounded-xl p-3 text-sm font-sans">
+              <strong>⚠️ Atenção:</strong> Esta ação irá deletar todos os produtos existentes e substituí-los pelos produtos do CSV.
+            </div>
+
+            <Button
+              onClick={handleImport}
+              disabled={!importFile || importing}
+              className="gap-2 rounded-xl shine w-full"
+            >
+              {importing ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Importando...</>
+              ) : (
+                <><Upload className="w-4 h-4" /> Importar Produtos</>
+              )}
+            </Button>
+
+            {importResults && (
+              <div className="space-y-3">
+                <div className="flex gap-4">
+                  <div className="flex items-center gap-2 text-emerald-600">
+                    <CheckCircle className="w-5 h-5" />
+                    <span className="font-bold font-sans">{importResults.imported}</span> <span className="font-sans text-sm">importados</span>
+                  </div>
+                  {importResults.errors > 0 && (
+                    <div className="flex items-center gap-2 text-destructive">
+                      <AlertCircle className="w-5 h-5" />
+                      <span className="font-bold font-sans">{importResults.errors}</span> <span className="font-sans text-sm">erros</span>
+                    </div>
+                  )}
+                </div>
+                <div className="max-h-48 overflow-y-auto space-y-1">
+                  {importResults.details.map((r, i) => (
+                    <div
+                      key={i}
+                      className={`flex items-center gap-2 text-sm py-1 px-2 rounded font-sans ${
+                        r.status === "ok" ? "text-foreground" : "text-destructive bg-destructive/10"
+                      }`}
+                    >
+                      {r.status === "ok" ? (
+                        <CheckCircle className="w-3 h-3 text-emerald-600 shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-3 h-3 shrink-0" />
+                      )}
+                      <span>{r.name}</span>
+                      {r.error && <span className="text-xs ml-auto">{r.error}</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
