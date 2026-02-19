@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,30 +90,23 @@ export default function Auth() {
         return;
       }
 
-      const { error } = await signUp(email, password, fullName);
+      const addressData = (addr.zip_code && addr.street && addr.number) ? {
+        zip_code: addr.zip_code, street: addr.street, number: addr.number,
+        complement: addr.complement || "", neighborhood: addr.neighborhood,
+        city: addr.city, state: addr.state,
+      } : undefined;
+
+      const { error } = await signUp(email, password, fullName, {
+        phone: phone || undefined,
+        cpf: cpf || undefined,
+        address: addressData,
+      });
       if (error) {
         const msg = error.message.includes("already registered")
           ? "Este email já está cadastrado. Tente fazer login."
           : error.message;
         toast({ title: "Erro no cadastro", description: msg, variant: "destructive" });
       } else {
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-          if (event === "SIGNED_IN" && session?.user) {
-            const uid = session.user.id;
-            if (phone || cpf) {
-              await supabase.from("profiles").update({ phone, cpf } as any).eq("user_id", uid);
-            }
-            if (addr.zip_code && addr.street && addr.number) {
-              await supabase.from("customer_addresses").insert({
-                user_id: uid, label: "Casa", recipient_name: fullName, phone,
-                zip_code: addr.zip_code, street: addr.street, number: addr.number,
-                complement: addr.complement || null, neighborhood: addr.neighborhood,
-                city: addr.city, state: addr.state, is_default: true,
-              } as any);
-            }
-            subscription.unsubscribe();
-          }
-        });
         toast({ title: "🎉 Conta criada com sucesso!", description: "Enviamos um link de confirmação para seu email. Verifique sua caixa de entrada.", variant: "success" as any });
       }
     } else if (mode === "recover") {
