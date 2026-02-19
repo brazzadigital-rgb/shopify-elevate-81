@@ -322,7 +322,7 @@ export default function ProductPage() {
 
   if (loading) {
     return (
-      <div className="container max-w-6xl py-8">
+      <div className="container py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14">
           <Skeleton className="aspect-square rounded-[20px]" />
           <div className="space-y-5">
@@ -374,7 +374,7 @@ export default function ProductPage() {
   return (
     <div className="min-h-screen pb-24 lg:pb-0">
       {/* Breadcrumb */}
-      <div className="container max-w-6xl px-4 md:px-6 py-4">
+      <div className="container px-4 md:px-6 py-4">
         <nav className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-sans font-medium uppercase tracking-widest overflow-hidden">
           <Link to="/" className="hover:text-accent transition-colors shrink-0">Início</Link>
           <ChevronRight className="w-3 h-3 shrink-0 opacity-40" />
@@ -382,8 +382,8 @@ export default function ProductPage() {
         </nav>
       </div>
 
-      <div className="container max-w-6xl px-4 md:px-6 pb-10 lg:pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-14">
+      <div className="container px-4 md:px-6 pb-10 lg:pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
           {/* LEFT — Gallery */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
             <ProductGallery images={images} title={product.name} discount={discount} selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
