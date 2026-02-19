@@ -1,28 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
-import { ShoppingCart, Eye, Package, Filter } from "lucide-react";
-
-interface Seller {
-  id: string;
-  name: string;
-}
+import { exportToCsv } from "@/lib/exportCsv";
+import {
+  ShoppingCart, Eye, Package, Filter, Search, Download, Copy, Check,
+  Truck, CreditCard, Clock
+} from "lucide-react";
 
 interface Order {
   id: string;
   order_number: string;
   customer_name: string | null;
   customer_email: string | null;
+  customer_phone: string | null;
   status: string;
   payment_status: string;
   payment_method: string | null;
+  payment_provider: string | null;
+  shipment_status: string | null;
+  tracking_code: string | null;
   subtotal: number;
   shipping_cost: number;
   discount: number;
@@ -31,46 +35,38 @@ interface Order {
   seller_id: string | null;
 }
 
-interface OrderItem {
-  id: string;
-  product_name: string;
-  variant_name: string | null;
-  quantity: number;
-  unit_price: number;
-  total_price: number;
-}
-
-const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  pending: { label: "Pendente", variant: "secondary" },
-  confirmed: { label: "Confirmado", variant: "default" },
-  processing: { label: "Em preparo", variant: "outline" },
-  shipped: { label: "Enviado", variant: "default" },
-  delivered: { label: "Entregue", variant: "default" },
-  cancelled: { label: "Cancelado", variant: "destructive" },
+const STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  pending: { label: "Pendente", color: "bg-muted text-muted-foreground" },
+  confirmed: { label: "Confirmado", color: "bg-primary/10 text-primary" },
+  processing: { label: "Em Separação", color: "bg-accent/10 text-accent" },
+  shipped: { label: "Enviado", color: "bg-accent/10 text-accent" },
+  delivered: { label: "Entregue", color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
+  cancelled: { label: "Cancelado", color: "bg-destructive/10 text-destructive" },
 };
 
-const paymentLabels: Record<string, string> = {
-  pending: "Pendente",
-  paid: "Pago",
-  refunded: "Reembolsado",
-  failed: "Falhou",
+const PAYMENT_LABELS: Record<string, { label: string; color: string }> = {
+  pending: { label: "Pendente", color: "bg-muted text-muted-foreground" },
+  paid: { label: "Pago", color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
+  failed: { label: "Falhou", color: "bg-destructive/10 text-destructive" },
+  refunded: { label: "Reembolsado", color: "bg-muted text-muted-foreground" },
+};
+
+const SHIPMENT_LABELS: Record<string, string> = {
+  pending: "Aguardando",
+  created: "Criado",
+  posted: "Postado",
+  in_transit: "Em Trânsito",
+  delivered: "Entregue",
 };
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [sellers, setSellers] = useState<Seller[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [filterSeller, setFilterSeller] = useState<string>("all");
-
-  const sellerMap = Object.fromEntries(sellers.map(s => [s.id, s.name]));
-
-  const fetchSellers = async () => {
-    const { data } = await supabase.from("sellers").select("id, name").eq("status", "active").order("name");
-    setSellers((data as Seller[]) || []);
-  };
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterPayment, setFilterPayment] = useState("all");
+  const [filterShipment, setFilterShipment] = useState("all");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -82,71 +78,107 @@ export default function AdminOrders() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchOrders(); fetchSellers(); }, []);
+  useEffect(() => { fetchOrders(); }, []);
 
-  const updateSeller = async (orderId: string, seller_id: string | null) => {
-    const { error } = await supabase.from("orders").update({ seller_id }).eq("id", orderId);
-    if (error) toast({ title: "Erro", description: error.message, variant: "destructive" });
-    else { toast({ title: "Vendedor atualizado!" }); fetchOrders(); }
-  };
+  const filteredOrders = useMemo(() => {
+    let result = orders;
+    if (filterStatus !== "all") result = result.filter(o => o.status === filterStatus);
+    if (filterPayment !== "all") result = result.filter(o => o.payment_status === filterPayment);
+    if (filterShipment !== "all") result = result.filter(o => (o.shipment_status || "pending") === filterShipment);
+    if (search.trim()) {
+      const q = search.toLowerCase().trim();
+      result = result.filter(o =>
+        o.order_number?.toLowerCase().includes(q) ||
+        o.customer_name?.toLowerCase().includes(q) ||
+        o.customer_email?.toLowerCase().includes(q) ||
+        o.customer_phone?.toLowerCase().includes(q) ||
+        o.tracking_code?.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [orders, filterStatus, filterPayment, filterShipment, search]);
 
-  const viewOrder = async (order: Order) => {
-    setSelectedOrder(order);
-    const { data } = await supabase
-      .from("order_items")
-      .select("*")
-      .eq("order_id", order.id);
-    setOrderItems((data as OrderItem[]) || []);
-    setDetailOpen(true);
-  };
-
-  const updateStatus = async (orderId: string, status: string) => {
+  const quickUpdateStatus = async (orderId: string, status: string) => {
     const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
     if (error) toast({ title: "Erro", description: error.message, variant: "destructive" });
     else { toast({ title: "Status atualizado!" }); fetchOrders(); }
   };
 
-  const updatePaymentStatus = async (orderId: string, payment_status: string) => {
-    const { error } = await supabase.from("orders").update({ payment_status }).eq("id", orderId);
-    if (error) toast({ title: "Erro", description: error.message, variant: "destructive" });
-    else { toast({ title: "Pagamento atualizado!" }); fetchOrders(); }
+  const copyTracking = (code: string, id: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedId(id);
+    toast({ title: "Código copiado!" });
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const filteredOrders = filterSeller === "all"
-    ? orders
-    : filterSeller === "none"
-      ? orders.filter(o => !o.seller_id)
-      : orders.filter(o => o.seller_id === filterSeller);
+  const handleExportCsv = () => {
+    const rows = filteredOrders.map(o => ({
+      Pedido: o.order_number,
+      Cliente: o.customer_name || "",
+      Email: o.customer_email || "",
+      Telefone: o.customer_phone || "",
+      Status: STATUS_LABELS[o.status]?.label || o.status,
+      Pagamento: PAYMENT_LABELS[o.payment_status]?.label || o.payment_status,
+      Método: o.payment_method || "",
+      Envio: SHIPMENT_LABELS[o.shipment_status || "pending"] || "",
+      Rastreio: o.tracking_code || "",
+      Total: Number(o.total).toFixed(2),
+      Data: new Date(o.created_at).toLocaleDateString("pt-BR"),
+    }));
+    exportToCsv("pedidos", rows);
+    toast({ title: "CSV exportado!" });
+  };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-display font-bold">Pedidos</h1>
-        <p className="text-muted-foreground font-sans mt-1">Gerencie os pedidos da loja</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-display font-bold">Pedidos</h1>
+          <p className="text-muted-foreground font-sans text-sm mt-1">{filteredOrders.length} pedido(s)</p>
+        </div>
+        <Button variant="outline" size="sm" className="rounded-lg font-sans gap-2 shrink-0" onClick={handleExportCsv}>
+          <Download className="w-4 h-4" /> Exportar CSV
+        </Button>
       </div>
 
-      {sellers.length > 0 && (
-        <div className="flex items-center gap-3">
-          <Filter className="w-4 h-4 text-muted-foreground" />
-          <Select value={filterSeller} onValueChange={setFilterSeller}>
-            <SelectTrigger className="h-9 w-48 rounded-lg text-sm font-sans">
-              <SelectValue placeholder="Filtrar por vendedor" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all" className="font-sans text-sm">Todos os vendedores</SelectItem>
-              <SelectItem value="none" className="font-sans text-sm">Sem vendedor</SelectItem>
-              {sellers.map((s) => (
-                <SelectItem key={s.id} value={s.id} className="font-sans text-sm">{s.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
+      {/* Filters */}
+      <Card className="border-0 shadow-premium">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input className="pl-9 rounded-lg font-sans" placeholder="Buscar pedido, cliente, email, rastreio..." value={search} onChange={e => setSearch(e.target.value)} />
+            </div>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-[160px] rounded-lg font-sans text-sm"><Filter className="w-3 h-3 mr-1" /><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos status</SelectItem>
+                {Object.entries(STATUS_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={filterPayment} onValueChange={setFilterPayment}>
+              <SelectTrigger className="w-[150px] rounded-lg font-sans text-sm"><CreditCard className="w-3 h-3 mr-1" /><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Pagamento</SelectItem>
+                {Object.entries(PAYMENT_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={filterShipment} onValueChange={setFilterShipment}>
+              <SelectTrigger className="w-[150px] rounded-lg font-sans text-sm"><Truck className="w-3 h-3 mr-1" /><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Envio</SelectItem>
+                {Object.entries(SHIPMENT_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
-      <Card className="shadow-premium border-0 overflow-hidden">
+      {/* Desktop Table */}
+      <Card className="shadow-premium border-0 overflow-hidden hidden md:block">
         <CardContent className="p-0 overflow-x-auto">
           {loading ? (
-            <div className="p-6 space-y-4">{[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
+            <div className="p-6 space-y-4">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
           ) : filteredOrders.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
               <ShoppingCart className="w-12 h-12 mb-4 opacity-40" />
@@ -156,138 +188,120 @@ export default function AdminOrders() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="font-sans">Pedido</TableHead>
-                  <TableHead className="font-sans">Cliente</TableHead>
-                  <TableHead className="font-sans">Total</TableHead>
-                  <TableHead className="font-sans">Status</TableHead>
-                  <TableHead className="font-sans">Pagamento</TableHead>
-                  <TableHead className="font-sans">Vendedor</TableHead>
-                  <TableHead className="font-sans">Data</TableHead>
-                  <TableHead className="font-sans text-right">Ações</TableHead>
+                  <TableHead className="font-sans text-xs">Pedido</TableHead>
+                  <TableHead className="font-sans text-xs">Data</TableHead>
+                  <TableHead className="font-sans text-xs">Cliente</TableHead>
+                  <TableHead className="font-sans text-xs">Total</TableHead>
+                  <TableHead className="font-sans text-xs">Pagamento</TableHead>
+                  <TableHead className="font-sans text-xs">Envio</TableHead>
+                  <TableHead className="font-sans text-xs">Rastreio</TableHead>
+                  <TableHead className="font-sans text-xs">Status</TableHead>
+                  <TableHead className="font-sans text-xs text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredOrders.map((order) => (
-                  <TableRow key={order.id} className="hover:bg-muted/50 transition-colors">
-                    <TableCell className="font-sans font-semibold">#{order.order_number}</TableCell>
-                    <TableCell>
-                      <div className="font-sans">
-                        <p className="text-sm font-medium">{order.customer_name || "—"}</p>
-                        <p className="text-xs text-muted-foreground">{order.customer_email || ""}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-sans font-semibold">R$ {Number(order.total).toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Select value={order.status} onValueChange={(v) => updateStatus(order.id, v)}>
-                        <SelectTrigger className="h-8 w-32 rounded-lg text-xs font-sans">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(statusLabels).map(([k, v]) => (
-                            <SelectItem key={k} value={k} className="font-sans text-xs">{v.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <Select value={order.payment_status} onValueChange={(v) => updatePaymentStatus(order.id, v)}>
-                        <SelectTrigger className="h-8 w-28 rounded-lg text-xs font-sans">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(paymentLabels).map(([k, v]) => (
-                            <SelectItem key={k} value={k} className="font-sans text-xs">{v}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <Select value={order.seller_id || "none"} onValueChange={(v) => updateSeller(order.id, v === "none" ? null : v)}>
-                        <SelectTrigger className="h-8 w-32 rounded-lg text-xs font-sans">
-                          <SelectValue placeholder="Nenhum" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none" className="font-sans text-xs">Nenhum</SelectItem>
-                          {sellers.map((s) => (
-                            <SelectItem key={s.id} value={s.id} className="font-sans text-xs">{s.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell className="font-sans text-sm text-muted-foreground">
-                      {new Date(order.created_at).toLocaleDateString("pt-BR")}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => viewOrder(order)}>
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {filteredOrders.map((order) => {
+                  const st = STATUS_LABELS[order.status] || STATUS_LABELS.pending;
+                  const pt = PAYMENT_LABELS[order.payment_status] || PAYMENT_LABELS.pending;
+                  return (
+                    <TableRow key={order.id} className="hover:bg-muted/50 transition-colors">
+                      <TableCell className="font-sans font-semibold text-sm">#{order.order_number}</TableCell>
+                      <TableCell className="font-sans text-xs text-muted-foreground whitespace-nowrap">
+                        {new Date(order.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+                        <br />
+                        <span className="text-[10px]">{new Date(order.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-sans">
+                          <p className="text-sm font-medium truncate max-w-[150px]">{order.customer_name || "—"}</p>
+                          <p className="text-[11px] text-muted-foreground truncate max-w-[150px]">{order.customer_email || ""}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-sans font-semibold text-sm whitespace-nowrap">R$ {Number(order.total).toFixed(2)}</TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <Badge className={`${pt.color} border-0 text-[10px] font-sans`}>{pt.label}</Badge>
+                          {order.payment_method && <p className="text-[10px] text-muted-foreground font-sans">{order.payment_method}</p>}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className="bg-muted text-muted-foreground border-0 text-[10px] font-sans">
+                          {SHIPMENT_LABELS[order.shipment_status || "pending"] || "Aguardando"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {order.tracking_code ? (
+                          <button onClick={() => copyTracking(order.tracking_code!, order.id)} className="inline-flex items-center gap-1 text-[11px] font-mono font-sans text-accent hover:underline">
+                            {copiedId === order.id ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                            {order.tracking_code.slice(0, 13)}
+                          </button>
+                        ) : (
+                          <span className="text-[11px] text-muted-foreground font-sans">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={`${st.color} border-0 text-[10px] font-sans`}>{st.label}</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" asChild>
+                            <Link to={`/admin/pedidos/${order.id}`}><Eye className="w-4 h-4" /></Link>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}
         </CardContent>
       </Card>
 
-      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="font-display text-xl">
-              Pedido #{selectedOrder?.order_number}
-            </DialogTitle>
-          </DialogHeader>
-          {selectedOrder && (
-            <div className="space-y-4 py-2">
-              <div className="grid grid-cols-2 gap-3 text-sm font-sans">
-                <div>
-                  <p className="text-muted-foreground">Cliente</p>
-                  <p className="font-medium">{selectedOrder.customer_name || "—"}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Email</p>
-                  <p className="font-medium">{selectedOrder.customer_email || "—"}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Pagamento</p>
-                  <p className="font-medium">{selectedOrder.payment_method || "—"}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Data</p>
-                  <p className="font-medium">{new Date(selectedOrder.created_at).toLocaleDateString("pt-BR")}</p>
-                </div>
-              </div>
-
-              <div className="border-t pt-4">
-                <h4 className="font-sans font-semibold text-sm mb-3">Itens</h4>
-                <div className="space-y-2">
-                  {orderItems.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between text-sm font-sans bg-muted/50 rounded-xl p-3">
-                      <div>
-                        <p className="font-medium">{item.product_name}</p>
-                        {item.variant_name && <p className="text-xs text-muted-foreground">{item.variant_name}</p>}
-                        <p className="text-xs text-muted-foreground">Qtd: {item.quantity} × R$ {Number(item.unit_price).toFixed(2)}</p>
-                      </div>
-                      <p className="font-semibold">R$ {Number(item.total_price).toFixed(2)}</p>
+      {/* Mobile Cards */}
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          [...Array(4)].map((_, i) => <Skeleton key={i} className="h-32 w-full rounded-xl" />)
+        ) : filteredOrders.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+            <ShoppingCart className="w-12 h-12 mb-4 opacity-40" />
+            <p className="font-sans text-lg">Nenhum pedido encontrado</p>
+          </div>
+        ) : filteredOrders.map(order => {
+          const st = STATUS_LABELS[order.status] || STATUS_LABELS.pending;
+          const pt = PAYMENT_LABELS[order.payment_status] || PAYMENT_LABELS.pending;
+          return (
+            <Link key={order.id} to={`/admin/pedidos/${order.id}`}>
+              <Card className="border-0 shadow-premium hover:shadow-premium-lg transition-shadow">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-sans text-sm font-bold">#{order.order_number}</span>
+                    <span className="text-xs text-muted-foreground font-sans">
+                      {new Date(order.created_at).toLocaleDateString("pt-BR")}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="min-w-0">
+                      <p className="font-sans text-sm font-medium truncate">{order.customer_name || "—"}</p>
+                      <p className="font-sans text-xs text-muted-foreground truncate">{order.customer_email || ""}</p>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="border-t pt-4 space-y-1 text-sm font-sans">
-                <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>R$ {Number(selectedOrder.subtotal).toFixed(2)}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Frete</span><span>R$ {Number(selectedOrder.shipping_cost).toFixed(2)}</span></div>
-                {Number(selectedOrder.discount) > 0 && (
-                  <div className="flex justify-between text-destructive"><span>Desconto</span><span>-R$ {Number(selectedOrder.discount).toFixed(2)}</span></div>
-                )}
-                <div className="flex justify-between font-bold text-base pt-2 border-t">
-                  <span>Total</span><span>R$ {Number(selectedOrder.total).toFixed(2)}</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+                    <span className="font-sans text-sm font-bold shrink-0 ml-2">R$ {Number(order.total).toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge className={`${st.color} border-0 text-[10px] font-sans`}>{st.label}</Badge>
+                    <Badge className={`${pt.color} border-0 text-[10px] font-sans`}>{pt.label}</Badge>
+                    {order.tracking_code && (
+                      <Badge className="bg-accent/10 text-accent border-0 text-[10px] font-sans">
+                        <Truck className="w-3 h-3 mr-1" /> Rastreio
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

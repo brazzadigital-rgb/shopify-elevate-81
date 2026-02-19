@@ -576,6 +576,44 @@ export type Database = {
         }
         Relationships: []
       }
+      order_events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          order_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          order_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
@@ -639,16 +677,20 @@ export type Database = {
       }
       orders: {
         Row: {
+          billing_address: Json | null
           created_at: string
           customer_email: string | null
           customer_name: string | null
           customer_phone: string | null
+          delivered_at: string | null
           discount: number
           id: string
           invoice_number: string | null
           label_url: string | null
           melhor_envio_order_id: string | null
           notes: string | null
+          notes_admin: string | null
+          notes_customer: string | null
           order_number: string
           paid_at: string | null
           payment_method: string | null
@@ -657,12 +699,14 @@ export type Database = {
           referral_code: string | null
           seller_id: string | null
           shipment_status: string | null
+          shipped_at: string | null
           shipping_address: Json | null
           shipping_cost: number
           shipping_days: number | null
           shipping_method_name: string | null
           shipping_price: number | null
           shipping_provider: string | null
+          shipping_service: string | null
           shipping_service_code: string | null
           status: string
           subtotal: number
@@ -674,16 +718,20 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          billing_address?: Json | null
           created_at?: string
           customer_email?: string | null
           customer_name?: string | null
           customer_phone?: string | null
+          delivered_at?: string | null
           discount?: number
           id?: string
           invoice_number?: string | null
           label_url?: string | null
           melhor_envio_order_id?: string | null
           notes?: string | null
+          notes_admin?: string | null
+          notes_customer?: string | null
           order_number: string
           paid_at?: string | null
           payment_method?: string | null
@@ -692,12 +740,14 @@ export type Database = {
           referral_code?: string | null
           seller_id?: string | null
           shipment_status?: string | null
+          shipped_at?: string | null
           shipping_address?: Json | null
           shipping_cost?: number
           shipping_days?: number | null
           shipping_method_name?: string | null
           shipping_price?: number | null
           shipping_provider?: string | null
+          shipping_service?: string | null
           shipping_service_code?: string | null
           status?: string
           subtotal?: number
@@ -709,16 +759,20 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          billing_address?: Json | null
           created_at?: string
           customer_email?: string | null
           customer_name?: string | null
           customer_phone?: string | null
+          delivered_at?: string | null
           discount?: number
           id?: string
           invoice_number?: string | null
           label_url?: string | null
           melhor_envio_order_id?: string | null
           notes?: string | null
+          notes_admin?: string | null
+          notes_customer?: string | null
           order_number?: string
           paid_at?: string | null
           payment_method?: string | null
@@ -727,12 +781,14 @@ export type Database = {
           referral_code?: string | null
           seller_id?: string | null
           shipment_status?: string | null
+          shipped_at?: string | null
           shipping_address?: Json | null
           shipping_cost?: number
           shipping_days?: number | null
           shipping_method_name?: string | null
           shipping_price?: number | null
           shipping_provider?: string | null
+          shipping_service?: string | null
           shipping_service_code?: string | null
           status?: string
           subtotal?: number

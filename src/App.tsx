@@ -21,6 +21,7 @@ import ProductEditor from "./pages/admin/ProductEditor";
 import Collections from "./pages/admin/Collections";
 import StoreSettings from "./pages/admin/StoreSettings";
 import AdminOrders from "./pages/admin/AdminOrders";
+import AdminOrderDetail from "./pages/admin/AdminOrderDetail";
 import AdminCustomers from "./pages/admin/AdminCustomers";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminSections from "./pages/admin/AdminSections";
@@ -110,6 +111,7 @@ function AppContent() {
             <Route path="produtos/:id/editar" element={<ProductEditor />} />
             <Route path="colecoes" element={<Collections />} />
             <Route path="pedidos" element={<AdminOrders />} />
+            <Route path="pedidos/:id" element={<AdminOrderDetail />} />
             <Route path="clientes" element={<AdminCustomers />} />
             <Route path="cupons" element={<AdminCoupons />} />
             <Route path="secoes" element={<AdminSections />} />
