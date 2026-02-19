@@ -45,7 +45,7 @@ export default function CollectionsListPage() {
           {collections.map((c, i) => (
             <motion.div key={c.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
               <Link to={`/colecao/${c.slug}`} className="group block">
-                <div className="relative h-56 rounded-2xl overflow-hidden bg-primary">
+                <div className="relative h-64 rounded-2xl overflow-hidden bg-primary">
                   {c.image_url && (
                     <img src={c.image_url} alt={c.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-60" loading="lazy" />
                   )}
