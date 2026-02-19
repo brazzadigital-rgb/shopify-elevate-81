@@ -199,15 +199,70 @@ export function StoreHeader() {
         {/* Premium gradient overlay for depth */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: overlayBg }} />
 
-        <div className="container relative flex items-center justify-between gap-6" style={{ height: `${headerHeight}px` }}>
-          {/* MOBILE LEFT — Logo */}
-          <Link to="/" className="flex md:hidden items-center shrink-0">
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}>
-              <LogoComponent mobile />
-            </motion.div>
-          </Link>
+        <div className="container relative flex flex-col md:flex-row md:items-center md:justify-between md:gap-6" style={{ minHeight: `${headerHeight}px` }}>
+          {/* Mobile top row: Logo + icons */}
+          <div className="flex md:hidden items-center justify-between w-full py-2">
+            <Link to="/" className="flex items-center shrink-0">
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}>
+                <LogoComponent mobile />
+              </motion.div>
+            </Link>
+            <div className="flex items-center gap-0.5">
+              {cartEnabled && (
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setIsOpen(true)}
+                  className="relative flex items-center justify-center w-10 h-10 rounded-full transition-colors min-h-[unset] min-w-[unset] hover:bg-white/10"
+                >
+                  <ShoppingBag className="w-5 h-5" style={{ color: txtColor }} />
+                  {itemCount > 0 && (
+                    <motion.span
+                      key={itemCount}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                      className="absolute -top-0.5 -right-0.5 rounded-full bg-accent text-accent-foreground text-[9px] font-bold min-w-[16px] h-[16px] flex items-center justify-center px-0.5 font-sans min-h-[unset]"
+                    >
+                      {itemCount}
+                    </motion.span>
+                  )}
+                </motion.button>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full w-10 h-10 shrink-0 min-h-[unset] min-w-[unset] hover:bg-white/10"
+                style={{ color: txtColor }}
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </Button>
+            </div>
+          </div>
 
-          {/* DESKTOP LEFT — Logo */}
+          {/* Mobile search bar — full width below logo row */}
+          <form onSubmit={handleSearch} className="flex md:hidden w-full pb-3">
+            <div className="relative w-full">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={searchPlaceholder}
+                className="w-full h-11 rounded-full border-2 border-transparent text-foreground placeholder:text-muted-foreground/70 text-sm font-sans pl-5 pr-12 focus:outline-none focus:border-accent/30 transition-all duration-300"
+                style={{ backgroundColor: searchBgColor }}
+              />
+              <motion.button
+                type="submit"
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.92 }}
+                className="absolute right-1.5 top-1.5 w-8 h-8 rounded-full bg-accent hover:bg-accent/90 flex items-center justify-center transition-colors duration-200 min-h-[unset] min-w-[unset] shadow-md"
+              >
+                <Search className="w-4 h-4 text-accent-foreground" />
+              </motion.button>
+            </div>
+          </form>
+
+          {/* DESKTOP layout — same row */}
           <Link to="/" className="hidden md:flex items-center gap-2 shrink-0">
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }} className="relative">
               <LogoComponent />
@@ -310,48 +365,6 @@ export function StoreHeader() {
                 </span>
               </motion.button>
             )}
-          </div>
-
-          {/* MOBILE RIGHT — Search + Cart + Hamburger */}
-          <div className="flex items-center gap-0.5 md:hidden">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setMobileSearchOpen(true)}
-              className="flex items-center justify-center w-10 h-10 rounded-full transition-colors min-h-[unset] min-w-[unset] hover:bg-white/10"
-            >
-              <Search className="w-5 h-5" style={{ color: txtColor }} />
-            </motion.button>
-
-            {cartEnabled && (
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsOpen(true)}
-                className="relative flex items-center justify-center w-10 h-10 rounded-full transition-colors min-h-[unset] min-w-[unset] hover:bg-white/10"
-              >
-                <ShoppingBag className="w-5 h-5" style={{ color: txtColor }} />
-                {itemCount > 0 && (
-                  <motion.span
-                    key={itemCount}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                    className="absolute -top-0.5 -right-0.5 rounded-full bg-accent text-accent-foreground text-[9px] font-bold min-w-[16px] h-[16px] flex items-center justify-center px-0.5 font-sans min-h-[unset]"
-                  >
-                    {itemCount}
-                  </motion.span>
-                )}
-              </motion.button>
-            )}
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full w-10 h-10 shrink-0 min-h-[unset] min-w-[unset] hover:bg-white/10"
-              style={{ color: txtColor }}
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
           </div>
         </div>
 
