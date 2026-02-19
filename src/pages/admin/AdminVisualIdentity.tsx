@@ -182,16 +182,16 @@ export default function AdminVisualIdentity() {
           </div>
         </CardContent>
       </Card>
-      {/* Jewel Ring Categories */}
+      {/* Jewel Ring Categories — Studio Reflex */}
       <Card className="shadow-premium border-0">
         <CardHeader className="pb-4">
-          <CardTitle className="font-display text-lg flex items-center gap-2"><Gem className="w-5 h-5 text-accent" /> Categorias — Efeito Joia</CardTitle>
+          <CardTitle className="font-display text-lg flex items-center gap-2"><Gem className="w-5 h-5 text-accent" /> Categorias — Reflexo de Estúdio</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="flex items-center justify-between">
             <div>
-              <Label className="font-sans text-sm font-medium">Borda Luxuosa (Joia)</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">Anel metálico com reflexo cintilante</p>
+              <Label className="font-sans text-sm font-medium">Reflexo de Estúdio</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Anel metálico com reflexo de softbox premium</p>
             </div>
             <Switch
               checked={settings.jewel_enabled === "true"}
@@ -212,45 +212,44 @@ export default function AdminVisualIdentity() {
               </Select>
             </div>
             <div className="grid gap-2">
-              <Label className="font-sans text-sm">Velocidade do Sparkle</Label>
-              <Select value={settings.jewel_speed || "normal"} onValueChange={(v) => update("jewel_speed", v)}>
+              <Label className="font-sans text-sm">Intensidade do Reflexo</Label>
+              <Select value={settings.jewel_reflex_intensity || "medium"} onValueChange={(v) => update("jewel_reflex_intensity", v)}>
                 <SelectTrigger className="h-10 rounded-xl"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="slow">Lento</SelectItem>
-                  <SelectItem value="normal">Normal</SelectItem>
-                  <SelectItem value="fast">Rápido</SelectItem>
+                  <SelectItem value="low">Baixo</SelectItem>
+                  <SelectItem value="medium">Médio</SelectItem>
+                  <SelectItem value="high">Alto</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           <div className="grid gap-2">
-            <Label className="font-sans text-sm">Intensidade do Brilho: {settings.jewel_intensity || "50"}%</Label>
-            <Slider
-              value={[parseInt(settings.jewel_intensity || "50")]}
-              onValueChange={([v]) => update("jewel_intensity", String(v))}
-              min={0}
-              max={100}
-              step={5}
-              className="w-full"
-            />
+            <Label className="font-sans text-sm">Frequência</Label>
+            <Select value={settings.jewel_reflex_frequency || "normal"} onValueChange={(v) => update("jewel_reflex_frequency", v)}>
+              <SelectTrigger className="h-10 rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="rare">Raro (a cada ~10s)</SelectItem>
+                <SelectItem value="normal">Normal (a cada ~7s)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex items-center justify-between">
             <div>
-              <Label className="font-sans text-sm font-medium">Brilho ao Toque</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">Efeito luminoso ao tocar no mobile</p>
+              <Label className="font-sans text-sm font-medium">Shine ao Toque</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Reflexo imediato ao tocar no mobile</p>
             </div>
             <Switch
-              checked={settings.jewel_tap_glow !== "false"}
-              onCheckedChange={(v) => update("jewel_tap_glow", v ? "true" : "false")}
+              checked={settings.jewel_shine_tap !== "false"}
+              onCheckedChange={(v) => update("jewel_shine_tap", v ? "true" : "false")}
             />
           </div>
 
           <div className="flex items-center justify-between">
             <div>
               <Label className="font-sans text-sm font-medium">Realçar Categoria Ativa</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">Brilho contínuo mais forte na selecionada</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Glow mais forte na categoria selecionada</p>
             </div>
             <Switch
               checked={settings.jewel_active_highlight !== "false"}

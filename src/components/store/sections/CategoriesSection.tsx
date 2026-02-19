@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Category {
@@ -13,18 +13,18 @@ interface Category {
 interface JewelConfig {
   enabled: boolean;
   color: "gold" | "rose" | "silver";
-  speed: "slow" | "normal" | "fast";
-  intensity: number;
-  tapGlow: boolean;
+  reflexIntensity: "low" | "medium" | "high";
+  reflexFrequency: "rare" | "normal";
+  shineTap: boolean;
   activeHighlight: boolean;
 }
 
 const defaultJewelConfig: JewelConfig = {
   enabled: true,
   color: "gold",
-  speed: "normal",
-  intensity: 50,
-  tapGlow: true,
+  reflexIntensity: "medium",
+  reflexFrequency: "normal",
+  shineTap: true,
   activeHighlight: true,
 };
 
@@ -32,30 +32,119 @@ const colorPalettes = {
   gold: {
     ring: "linear-gradient(135deg, hsl(40,60%,70%) 0%, hsl(38,80%,85%) 20%, hsl(35,50%,60%) 40%, hsl(42,70%,80%) 60%, hsl(30,55%,65%) 80%, hsl(40,60%,75%) 100%)",
     glow: "hsla(40,70%,70%,0.3)",
-    sparkle: "hsla(45,100%,95%,0.9)",
-    sparkleMid: "hsla(40,80%,80%,0.4)",
-    particle: "hsla(45,100%,90%,0.9)",
-    particleShadow: "hsla(40,80%,80%,0.5)",
+    reflex: "hsla(45,60%,95%,VAR)",
+    facet: "hsla(45,80%,92%,0.8)",
   },
   rose: {
     ring: "linear-gradient(135deg, hsl(350,50%,75%) 0%, hsl(340,60%,85%) 20%, hsl(355,40%,65%) 40%, hsl(345,55%,80%) 60%, hsl(350,45%,70%) 80%, hsl(340,50%,78%) 100%)",
     glow: "hsla(350,60%,75%,0.3)",
-    sparkle: "hsla(340,100%,95%,0.9)",
-    sparkleMid: "hsla(350,70%,85%,0.4)",
-    particle: "hsla(345,100%,92%,0.9)",
-    particleShadow: "hsla(350,70%,80%,0.5)",
+    reflex: "hsla(340,50%,96%,VAR)",
+    facet: "hsla(345,70%,93%,0.8)",
   },
   silver: {
     ring: "linear-gradient(135deg, hsl(220,10%,75%) 0%, hsl(210,15%,88%) 20%, hsl(215,8%,65%) 40%, hsl(220,12%,82%) 60%, hsl(210,10%,70%) 80%, hsl(220,10%,78%) 100%)",
     glow: "hsla(220,15%,75%,0.3)",
-    sparkle: "hsla(210,30%,96%,0.9)",
-    sparkleMid: "hsla(220,20%,85%,0.4)",
-    particle: "hsla(215,25%,92%,0.9)",
-    particleShadow: "hsla(220,20%,80%,0.5)",
+    reflex: "hsla(210,20%,97%,VAR)",
+    facet: "hsla(215,25%,94%,0.8)",
   },
 };
 
-const speedMap = { slow: 8, normal: 5, fast: 3 };
+const intensityMap = { low: 0.18, medium: 0.3, high: 0.45 };
+const frequencyMap = { rare: 10000, normal: 7000 };
+
+function StudioReflexOverlay({
+  config,
+  index,
+  triggerShine,
+}: {
+  config: JewelConfig;
+  index: number;
+  triggerShine: number;
+}) {
+  const [animating, setAnimating] = useState(false);
+  const [facets, setFacets] = useState<{ x: number; y: number; id: number }[]>([]);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const facetIdRef = useRef(0);
+  const palette = colorPalettes[config.color];
+  const opacity = intensityMap[config.reflexIntensity];
+  const interval = frequencyMap[config.reflexFrequency];
+
+  const runShine = useCallback(() => {
+    setAnimating(true);
+    // Spawn 2-3 micro facets during the shine
+    const numFacets = 2 + Math.floor(Math.random() * 2);
+    const newFacets = Array.from({ length: numFacets }, () => ({
+      x: 20 + Math.random() * 60,
+      y: 10 + Math.random() * 40,
+      id: facetIdRef.current++,
+    }));
+    setFacets(newFacets);
+
+    setTimeout(() => {
+      setAnimating(false);
+      setFacets([]);
+    }, 1500);
+  }, []);
+
+  // Idle cycle
+  useEffect(() => {
+    if (!config.enabled) return;
+    // Stagger start per index
+    const initialDelay = index * 1200 + Math.random() * 2000;
+    const startTimer = setTimeout(() => {
+      runShine();
+      timerRef.current = setInterval(() => {
+        runShine();
+      }, interval + Math.random() * 3000);
+    }, initialDelay);
+
+    return () => {
+      clearTimeout(startTimer);
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [config.enabled, interval, index, runShine]);
+
+  // Tap-triggered shine
+  useEffect(() => {
+    if (triggerShine > 0 && config.shineTap) {
+      runShine();
+    }
+  }, [triggerShine, config.shineTap, runShine]);
+
+  if (!config.enabled) return null;
+
+  const reflexColor = palette.reflex.replace("VAR", String(opacity));
+
+  return (
+    <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none studio-reflex-container">
+      {/* Crescent highlight — the "softbox" reflex */}
+      <div
+        className={`absolute inset-0 rounded-full ${animating ? "studio-reflex-sweep" : "opacity-0"}`}
+        style={{
+          background: `radial-gradient(ellipse 70% 40% at 30% 25%, ${reflexColor} 0%, transparent 70%)`,
+          mixBlendMode: "soft-light",
+        }}
+      />
+
+      {/* Micro facet sparkles */}
+      {facets.map((f) => (
+        <span
+          key={f.id}
+          className="absolute studio-facet-flash"
+          style={{
+            left: `${f.x}%`,
+            top: `${f.y}%`,
+            width: 3,
+            height: 3,
+            background: palette.facet,
+            borderRadius: "50%",
+            boxShadow: `0 0 2px 1px ${palette.facet}`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 function JewelRing({
   children,
@@ -68,16 +157,16 @@ function JewelRing({
   config: JewelConfig;
   isActive: boolean;
 }) {
+  const [tapCount, setTapCount] = useState(0);
   const [tapped, setTapped] = useState(false);
   const palette = colorPalettes[config.color];
-  const orbitDuration = speedMap[config.speed];
-  const intensityScale = config.intensity / 100;
 
   const handleTap = useCallback(() => {
-    if (!config.tapGlow) return;
+    if (!config.shineTap) return;
+    setTapCount((c) => c + 1);
     setTapped(true);
-    setTimeout(() => setTapped(false), 2000);
-  }, [config.tapGlow]);
+    setTimeout(() => setTapped(false), 800);
+  }, [config.shineTap]);
 
   if (!config.enabled) {
     return (
@@ -87,13 +176,12 @@ function JewelRing({
     );
   }
 
-  const glowOpacity = tapped ? 0.8 : isActive && config.activeHighlight ? 0.65 : 0.4;
-  const orbitSpeedMultiplier = isActive && config.activeHighlight ? 0.7 : 1;
+  const glowOpacity = tapped ? 0.6 : isActive && config.activeHighlight ? 0.5 : 0.3;
 
   return (
     <motion.div
       className="relative"
-      whileTap={config.tapGlow ? { scale: 0.97 } : undefined}
+      whileTap={config.shineTap ? { scale: 0.985 } : undefined}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       onTapStart={handleTap}
     >
@@ -103,7 +191,7 @@ function JewelRing({
         style={{
           background: `radial-gradient(circle, ${palette.glow} 60%, transparent 70%)`,
           filter: "blur(4px)",
-          opacity: glowOpacity * intensityScale,
+          opacity: glowOpacity,
         }}
       />
 
@@ -113,57 +201,14 @@ function JewelRing({
         style={{
           background: palette.ring,
           backgroundSize: "200% 200%",
-          animation: `jewel-shimmer 4s ease-in-out infinite`,
+          animation: "jewel-shimmer 4s ease-in-out infinite",
         }}
       >
-        {/* Sparkle beam */}
-        <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
-          <div
-            style={{
-              position: "absolute",
-              width: "30%",
-              height: "30%",
-              background: `radial-gradient(circle, ${palette.sparkle} 0%, ${palette.sparkleMid} 40%, transparent 70%)`,
-              borderRadius: "50%",
-              animation: `jewel-orbit ${orbitDuration * orbitSpeedMultiplier}s linear infinite`,
-              animationDelay: `${index * -1.2}s`,
-              top: 0,
-              left: "35%",
-              filter: "blur(1px)",
-              opacity: intensityScale,
-            }}
-          />
-        </div>
-
-        {/* Micro particles */}
-        <div className="absolute inset-0 rounded-full pointer-events-none">
-          {[
-            { top: "10%", left: "85%", delay: index * 0.3 },
-            { top: "75%", left: "5%", delay: index * 0.3 + 1.2 },
-            { top: "5%", left: "40%", delay: index * 0.3 + 2.4 },
-          ].map((p, pi) => (
-            <span
-              key={pi}
-              className="absolute"
-              style={{
-                width: 3,
-                height: 3,
-                background: palette.particle,
-                borderRadius: "50%",
-                boxShadow: `0 0 3px 1px ${palette.particleShadow}`,
-                top: p.top,
-                left: p.left,
-                animation: `jewel-twinkle 3s ease-in-out infinite`,
-                animationDelay: `${p.delay}s`,
-                opacity: intensityScale,
-              }}
-            />
-          ))}
-        </div>
-
         {/* Inner separator */}
-        <div className="rounded-full p-[1px] bg-gradient-to-b from-white/30 to-transparent">
+        <div className="rounded-full p-[1px] bg-gradient-to-b from-white/30 to-transparent relative">
           {children}
+          {/* Studio reflex overlay — on top of image */}
+          <StudioReflexOverlay config={config} index={index} triggerShine={tapCount} />
         </div>
       </div>
     </motion.div>
@@ -190,9 +235,9 @@ export function CategoriesSection() {
           .in("key", [
             "jewel_enabled",
             "jewel_color",
-            "jewel_speed",
-            "jewel_intensity",
-            "jewel_tap_glow",
+            "jewel_reflex_intensity",
+            "jewel_reflex_frequency",
+            "jewel_shine_tap",
             "jewel_active_highlight",
           ]),
       ]);
@@ -207,9 +252,9 @@ export function CategoriesSection() {
         setJewelConfig({
           enabled: map.jewel_enabled !== "false",
           color: (map.jewel_color as JewelConfig["color"]) || "gold",
-          speed: (map.jewel_speed as JewelConfig["speed"]) || "normal",
-          intensity: parseInt(map.jewel_intensity || "50"),
-          tapGlow: map.jewel_tap_glow !== "false",
+          reflexIntensity: (map.jewel_reflex_intensity as JewelConfig["reflexIntensity"]) || "medium",
+          reflexFrequency: (map.jewel_reflex_frequency as JewelConfig["reflexFrequency"]) || "normal",
+          shineTap: map.jewel_shine_tap !== "false",
           activeHighlight: map.jewel_active_highlight !== "false",
         });
       }
