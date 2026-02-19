@@ -85,8 +85,8 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
   };
 
   return (
-    <section className="py-8 md:py-16 bg-background">
-      <div className="container">
+    <section className="md:py-16 bg-background">
+      <div className="md:container">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -162,7 +162,7 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
         </div>
 
         {/* Mobile: uniform 2-column grid */}
-        <div className="md:hidden grid grid-cols-2 gap-1">
+        <div className="md:hidden grid grid-cols-2 gap-[3px]">
           {collections.slice(0, 6).map((c, i) => (
             <motion.div
               key={c.id}
@@ -173,7 +173,7 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
             >
               <Link
                 to={`/colecao/${c.slug}`}
-                className="group relative block w-full aspect-square overflow-hidden"
+                className="group relative block w-full aspect-[3/4] overflow-hidden"
               >
                 {(c.banner_url || c.image_url) ? (
                   <img
