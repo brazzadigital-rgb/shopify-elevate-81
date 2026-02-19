@@ -25,18 +25,18 @@ export default function AdminLayout() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full overflow-x-hidden">
-        <AdminSidebar />
-        <SidebarInset className="flex-1 min-w-0">
-          <header className="h-14 flex items-center justify-between gap-4 border-b px-4 md:px-6 bg-background/80 backdrop-blur-sm sticky top-0 z-10">
-            <SidebarTrigger className="text-muted-foreground" />
-            <ThemeToggle className="text-muted-foreground" />
-          </header>
-          <main className="flex-1 p-4 md:p-6 overflow-x-hidden">
-            <Outlet />
-          </main>
-        </SidebarInset>
-      </div>
+        <div className="min-h-screen flex w-full overflow-x-hidden bg-background">
+          <AdminSidebar />
+          <SidebarInset className="flex-1 min-w-0 flex flex-col">
+            <header className="h-14 flex items-center justify-between gap-4 border-b px-4 md:px-6 bg-background/80 backdrop-blur-sm sticky top-0 z-10">
+              <SidebarTrigger className="text-muted-foreground" />
+              <ThemeToggle className="text-muted-foreground" />
+            </header>
+            <main className="flex-1 p-4 md:p-6 overflow-x-hidden bg-background">
+              <Outlet />
+            </main>
+          </SidebarInset>
+        </div>
     </SidebarProvider>
   );
 }
