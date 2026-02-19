@@ -536,17 +536,28 @@ export type Database = {
           customer_phone: string | null
           discount: number
           id: string
+          invoice_number: string | null
+          label_url: string | null
+          melhor_envio_order_id: string | null
           notes: string | null
           order_number: string
           payment_method: string | null
           payment_status: string
           referral_code: string | null
           seller_id: string | null
+          shipment_status: string | null
           shipping_address: Json | null
           shipping_cost: number
+          shipping_days: number | null
+          shipping_method_name: string | null
+          shipping_price: number | null
+          shipping_provider: string | null
+          shipping_service_code: string | null
           status: string
           subtotal: number
           total: number
+          tracking_code: string | null
+          tracking_url: string | null
           updated_at: string
           user_id: string | null
         }
@@ -557,17 +568,28 @@ export type Database = {
           customer_phone?: string | null
           discount?: number
           id?: string
+          invoice_number?: string | null
+          label_url?: string | null
+          melhor_envio_order_id?: string | null
           notes?: string | null
           order_number: string
           payment_method?: string | null
           payment_status?: string
           referral_code?: string | null
           seller_id?: string | null
+          shipment_status?: string | null
           shipping_address?: Json | null
           shipping_cost?: number
+          shipping_days?: number | null
+          shipping_method_name?: string | null
+          shipping_price?: number | null
+          shipping_provider?: string | null
+          shipping_service_code?: string | null
           status?: string
           subtotal?: number
           total?: number
+          tracking_code?: string | null
+          tracking_url?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -578,17 +600,28 @@ export type Database = {
           customer_phone?: string | null
           discount?: number
           id?: string
+          invoice_number?: string | null
+          label_url?: string | null
+          melhor_envio_order_id?: string | null
           notes?: string | null
           order_number?: string
           payment_method?: string | null
           payment_status?: string
           referral_code?: string | null
           seller_id?: string | null
+          shipment_status?: string | null
           shipping_address?: Json | null
           shipping_cost?: number
+          shipping_days?: number | null
+          shipping_method_name?: string | null
+          shipping_price?: number | null
+          shipping_provider?: string | null
+          shipping_service_code?: string | null
           status?: string
           subtotal?: number
           total?: number
+          tracking_code?: string | null
+          tracking_url?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -853,6 +886,10 @@ export type Database = {
           quote_only: boolean
           related_product_ids: string[] | null
           reseller_price: number | null
+          shipping_height: number | null
+          shipping_length: number | null
+          shipping_weight: number | null
+          shipping_width: number | null
           short_description: string | null
           show_on_home: boolean
           sku: string | null
@@ -905,6 +942,10 @@ export type Database = {
           quote_only?: boolean
           related_product_ids?: string[] | null
           reseller_price?: number | null
+          shipping_height?: number | null
+          shipping_length?: number | null
+          shipping_weight?: number | null
+          shipping_width?: number | null
           short_description?: string | null
           show_on_home?: boolean
           sku?: string | null
@@ -957,6 +998,10 @@ export type Database = {
           quote_only?: boolean
           related_product_ids?: string[] | null
           reseller_price?: number | null
+          shipping_height?: number | null
+          shipping_length?: number | null
+          shipping_weight?: number | null
+          shipping_width?: number | null
           short_description?: string | null
           show_on_home?: boolean
           sku?: string | null
@@ -1153,6 +1198,39 @@ export type Database = {
         }
         Relationships: []
       }
+      shipping_quotes: {
+        Row: {
+          created_at: string
+          customer_cep: string
+          expires_at: string
+          id: string
+          items_hash: string
+          quotes_json: Json
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_cep: string
+          expires_at?: string
+          id?: string
+          items_hash: string
+          quotes_json?: Json
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_cep?: string
+          expires_at?: string
+          id?: string
+          items_hash?: string
+          quotes_json?: Json
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       store_settings: {
         Row: {
           id: string
@@ -1224,6 +1302,44 @@ export type Database = {
           whatsapp?: string | null
         }
         Relationships: []
+      }
+      tracking_events: {
+        Row: {
+          created_at: string
+          description: string | null
+          event_date: string
+          id: string
+          location: string | null
+          order_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          id?: string
+          location?: string | null
+          order_id: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          id?: string
+          location?: string | null
+          order_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracking_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_custom_roles: {
         Row: {
