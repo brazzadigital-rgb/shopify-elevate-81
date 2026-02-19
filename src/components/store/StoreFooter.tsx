@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import {
@@ -46,17 +46,17 @@ function FooterAccordion({ title, children }: { title: string; children: React.R
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="border-b border-foreground/[0.06]">
+    <div className="border-b border-foreground/[0.08]">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between py-4 text-left"
         aria-expanded={open}
       >
-        <span className="font-sans text-xs font-semibold uppercase tracking-[0.15em] text-foreground/50">
+        <span className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-foreground/70">
           {title}
         </span>
         <ChevronDown
-          className={`w-4 h-4 text-foreground/30 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-foreground/40 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
         />
       </button>
       <div
@@ -84,10 +84,10 @@ function FooterNewsletter({ isMobile }: { isMobile: boolean }) {
 
   return (
     <div>
-      <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.15em] text-foreground/50 mb-4">
+      <h4 className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-foreground/70 mb-4">
         Receba Novidades
       </h4>
-      <p className="font-sans text-[13px] text-foreground/40 mb-4 leading-relaxed">
+      <p className="font-sans text-[13px] text-foreground/55 mb-4 leading-relaxed">
         Cadastre-se e ganhe 10% de desconto na primeira compra.
       </p>
       <form onSubmit={handleSubmit} className={`flex gap-2 ${isMobile ? "flex-col" : ""}`}>
@@ -97,17 +97,17 @@ function FooterNewsletter({ isMobile }: { isMobile: boolean }) {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Seu melhor email"
           required
-          className="flex-1 h-11 px-4 rounded-lg bg-foreground/[0.03] border border-foreground/[0.08] text-foreground text-sm font-sans placeholder:text-foreground/30 focus:outline-none focus:border-[hsl(30,30%,65%)] focus:ring-1 focus:ring-[hsl(30,30%,65%)]/30 transition-all"
+          className="flex-1 h-11 px-4 rounded-lg bg-white border border-foreground/[0.12] text-foreground text-sm font-sans placeholder:text-foreground/35 focus:outline-none focus:border-[hsl(30,30%,60%)] focus:ring-1 focus:ring-[hsl(30,30%,60%)]/30 shadow-sm transition-all"
         />
         <button
           type="submit"
-          className="h-11 px-6 rounded-lg bg-foreground/[0.06] border border-foreground/[0.08] text-foreground/60 text-xs font-sans font-semibold uppercase tracking-wider hover:bg-foreground/10 active:scale-[0.98] transition-all"
+          className="h-11 px-6 rounded-lg bg-foreground/[0.08] border border-foreground/[0.12] text-foreground/70 text-xs font-sans font-bold uppercase tracking-wider hover:bg-foreground/14 active:scale-[0.98] shadow-sm transition-all"
         >
           <Send className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
           Assinar
         </button>
       </form>
-      <p className="font-sans text-[10px] text-foreground/25 mt-2.5">Sem spam. Cancele quando quiser.</p>
+      <p className="font-sans text-[10px] text-foreground/35 mt-2.5">Sem spam. Cancele quando quiser.</p>
     </div>
   );
 }
@@ -130,10 +130,10 @@ export function StoreFooter() {
   return (
     <footer ref={footerRef} className="relative">
       {/* ═══════ LEVEL 1 — Trust Bar ═══════ */}
-      <div className="bg-[hsl(30,15%,96%)] border-y border-foreground/[0.05]">
+      <div className="bg-[hsl(30,12%,95%)] border-y border-foreground/[0.07]">
         <div className="container px-4 md:px-6">
           {/* Desktop: 3 cards inline */}
-          <div className="hidden md:grid md:grid-cols-3 divide-x divide-foreground/[0.06]">
+          <div className="hidden md:grid md:grid-cols-3 divide-x divide-foreground/[0.07]">
             {trustCards.map((card, i) => (
               <motion.div
                 key={card.title}
@@ -143,12 +143,12 @@ export function StoreFooter() {
                 transition={{ duration: 0.4, delay: i * 0.1 }}
                 className="flex items-center gap-4 py-6 px-8 group cursor-default hover:-translate-y-0.5 transition-transform duration-300"
               >
-                <div className="w-11 h-11 rounded-full bg-[hsl(30,25%,90%)] flex items-center justify-center shrink-0 group-hover:bg-[hsl(30,30%,85%)] transition-colors">
-                  <card.icon className="w-5 h-5 text-[hsl(30,20%,40%)]" />
+                <div className="w-11 h-11 rounded-full bg-[hsl(30,20%,88%)] flex items-center justify-center shrink-0 group-hover:bg-[hsl(30,25%,83%)] transition-colors shadow-sm">
+                  <card.icon className="w-5 h-5 text-[hsl(30,25%,35%)]" />
                 </div>
                 <div>
-                  <p className="font-sans text-sm font-semibold text-foreground/70">{card.title}</p>
-                  <p className="font-sans text-xs text-foreground/40">{card.text}</p>
+                  <p className="font-sans text-sm font-bold text-foreground/80">{card.title}</p>
+                  <p className="font-sans text-xs text-foreground/50">{card.text}</p>
                 </div>
               </motion.div>
             ))}
@@ -159,14 +159,14 @@ export function StoreFooter() {
             {trustCards.map((card) => (
               <div
                 key={card.title}
-                className="flex items-center gap-3 bg-white rounded-xl border border-foreground/[0.06] px-4 py-3.5 snap-center shrink-0 min-w-[200px] shadow-sm"
+                className="flex items-center gap-3 bg-white rounded-xl border border-foreground/[0.08] px-4 py-3.5 snap-center shrink-0 min-w-[210px] shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
               >
-                <div className="w-9 h-9 rounded-full bg-[hsl(30,25%,92%)] flex items-center justify-center shrink-0">
-                  <card.icon className="w-4 h-4 text-[hsl(30,20%,40%)]" />
+                <div className="w-9 h-9 rounded-full bg-[hsl(30,20%,89%)] flex items-center justify-center shrink-0">
+                  <card.icon className="w-4 h-4 text-[hsl(30,25%,35%)]" />
                 </div>
                 <div>
-                  <p className="font-sans text-xs font-semibold text-foreground/70">{card.title}</p>
-                  <p className="font-sans text-[10px] text-foreground/40">{card.text}</p>
+                  <p className="font-sans text-xs font-bold text-foreground/80">{card.title}</p>
+                  <p className="font-sans text-[10px] text-foreground/50">{card.text}</p>
                 </div>
               </div>
             ))}
@@ -175,7 +175,7 @@ export function StoreFooter() {
       </div>
 
       {/* ═══════ LEVEL 2 — Main Footer ═══════ */}
-      <div className="bg-[hsl(30,10%,97%)]">
+      <div className="bg-[hsl(30,8%,96%)]">
         <div className="container px-4 md:px-6 pt-10 pb-8 md:pt-14 md:pb-10">
           {/* ── DESKTOP: 4 columns ── */}
           <div className="hidden md:grid md:grid-cols-12 gap-8 lg:gap-12">
@@ -191,20 +191,20 @@ export function StoreFooter() {
                 {logoUrl ? (
                   <img src={logoUrl} alt={storeName} className="h-8 object-contain" />
                 ) : (
-                  <span className="font-display text-lg font-bold uppercase tracking-wide text-foreground/70">
+                  <span className="font-display text-lg font-bold uppercase tracking-wide text-foreground/85">
                     {storeName}
                   </span>
                 )}
               </div>
-              <p className="font-sans text-[13px] text-foreground/40 leading-relaxed mb-6 max-w-[220px]">
+              <p className="font-sans text-[13px] text-foreground/55 leading-relaxed mb-6 max-w-[220px]">
                 Joias que contam histórias. Elegância e sofisticação em cada detalhe.
               </p>
-              <div className="flex gap-2">
+              <div className="flex gap-2.5">
                 {socials.map(({ Icon, label }) => (
                   <button
                     key={label}
                     aria-label={label}
-                    className="w-9 h-9 rounded-full border border-foreground/[0.08] flex items-center justify-center text-foreground/35 hover:text-[hsl(30,30%,45%)] hover:border-[hsl(30,30%,75%)] hover:bg-[hsl(30,25%,95%)] hover:scale-105 transition-all duration-300"
+                    className="w-9 h-9 rounded-full border border-foreground/[0.12] flex items-center justify-center text-foreground/50 hover:text-[hsl(30,30%,40%)] hover:border-[hsl(30,30%,70%)] hover:bg-[hsl(30,25%,93%)] hover:scale-105 shadow-sm transition-all duration-300"
                   >
                     <Icon className="w-4 h-4" />
                   </button>
@@ -214,7 +214,7 @@ export function StoreFooter() {
                 {payments.map((m) => (
                   <span
                     key={m}
-                    className="px-2 py-0.5 rounded border border-foreground/[0.06] text-foreground/30 text-[9px] font-sans font-bold uppercase tracking-wide"
+                    className="px-2 py-0.5 rounded border border-foreground/[0.1] bg-white/60 text-foreground/45 text-[9px] font-sans font-bold uppercase tracking-wide shadow-sm"
                   >
                     {m}
                   </span>
@@ -230,15 +230,15 @@ export function StoreFooter() {
               transition={{ duration: 0.5, delay: 0.25 }}
               className="col-span-3"
             >
-              <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.15em] text-foreground/50 mb-5">
+              <h4 className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-foreground/70 mb-5">
                 Institucional
               </h4>
-              <ul className="space-y-2.5">
+              <ul className="space-y-3">
                 {institutionalLinks.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.to}
-                      className="font-sans text-[13px] text-foreground/40 hover:text-[hsl(30,30%,45%)] relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-px after:bottom-0 after:left-0 after:bg-[hsl(30,30%,65%)] after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left transition-colors"
+                      className="font-sans text-[13px] text-foreground/55 hover:text-foreground/85 relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-px after:bottom-0 after:left-0 after:bg-[hsl(30,30%,60%)] after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -255,18 +255,18 @@ export function StoreFooter() {
               transition={{ duration: 0.5, delay: 0.35 }}
               className="col-span-3"
             >
-              <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.15em] text-foreground/50 mb-5">
+              <h4 className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-foreground/70 mb-5">
                 Atendimento
               </h4>
               <ul className="space-y-3">
                 {serviceLinks.map((link) => {
                   const content = (
-                    <span className="flex items-center gap-2.5 font-sans text-[13px] text-foreground/40 hover:text-[hsl(30,30%,45%)] transition-colors">
-                      {link.icon && <link.icon className="w-4 h-4 shrink-0 text-foreground/25" />}
+                    <span className="flex items-center gap-2.5 font-sans text-[13px] text-foreground/55 hover:text-foreground/85 transition-colors">
+                      {link.icon && <link.icon className="w-4 h-4 shrink-0 text-foreground/40" />}
                       {link.label}
                     </span>
                   );
-                  if (link.isText) return <li key={link.label}><span className="flex items-center gap-2.5 font-sans text-[13px] text-foreground/40"><link.icon className="w-4 h-4 shrink-0 text-foreground/25" />{link.label}</span></li>;
+                  if (link.isText) return <li key={link.label}><span className="flex items-center gap-2.5 font-sans text-[13px] text-foreground/55"><link.icon className="w-4 h-4 shrink-0 text-foreground/40" />{link.label}</span></li>;
                   if (link.external) return <li key={link.label}><a href={link.to} target="_blank" rel="noopener noreferrer">{content}</a></li>;
                   return <li key={link.label}><Link to={link.to}>{content}</Link></li>;
                 })}
@@ -293,12 +293,12 @@ export function StoreFooter() {
                 {logoUrl ? (
                   <img src={logoUrl} alt={storeName} className="h-7 object-contain" />
                 ) : (
-                  <span className="font-display text-lg font-bold uppercase tracking-wide text-foreground/70">
+                  <span className="font-display text-lg font-bold uppercase tracking-wide text-foreground/85">
                     {storeName}
                   </span>
                 )}
               </div>
-              <p className="font-sans text-xs text-foreground/40 max-w-[240px] mx-auto leading-relaxed">
+              <p className="font-sans text-sm text-foreground/55 max-w-[260px] mx-auto leading-relaxed">
                 Joias que contam histórias. Elegância e sofisticação em cada detalhe.
               </p>
               <div className="flex gap-2.5 justify-center mt-4">
@@ -306,7 +306,7 @@ export function StoreFooter() {
                   <button
                     key={label}
                     aria-label={label}
-                    className="w-10 h-10 rounded-full border border-foreground/[0.08] flex items-center justify-center text-foreground/35 hover:text-[hsl(30,30%,45%)] hover:border-[hsl(30,30%,75%)] transition-all"
+                    className="w-10 h-10 rounded-full border border-foreground/[0.12] flex items-center justify-center text-foreground/50 hover:text-[hsl(30,30%,40%)] hover:border-[hsl(30,30%,70%)] shadow-sm transition-all"
                   >
                     <Icon className="w-4 h-4" />
                   </button>
@@ -319,7 +319,7 @@ export function StoreFooter() {
               <ul className="space-y-1">
                 {institutionalLinks.map((link) => (
                   <li key={link.label}>
-                    <Link to={link.to} className="block py-2 font-sans text-sm text-foreground/45 hover:text-[hsl(30,30%,45%)] transition-colors">
+                    <Link to={link.to} className="block py-2 font-sans text-sm text-foreground/60 hover:text-foreground/85 transition-colors">
                       {link.label}
                     </Link>
                   </li>
@@ -332,18 +332,18 @@ export function StoreFooter() {
                 {serviceLinks.map((link) => (
                   <li key={link.label}>
                     {link.isText ? (
-                      <span className="flex items-center gap-2 py-2 font-sans text-sm text-foreground/45">
-                        {link.icon && <link.icon className="w-4 h-4 text-foreground/25" />}
+                      <span className="flex items-center gap-2 py-2 font-sans text-sm text-foreground/60">
+                        {link.icon && <link.icon className="w-4 h-4 text-foreground/40" />}
                         {link.label}
                       </span>
                     ) : link.external ? (
-                      <a href={link.to} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 py-2 font-sans text-sm text-foreground/45 hover:text-[hsl(30,30%,45%)] transition-colors">
-                        {link.icon && <link.icon className="w-4 h-4 text-foreground/25" />}
+                      <a href={link.to} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 py-2 font-sans text-sm text-foreground/60 hover:text-foreground/85 transition-colors">
+                        {link.icon && <link.icon className="w-4 h-4 text-foreground/40" />}
                         {link.label}
                       </a>
                     ) : (
-                      <Link to={link.to} className="flex items-center gap-2 py-2 font-sans text-sm text-foreground/45 hover:text-[hsl(30,30%,45%)] transition-colors">
-                        {link.icon && <link.icon className="w-4 h-4 text-foreground/25" />}
+                      <Link to={link.to} className="flex items-center gap-2 py-2 font-sans text-sm text-foreground/60 hover:text-foreground/85 transition-colors">
+                        {link.icon && <link.icon className="w-4 h-4 text-foreground/40" />}
                         {link.label}
                       </Link>
                     )}
@@ -355,20 +355,32 @@ export function StoreFooter() {
             <FooterAccordion title="Newsletter">
               <FooterNewsletter isMobile={true} />
             </FooterAccordion>
+
+            {/* Mobile payment badges */}
+            <div className="flex items-center gap-1.5 flex-wrap justify-center mt-6">
+              {payments.map((m) => (
+                <span
+                  key={m}
+                  className="px-2.5 py-1 rounded border border-foreground/[0.1] bg-white/60 text-foreground/50 text-[10px] font-sans font-bold uppercase tracking-wide shadow-sm"
+                >
+                  {m}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       {/* ═══════ BOTTOM BAR ═══════ */}
-      <div className="bg-[hsl(30,8%,94%)] border-t border-foreground/[0.05]">
+      <div className="bg-[hsl(30,6%,92%)] border-t border-foreground/[0.07]">
         <div className="container px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="font-sans text-[11px] text-foreground/25 text-center sm:text-left">
+          <p className="font-sans text-[11px] text-foreground/40 text-center sm:text-left">
             © {new Date().getFullYear()} {storeName}. Todos os direitos reservados.
           </p>
-          <div className="flex items-center gap-3 text-[11px] font-sans text-foreground/25">
-            <Link to="/politicas" className="hover:text-foreground/50 transition-colors">Privacidade</Link>
-            <span className="text-foreground/10">|</span>
-            <Link to="/politicas" className="hover:text-foreground/50 transition-colors">Termos</Link>
+          <div className="flex items-center gap-3 text-[11px] font-sans text-foreground/40">
+            <Link to="/politicas" className="hover:text-foreground/65 transition-colors">Privacidade</Link>
+            <span className="text-foreground/15">|</span>
+            <Link to="/politicas" className="hover:text-foreground/65 transition-colors">Termos</Link>
           </div>
         </div>
       </div>
