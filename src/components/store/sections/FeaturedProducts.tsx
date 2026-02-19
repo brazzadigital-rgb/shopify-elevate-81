@@ -117,7 +117,7 @@ function ImageCarousel({
           key={src}
           src={src}
           alt={i === 0 ? alt : `${alt} - ${i + 1}`}
-          className={`absolute inset-0 w-full h-full object-contain p-3 md:p-4 transition-opacity duration-400 ease-out will-change-[opacity] ${
+          className={`absolute inset-0 w-full h-full object-contain p-3 md:p-4 transition-all duration-500 ease-out will-change-[opacity,transform] group-hover:scale-105 ${
             i === current ? "opacity-100" : "opacity-0"
           } ${i === 0 && hovered && count > 1 && current === 0 ? "md:opacity-0" : ""}
           ${i === 1 && hovered && count > 1 && current === 0 ? "md:opacity-100" : ""}`}
@@ -336,7 +336,7 @@ function ProductCard({
     e.stopPropagation();
   };
 
-  return (
+    return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -344,9 +344,10 @@ function ProductCard({
       transition={{ delay: index * 0.04, duration: 0.35 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      whileHover={{ y: -6, transition: { duration: 0.3, ease: "easeOut" } }}
       className="h-full"
     >
-      <div className="relative flex flex-col h-full bg-card rounded-2xl md:rounded-[20px] border border-border/40 overflow-hidden shadow-sm md:hover:shadow-2xl transition-all duration-300 md:group-hover:-translate-y-1 group">
+      <div className="relative flex flex-col h-full bg-card rounded-2xl md:rounded-[20px] border border-border/40 overflow-hidden shadow-sm transition-all duration-500 ease-out md:hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] md:hover:border-accent/20 group">
         {/* ── Image ── */}
         <div className="relative">
           <ImageCarousel
@@ -374,26 +375,37 @@ function ProductCard({
             {hovered && (
               <motion.div
                 className="absolute top-2.5 right-2.5 z-10 hidden md:flex flex-col gap-1.5"
-                initial={{ opacity: 0, x: 6 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 6 }}
-                transition={{ duration: 0.15 }}
+                initial={{ opacity: 0, x: 10, scale: 0.9 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: 10, scale: 0.9 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
               >
-                <button
+                <motion.button
                   onClick={handleFavorite}
                   className="w-9 h-9 rounded-xl bg-card/90 backdrop-blur border border-border/50 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors shadow-md"
                   title="Favoritar"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 }}
                 >
                   <Heart className="w-4 h-4" />
-                </button>
-                <Link
-                  to={`/produto/${product.slug}`}
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-9 h-9 rounded-xl bg-card/90 backdrop-blur border border-border/50 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors shadow-md"
-                  title="Ver detalhes"
+                </motion.button>
+                <motion.div
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
                 >
-                  <Eye className="w-4 h-4" />
-                </Link>
+                  <Link
+                    to={`/produto/${product.slug}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-9 h-9 rounded-xl bg-card/90 backdrop-blur border border-border/50 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors shadow-md"
+                    title="Ver detalhes"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Link>
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
