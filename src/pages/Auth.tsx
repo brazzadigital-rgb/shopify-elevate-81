@@ -159,7 +159,7 @@ export default function Auth() {
                     <img
                       src={logoUrl}
                       alt="Logo da loja"
-                      className="w-24 h-24 object-contain drop-shadow-md"
+                      className="w-40 h-40 object-contain drop-shadow-md"
                     />
                   </div>
                 )}
