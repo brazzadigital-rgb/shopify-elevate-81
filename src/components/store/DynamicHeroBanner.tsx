@@ -113,7 +113,7 @@ export function DynamicHeroBanner() {
   }[b.content_position] || "items-start text-left";
 
   return (
-    <section className="relative w-screen left-1/2 -translate-x-1/2 overflow-hidden">
+    <section className="relative w-full overflow-hidden">
       {/* Mobile */}
       <div className="md:hidden relative w-full">
         <AnimatePresence mode="wait">
@@ -169,7 +169,7 @@ export function DynamicHeroBanner() {
             key={b.id + "-desktop"}
             src={desktopImg}
             alt={b.title || ""}
-            className="w-full h-auto block"
+            className="w-full h-auto block scale-105 origin-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
