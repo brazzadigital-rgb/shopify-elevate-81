@@ -5,13 +5,13 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const trackVariants = cva(
-  "group relative inline-flex shrink-0 cursor-pointer items-center rounded-full transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
+  "group relative inline-flex shrink-0 cursor-pointer items-center rounded-lg transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       size: {
-        sm: "h-7 w-[52px]",
-        md: "h-8 w-[60px]",
-        lg: "h-10 w-[76px]",
+        sm: "h-6 w-[56px]",
+        md: "h-7 w-[64px]",
+        lg: "h-8 w-[80px]",
       },
     },
     defaultVariants: {
@@ -21,15 +21,15 @@ const trackVariants = cva(
 );
 
 const thumbSizeMap = {
-  sm: "h-5 w-5",
-  md: "h-6 w-6",
-  lg: "h-8 w-8",
+  sm: "h-4 w-4",
+  md: "h-5 w-5",
+  lg: "h-6 w-6",
 };
 
 const thumbTranslateMap = {
-  sm: "data-[state=checked]:translate-x-[27px] data-[state=unchecked]:translate-x-[3px]",
-  md: "data-[state=checked]:translate-x-[32px] data-[state=unchecked]:translate-x-[3px]",
-  lg: "data-[state=checked]:translate-x-[40px] data-[state=unchecked]:translate-x-[3px]",
+  sm: "data-[state=checked]:translate-x-[33px] data-[state=unchecked]:translate-x-[3px]",
+  md: "data-[state=checked]:translate-x-[38px] data-[state=unchecked]:translate-x-[3px]",
+  lg: "data-[state=checked]:translate-x-[50px] data-[state=unchecked]:translate-x-[3px]",
 };
 
 const textSizeMap = {
@@ -72,7 +72,7 @@ const PremiumToggle3D = React.forwardRef<
         className={cn(
           "absolute left-0 flex items-center justify-center select-none font-bold tracking-wider uppercase pointer-events-none transition-opacity duration-200",
           textSizeMap[s],
-          s === "sm" ? "w-[27px]" : s === "lg" ? "w-[40px]" : "w-[32px]",
+          s === "sm" ? "w-[33px]" : s === "lg" ? "w-[50px]" : "w-[38px]",
           "h-full",
           // Emboss: text-shadow simulating deboss
           "text-primary-foreground/30",
@@ -91,7 +91,7 @@ const PremiumToggle3D = React.forwardRef<
         className={cn(
           "absolute right-0 flex items-center justify-center select-none font-bold tracking-wider uppercase pointer-events-none transition-opacity duration-200",
           textSizeMap[s],
-          s === "sm" ? "w-[27px]" : s === "lg" ? "w-[40px]" : "w-[32px]",
+          s === "sm" ? "w-[33px]" : s === "lg" ? "w-[50px]" : "w-[38px]",
           "h-full",
           "text-muted-foreground/40",
           "group-data-[state=unchecked]:opacity-100 group-data-[state=checked]:opacity-0",
@@ -107,7 +107,7 @@ const PremiumToggle3D = React.forwardRef<
       {/* Thumb */}
       <SwitchPrimitives.Thumb
         className={cn(
-          "pointer-events-none flex items-center justify-center rounded-full bg-white ring-0 transition-all duration-200 ease-out",
+          "pointer-events-none flex items-center justify-center rounded-md bg-white ring-0 transition-all duration-200 ease-out",
           // 3D shadow on thumb
           "shadow-[0_2px_6px_rgba(0,0,0,0.2),0_1px_2px_rgba(0,0,0,0.1)]",
           "bg-gradient-to-b from-white to-muted/30",
