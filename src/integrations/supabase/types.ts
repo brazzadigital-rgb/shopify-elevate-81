@@ -646,6 +646,86 @@ export type Database = {
           },
         ]
       }
+      product_categories: {
+        Row: {
+          collection_id: string
+          id: string
+          is_primary: boolean
+          product_id: string
+        }
+        Insert: {
+          collection_id: string
+          id?: string
+          is_primary?: boolean
+          product_id: string
+        }
+        Update: {
+          collection_id?: string
+          id?: string
+          is_primary?: boolean
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_categories_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_categories_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_custom_fields: {
+        Row: {
+          created_at: string
+          field_label: string
+          field_type: string
+          id: string
+          is_required: boolean
+          max_length: number | null
+          options: string[] | null
+          product_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          field_label: string
+          field_type?: string
+          id?: string
+          is_required?: boolean
+          max_length?: number | null
+          options?: string[] | null
+          product_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          field_label?: string
+          field_type?: string
+          id?: string
+          is_required?: boolean
+          max_length?: number | null
+          options?: string[] | null
+          product_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_custom_fields_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_images: {
         Row: {
           alt_text: string | null
@@ -733,73 +813,160 @@ export type Database = {
       }
       products: {
         Row: {
+          allow_backorder: boolean
           barcode: string | null
+          brand: string | null
           compare_at_price: number | null
           cost_price: number | null
           created_at: string
+          crosssell_product_ids: string[] | null
           description: string | null
+          extra_prep_days: number | null
+          free_shipping: boolean
+          height: number | null
+          hide_price: boolean
           id: string
+          installments_interest: boolean
           is_active: boolean
+          is_bestseller: boolean
           is_featured: boolean
           is_new: boolean
+          is_subscription: boolean
+          length: number | null
+          max_installments: number | null
           meta_description: string | null
           meta_title: string | null
+          min_stock_alert: number | null
           name: string
+          og_image_url: string | null
+          pix_discount: number | null
           price: number
+          product_type: string
+          promo_end_date: string | null
+          promo_start_date: string | null
+          quote_only: boolean
+          related_product_ids: string[] | null
+          reseller_price: number | null
           short_description: string | null
+          show_on_home: boolean
           sku: string | null
           slug: string
           sold_count: number
+          status: string
           stock: number
+          stock_location: string | null
           supplier_id: string | null
+          tags: string[] | null
+          track_stock: boolean
           updated_at: string
+          upsell_product_ids: string[] | null
           weight: number | null
+          wholesale_price: number | null
+          width: number | null
         }
         Insert: {
+          allow_backorder?: boolean
           barcode?: string | null
+          brand?: string | null
           compare_at_price?: number | null
           cost_price?: number | null
           created_at?: string
+          crosssell_product_ids?: string[] | null
           description?: string | null
+          extra_prep_days?: number | null
+          free_shipping?: boolean
+          height?: number | null
+          hide_price?: boolean
           id?: string
+          installments_interest?: boolean
           is_active?: boolean
+          is_bestseller?: boolean
           is_featured?: boolean
           is_new?: boolean
+          is_subscription?: boolean
+          length?: number | null
+          max_installments?: number | null
           meta_description?: string | null
           meta_title?: string | null
+          min_stock_alert?: number | null
           name: string
+          og_image_url?: string | null
+          pix_discount?: number | null
           price?: number
+          product_type?: string
+          promo_end_date?: string | null
+          promo_start_date?: string | null
+          quote_only?: boolean
+          related_product_ids?: string[] | null
+          reseller_price?: number | null
           short_description?: string | null
+          show_on_home?: boolean
           sku?: string | null
           slug: string
           sold_count?: number
+          status?: string
           stock?: number
+          stock_location?: string | null
           supplier_id?: string | null
+          tags?: string[] | null
+          track_stock?: boolean
           updated_at?: string
+          upsell_product_ids?: string[] | null
           weight?: number | null
+          wholesale_price?: number | null
+          width?: number | null
         }
         Update: {
+          allow_backorder?: boolean
           barcode?: string | null
+          brand?: string | null
           compare_at_price?: number | null
           cost_price?: number | null
           created_at?: string
+          crosssell_product_ids?: string[] | null
           description?: string | null
+          extra_prep_days?: number | null
+          free_shipping?: boolean
+          height?: number | null
+          hide_price?: boolean
           id?: string
+          installments_interest?: boolean
           is_active?: boolean
+          is_bestseller?: boolean
           is_featured?: boolean
           is_new?: boolean
+          is_subscription?: boolean
+          length?: number | null
+          max_installments?: number | null
           meta_description?: string | null
           meta_title?: string | null
+          min_stock_alert?: number | null
           name?: string
+          og_image_url?: string | null
+          pix_discount?: number | null
           price?: number
+          product_type?: string
+          promo_end_date?: string | null
+          promo_start_date?: string | null
+          quote_only?: boolean
+          related_product_ids?: string[] | null
+          reseller_price?: number | null
           short_description?: string | null
+          show_on_home?: boolean
           sku?: string | null
           slug?: string
           sold_count?: number
+          status?: string
           stock?: number
+          stock_location?: string | null
           supplier_id?: string | null
+          tags?: string[] | null
+          track_stock?: boolean
           updated_at?: string
+          upsell_product_ids?: string[] | null
           weight?: number | null
+          wholesale_price?: number | null
+          width?: number | null
         }
         Relationships: [
           {
