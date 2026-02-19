@@ -74,8 +74,12 @@ const Index = () => {
               return (
                 <div key={section.id}>
                   <FeaturedProducts config={section.config} title={section.title || undefined} />
-                  {featuredProductsCount === 1 && <MascotPromoPanel />}
-                  {featuredProductsCount === 2 && <PromoTriplePanel />}
+                  {featuredProductsCount === 1 && (
+                    <>
+                      <MascotPromoPanel />
+                      <PromoTriplePanel />
+                    </>
+                  )}
                 </div>
               );
             }
