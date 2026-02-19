@@ -96,10 +96,24 @@ const Index = () => {
           />
         )}
 
-        {/* Promo strip */}
+        {/* Promo strip — premium animated */}
         {showcase?.enable_promo_strip && showcase.promo_strip_text && (
-          <div className="w-full py-2.5 bg-accent text-accent-foreground text-center font-sans text-sm font-medium">
-            {showcase.promo_strip_text}
+          <div className="w-full relative overflow-hidden">
+            {/* Shimmer background */}
+            <div className="absolute inset-0 premium-gradient opacity-90" />
+            <div
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(255,255,255,0.08) 10px, rgba(255,255,255,0.08) 20px)`,
+              }}
+            />
+            <div className="relative py-3 flex items-center justify-center gap-2">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-foreground/40 animate-pulse" />
+              <p className="text-accent-foreground text-xs md:text-sm font-semibold tracking-wide font-sans">
+                {showcase.promo_strip_text}
+              </p>
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-foreground/40 animate-pulse" />
+            </div>
           </div>
         )}
 
