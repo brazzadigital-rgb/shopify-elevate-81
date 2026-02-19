@@ -467,9 +467,8 @@ export function StoreHeader() {
                   className="absolute inset-0 pointer-events-none opacity-[0.18]"
                   style={{
                     backgroundImage: `url(${mobileMenuBg})`,
-                    backgroundSize: "70%",
+                    backgroundSize: "cover",
                     backgroundPosition: "center bottom",
-                    backgroundRepeat: "no-repeat",
                   }}
                 />
                 <div className="relative z-10 p-5 border-b border-border flex items-center justify-between">
