@@ -20,11 +20,12 @@ interface Collection {
   slug: string;
   description: string | null;
   image_url: string | null;
+  banner_url: string | null;
   is_active: boolean;
   sort_order: number;
 }
 
-const emptyCollection = { name: "", slug: "", description: "", image_url: "", is_active: true, sort_order: 0 };
+const emptyCollection = { name: "", slug: "", description: "", image_url: "", banner_url: "", is_active: true, sort_order: 0 };
 
 export default function Collections() {
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -71,7 +72,7 @@ export default function Collections() {
 
   const handleEdit = (c: Collection) => {
     setEditingId(c.id);
-    setForm({ name: c.name, slug: c.slug, description: c.description || "", image_url: c.image_url || "", is_active: c.is_active, sort_order: c.sort_order });
+    setForm({ name: c.name, slug: c.slug, description: c.description || "", image_url: c.image_url || "", banner_url: (c as any).banner_url || "", is_active: c.is_active, sort_order: c.sort_order });
     setDialogOpen(true);
   };
 
@@ -110,12 +111,22 @@ export default function Collections() {
                 <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="rounded-xl" />
               </div>
               <div className="grid gap-2">
-                <Label className="font-sans text-sm font-medium">Imagem</Label>
+                <Label className="font-sans text-sm font-medium">Imagem (ícone/categoria)</Label>
                 <ImageUpload
                   value={form.image_url}
                   onChange={(url) => setForm({ ...form, image_url: url })}
                   folder="collections"
                   label="Enviar imagem"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label className="font-sans text-sm font-medium">Banner do Mosaico</Label>
+                <p className="text-xs text-muted-foreground -mt-1">Imagem grande para o template Mosaico (recomendado: 800×600px ou maior)</p>
+                <ImageUpload
+                  value={form.banner_url}
+                  onChange={(url) => setForm({ ...form, banner_url: url })}
+                  folder="collections"
+                  label="Enviar banner"
                 />
               </div>
               <div className="flex items-center gap-2">
