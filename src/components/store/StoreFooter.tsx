@@ -177,15 +177,9 @@ export function StoreFooter() {
 
       {/* ═══════ LEVEL 2 — Main Footer ═══════ */}
       <div className="bg-secondary-soft relative overflow-hidden">
-        {/* Decorative jewelry background */}
+        {/* Decorative gradient background */}
         <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: `url(${footerBg})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            opacity: 0.25,
-          }}
+          className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-primary/5 to-primary/10"
         />
         <div className="container px-4 md:px-6 pt-10 pb-8 md:pt-14 md:pb-10">
           {/* ── DESKTOP: 4 columns ── */}
