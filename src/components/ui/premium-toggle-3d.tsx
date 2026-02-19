@@ -9,9 +9,9 @@ const trackVariants = cva(
   {
     variants: {
       size: {
-        sm: "h-6 w-[56px]",
-        md: "h-7 w-[64px]",
-        lg: "h-8 w-[80px]",
+        sm: "h-5 w-[56px]",
+        md: "h-6 w-[64px]",
+        lg: "h-7 w-[80px]",
       },
     },
     defaultVariants: {
@@ -21,9 +21,9 @@ const trackVariants = cva(
 );
 
 const thumbSizeMap = {
-  sm: "h-4 w-4",
-  md: "h-5 w-5",
-  lg: "h-6 w-6",
+  sm: "h-3.5 w-3.5",
+  md: "h-4 w-4",
+  lg: "h-5 w-5",
 };
 
 const thumbTranslateMap = {
