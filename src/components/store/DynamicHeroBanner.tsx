@@ -161,16 +161,23 @@ export function DynamicHeroBanner() {
     <section className="relative w-full overflow-hidden">
       {/* Mobile */}
       <div className="md:hidden relative w-full">
-        <AnimatePresence mode="wait">
+        {/* Use a stable first image to hold layout height */}
+        <img
+          src={cacheBust(banners[0].mobile_image_url || banners[0].desktop_image_url, banners[0].updated_at) || cacheBust(banners[0].desktop_image_url, banners[0].updated_at)}
+          alt=""
+          className="w-full h-auto block invisible"
+          aria-hidden="true"
+        />
+        <AnimatePresence initial={false}>
           <motion.img
             key={b.id + "-mobile"}
             src={mobileImg || desktopImg}
             alt={b.title || ""}
-            className="w-full h-auto block"
+            className="absolute inset-0 w-full h-full object-cover"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
           />
         </AnimatePresence>
         <div
@@ -180,39 +187,49 @@ export function DynamicHeroBanner() {
           }}
         />
         {b.show_text && (
-          <motion.div
-            key={b.id + "-mobile-text"}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className={`absolute bottom-0 left-0 right-0 z-10 p-5 sm:p-8 max-w-lg flex flex-col ${positionClass}`}
-          >
-            {b.title && <h2 className="font-display text-2xl sm:text-3xl font-bold leading-tight text-white mb-2">{b.title}</h2>}
-            {b.subtitle && <p className="text-xs sm:text-sm text-white/70 font-sans mb-4 leading-relaxed">{b.subtitle}</p>}
-            {b.cta_text && b.link && (
-              <Link to={b.link}>
-                <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full shine font-sans h-11 px-6 text-xs font-bold uppercase tracking-[0.15em] glow-orange transition-all duration-300 w-full sm:w-auto">
-                  {b.cta_text} <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
-            )}
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={b.id + "-mobile-text"}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className={`absolute bottom-0 left-0 right-0 z-10 p-5 sm:p-8 max-w-lg flex flex-col ${positionClass}`}
+            >
+              {b.title && <h2 className="font-display text-2xl sm:text-3xl font-bold leading-tight text-white mb-2">{b.title}</h2>}
+              {b.subtitle && <p className="text-xs sm:text-sm text-white/70 font-sans mb-4 leading-relaxed">{b.subtitle}</p>}
+              {b.cta_text && b.link && (
+                <Link to={b.link}>
+                  <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full shine font-sans h-11 px-6 text-xs font-bold uppercase tracking-[0.15em] glow-orange transition-all duration-300 w-full sm:w-auto">
+                    {b.cta_text} <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </Link>
+              )}
+            </motion.div>
+          </AnimatePresence>
         )}
         <SliderProgressBar count={banners.length} current={current} onSelect={setCurrent} />
       </div>
 
       {/* Desktop */}
       <div className="relative w-full hidden md:block" style={heightStyle}>
-        <AnimatePresence mode="wait">
+        {/* Stable layout holder */}
+        <img
+          src={cacheBust(banners[0].desktop_image_url, banners[0].updated_at)}
+          alt=""
+          className="w-full h-auto block invisible"
+          aria-hidden="true"
+        />
+        <AnimatePresence initial={false}>
           <motion.img
             key={b.id + "-desktop"}
             src={desktopImg}
             alt={b.title || ""}
-            className="w-full h-auto block scale-105 origin-center"
+            className="absolute inset-0 w-full h-full object-cover"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
           />
         </AnimatePresence>
         <div
@@ -222,23 +239,26 @@ export function DynamicHeroBanner() {
           }}
         />
         {b.show_text && (
-          <motion.div
-            key={b.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className={`relative z-10 p-5 sm:p-8 md:p-12 lg:p-16 max-w-lg flex flex-col ${positionClass}`}
-          >
-            {b.title && <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-white mb-2 md:mb-3">{b.title}</h2>}
-            {b.subtitle && <p className="text-xs sm:text-sm md:text-base text-white/70 font-sans mb-4 md:mb-6 leading-relaxed">{b.subtitle}</p>}
-            {b.cta_text && b.link && (
-              <Link to={b.link}>
-                <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full shine font-sans h-11 md:h-12 px-6 md:px-10 text-xs md:text-sm font-bold uppercase tracking-[0.15em] glow-orange transition-all duration-300 hover:glow-orange-lg w-full sm:w-auto">
-                  {b.cta_text} <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
-            )}
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={b.id + "-desktop-text"}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className={`absolute inset-0 z-10 p-5 sm:p-8 md:p-12 lg:p-16 max-w-lg flex flex-col justify-center ${positionClass}`}
+            >
+              {b.title && <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-white mb-2 md:mb-3">{b.title}</h2>}
+              {b.subtitle && <p className="text-xs sm:text-sm md:text-base text-white/70 font-sans mb-4 md:mb-6 leading-relaxed">{b.subtitle}</p>}
+              {b.cta_text && b.link && (
+                <Link to={b.link}>
+                  <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full shine font-sans h-11 md:h-12 px-6 md:px-10 text-xs md:text-sm font-bold uppercase tracking-[0.15em] glow-orange transition-all duration-300 hover:glow-orange-lg w-full sm:w-auto">
+                    {b.cta_text} <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </Link>
+              )}
+            </motion.div>
+          </AnimatePresence>
         )}
         <SliderProgressBar count={banners.length} current={current} onSelect={setCurrent} />
       </div>
