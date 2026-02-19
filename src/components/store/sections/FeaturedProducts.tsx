@@ -18,6 +18,7 @@ import {
   Minus,
   Plus,
   ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
 
 /* ── types ─────────────────────────────────────────── */
@@ -497,25 +498,65 @@ function ScrollHintCarousel({
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hintOpacity, setHintOpacity] = useState(1);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const updateScrollState = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 10);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
+  };
 
   const handleScroll = (e: UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget;
-    // Fade out hint within the first 80px of scroll
     const opacity = Math.max(0, 1 - el.scrollLeft / 80);
     setHintOpacity(opacity);
+    updateScrollState();
   };
 
+  const scroll = (direction: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const amount = el.clientWidth * 0.7;
+    el.scrollBy({ left: direction === "right" ? amount : -amount, behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    updateScrollState();
+  }, [products]);
+
   return (
-    <div className="flex-1 min-w-0 relative">
-      {/* Swipe hint */}
+    <div className="flex-1 min-w-0 relative group/carousel">
+      {/* Swipe hint (mobile only) */}
       {hintOpacity > 0 && (
         <div
-          className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground/70 text-background font-sans text-[11px] font-semibold pointer-events-none animate-[swipe-hint_1.2s_ease-in-out_infinite] transition-opacity duration-300"
+          className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground/70 text-background font-sans text-[11px] font-semibold pointer-events-none animate-[swipe-hint_1.2s_ease-in-out_infinite] transition-opacity duration-300 md:hidden"
           style={{ opacity: hintOpacity }}
         >
           Arraste
           <ChevronRight className="w-3.5 h-3.5" />
         </div>
+      )}
+
+      {/* Arrow buttons */}
+      {canScrollLeft && (
+        <button
+          onClick={() => scroll("left")}
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-card/90 backdrop-blur border border-border/50 shadow-lg flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-all active:scale-95"
+          aria-label="Anterior"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+      )}
+      {canScrollRight && (
+        <button
+          onClick={() => scroll("right")}
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-card/90 backdrop-blur border border-border/50 shadow-lg flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-all active:scale-95"
+          aria-label="Próximo"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
       )}
 
       <div
