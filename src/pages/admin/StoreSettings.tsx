@@ -65,6 +65,19 @@ const settingsGroups = [
     ],
   },
   {
+    title: "📞 Página de Contato",
+    settings: [
+      { key: "contact_email", label: "E-mail de contato", type: "text" },
+      { key: "contact_phone", label: "Telefone", type: "text" },
+      { key: "contact_address", label: "Endereço", type: "text" },
+      { key: "contact_hours_weekday", label: "Horário Seg-Sex", type: "text" },
+      { key: "contact_hours_saturday", label: "Horário Sábado", type: "text" },
+      { key: "contact_hours_sunday", label: "Horário Dom/Feriado", type: "text" },
+      { key: "contact_instagram", label: "Link Instagram", type: "text" },
+      { key: "contact_facebook", label: "Link Facebook", type: "text" },
+    ],
+  },
+  {
     title: "🚚 Frete",
     settings: [
       { key: "shipping_enabled", label: "Bloco Frete no produto", type: "toggle" },
