@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import { HeroSection } from "@/components/store/sections/HeroSection";
 import { CategoriesSection } from "@/components/store/sections/CategoriesSection";
 import { FeaturedProducts } from "@/components/store/sections/FeaturedProducts";
@@ -18,21 +18,18 @@ interface HomeSection {
 }
 
 const Index = () => {
-  const [sections, setSections] = useState<HomeSection[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchSections = async () => {
+  const { data: sections = [], isLoading: loading } = useQuery({
+    queryKey: ["home-sections"],
+    queryFn: async () => {
       const { data } = await supabase
         .from("home_sections")
         .select("*")
         .eq("is_active", true)
         .order("sort_order");
-      setSections((data as HomeSection[]) || []);
-      setLoading(false);
-    };
-    fetchSections();
-  }, []);
+      return (data as HomeSection[]) || [];
+    },
+    staleTime: 1000 * 60 * 5,
+  });
 
   if (loading) {
     return (
