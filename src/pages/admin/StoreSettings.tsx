@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
+import { RectSwitch } from "@/components/ui/rect-switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -123,12 +123,12 @@ export default function StoreSettings() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-display font-bold">Configurações da Loja</h1>
-          <p className="text-muted-foreground font-sans mt-1">Controle todos os recursos da loja</p>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold">Configurações da Loja</h1>
+          <p className="text-muted-foreground font-sans mt-1 text-sm">Controle todos os recursos da loja</p>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2 rounded-xl shine h-11 font-sans">
+        <Button onClick={handleSave} disabled={saving} className="gap-2 rounded-xl shine h-11 font-sans w-full sm:w-auto">
           <Save className="w-4 h-4" /> {saving ? "Salvando..." : "Salvar"}
         </Button>
       </div>
@@ -141,10 +141,11 @@ export default function StoreSettings() {
             </CardHeader>
             <CardContent className="space-y-4">
               {group.settings.map((s) => (
-                <div key={s.key} className="flex items-center justify-between gap-4">
-                  <Label className="font-sans text-sm flex-1">{s.label}</Label>
+                <div key={s.key} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                  <Label className="font-sans text-sm">{s.label}</Label>
                   {s.type === "toggle" ? (
-                    <Switch
+                    <RectSwitch
+                      size="sm"
                       checked={settings[s.key] === "true"}
                       onCheckedChange={(v) => updateSetting(s.key, v ? "true" : "false")}
                     />
@@ -153,7 +154,7 @@ export default function StoreSettings() {
                       type={s.type === "number" ? "number" : "text"}
                       value={settings[s.key] || ""}
                       onChange={(e) => updateSetting(s.key, e.target.value)}
-                      className="h-10 rounded-xl max-w-xs"
+                      className="h-10 rounded-xl w-full sm:max-w-xs"
                     />
                   )}
                 </div>
