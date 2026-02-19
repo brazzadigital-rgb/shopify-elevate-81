@@ -109,7 +109,7 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
           </motion.span>
 
           <h2
-            className="text-3xl md:text-5xl lg:text-6xl leading-tight capitalize"
+            className="text-5xl md:text-6xl lg:text-7xl leading-tight capitalize"
             style={{ fontFamily: "'Tangerine', cursive", fontWeight: 700 }}
           >
             {(() => {
