@@ -554,7 +554,21 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
             <span className="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent font-sans text-xs font-bold uppercase tracking-wider mb-3">
               Destaques
             </span>
-            <h2 className="text-2xl md:text-4xl font-display font-bold">{title}</h2>
+            <h2
+              className="text-3xl md:text-5xl lg:text-6xl leading-tight capitalize"
+              style={{ fontFamily: "'Pinyon Script', cursive" }}
+            >
+              {(() => {
+                const words = title.toLowerCase().split(" ");
+                const lastWord = words.pop();
+                return (
+                  <>
+                    <span className="text-foreground">{words.join(" ")} </span>
+                    <span className="text-primary">{lastWord}</span>
+                  </>
+                );
+              })()}
+            </h2>
           </motion.div>
 
           {loading ? (
