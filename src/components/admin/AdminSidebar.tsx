@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, LogOut, ShoppingBag,
-  Truck, UserCheck, Shield, Percent, TrendingUp, Columns3,
+  Truck, UserCheck, Shield, Percent, TrendingUp, Columns3, Layout,
   DollarSign, BarChart3, ArrowDownCircle, CreditCard, Wallet, FileSpreadsheet, Wrench
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
@@ -25,6 +25,8 @@ const mainMenu = [
 ];
 
 const appearanceMenu = [
+  { title: "Home Templates", url: "/admin/home-templates", icon: Layout },
+  { title: "Estilos de Header", url: "/admin/header-styles", icon: Settings },
   { title: "Header", url: "/admin/header", icon: Settings },
   { title: "Banners", url: "/admin/banners", icon: Image },
   { title: "Painéis Promo", url: "/admin/paineis-promo", icon: Columns3 },
