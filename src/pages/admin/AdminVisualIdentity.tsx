@@ -5,9 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { ImageUpload } from "@/components/store/ImageUpload";
 import { toast } from "@/hooks/use-toast";
-import { Save, Palette, Type, ImageIcon } from "lucide-react";
+import { Save, Palette, Type, ImageIcon, Gem } from "lucide-react";
 
 interface SettingsMap { [key: string]: string; }
 
@@ -176,6 +179,83 @@ export default function AdminVisualIdentity() {
                 />
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+      {/* Jewel Ring Categories */}
+      <Card className="shadow-premium border-0">
+        <CardHeader className="pb-4">
+          <CardTitle className="font-display text-lg flex items-center gap-2"><Gem className="w-5 h-5 text-accent" /> Categorias — Efeito Joia</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="font-sans text-sm font-medium">Borda Luxuosa (Joia)</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Anel metálico com reflexo cintilante</p>
+            </div>
+            <Switch
+              checked={settings.jewel_enabled === "true"}
+              onCheckedChange={(v) => update("jewel_enabled", v ? "true" : "false")}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label className="font-sans text-sm">Cor Metálica</Label>
+              <Select value={settings.jewel_color || "gold"} onValueChange={(v) => update("jewel_color", v)}>
+                <SelectTrigger className="h-10 rounded-xl"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gold">Dourado</SelectItem>
+                  <SelectItem value="rose">Rosé Gold</SelectItem>
+                  <SelectItem value="silver">Prata</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label className="font-sans text-sm">Velocidade do Sparkle</Label>
+              <Select value={settings.jewel_speed || "normal"} onValueChange={(v) => update("jewel_speed", v)}>
+                <SelectTrigger className="h-10 rounded-xl"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="slow">Lento</SelectItem>
+                  <SelectItem value="normal">Normal</SelectItem>
+                  <SelectItem value="fast">Rápido</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid gap-2">
+            <Label className="font-sans text-sm">Intensidade do Brilho: {settings.jewel_intensity || "50"}%</Label>
+            <Slider
+              value={[parseInt(settings.jewel_intensity || "50")]}
+              onValueChange={([v]) => update("jewel_intensity", String(v))}
+              min={0}
+              max={100}
+              step={5}
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="font-sans text-sm font-medium">Brilho ao Toque</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Efeito luminoso ao tocar no mobile</p>
+            </div>
+            <Switch
+              checked={settings.jewel_tap_glow !== "false"}
+              onCheckedChange={(v) => update("jewel_tap_glow", v ? "true" : "false")}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="font-sans text-sm font-medium">Realçar Categoria Ativa</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Brilho contínuo mais forte na selecionada</p>
+            </div>
+            <Switch
+              checked={settings.jewel_active_highlight !== "false"}
+              onCheckedChange={(v) => update("jewel_active_highlight", v ? "true" : "false")}
+            />
           </div>
         </CardContent>
       </Card>
