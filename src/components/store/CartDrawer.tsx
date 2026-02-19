@@ -105,7 +105,7 @@ export function CartDrawer() {
                 >
                   <Lock className="w-4 h-4 mr-2" /> Finalizar Compra
                 </Button>
-                <Button variant="outline" onClick={() => setIsOpen(false)} className="h-11 rounded-xl font-sans border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10">
+                <Button variant="outline" onClick={() => setIsOpen(false)} className="h-11 rounded-xl font-sans border-primary-foreground/30 text-primary-foreground bg-primary-foreground/10 hover:bg-primary-foreground/20">
                   Continuar comprando
                 </Button>
               </div>
