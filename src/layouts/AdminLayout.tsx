@@ -31,7 +31,7 @@ export default function AdminLayout() {
   if (!isAdmin) return <Navigate to="/" replace />;
 
   return (
-    <div className={isDark ? "dark" : ""}>
+    <div className={`${isDark ? "dark" : ""} text-foreground`}>
       <SidebarProvider>
         <div className="min-h-screen flex w-full overflow-x-hidden bg-background">
           <AdminSidebar />
