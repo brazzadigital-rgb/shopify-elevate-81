@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useCart } from "@/hooks/useCart";
+
+// Reuse the same card components from FeaturedProducts
+import { ProductCard, QuickBuyModal } from "@/components/store/sections/FeaturedProducts";
 
 interface Collection {
   id: string;
@@ -13,24 +15,17 @@ interface Collection {
   image_url: string | null;
 }
 
-interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  compare_at_price: number | null;
-  is_new: boolean;
-  product_images: { url: string; is_primary: boolean }[];
-}
-
 export default function CollectionPage() {
   const { slug } = useParams<{ slug: string }>();
   const [collection, setCollection] = useState<Collection | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { addItem, loading: cartLoading } = useCart();
+  const [quickBuyProduct, setQuickBuyProduct] = useState<any | null>(null);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
+      setLoading(true);
       const { data: colData } = await supabase
         .from("collections")
         .select("id, name, description, image_url")
@@ -46,35 +41,40 @@ export default function CollectionPage() {
         supabase.from("collection_products").select("product_id").eq("collection_id", colData.id),
         supabase.from("product_categories").select("product_id").eq("collection_id", colData.id),
       ]);
-      const cpData = [
+      const allIds = [
         ...(cpRes.data || []),
         ...(pcRes.data || []),
-      ];
-      // Deduplicate
-      const uniqueIds = [...new Set(cpData.map((cp: any) => cp.product_id))];
+      ].map((cp: any) => cp.product_id);
+      const uniqueIds = [...new Set(allIds)];
 
       if (uniqueIds.length > 0) {
         const { data: prodData } = await supabase
           .from("products")
-          .select("id, name, slug, price, compare_at_price, is_new, product_images(url, is_primary)")
+          .select(
+            "id, name, slug, price, compare_at_price, stock, is_featured, is_new, sold_count, product_images(url, is_primary), product_variants(id, name, price, stock)"
+          )
           .eq("is_active", true)
           .in("id", uniqueIds);
         setProducts((prodData as any) || []);
       }
       setLoading(false);
     };
-    fetch();
+    fetchData();
   }, [slug]);
-
-  const getImage = (p: Product) => p.product_images?.find((i) => i.is_primary)?.url || p.product_images?.[0]?.url || "/placeholder.svg";
 
   if (loading) {
     return (
       <div className="container py-10">
         <Skeleton className="h-10 w-64 mb-4" />
         <Skeleton className="h-5 w-96 mb-10" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square rounded-2xl" />)}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="space-y-2">
+              <Skeleton className="aspect-square rounded-2xl" />
+              <Skeleton className="h-3 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -98,37 +98,35 @@ export default function CollectionPage() {
         </div>
       </section>
 
-      <div className="container pb-16">
+      <div className="container px-3 md:px-4 pb-16">
         {products.length === 0 ? (
           <p className="text-center text-muted-foreground font-sans py-12">Nenhum produto nesta coleção ainda.</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
             {products.map((product, i) => (
-              <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                <Link to={`/produto/${product.slug}`} className="group block">
-                  <Card className="border-0 shadow-none hover:shadow-premium-lg transition-all duration-300 overflow-hidden rounded-2xl bg-transparent">
-                    <div className="relative aspect-square bg-muted rounded-2xl overflow-hidden">
-                      <img src={getImage(product)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                      {product.is_new && (
-                        <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground font-sans text-[10px] px-2 py-0.5 rounded-lg">Novo</Badge>
-                      )}
-                    </div>
-                    <CardContent className="px-1 pt-3 pb-0">
-                      <p className="font-sans text-sm font-medium truncate group-hover:text-accent transition-colors">{product.name}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="font-sans text-base font-bold">R$ {Number(product.price).toFixed(2)}</span>
-                        {product.compare_at_price && product.compare_at_price > product.price && (
-                          <span className="font-sans text-xs text-muted-foreground line-through">R$ {Number(product.compare_at_price).toFixed(2)}</span>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </motion.div>
+              <ProductCard
+                key={product.id}
+                product={product}
+                index={i}
+                addItem={addItem}
+                cartLoading={cartLoading}
+                onQuickBuy={setQuickBuyProduct}
+              />
             ))}
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {quickBuyProduct && (
+          <QuickBuyModal
+            product={quickBuyProduct}
+            onClose={() => setQuickBuyProduct(null)}
+            addItem={addItem}
+            cartLoading={cartLoading}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

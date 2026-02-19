@@ -144,7 +144,7 @@ function ImageCarousel({
 }
 
 /* ── QuickBuyModal (bottom sheet mobile) ───────────── */
-function QuickBuyModal({
+export function QuickBuyModal({
   product,
   onClose,
   addItem,
@@ -298,7 +298,7 @@ function QuickBuyModal({
 }
 
 /* ── ProductCard ───────────────────────────────────── */
-function ProductCard({
+export function ProductCard({
   product,
   index,
   addItem,
