@@ -163,13 +163,13 @@ export function DynamicHeroBanner() {
       </div>
 
       {/* Desktop */}
-      <div className="relative w-full hidden md:flex items-end md:min-h-[480px] lg:min-h-[540px]" style={heightStyle}>
+      <div className="relative w-full hidden md:block" style={heightStyle}>
         <AnimatePresence mode="wait">
           <motion.img
             key={b.id + "-desktop"}
             src={desktopImg}
             alt={b.title || ""}
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            className="w-full h-auto block"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
