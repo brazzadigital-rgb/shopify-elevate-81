@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, ShoppingCart, Users, DollarSign, TrendingUp, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import { formatBRL } from "@/lib/exportCsv";
 
 interface Stats {
   totalProducts: number;
@@ -37,7 +38,7 @@ export default function Dashboard() {
   const cards = [
     { title: "Produtos", value: stats.totalProducts, icon: Package, color: "text-accent" },
     { title: "Pedidos", value: stats.totalOrders, icon: ShoppingCart, color: "text-success" },
-    { title: "Receita", value: `R$ ${stats.totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, icon: DollarSign, color: "text-accent" },
+    { title: "Receita", value: formatBRL(stats.totalRevenue), icon: DollarSign, color: "text-accent" },
     { title: "Clientes", value: stats.totalCustomers, icon: Users, color: "text-primary" },
   ];
 

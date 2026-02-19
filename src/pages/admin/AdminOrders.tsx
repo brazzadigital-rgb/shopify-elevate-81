@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
-import { exportToCsv } from "@/lib/exportCsv";
+import { exportToCsv, formatBRL } from "@/lib/exportCsv";
 import {
   ShoppingCart, Eye, Package, Filter, Search, Download, Copy, Check,
   Truck, CreditCard, Clock, QrCode, Banknote, Wallet
@@ -217,7 +217,7 @@ export default function AdminOrders() {
                           <p className="text-xs text-muted-foreground/60 truncate max-w-[160px]">{order.customer_email || ""}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="font-sans font-semibold text-sm whitespace-nowrap text-foreground/90">R$ {Number(order.total).toFixed(2)}</TableCell>
+                      <TableCell className="font-sans font-semibold text-sm whitespace-nowrap text-foreground/90">{formatBRL(Number(order.total))}</TableCell>
                       <TableCell>
                         <div className="flex flex-col items-center gap-1">
                           <Badge variant="secondary" className={`${pt.color} border-0 text-xs font-sans font-medium px-2.5 py-0.5 rounded-full shadow-none`}>{pt.label}</Badge>
@@ -291,7 +291,7 @@ export default function AdminOrders() {
                       <p className="font-sans text-sm font-medium truncate text-foreground/85">{order.customer_name || "—"}</p>
                       <p className="font-sans text-[11px] text-muted-foreground/55 truncate">{order.customer_email || ""}</p>
                     </div>
-                    <span className="font-sans text-sm font-semibold shrink-0 ml-2 text-foreground/90">R$ {Number(order.total).toFixed(2)}</span>
+                    <span className="font-sans text-sm font-semibold shrink-0 ml-2 text-foreground/90">{formatBRL(Number(order.total))}</span>
                   </div>
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <Badge variant="secondary" className={`${st.color} border-0 text-[10px] font-sans font-medium px-2 py-0.5 rounded-full shadow-none`}>{st.label}</Badge>

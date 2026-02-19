@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatBRL } from "@/lib/exportCsv";
 
 interface Coupon {
   id: string;
@@ -186,7 +187,7 @@ export default function AdminCoupons() {
                   <TableRow key={c.id} className="hover:bg-muted/50 transition-colors">
                     <TableCell className="font-sans font-bold">{c.code}</TableCell>
                     <TableCell className="font-sans">
-                      {c.discount_type === "percentage" ? `${c.discount_value}%` : `R$ ${Number(c.discount_value).toFixed(2)}`}
+                      {c.discount_type === "percentage" ? `${c.discount_value}%` : formatBRL(Number(c.discount_value))}
                     </TableCell>
                     <TableCell className="font-sans text-sm">
                       {c.used_count}{c.max_uses ? ` / ${c.max_uses}` : ""}
