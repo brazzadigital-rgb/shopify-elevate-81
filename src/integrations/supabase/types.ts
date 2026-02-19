@@ -684,9 +684,12 @@ export type Database = {
           customer_phone: string | null
           delivered_at: string | null
           discount: number
+          fbclid: string | null
+          gclid: string | null
           id: string
           invoice_number: string | null
           label_url: string | null
+          landing_page: string | null
           melhor_envio_order_id: string | null
           notes: string | null
           notes_admin: string | null
@@ -712,10 +715,17 @@ export type Database = {
           subtotal: number
           total: number
           tracking_code: string | null
+          tracking_first_touch_json: Json | null
+          tracking_last_touch_json: Json | null
           tracking_url: string | null
           transaction_id: string | null
           updated_at: string
           user_id: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
         }
         Insert: {
           billing_address?: Json | null
@@ -725,9 +735,12 @@ export type Database = {
           customer_phone?: string | null
           delivered_at?: string | null
           discount?: number
+          fbclid?: string | null
+          gclid?: string | null
           id?: string
           invoice_number?: string | null
           label_url?: string | null
+          landing_page?: string | null
           melhor_envio_order_id?: string | null
           notes?: string | null
           notes_admin?: string | null
@@ -753,10 +766,17 @@ export type Database = {
           subtotal?: number
           total?: number
           tracking_code?: string | null
+          tracking_first_touch_json?: Json | null
+          tracking_last_touch_json?: Json | null
           tracking_url?: string | null
           transaction_id?: string | null
           updated_at?: string
           user_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Update: {
           billing_address?: Json | null
@@ -766,9 +786,12 @@ export type Database = {
           customer_phone?: string | null
           delivered_at?: string | null
           discount?: number
+          fbclid?: string | null
+          gclid?: string | null
           id?: string
           invoice_number?: string | null
           label_url?: string | null
+          landing_page?: string | null
           melhor_envio_order_id?: string | null
           notes?: string | null
           notes_admin?: string | null
@@ -794,10 +817,17 @@ export type Database = {
           subtotal?: number
           total?: number
           tracking_code?: string | null
+          tracking_first_touch_json?: Json | null
+          tracking_last_touch_json?: Json | null
           tracking_url?: string | null
           transaction_id?: string | null
           updated_at?: string
           user_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Relationships: [
           {
@@ -1873,6 +1903,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tracking_sessions: {
+        Row: {
+          created_at: string
+          fbclid: string | null
+          gclid: string | null
+          id: string
+          landing_page: string | null
+          referrer: string | null
+          session_started_at: string
+          ttclid: string | null
+          user_agent: string | null
+          user_id: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          visitor_id: string
+        }
+        Insert: {
+          created_at?: string
+          fbclid?: string | null
+          gclid?: string | null
+          id?: string
+          landing_page?: string | null
+          referrer?: string | null
+          session_started_at?: string
+          ttclid?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          visitor_id: string
+        }
+        Update: {
+          created_at?: string
+          fbclid?: string | null
+          gclid?: string | null
+          id?: string
+          landing_page?: string | null
+          referrer?: string | null
+          session_started_at?: string
+          ttclid?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          visitor_id?: string
+        }
+        Relationships: []
       }
       user_custom_roles: {
         Row: {

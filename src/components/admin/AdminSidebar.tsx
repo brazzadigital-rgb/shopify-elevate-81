@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, LogOut, ShoppingBag,
   Truck, UserCheck, Shield, Percent, TrendingUp, Columns3, Layout, CalendarRange,
-  DollarSign, BarChart3, ArrowDownCircle, CreditCard, Wallet, FileSpreadsheet, Wrench
+  DollarSign, BarChart3, ArrowDownCircle, CreditCard, Wallet, FileSpreadsheet, Wrench, Activity
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -48,6 +48,7 @@ const financialMenu = [
 
 const marketingMenu = [
   { title: "Vitrines & Temporadas", url: "/admin/vitrines", icon: CalendarRange },
+  { title: "Rastreamento", url: "/admin/rastreamento", icon: Activity },
 ];
 
 const usersMenu = [

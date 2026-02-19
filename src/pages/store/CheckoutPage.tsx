@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
 import { useSellerReferral } from "@/hooks/useSellerReferral";
+import { getFirstTouch, getLastTouch } from "@/hooks/useUtmCapture";
 import { useCepLookup } from "@/hooks/useCepLookup";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -224,6 +225,9 @@ export default function CheckoutPage() {
     setLoading(true);
     try {
       const orderNumber = `ORD-${Date.now().toString(36).toUpperCase()}`;
+      const firstTouch = getFirstTouch();
+      const lastTouch = getLastTouch();
+      const activeTouch = lastTouch || firstTouch;
       const { data: order, error } = await supabase
         .from("orders")
         .insert({
@@ -246,6 +250,16 @@ export default function CheckoutPage() {
           payment_status: "pending",
           status: "pending",
           referral_code: sellerVerified ? sellerCode : null,
+          utm_source: activeTouch?.utm_source || null,
+          utm_medium: activeTouch?.utm_medium || null,
+          utm_campaign: activeTouch?.utm_campaign || null,
+          utm_content: activeTouch?.utm_content || null,
+          utm_term: activeTouch?.utm_term || null,
+          fbclid: activeTouch?.fbclid || null,
+          gclid: activeTouch?.gclid || null,
+          landing_page: activeTouch?.landing_page || null,
+          tracking_first_touch_json: firstTouch || null,
+          tracking_last_touch_json: lastTouch || null,
         } as any)
         .select("id")
         .single();
