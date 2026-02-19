@@ -29,7 +29,7 @@ export function HeaderGlassLuxury() {
               className="md:hidden w-10 h-10 min-h-[unset] min-w-[unset]"
               onClick={() => h.setMobileMenuOpen(!h.mobileMenuOpen)}
             >
-              {h.mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {h.mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
             </Button>
             <HeaderLogo logoUrl={h.logoUrl} storeName={h.storeName} height={38} maxWidth={140} />
           </div>
