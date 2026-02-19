@@ -200,7 +200,7 @@ export function StoreFooter() {
             >
               <div className="flex items-center gap-2.5 mb-4">
                 {logoUrl ? (
-                  <img src={logoUrl} alt={storeName} className="h-8 object-contain" />
+                  <img src={logoUrl} alt={storeName} className="h-14 object-contain" />
                 ) : (
                   <span className="font-display text-lg font-bold uppercase tracking-wide text-foreground/85">
                     {storeName}
@@ -302,7 +302,7 @@ export function StoreFooter() {
             <div className="text-center mb-6">
               <div className="flex items-center justify-center gap-2 mb-3">
                 {logoUrl ? (
-                  <img src={logoUrl} alt={storeName} className="h-7 object-contain" />
+                  <img src={logoUrl} alt={storeName} className="h-12 object-contain" />
                 ) : (
                   <span className="font-display text-lg font-bold uppercase tracking-wide text-foreground/85">
                     {storeName}
