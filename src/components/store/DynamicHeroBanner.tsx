@@ -113,7 +113,7 @@ export function DynamicHeroBanner() {
   }[b.content_position] || "items-start text-left";
 
   return (
-    <section className="relative w-full overflow-hidden">
+    <section className="relative w-screen left-1/2 -translate-x-1/2 overflow-hidden">
       {/* Mobile */}
       <div className="md:hidden relative w-full">
         <AnimatePresence mode="wait">
