@@ -117,7 +117,7 @@ function ImageCarousel({
           key={src}
           src={src}
           alt={i === 0 ? alt : `${alt} - ${i + 1}`}
-          className={`absolute inset-0 w-full h-full object-contain p-3 md:p-4 transition-all duration-500 ease-out will-change-[opacity,transform] group-hover:scale-105 ${
+          className={`absolute inset-0 w-full h-full object-contain p-3 md:p-4 transition-all duration-700 ease-out will-change-[opacity,transform] group-hover:scale-[1.03] ${
             i === current ? "opacity-100" : "opacity-0"
           } ${i === 0 && hovered && count > 1 && current === 0 ? "md:opacity-0" : ""}
           ${i === 1 && hovered && count > 1 && current === 0 ? "md:opacity-100" : ""}`}
@@ -338,16 +338,16 @@ export function ProductCard({
 
     return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ delay: index * 0.04, duration: 0.35 }}
+      transition={{ delay: index * 0.05, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      whileHover={{ y: -6, transition: { duration: 0.3, ease: "easeOut" } }}
+      whileHover={{ y: -3, transition: { duration: 0.35, ease: "easeOut" } }}
       className="h-full"
     >
-      <div className="relative flex flex-col h-full bg-card rounded-2xl md:rounded-[20px] border border-border/40 overflow-hidden shadow-sm transition-all duration-500 ease-out md:hover:shadow-lg md:hover:border-accent/20 group">
+      <div className="relative flex flex-col h-full bg-card rounded-[20px] border border-border/30 overflow-hidden shadow-premium transition-all duration-500 ease-out md:hover:shadow-premium-lg md:hover:border-accent/15 group vitrine-glow vitrine-glow-idle">
         {/* ── Image ── */}
         <div className="relative">
           <ImageCarousel
@@ -358,14 +358,14 @@ export function ProductCard({
 
           {/* Badges */}
           <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1">
-            {disc > 0 && (
-              <span className="px-2 py-0.5 rounded-lg bg-destructive text-destructive-foreground text-[10px] font-bold uppercase tracking-wide shadow">
+             {disc > 0 && (
+              <span className="chip-jewel bg-destructive/8 border-destructive/15 text-destructive font-semibold">
                 {disc}% OFF
               </span>
             )}
             {product.is_new && (
-              <span className="px-2 py-0.5 rounded-lg bg-accent text-accent-foreground text-[10px] font-bold uppercase tracking-wide shadow">
-                Novo
+              <span className="chip-jewel">
+                Novidade
               </span>
             )}
           </div>
@@ -485,7 +485,7 @@ export function ProductCard({
           </div>
 
           {/* Frete grátis */}
-          <span className="inline-flex items-center gap-1 self-start px-1.5 py-0.5 rounded-full bg-success/10 text-success text-[9px] font-medium mt-1">
+          <span className="chip-jewel self-start mt-1">
             <Truck className="w-2.5 h-2.5" />
             Frete grátis
           </span>
@@ -543,8 +543,8 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
 
   return (
     <>
-      <section className="py-10 md:py-24">
-        <div className="container px-3 md:px-4">
+      <section className="py-12 md:py-24">
+        <div className="container px-4 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}

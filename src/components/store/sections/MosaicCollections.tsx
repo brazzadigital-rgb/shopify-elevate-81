@@ -78,7 +78,7 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
   if (collections.length === 0) return null;
 
   return (
-    <section className="md:py-16 bg-background relative overflow-hidden">
+    <section className="py-10 md:py-20 bg-background relative overflow-hidden">
       {/* Subtle background pattern */}
       <div
         className="absolute inset-0 opacity-[0.02] pointer-events-none"
@@ -165,14 +165,14 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
               >
                 <Link
                   to={`/colecao/${c.slug}`}
-                  className="group relative block w-full h-full rounded-2xl lg:rounded-[22px] overflow-hidden"
+                  className="group relative block w-full h-full rounded-[20px] overflow-hidden vitrine-glow"
                 >
                   {/* Image */}
                   {(c.banner_url || c.image_url) ? (
                     <img
                       src={c.banner_url || c.image_url!}
                       alt={c.name}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                       loading="lazy"
                     />
                   ) : (
