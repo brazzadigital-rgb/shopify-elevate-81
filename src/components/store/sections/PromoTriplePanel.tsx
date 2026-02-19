@@ -12,7 +12,6 @@ const panels = [
 function PromoCard({ src, alt }: { src: string; alt: string }) {
   return (
     <div className="relative group rounded-2xl p-[2px] overflow-hidden hover:-translate-y-1 transition-transform duration-300">
-      {/* Animated gradient border */}
       <div
         className="absolute inset-0 rounded-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-500"
         style={{
@@ -20,11 +19,11 @@ function PromoCard({ src, alt }: { src: string; alt: string }) {
           animation: "spin-border 4s linear infinite",
         }}
       />
-      <div className="relative rounded-[14px] overflow-hidden bg-card">
+      <div className="relative rounded-[14px] overflow-hidden">
         <img
           src={src}
           alt={alt}
-          className="w-full h-auto block"
+          className="w-full h-full object-cover block"
           loading="lazy"
           decoding="async"
         />
