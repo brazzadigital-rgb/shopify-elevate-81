@@ -31,6 +31,7 @@ const appearanceMenu = [
 const usersMenu = [
   { title: "Vendedores", url: "/admin/vendedores", icon: UserCheck },
   { title: "Fornecedores", url: "/admin/fornecedores", icon: Truck },
+  { title: "Logística", url: "/admin/logistica", icon: Truck },
   { title: "Funções e Permissões", url: "/admin/funcoes", icon: Shield },
   { title: "Comissões", url: "/admin/comissoes", icon: Percent },
   { title: "Relatórios", url: "/admin/relatorios", icon: TrendingUp },

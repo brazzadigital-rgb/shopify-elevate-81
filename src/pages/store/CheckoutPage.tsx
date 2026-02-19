@@ -16,8 +16,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag, User, MapPin, CreditCard, Check, ChevronRight,
-  Loader2, Lock, ArrowLeft, Tag, UserCheck
+  Loader2, Lock, ArrowLeft, Tag, UserCheck, Truck
 } from "lucide-react";
+import ShippingCalculator from "@/components/store/ShippingCalculator";
 
 type Step = "identification" | "address" | "payment" | "confirmation";
 
@@ -65,7 +66,8 @@ export default function CheckoutPage() {
   const [sellerCode, setSellerCode] = useState(getReferralCode() || "");
   const [sellerVerified, setSellerVerified] = useState(false);
   const [sellerName, setSellerName] = useState("");
-  const [saveAsDefault, setSaveAsDefault] = useState(false);
+   const [saveAsDefault, setSaveAsDefault] = useState(false);
+   const [selectedShipping, setSelectedShipping] = useState<any>(null);
 
   const [customer, setCustomer] = useState<CustomerInfo>({ name: "", email: "", phone: "" });
   const [address, setAddress] = useState<AddressInfo>({
@@ -75,10 +77,20 @@ export default function CheckoutPage() {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState("pix");
 
-  const shippingCost = 0;
+  const shippingCost = selectedShipping?.price || 0;
   const total = subtotal - couponDiscount + shippingCost;
   const pixDiscount = paymentMethod === "pix" ? total * 0.05 : 0;
   const finalTotal = total - pixDiscount;
+
+  // Build shipping items from cart
+  const shippingItems = items.map(item => ({
+    weight: (item.product as any)?.shipping_weight || 0,
+    width: (item.product as any)?.shipping_width || 0,
+    height: (item.product as any)?.shipping_height || 0,
+    length: (item.product as any)?.shipping_length || 0,
+    quantity: item.quantity,
+    price: item.variant?.price ?? item.product?.price ?? 0,
+  }));
 
   // Redirect if empty cart
   useEffect(() => {
@@ -222,6 +234,11 @@ export default function CheckoutPage() {
           subtotal,
           discount: couponDiscount + pixDiscount,
           shipping_cost: shippingCost,
+          shipping_price: shippingCost,
+          shipping_method_name: selectedShipping?.name || null,
+          shipping_service_code: selectedShipping?.service_code || null,
+          shipping_days: selectedShipping?.delivery_max || null,
+          shipping_provider: selectedShipping?.company || null,
           total: finalTotal,
           payment_method: paymentMethod,
           payment_status: "pending",
@@ -501,6 +518,17 @@ export default function CheckoutPage() {
                       <Checkbox id="saveDefault" checked={saveAsDefault} onCheckedChange={(v) => setSaveAsDefault(v === true)} />
                       <label htmlFor="saveDefault" className="font-sans text-sm cursor-pointer">Salvar como endereço principal</label>
                     </div>
+
+                    {/* Shipping Calculator */}
+                    {address.zip_code && address.zip_code.replace(/\D/g, "").length >= 5 && (
+                      <div className="pt-4 border-t">
+                        <ShippingCalculator
+                          items={shippingItems}
+                          onSelect={(q) => setSelectedShipping(q)}
+                          selectedId={selectedShipping?.id}
+                        />
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -659,7 +687,13 @@ export default function CheckoutPage() {
                 )}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Frete</span>
-                  <span className="text-success font-medium">Grátis</span>
+                  {selectedShipping ? (
+                    <span className={selectedShipping.price === 0 ? "text-success font-medium" : ""}>
+                      {selectedShipping.price === 0 ? "Grátis" : `R$ ${selectedShipping.price.toFixed(2)}`}
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground text-xs">Calcule no endereço</span>
+                  )}
                 </div>
               </div>
 

@@ -47,8 +47,10 @@ import FaqPage from "./pages/store/FaqPage";
 import ContactPage from "./pages/store/ContactPage";
 import PoliciesPage from "./pages/store/PoliciesPage";
 import CheckoutPage from "./pages/store/CheckoutPage";
+import TrackOrderPage from "./pages/store/TrackOrderPage";
 import SellerLayout from "./layouts/SellerLayout";
 import SellerDashboard from "./pages/seller/SellerDashboard";
+import AdminLogistics from "./pages/admin/AdminLogistics";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +75,7 @@ function AppContent() {
             <Route path="/faq" element={<FaqPage />} />
             <Route path="/politicas" element={<PoliciesPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/rastreamento" element={<TrackOrderPage />} />
             <Route path="/conta" element={<AccountLayout />}>
               <Route index element={<Orders />} />
               <Route path="pedidos" element={<Orders />} />
@@ -103,6 +106,7 @@ function AppContent() {
             <Route path="comissoes" element={<AdminCommissions />} />
             
             <Route path="relatorios" element={<AdminReports />} />
+            <Route path="logistica" element={<AdminLogistics />} />
           </Route>
           <Route path="/vendedor" element={<SellerLayout />}>
             <Route index element={<SellerDashboard />} />
