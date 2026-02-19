@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, TouchEvent as ReactTouchEvent } from "react";
+import { useEffect, useState, useRef, useCallback, TouchEvent as ReactTouchEvent, UIEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
@@ -17,6 +17,7 @@ import {
   X,
   Minus,
   Plus,
+  ChevronRight,
 } from "lucide-react";
 
 /* ── types ─────────────────────────────────────────── */
@@ -472,6 +473,65 @@ export function ProductCard({
   );
 }
 
+/* ── ScrollHintCarousel ─────────────────────────────── */
+function ScrollHintCarousel({
+  products,
+  addItem,
+  cartLoading,
+  onQuickBuy,
+}: {
+  products: Product[];
+  addItem: (id: string, variantId?: string | null, qty?: number) => Promise<void>;
+  cartLoading: boolean;
+  onQuickBuy: (p: Product) => void;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [hintOpacity, setHintOpacity] = useState(1);
+
+  const handleScroll = (e: UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    // Fade out hint within the first 80px of scroll
+    const opacity = Math.max(0, 1 - el.scrollLeft / 80);
+    setHintOpacity(opacity);
+  };
+
+  return (
+    <div className="flex-1 relative">
+      {/* Swipe hint */}
+      <motion.div
+        className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground/70 text-background font-sans text-[11px] font-semibold pointer-events-none"
+        style={{ opacity: hintOpacity }}
+        initial={{ x: 0 }}
+        animate={{ x: [0, 8, 0] }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        Arraste
+        <ChevronRight className="w-3.5 h-3.5" />
+      </motion.div>
+
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="overflow-x-auto scrollbar-hide -mr-4 md:mr-0 pr-4 md:pr-0"
+      >
+        <div className="flex gap-3 md:gap-4" style={{ width: "max-content" }}>
+          {products.map((product, i) => (
+            <div key={product.id} className="w-[44vw] min-w-[160px] md:w-[220px] lg:w-[240px] flex-shrink-0">
+              <ProductCard
+                product={product}
+                index={i}
+                addItem={addItem}
+                cartLoading={cartLoading}
+                onQuickBuy={onQuickBuy}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── FeaturedProducts ──────────────────────────────── */
 export function FeaturedProducts({ config, title = "Produtos em Destaque" }: FeaturedProductsProps) {
   const [products, setProducts] = useState<Product[]>([]);
@@ -574,21 +634,7 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
               </div>
 
               {/* Scrollable products */}
-              <div className="flex-1 overflow-x-auto scrollbar-hide -mr-4 md:mr-0 pr-4 md:pr-0">
-                <div className="flex gap-3 md:gap-4" style={{ width: "max-content" }}>
-                  {products.map((product, i) => (
-                    <div key={product.id} className="w-[44vw] min-w-[160px] md:w-[220px] lg:w-[240px] flex-shrink-0">
-                      <ProductCard
-                        product={product}
-                        index={i}
-                        addItem={addItem}
-                        cartLoading={cartLoading}
-                        onQuickBuy={setQuickBuyProduct}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <ScrollHintCarousel products={products} addItem={addItem} cartLoading={cartLoading} onQuickBuy={setQuickBuyProduct} />
             </div>
           ) : (
             /* ── Default: grid layout ── */
