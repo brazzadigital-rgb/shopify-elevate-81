@@ -1,9 +1,10 @@
 import {
-  LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, BarChart3, LogOut, ShoppingBag,
+  LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, LogOut, ShoppingBag,
   Truck, UserCheck, Shield, Percent, TrendingUp
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useNavigate } from "react-router-dom";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -35,7 +36,7 @@ const usersMenu = [
   { title: "Relatórios", url: "/admin/relatorios", icon: TrendingUp },
 ];
 
-const linkClass = "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 font-sans text-sm font-medium";
+const linkClass = "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 font-sans text-sm font-medium";
 const activeClass = "bg-accent/10 text-accent font-bold border border-accent/20";
 
 function MenuGroup({ label, items }: { label: string; items: typeof mainMenu }) {
@@ -69,7 +70,10 @@ function MenuGroup({ label, items }: { label: string; items: typeof mainMenu }) 
 
 export function AdminSidebar() {
   const { signOut } = useAuth();
+  const { getSetting } = useStoreSettings();
   const navigate = useNavigate();
+
+  const logoUrl = getSetting("logo_url");
 
   const handleSignOut = async () => {
     await signOut();
@@ -77,12 +81,16 @@ export function AdminSidebar() {
   };
 
   return (
-    <Sidebar className="border-r-0">
+    <Sidebar className="border-r-0 shadow-premium">
       <SidebarHeader className="p-5 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center glow-orange">
-            <span className="text-lg">🐆</span>
-          </div>
+          {logoUrl ? (
+            <img src={logoUrl} alt="Logo" className="h-9 max-w-[140px] object-contain" />
+          ) : (
+            <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center glow-orange">
+              <span className="text-lg">🐆</span>
+            </div>
+          )}
           <div className="flex flex-col">
             <span className="font-display text-base font-bold text-sidebar-foreground uppercase">Admin</span>
             <span className="text-[10px] text-accent font-sans font-bold uppercase tracking-wider">Painel de Gestão</span>
