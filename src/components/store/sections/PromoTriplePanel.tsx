@@ -11,7 +11,7 @@ const panels = [
 
 function PromoCard({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="relative group rounded-2xl p-[2px] overflow-hidden hover:-translate-y-1 transition-transform duration-300">
+    <div className="relative group rounded-xl p-[1.5px] overflow-hidden hover:-translate-y-1 transition-transform duration-300">
       <div
         className="absolute inset-0 rounded-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-500"
         style={{
