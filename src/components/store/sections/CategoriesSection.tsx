@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Category {
@@ -8,6 +8,50 @@ interface Category {
   name: string;
   slug: string;
   image_url: string | null;
+}
+
+function JewelRing({ children, index }: { children: React.ReactNode; index: number }) {
+  const [tapped, setTapped] = useState(false);
+
+  const handleTap = useCallback(() => {
+    setTapped(true);
+    setTimeout(() => setTapped(false), 2000);
+  }, []);
+
+  return (
+    <motion.div
+      className="jewel-ring-wrapper relative"
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      onTapStart={handleTap}
+    >
+      {/* Outer glow */}
+      <div className={`absolute inset-[-3px] rounded-full jewel-glow transition-opacity duration-500 ${tapped ? 'opacity-80' : 'opacity-40'}`} />
+      
+      {/* Metallic gradient ring */}
+      <div className="relative rounded-full p-[3px] jewel-ring-gradient">
+        {/* Sparkle overlay */}
+        <div
+          className="absolute inset-0 rounded-full jewel-sparkle overflow-hidden pointer-events-none"
+          style={{ animationDelay: `${index * -0.8}s` }}
+        >
+          <div className="jewel-sparkle-beam" style={{ animationDelay: `${index * -1.2}s` }} />
+        </div>
+        
+        {/* Micro sparkle particles */}
+        <div className="jewel-particles pointer-events-none" style={{ animationDelay: `${index * -1.5}s` }}>
+          <span className="jewel-particle" style={{ top: '10%', left: '85%', animationDelay: `${index * 0.3}s` }} />
+          <span className="jewel-particle" style={{ top: '75%', left: '5%', animationDelay: `${index * 0.3 + 1.2}s` }} />
+          <span className="jewel-particle" style={{ top: '5%', left: '40%', animationDelay: `${index * 0.3 + 2.4}s` }} />
+        </div>
+
+        {/* Inner separator ring */}
+        <div className="rounded-full p-[1px] bg-gradient-to-b from-white/30 to-transparent">
+          {children}
+        </div>
+      </div>
+    </motion.div>
+  );
 }
 
 export function CategoriesSection() {
@@ -54,8 +98,8 @@ export function CategoriesSection() {
                 to={`/colecao/${cat.slug}`}
                 className="flex flex-col items-center gap-2 sm:gap-3 group"
               >
-                <div className="relative w-[75px] h-[75px] sm:w-[90px] sm:h-[90px] md:w-[130px] md:h-[130px] lg:w-[150px] lg:h-[150px] rounded-full p-[2px] bg-gradient-to-br from-border to-border group-hover:from-accent group-hover:to-accent/60 transition-all duration-400 flex-shrink-0">
-                  <div className="w-full h-full rounded-full overflow-hidden bg-card">
+                <JewelRing index={i}>
+                  <div className="w-[75px] h-[75px] sm:w-[90px] sm:h-[90px] md:w-[130px] md:h-[130px] lg:w-[150px] lg:h-[150px] rounded-full overflow-hidden bg-card">
                     {cat.image_url ? (
                       <img
                         src={cat.image_url}
@@ -69,7 +113,7 @@ export function CategoriesSection() {
                       </div>
                     )}
                   </div>
-                </div>
+                </JewelRing>
                 <span className="font-sans text-[9px] sm:text-[10px] md:text-sm font-bold uppercase tracking-[0.1em] text-foreground/70 group-hover:text-accent transition-colors duration-300 text-center leading-tight max-w-[80px] sm:max-w-[100px] md:max-w-[140px]">
                   {cat.name}
                 </span>
