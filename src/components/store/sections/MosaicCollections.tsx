@@ -108,9 +108,16 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
             Explore
           </motion.span>
 
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-display font-bold text-foreground leading-tight">
+          <h2
+            className="text-2xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight tracking-tight"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
             {overrideTitle || "Coleções em Destaque"}
           </h2>
+
+          <div className="flex justify-center mt-3">
+            <div className="w-12 h-[2px] rounded-full bg-accent/40" />
+          </div>
 
           {overrideSubtitle && (
             <p className="text-sm md:text-base text-muted-foreground font-sans mt-3 max-w-md mx-auto leading-relaxed">
