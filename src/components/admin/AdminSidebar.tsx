@@ -20,6 +20,7 @@ const mainMenu = [
   { title: "Clientes", url: "/admin/clientes", icon: Users },
   { title: "Cupons", url: "/admin/cupons", icon: Tag },
   { title: "Seções da Home", url: "/admin/secoes", icon: Image },
+  { title: "Pagamentos", url: "/admin/pagamentos", icon: CreditCard },
   { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
 ];
 

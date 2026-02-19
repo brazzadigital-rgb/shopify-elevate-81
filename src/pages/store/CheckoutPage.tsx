@@ -217,6 +217,8 @@ export default function CheckoutPage() {
     return false;
   };
 
+  const [paymentData, setPaymentData] = useState<any>(null);
+
   const placeOrder = async () => {
     if (!user) return;
     setLoading(true);
@@ -265,7 +267,6 @@ export default function CheckoutPage() {
 
       // Increment coupon usage
       if (couponApplied) {
-        await supabase.rpc("has_role", { _user_id: user.id, _role: "user" }); // dummy - just increment below
         const { data: couponData } = await supabase
           .from("coupons")
           .select("id, used_count")
@@ -275,7 +276,6 @@ export default function CheckoutPage() {
 
       // Save address as default if requested
       if (saveAsDefault && !selectedAddressId) {
-        // Unset all existing defaults
         await supabase.from("customer_addresses").update({ is_default: false } as any).eq("user_id", user.id);
         await supabase.from("customer_addresses").insert({
           user_id: user.id,
@@ -291,9 +291,40 @@ export default function CheckoutPage() {
           is_default: true,
         } as any);
       } else if (saveAsDefault && selectedAddressId) {
-        // Set the selected one as default
         await supabase.from("customer_addresses").update({ is_default: false } as any).eq("user_id", user.id);
         await supabase.from("customer_addresses").update({ is_default: true } as any).eq("id", selectedAddressId);
+      }
+
+      // Create payment via edge function
+      try {
+        const { data: pmtData, error: pmtError } = await supabase.functions.invoke("create-payment", {
+          body: {
+            order_id: order.id,
+            method: paymentMethod,
+            customer: {
+              name: customer.name,
+              email: customer.email,
+              phone: customer.phone,
+            },
+          },
+        });
+
+        if (pmtError) {
+          console.error("Payment creation error:", pmtError);
+          // Still proceed — order was created, payment can be retried
+        } else if (pmtData) {
+          setPaymentData(pmtData);
+
+          // If provider requires redirect (e.g. Stripe checkout URL)
+          if (pmtData.checkout_url && paymentMethod === "card" && pmtData.provider === "stripe") {
+            await clearCart();
+            window.location.href = pmtData.checkout_url;
+            return;
+          }
+        }
+      } catch (pmtErr) {
+        console.error("Payment function error:", pmtErr);
+        // Order still created successfully
       }
 
       await clearCart();
@@ -321,6 +352,11 @@ export default function CheckoutPage() {
     return primary?.url || item.product?.product_images?.[0]?.url || "/placeholder.svg";
   };
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copiado! 📋" });
+  };
+
   if (step === "confirmation") {
     return (
       <div className="container max-w-2xl py-16 text-center">
@@ -329,6 +365,50 @@ export default function CheckoutPage() {
         </motion.div>
         <h1 className="font-display text-3xl font-bold mb-2">Pedido confirmado!</h1>
         <p className="text-muted-foreground font-sans mb-8">Você receberá atualizações por e-mail sobre o status do seu pedido.</p>
+
+        {/* Payment details */}
+        {paymentData && paymentData.method === "pix" && paymentData.qr_code && (
+          <Card className="border-0 shadow-premium mb-8 text-left">
+            <CardContent className="p-6 space-y-4">
+              <h3 className="font-display text-lg font-bold flex items-center gap-2">
+                💳 Pague via PIX
+              </h3>
+              {paymentData.qr_code_image_url && (
+                <div className="flex justify-center">
+                  <img src={paymentData.qr_code_image_url} alt="QR Code PIX" className="w-48 h-48 rounded-xl" />
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label className="font-sans text-sm text-muted-foreground">Código PIX (copia e cola)</Label>
+                <div className="flex gap-2">
+                  <Input value={paymentData.qr_code} readOnly className="rounded-xl h-10 font-sans text-xs" />
+                  <Button variant="outline" size="sm" className="rounded-xl shrink-0" onClick={() => copyToClipboard(paymentData.qr_code)}>
+                    Copiar
+                  </Button>
+                </div>
+              </div>
+              {paymentData.expires_at && (
+                <p className="font-sans text-xs text-muted-foreground">
+                  ⏰ Expira em: {new Date(paymentData.expires_at).toLocaleString("pt-BR")}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {paymentData && paymentData.method === "boleto" && paymentData.boleto_url && (
+          <Card className="border-0 shadow-premium mb-8 text-left">
+            <CardContent className="p-6 space-y-4">
+              <h3 className="font-display text-lg font-bold">📄 Boleto Bancário</h3>
+              <Button asChild className="rounded-xl shine font-sans w-full h-12">
+                <a href={paymentData.boleto_url} target="_blank" rel="noopener noreferrer">
+                  Abrir Boleto
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="flex gap-4 justify-center">
           <Button asChild variant="outline" className="rounded-xl font-sans h-12">
             <a href="/conta/pedidos">Ver meus pedidos</a>
