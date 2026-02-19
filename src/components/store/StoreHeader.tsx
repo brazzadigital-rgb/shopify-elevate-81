@@ -261,15 +261,18 @@ export function StoreHeader() {
           </div>
         </div>
 
-        {/* Desktop nav bar */}
-        <nav className="hidden md:block border-t" style={{ borderColor: `hsl(${headerTextColor} / 0.1)` }}>
-          <div className="container flex items-center justify-center gap-1 h-10">
+        {/* Desktop nav bar — white background like reference */}
+        <nav className="hidden md:block bg-background border-t border-b border-border shadow-sm">
+          <div className="container flex items-center justify-center gap-2 h-12">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className="relative px-4 py-1.5 font-sans text-[12px] font-semibold uppercase tracking-wider transition-all duration-200 rounded-lg hover:brightness-150 active:scale-[0.98]"
-                style={{ color: location.pathname === link.to ? `hsl(var(--accent))` : `hsl(${headerTextColor} / 0.7)` }}
+                className={`relative px-5 py-2 font-sans text-sm font-bold uppercase tracking-widest transition-all duration-200 hover:text-accent active:scale-[0.97] ${
+                  location.pathname === link.to
+                    ? "text-accent"
+                    : "text-foreground/80"
+                }`}
               >
                 {link.label}
                 {location.pathname === link.to && (
