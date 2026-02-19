@@ -306,7 +306,7 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <a
-                  href="/conta/pedidos"
+                  href="/rastreamento"
                   className="flex items-center justify-center gap-2 w-full h-10 rounded-xl border border-border/60 bg-muted/30 font-sans text-sm font-medium hover:bg-muted/60 active:scale-[0.97] transition-all"
                 >
                   Rastrear pedido <ChevronRight className="w-4 h-4" />
