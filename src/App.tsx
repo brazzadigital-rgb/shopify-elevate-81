@@ -29,6 +29,7 @@ import AdminSellers from "./pages/admin/AdminSellers";
 import AdminRoles from "./pages/admin/AdminRoles";
 import AdminCommissions from "./pages/admin/AdminCommissions";
 import AdminReports from "./pages/admin/AdminReports";
+import AdminHeaderSettings from "./pages/admin/AdminHeaderSettings";
 import AccountLayout from "./pages/account/AccountLayout";
 import Orders from "./pages/account/Orders";
 import OrderDetail from "./pages/account/OrderDetail";
@@ -86,6 +87,7 @@ function AppContent() {
             <Route path="secoes" element={<AdminSections />} />
             <Route path="banners" element={<AdminBanners />} />
             <Route path="aparencia" element={<AdminVisualIdentity />} />
+            <Route path="header" element={<AdminHeaderSettings />} />
             <Route path="configuracoes" element={<StoreSettings />} />
             <Route path="vendedores" element={<AdminSellers />} />
             <Route path="fornecedores" element={<AdminSuppliers />} />
