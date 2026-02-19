@@ -188,15 +188,15 @@ export default function AdminOrders() {
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-border/30 hover:bg-transparent">
-                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Pedido</TableHead>
-                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Data</TableHead>
-                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Cliente</TableHead>
-                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Total</TableHead>
-                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Pagamento</TableHead>
-                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Envio</TableHead>
-                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Rastreio</TableHead>
-                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Status</TableHead>
-                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium text-right">Ações</TableHead>
+                  <TableHead className="font-sans text-xs uppercase tracking-wider text-muted-foreground/70 font-medium">Pedido</TableHead>
+                  <TableHead className="font-sans text-xs uppercase tracking-wider text-muted-foreground/70 font-medium">Data</TableHead>
+                  <TableHead className="font-sans text-xs uppercase tracking-wider text-muted-foreground/70 font-medium">Cliente</TableHead>
+                  <TableHead className="font-sans text-xs uppercase tracking-wider text-muted-foreground/70 font-medium">Total</TableHead>
+                  <TableHead className="font-sans text-xs uppercase tracking-wider text-muted-foreground/70 font-medium">Pagamento</TableHead>
+                  <TableHead className="font-sans text-xs uppercase tracking-wider text-muted-foreground/70 font-medium">Envio</TableHead>
+                  <TableHead className="font-sans text-xs uppercase tracking-wider text-muted-foreground/70 font-medium">Rastreio</TableHead>
+                  <TableHead className="font-sans text-xs uppercase tracking-wider text-muted-foreground/70 font-medium">Status</TableHead>
+                  <TableHead className="font-sans text-xs uppercase tracking-wider text-muted-foreground/70 font-medium text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -206,41 +206,41 @@ export default function AdminOrders() {
                   return (
                     <TableRow key={order.id} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
                       <TableCell className="font-sans font-semibold text-sm text-foreground/90">#{order.order_number}</TableCell>
-                      <TableCell className="font-sans text-xs text-muted-foreground whitespace-nowrap">
+                      <TableCell className="font-sans text-sm text-muted-foreground whitespace-nowrap">
                         {new Date(order.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
                         <br />
-                        <span className="text-[10px] text-muted-foreground/60">{new Date(order.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+                        <span className="text-xs text-muted-foreground/60">{new Date(order.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
                       </TableCell>
                       <TableCell>
                         <div className="font-sans">
                           <p className="text-sm font-medium truncate max-w-[160px] text-foreground/85">{order.customer_name || "—"}</p>
-                          <p className="text-[11px] text-muted-foreground/60 truncate max-w-[160px]">{order.customer_email || ""}</p>
+                          <p className="text-xs text-muted-foreground/60 truncate max-w-[160px]">{order.customer_email || ""}</p>
                         </div>
                       </TableCell>
                       <TableCell className="font-sans font-semibold text-sm whitespace-nowrap text-foreground/90">R$ {Number(order.total).toFixed(2)}</TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          <Badge variant="secondary" className={`${pt.color} border-0 text-[10px] font-sans font-medium px-2.5 py-0.5 rounded-full shadow-none`}>{pt.label}</Badge>
-                          {order.payment_method && <p className="text-[10px] text-muted-foreground/50 font-sans">{order.payment_method}</p>}
+                          <Badge variant="secondary" className={`${pt.color} border-0 text-xs font-sans font-medium px-2.5 py-0.5 rounded-full shadow-none`}>{pt.label}</Badge>
+                          {order.payment_method && <p className="text-xs text-muted-foreground/50 font-sans">{order.payment_method}</p>}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className="bg-muted/50 text-muted-foreground/70 border-0 text-[10px] font-sans font-medium px-2.5 py-0.5 rounded-full shadow-none">
+                        <Badge variant="secondary" className="bg-muted/50 text-muted-foreground/70 border-0 text-xs font-sans font-medium px-2.5 py-0.5 rounded-full shadow-none">
                           {SHIPMENT_LABELS[order.shipment_status || "pending"] || "Aguardando"}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         {order.tracking_code ? (
-                          <button onClick={() => copyTracking(order.tracking_code!, order.id)} className="inline-flex items-center gap-1.5 text-[11px] font-mono text-foreground/70 hover:text-foreground transition-colors">
-                            {copiedId === order.id ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                          <button onClick={() => copyTracking(order.tracking_code!, order.id)} className="inline-flex items-center gap-1.5 text-xs font-mono text-foreground/70 hover:text-foreground transition-colors">
+                            {copiedId === order.id ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                             {order.tracking_code.slice(0, 13)}
                           </button>
                         ) : (
-                          <span className="text-[11px] text-muted-foreground/40 font-sans">—</span>
+                          <span className="text-xs text-muted-foreground/40 font-sans">—</span>
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className={`${st.color} border-0 text-[10px] font-sans font-medium px-2.5 py-0.5 rounded-full shadow-none`}>{st.label}</Badge>
+                        <Badge variant="secondary" className={`${st.color} border-0 text-xs font-sans font-medium px-2.5 py-0.5 rounded-full shadow-none`}>{st.label}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground/60 hover:text-foreground hover:bg-muted/30 transition-colors" asChild>
