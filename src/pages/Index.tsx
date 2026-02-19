@@ -8,6 +8,7 @@ import { BenefitsSection } from "@/components/store/sections/BenefitsSection";
 import { NewsletterSection } from "@/components/store/sections/NewsletterSection";
 import { MascotPromoPanel } from "@/components/store/sections/MascotPromoPanel";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSellerReferral } from "@/hooks/useSellerReferral";
 
 interface HomeSection {
   id: string;
@@ -18,6 +19,9 @@ interface HomeSection {
 }
 
 const Index = () => {
+  // Track seller referral from URL
+  useSellerReferral();
+
   const { data: sections = [], isLoading: loading } = useQuery({
     queryKey: ["home-sections"],
     queryFn: async () => {

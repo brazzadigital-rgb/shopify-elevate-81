@@ -6,6 +6,8 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   isAdmin: boolean;
+  isSeller: boolean;
+  sellerId: string | null;
   isLoading: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
@@ -18,16 +20,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isSeller, setIsSeller] = useState(false);
+  const [sellerId, setSellerId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const checkAdminRole = async (userId: string) => {
-    const { data } = await supabase
+  const checkRoles = async (userId: string) => {
+    const { data: roles } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    setIsAdmin(!!data);
+      .eq("user_id", userId);
+    
+    const roleList = roles?.map((r: any) => r.role) || [];
+    setIsAdmin(roleList.includes("admin"));
+    setIsSeller(roleList.includes("seller"));
+
+    if (roleList.includes("seller")) {
+      const { data: seller } = await supabase
+        .from("sellers")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      setSellerId(seller?.id || null);
+    } else {
+      setSellerId(null);
+    }
   };
 
   useEffect(() => {
@@ -36,9 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          setTimeout(() => checkAdminRole(session.user.id), 0);
+          setTimeout(() => checkRoles(session.user.id), 0);
         } else {
           setIsAdmin(false);
+          setIsSeller(false);
+          setSellerId(null);
         }
         setIsLoading(false);
       }
@@ -48,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        checkAdminRole(session.user.id);
+        checkRoles(session.user.id);
       }
       setIsLoading(false);
     });
@@ -78,10 +96,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setSession(null);
     setIsAdmin(false);
+    setIsSeller(false);
+    setSellerId(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, isLoading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, isAdmin, isSeller, sellerId, isLoading, signUp, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
