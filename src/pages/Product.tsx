@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingCart, Zap, Minus, Plus, ChevronRight,
   Loader2, Truck, ShieldCheck, CreditCard, Package,
@@ -37,31 +37,66 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
   selectedImage: number;
   setSelectedImage: (i: number) => void;
 }) {
+  const [zoomed, setZoomed] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const primaryImage = images[selectedImage]?.url || "/placeholder.svg";
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!zoomed) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomPos({ x, y });
+  };
+
   return (
     <div className="lg:sticky lg:top-24">
-      <div className="bg-card rounded-2xl border overflow-hidden">
+      <div className="rounded-[20px] overflow-hidden border border-border/50 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)]">
         {/* Desktop: side thumbnails */}
         <div className="hidden lg:flex">
           {images.length > 1 && (
-            <div className="flex flex-col gap-2 p-3 border-r">
+            <div className="flex flex-col gap-2.5 p-3 border-r border-border/40">
               {images.map((img, i) => (
-                <button
+                <motion.button
                   key={i}
                   onClick={() => setSelectedImage(i)}
-                  className={`shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 transition-all min-h-[unset] min-w-[unset] ${
-                    i === selectedImage ? "border-accent" : "border-transparent hover:border-border"
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 min-h-[unset] min-w-[unset] ${
+                    i === selectedImage
+                      ? "border-accent shadow-[0_0_0_1px_hsl(var(--accent)/0.3)]"
+                      : "border-transparent hover:border-border"
                   }`}
                 >
                   <img src={img.url} alt="" className="w-full h-full object-cover" />
-                </button>
+                </motion.button>
               ))}
             </div>
           )}
-          <div className="relative flex-1 aspect-square">
-            <img src={primaryImage} alt={title} className="w-full h-full object-cover" />
+          <div
+            className="relative flex-1 aspect-square cursor-zoom-in overflow-hidden"
+            onMouseEnter={() => setZoomed(true)}
+            onMouseLeave={() => setZoomed(false)}
+            onMouseMove={handleMouseMove}
+          >
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={selectedImage}
+                src={primaryImage}
+                alt={title}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="w-full h-full object-cover transition-transform duration-300"
+                style={zoomed ? {
+                  transform: "scale(2)",
+                  transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+                } : undefined}
+              />
+            </AnimatePresence>
             {discount > 0 && (
-              <Badge className="absolute top-4 right-4 bg-destructive text-destructive-foreground font-sans text-xs rounded-lg">-{discount}%</Badge>
+              <Badge className="absolute top-4 right-4 bg-destructive text-destructive-foreground font-sans text-xs rounded-full px-3 py-1 shadow-md">-{discount}%</Badge>
             )}
           </div>
         </div>
@@ -80,29 +115,29 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
               ))}
             </div>
             {discount > 0 && (
-              <Badge className="absolute top-3 right-3 bg-destructive text-destructive-foreground font-sans text-xs rounded-lg">-{discount}%</Badge>
+              <Badge className="absolute top-3 right-3 bg-destructive text-destructive-foreground font-sans text-xs rounded-full px-3 py-1 shadow-md">-{discount}%</Badge>
             )}
-            {/* Dots */}
             {images.length > 1 && (
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
                 {images.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
-                    className={`w-2 h-2 rounded-full transition-all min-h-[unset] min-w-[unset] ${i === selectedImage ? "bg-accent w-5" : "bg-white/60"}`}
+                    className={`rounded-full transition-all duration-300 min-h-[unset] min-w-[unset] ${
+                      i === selectedImage ? "bg-accent w-6 h-2" : "bg-white/60 w-2 h-2"
+                    }`}
                   />
                 ))}
               </div>
             )}
           </div>
-          {/* Thumbnails below on mobile */}
           {images.length > 1 && (
             <div className="flex gap-2 p-3 overflow-x-auto scrollbar-hide">
               {images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedImage(i)}
-                  className={`shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 transition-all min-h-[unset] min-w-[unset] ${
+                  className={`shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 transition-all duration-200 min-h-[unset] min-w-[unset] ${
                     i === selectedImage ? "border-accent" : "border-transparent"
                   }`}
                 >
@@ -124,26 +159,31 @@ function PriceBlock({ price, comparePrice, discount, pixEnabled, pixDiscount, in
 }) {
   const installmentValue = maxInstallments > 0 ? (price / maxInstallments).toFixed(2) : "0";
   return (
-    <div className="space-y-1">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground font-sans"><span>Preço:</span></div>
-      <div className="flex items-end gap-3 flex-wrap">
-        <span className="text-3xl font-bold font-sans">R$ {price.toFixed(2).replace('.', ',')}</span>
-        {discount > 0 && <Badge className="bg-destructive text-destructive-foreground text-xs font-sans rounded-lg">-{discount}% OFF</Badge>}
-      </div>
+    <div className="space-y-2">
       {comparePrice > price && (
         <span className="text-sm text-muted-foreground line-through font-sans">R$ {comparePrice.toFixed(2).replace('.', ',')}</span>
       )}
+      <div className="flex items-end gap-3 flex-wrap">
+        <span className="text-3xl md:text-4xl font-bold font-sans tracking-tight">R$ {price.toFixed(2).replace('.', ',')}</span>
+        {discount > 0 && (
+          <Badge className="bg-destructive/10 text-destructive text-xs font-sans rounded-full px-3 py-1 border border-destructive/20">-{discount}%</Badge>
+        )}
+      </div>
       {installmentsEnabled && maxInstallments > 1 && (
-        <p className="text-sm text-muted-foreground font-sans">
-          em até {maxInstallments}x de <span className="font-semibold text-foreground">R$ {installmentValue.replace('.', ',')}</span>
+        <p className="text-xs text-muted-foreground font-sans">
+          ou {maxInstallments}x de <span className="font-semibold text-foreground">R$ {installmentValue.replace('.', ',')}</span> sem juros
         </p>
       )}
-      <div className="flex flex-col items-start gap-1.5 mt-1">
+      <div className="flex flex-wrap items-center gap-2 pt-1">
         {pixEnabled && pixDiscount > 0 && (
-          <Badge variant="outline" className="text-xs font-sans border-success text-success">✅ Até {pixDiscount}% OFF no PIX</Badge>
+          <span className="inline-flex items-center gap-1.5 text-xs font-sans font-medium text-success bg-success/10 border border-success/20 rounded-full px-3 py-1">
+            ✦ {pixDiscount}% OFF no PIX
+          </span>
         )}
         {blackFridayEnabled && blackFridayText && (
-          <Badge variant="outline" className="text-xs font-sans border-accent text-accent">🔥 {blackFridayText}</Badge>
+          <span className="inline-flex items-center gap-1 text-xs font-sans font-medium text-accent bg-accent/10 border border-accent/20 rounded-full px-3 py-1">
+            🔥 {blackFridayText}
+          </span>
         )}
       </div>
     </div>
@@ -153,16 +193,23 @@ function PriceBlock({ price, comparePrice, discount, pixEnabled, pixDiscount, in
 function ShippingInfo({ shippingEnabled, shippingDays }: { shippingEnabled: boolean; shippingDays: number }) {
   if (!shippingEnabled) return null;
   return (
-    <div className="border-2 border-success/40 rounded-2xl p-4 flex items-center justify-between gap-3">
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+      className="rounded-2xl border border-success/20 bg-success/5 p-4 flex items-center justify-between gap-3"
+    >
       <div className="flex items-center gap-3">
-        <Truck className="w-8 h-8 text-success shrink-0" />
+        <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center shrink-0">
+          <Truck className="w-5 h-5 text-success" />
+        </div>
         <div>
-          <p className="font-sans text-sm font-semibold">Receba entre 1 à {shippingDays} Dias</p>
-          <p className="font-sans text-xs text-muted-foreground">Envio para todo o Brasil</p>
+          <p className="font-sans text-sm font-semibold">Receba entre 1 à {shippingDays} dias</p>
+          <p className="font-sans text-[11px] text-muted-foreground">Envio para todo o Brasil</p>
         </div>
       </div>
-      <Badge className="bg-success text-success-foreground font-sans text-xs shrink-0">Frete Grátis</Badge>
-    </div>
+      <span className="text-xs font-sans font-bold text-success bg-success/10 rounded-full px-3 py-1 shrink-0 border border-success/20">Frete Grátis</span>
+    </motion.div>
   );
 }
 
@@ -170,34 +217,55 @@ function PaymentMethods({ enabled }: { enabled: boolean }) {
   if (!enabled) return null;
   const methods = ["Visa", "Master", "Elo", "Amex", "Pix", "Boleto"];
   return (
-    <div className="bg-muted/60 rounded-2xl p-4 space-y-3">
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+      className="rounded-2xl bg-muted/40 p-4 space-y-3"
+    >
       <div className="flex items-center gap-2">
-        <CreditCard className="w-5 h-5 text-muted-foreground" />
-        <p className="font-sans text-sm font-semibold">Parcele suas compras</p>
+        <CreditCard className="w-4 h-4 text-muted-foreground" />
+        <p className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-wider">Formas de pagamento</p>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {methods.map((m) => (
-          <span key={m} className="px-3 py-1 rounded-lg bg-card border text-xs font-sans font-medium">{m}</span>
+          <span key={m} className="px-3 py-1 rounded-full bg-card border border-border/60 text-[11px] font-sans font-medium">{m}</span>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 function SecurePayment() {
   return (
-    <div className="bg-card border rounded-2xl p-5 space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="font-display text-base font-bold flex items-center gap-2">
-          <ShieldCheck className="w-5 h-5 text-success" /> Pagamento Seguro
-        </h3>
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+      className="rounded-2xl border border-border/50 bg-card p-5 space-y-3 shadow-[0_1px_8px_-2px_rgba(0,0,0,0.04)]"
+    >
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
+          <ShieldCheck className="w-4 h-4 text-success" />
+        </div>
+        <h3 className="font-display text-sm font-bold uppercase tracking-wider">Pagamento 100% Seguro</h3>
       </div>
       <p className="font-sans text-xs text-muted-foreground leading-relaxed">
         Suas informações de pagamento são processadas com segurança. Nós não armazenamos dados do cartão de crédito nem temos acesso aos números do seu cartão.
       </p>
-    </div>
+    </motion.div>
   );
 }
+
+/* ── Stagger container ──────────────────────────────────── */
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06 } },
+};
+const fadeUp = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35 } },
+};
 
 /* ── Main Page ─────────────────────────────────────────── */
 
@@ -254,15 +322,15 @@ export default function ProductPage() {
 
   if (loading) {
     return (
-      <div className="container py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          <Skeleton className="aspect-square rounded-2xl" />
-          <div className="space-y-4">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-10 w-3/4" />
-            <Skeleton className="h-8 w-32" />
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
+      <div className="container max-w-6xl py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14">
+          <Skeleton className="aspect-square rounded-[20px]" />
+          <div className="space-y-5">
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-9 w-3/4" />
+            <Skeleton className="h-8 w-36" />
+            <Skeleton className="h-14 w-full rounded-2xl" />
+            <Skeleton className="h-12 w-full rounded-2xl" />
           </div>
         </div>
       </div>
@@ -304,171 +372,232 @@ export default function ProductPage() {
   };
 
   return (
-    <div className="min-h-screen pb-20 lg:pb-0">
-      <div className="container px-4 md:px-6 py-3 md:py-4">
-        <nav className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans font-medium uppercase tracking-wider overflow-hidden">
+    <div className="min-h-screen pb-24 lg:pb-0">
+      {/* Breadcrumb */}
+      <div className="container max-w-6xl px-4 md:px-6 py-4">
+        <nav className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-sans font-medium uppercase tracking-widest overflow-hidden">
           <Link to="/" className="hover:text-accent transition-colors shrink-0">Início</Link>
-          <ChevronRight className="w-3 h-3 shrink-0" />
-          <span className="text-foreground truncate">{product.name}</span>
+          <ChevronRight className="w-3 h-3 shrink-0 opacity-40" />
+          <span className="text-foreground/70 truncate">{product.name}</span>
         </nav>
       </div>
 
-      <div className="container px-4 md:px-6 pb-8 lg:pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
+      <div className="container max-w-6xl px-4 md:px-6 pb-10 lg:pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-14">
           {/* LEFT — Gallery */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
             <ProductGallery images={images} title={product.name} discount={discount} selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
             {/* Description below gallery only on desktop */}
-            <div className="hidden lg:block">
+            <div className="hidden lg:block space-y-5 mt-6">
               {product.description && (
-                <div className="mt-6 bg-card border rounded-2xl p-6">
-                  <h3 className="font-display text-lg font-bold mb-3 text-center">Descrição</h3>
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.25 }}
+                  className="rounded-2xl border border-border/50 bg-card p-6 shadow-[0_1px_8px_-2px_rgba(0,0,0,0.04)]"
+                >
+                  <h3 className="font-display text-sm font-bold uppercase tracking-wider mb-4 text-center text-muted-foreground">Descrição</h3>
                   <div className="font-sans text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: product.description }} />
-                </div>
+                </motion.div>
               )}
-              <div className="mt-6"><SecurePayment /></div>
+              <SecurePayment />
             </div>
           </motion.div>
 
           {/* RIGHT — Product Info */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }} className="space-y-5">
-            <div>
-              {stockStatusEnabled && inStock && (
-                <p className="text-xs text-success font-sans font-medium mb-1">Disponível em estoque</p>
-              )}
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate="show"
+            className="space-y-5"
+          >
+            {/* Title block */}
+            <motion.div variants={fadeUp}>
+              <div className="flex items-center gap-2 mb-2">
+                {stockStatusEnabled && inStock && (
+                  <span className="inline-flex items-center gap-1.5 text-[11px] text-success font-sans font-medium bg-success/8 border border-success/15 rounded-full px-2.5 py-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                    Disponível
+                  </span>
+                )}
+                {verifiedBadgeEnabled && (
+                  <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground font-sans">
+                    <ShieldCheck className="w-3.5 h-3.5 text-accent" />
+                    Verificado
+                  </span>
+                )}
+              </div>
               <h1 className="text-2xl md:text-3xl font-display font-bold leading-tight">{product.name}</h1>
-              {verifiedBadgeEnabled && (
-                <div className="flex items-center gap-1 mt-1">
-                  <ShieldCheck className="w-4 h-4 text-accent" />
-                  <span className="text-xs font-sans text-muted-foreground">Produto verificado</span>
-                </div>
+              {soldCountEnabled && product.sold_count > 0 && (
+                <p className="text-[11px] text-muted-foreground font-sans mt-1.5">🔥 {product.sold_count} vendidos</p>
               )}
-            </div>
+            </motion.div>
 
-            {soldCountEnabled && product.sold_count > 0 && (
-              <p className="text-xs text-muted-foreground font-sans">🔥 {product.sold_count} vendidos</p>
-            )}
-
-            <PriceBlock
-              price={price}
-              comparePrice={comparePrice}
-              discount={discount}
-              pixEnabled={pixEnabled}
-              pixDiscount={pixDiscount}
-              installmentsEnabled={installmentsEnabled}
-              maxInstallments={maxInstallments}
-              blackFridayEnabled={blackFridayEnabled}
-              blackFridayText={blackFridayText}
-            />
+            {/* Price */}
+            <motion.div variants={fadeUp}>
+              <PriceBlock
+                price={price}
+                comparePrice={comparePrice}
+                discount={discount}
+                pixEnabled={pixEnabled}
+                pixDiscount={pixDiscount}
+                installmentsEnabled={installmentsEnabled}
+                maxInstallments={maxInstallments}
+                blackFridayEnabled={blackFridayEnabled}
+                blackFridayText={blackFridayText}
+              />
+            </motion.div>
 
             {/* Stock indicator */}
-            <div className="flex items-center gap-2">
+            <motion.div variants={fadeUp} className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${inStock ? "bg-success animate-pulse" : "bg-destructive"}`} />
-              <span className={`font-sans text-xs font-semibold ${inStock ? "text-success" : "text-destructive"}`}>
+              <span className={`font-sans text-xs font-medium ${inStock ? "text-muted-foreground" : "text-destructive"}`}>
                 {inStock ? `Em estoque (${currentStock})` : "Indisponível"}
               </span>
-            </div>
+            </motion.div>
 
             {stockWarningEnabled && inStock && currentStock <= stockWarningThreshold && (
-              <Badge variant="outline" className="border-warning text-warning text-xs font-sans">
-                ⚡ Últimas {currentStock} unidades!
-              </Badge>
+              <motion.div variants={fadeUp}>
+                <span className="inline-flex items-center gap-1 text-xs font-sans font-medium text-warning bg-warning/10 border border-warning/20 rounded-full px-3 py-1">
+                  ⚡ Últimas {currentStock} unidades!
+                </span>
+              </motion.div>
             )}
 
             {/* Variant selector */}
             {variants.length > 0 && (
-              <div className="space-y-2">
-                <p className="font-sans text-sm font-semibold">Variante</p>
+              <motion.div variants={fadeUp} className="space-y-2.5">
+                <p className="font-sans text-xs font-semibold uppercase tracking-wider text-muted-foreground">Variante</p>
                 <div className="flex flex-wrap gap-2">
                   {variants.map((v, idx) => (
-                    <button
+                    <motion.button
                       key={v.id}
                       onClick={() => setSelectedVariantIdx(idx)}
-                      className={`px-4 py-2 rounded-xl font-sans text-sm border-2 transition-all ${
-                        selectedVariantIdx === idx ? "border-accent bg-accent/10 text-accent font-semibold" : "border-border hover:border-muted-foreground/30"
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.96 }}
+                      className={`px-4 py-2 rounded-full font-sans text-sm border-2 transition-all duration-200 ${
+                        selectedVariantIdx === idx
+                          ? "border-accent bg-accent/10 text-accent font-semibold shadow-[0_0_0_1px_hsl(var(--accent)/0.2)]"
+                          : "border-border hover:border-muted-foreground/30"
                       }`}
                     >
                       {v.name}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
 
-            <ShippingInfo shippingEnabled={shippingEnabled} shippingDays={shippingDays} />
+            {/* Shipping */}
+            <motion.div variants={fadeUp}>
+              <ShippingInfo shippingEnabled={shippingEnabled} shippingDays={shippingDays} />
+            </motion.div>
 
-            {/* Buy Now */}
-            <Button
-              size="lg"
-              className="w-full h-14 rounded-2xl bg-buttons hover:brightness-110 text-white font-sans font-bold text-base uppercase tracking-wider shine transition-all duration-300"
-              onClick={handleBuyNow}
-              disabled={cartLoading || !inStock}
-            >
-              {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Zap className="w-5 h-5 mr-2" /> Comprar agora</>}
-            </Button>
+            {/* Divider */}
+            <motion.div variants={fadeUp} className="border-t border-border/40" />
+
+            {/* Buy Now CTA */}
+            <motion.div variants={fadeUp}>
+              <motion.div whileTap={{ scale: 0.98 }}>
+                <Button
+                  size="lg"
+                  className="w-full h-14 rounded-2xl bg-buttons hover:brightness-110 text-white font-sans font-bold text-base uppercase tracking-wider shine transition-all duration-300 shadow-[0_4px_20px_-4px_hsl(var(--accent)/0.4)]"
+                  onClick={handleBuyNow}
+                  disabled={cartLoading || !inStock}
+                >
+                  {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Zap className="w-5 h-5 mr-2" /> Comprar agora</>}
+                </Button>
+              </motion.div>
+            </motion.div>
 
             {/* Quantity + Add to Cart */}
-            <div className="flex gap-3">
-              <div className="flex items-center border rounded-xl overflow-hidden shrink-0">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 flex items-center justify-center hover:bg-muted transition-colors">
-                  <Minus className="w-4 h-4" />
-                </button>
+            <motion.div variants={fadeUp} className="flex gap-3">
+              <div className="flex items-center border border-border/60 rounded-full overflow-hidden shrink-0 bg-card">
+                <motion.button
+                  whileTap={{ scale: 0.85 }}
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="w-10 h-10 flex items-center justify-center hover:bg-muted/60 transition-colors"
+                >
+                  <Minus className="w-3.5 h-3.5" />
+                </motion.button>
                 <span className="w-10 text-center font-sans text-sm font-semibold">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="w-10 h-10 flex items-center justify-center hover:bg-muted transition-colors">
-                  <Plus className="w-4 h-4" />
-                </button>
+                <motion.button
+                  whileTap={{ scale: 0.85 }}
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="w-10 h-10 flex items-center justify-center hover:bg-muted/60 transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </motion.button>
               </div>
-              <Button
-                size="lg"
-                variant="outline"
-                className="flex-1 h-10 rounded-xl font-sans font-bold text-sm uppercase tracking-wider border-2 border-border hover:border-accent hover:bg-accent hover:text-accent-foreground transition-all duration-300"
-                onClick={handleAddToCart}
-                disabled={cartLoading || !inStock}
-              >
-                {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ShoppingCart className="w-5 h-5 mr-2" /> Adicionar ao carrinho</>}
-              </Button>
-            </div>
+              <motion.div whileTap={{ scale: 0.98 }} className="flex-1">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full h-10 rounded-full font-sans font-bold text-sm uppercase tracking-wider border-2 border-border hover:border-accent hover:bg-accent hover:text-accent-foreground transition-all duration-300"
+                  onClick={handleAddToCart}
+                  disabled={cartLoading || !inStock}
+                >
+                  {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ShoppingCart className="w-4 h-4 mr-2" /> Adicionar ao carrinho</>}
+                </Button>
+              </motion.div>
+            </motion.div>
 
+            {/* WhatsApp */}
             {whatsappEnabled && whatsappNumber && (
-              <Button
-                variant="outline"
-                className="w-full h-11 rounded-xl font-sans font-bold text-sm border-2 border-success text-success hover:bg-success hover:text-success-foreground transition-all"
-                onClick={handleWhatsApp}
-              >
-                📱 Comprar via WhatsApp
-              </Button>
+              <motion.div variants={fadeUp}>
+                <motion.div whileTap={{ scale: 0.98 }}>
+                  <Button
+                    variant="outline"
+                    className="w-full h-11 rounded-full font-sans font-bold text-sm border-2 border-success text-success hover:bg-success hover:text-success-foreground transition-all duration-300"
+                    onClick={handleWhatsApp}
+                  >
+                    📱 Comprar via WhatsApp
+                  </Button>
+                </motion.div>
+              </motion.div>
             )}
 
-            <PaymentMethods enabled={paymentBadgesEnabled} />
+            {/* Payment methods */}
+            <motion.div variants={fadeUp}>
+              <PaymentMethods enabled={paymentBadgesEnabled} />
+            </motion.div>
 
+            {/* Sold by */}
             {soldByEnabled && (
-              <div className="bg-muted/40 rounded-xl p-3 flex items-center gap-2">
-                <Package className="w-4 h-4 text-muted-foreground" />
+              <motion.div variants={fadeUp} className="rounded-2xl bg-muted/30 border border-border/40 p-3.5 flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center">
+                  <Package className="w-4 h-4 text-muted-foreground" />
+                </div>
                 <span className="text-xs font-sans text-muted-foreground">
                   Vendido e enviado por <span className="font-semibold text-foreground">{soldByName}</span>
                 </span>
-              </div>
+              </motion.div>
             )}
           </motion.div>
         </div>
 
         {/* Description + secure payment on mobile (below grid) */}
-        <div className="lg:hidden mt-6 space-y-4">
+        <div className="lg:hidden mt-8 space-y-5">
           {product.description && (
-            <div className="bg-card border rounded-2xl p-5">
-              <h3 className="font-display text-lg font-bold mb-3">Descrição</h3>
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="rounded-2xl border border-border/50 bg-card p-5 shadow-[0_1px_8px_-2px_rgba(0,0,0,0.04)]"
+            >
+              <h3 className="font-display text-sm font-bold uppercase tracking-wider mb-3 text-muted-foreground">Descrição</h3>
               <div className="font-sans text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: product.description }} />
-            </div>
+            </motion.div>
           )}
           <SecurePayment />
         </div>
       </div>
 
       {/* Sticky CTA bar — mobile only */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-background/95 backdrop-blur-xl border-t border-border px-4 py-3 safe-area-bottom">
+      <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-card/95 backdrop-blur-xl border-t border-border/60 px-4 py-3 safe-area-bottom shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.08)]">
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <p className="font-display text-lg font-bold text-accent truncate">
+            <p className="font-sans text-lg font-bold text-foreground truncate">
               R$ {price.toFixed(2).replace('.', ',')}
             </p>
             {installmentsEnabled && maxInstallments > 1 && (
@@ -477,22 +606,26 @@ export default function ProductPage() {
               </p>
             )}
           </div>
-          <Button
-            size="sm"
-            variant="outline"
-            className="h-11 w-11 rounded-xl shrink-0 border-2 p-0"
-            onClick={handleAddToCart}
-            disabled={cartLoading || !inStock}
-          >
-            <ShoppingCart className="w-5 h-5" />
-          </Button>
-          <Button
-            className="h-11 rounded-xl bg-buttons text-white font-sans font-bold text-sm uppercase tracking-wider shine flex-1 max-w-[180px]"
-            onClick={handleBuyNow}
-            disabled={cartLoading || !inStock}
-          >
-            {cartLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Comprar"}
-          </Button>
+          <motion.div whileTap={{ scale: 0.9 }}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-11 w-11 rounded-full shrink-0 border-2 border-border p-0"
+              onClick={handleAddToCart}
+              disabled={cartLoading || !inStock}
+            >
+              <ShoppingCart className="w-5 h-5" />
+            </Button>
+          </motion.div>
+          <motion.div whileTap={{ scale: 0.97 }} className="flex-1 max-w-[180px]">
+            <Button
+              className="w-full h-11 rounded-full bg-buttons text-white font-sans font-bold text-sm uppercase tracking-wider shine"
+              onClick={handleBuyNow}
+              disabled={cartLoading || !inStock}
+            >
+              {cartLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Comprar"}
+            </Button>
+          </motion.div>
         </div>
       </div>
     </div>
