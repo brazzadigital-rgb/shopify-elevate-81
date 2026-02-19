@@ -12,7 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { exportToCsv } from "@/lib/exportCsv";
 import {
   ShoppingCart, Eye, Package, Filter, Search, Download, Copy, Check,
-  Truck, CreditCard, Clock
+  Truck, CreditCard, Clock, QrCode, Banknote, Wallet
 } from "lucide-react";
 
 interface Order {
@@ -219,9 +219,17 @@ export default function AdminOrders() {
                       </TableCell>
                       <TableCell className="font-sans font-semibold text-sm whitespace-nowrap text-foreground/90">R$ {Number(order.total).toFixed(2)}</TableCell>
                       <TableCell>
-                        <div className="space-y-1">
+                        <div className="flex flex-col items-center gap-1">
                           <Badge variant="secondary" className={`${pt.color} border-0 text-xs font-sans font-medium px-2.5 py-0.5 rounded-full shadow-none`}>{pt.label}</Badge>
-                          {order.payment_method && <p className="text-xs text-muted-foreground/50 font-sans">{order.payment_method}</p>}
+                          {order.payment_method && (
+                            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground/60 font-sans">
+                              {order.payment_method === "pix" && <QrCode className="w-3 h-3" />}
+                              {order.payment_method === "boleto" && <Banknote className="w-3 h-3" />}
+                              {(order.payment_method === "credit_card" || order.payment_method === "cartão") && <CreditCard className="w-3 h-3" />}
+                              {!["pix", "boleto", "credit_card", "cartão"].includes(order.payment_method) && <Wallet className="w-3 h-3" />}
+                              {order.payment_method}
+                            </span>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
