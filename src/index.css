@@ -292,6 +292,34 @@
   }
 }
 
+@layer utilities {
+  /* Showcase card parallax shimmer */
+  .showcase-card-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .showcase-card-shine::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      rgba(255,255,255,0.06) 45%,
+      rgba(255,255,255,0.12) 50%,
+      rgba(255,255,255,0.06) 55%,
+      transparent 70%
+    );
+    transform: translateX(-200%);
+    z-index: 5;
+    pointer-events: none;
+  }
+  .showcase-card-shine:hover::before {
+    transform: translateX(200%);
+    transition: transform 1s ease-in-out;
+  }
+}
+
 /* ===== Jewel Ring — Studio Reflex Effect ===== */
 
 /* Metallic shimmer on ring */
