@@ -13,7 +13,6 @@ export function useDynamicTheme(): boolean {
     // Colors
     const colorMap: Record<string, string> = {
       color_primary: "--accent",
-      color_buttons: "--ring",
       color_background: "--background",
       color_text: "--foreground",
       color_promotions: "--destructive",
@@ -26,12 +25,19 @@ export function useDynamicTheme(): boolean {
       }
     });
 
-    // Also apply accent = primary for consistency
+    // Apply accent = primary for consistency
     if (settings.color_primary && settings.color_primary.length > 3) {
       root.style.setProperty("--accent", settings.color_primary);
       root.style.setProperty("--sidebar-primary", settings.color_primary);
       root.style.setProperty("--sidebar-ring", settings.color_primary);
       root.style.setProperty("--ring", settings.color_primary);
+    }
+
+    // Buttons color — dedicated variable so it's not overridden by primary
+    if (settings.color_buttons && settings.color_buttons.length > 3) {
+      root.style.setProperty("--buttons", settings.color_buttons);
+    } else if (settings.color_primary && settings.color_primary.length > 3) {
+      root.style.setProperty("--buttons", settings.color_primary);
     }
 
     // Typography

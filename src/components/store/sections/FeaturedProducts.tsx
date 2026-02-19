@@ -280,7 +280,7 @@ function QuickBuyModal({
           <button
             onClick={handleBuy}
             disabled={cartLoading || product.stock <= 0}
-            className="w-full min-h-[52px] flex items-center justify-center gap-2 rounded-2xl bg-accent text-accent-foreground font-sans text-base font-bold py-4 transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
+            className="w-full min-h-[52px] flex items-center justify-center gap-2 rounded-2xl bg-buttons text-white font-sans text-base font-bold py-4 transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
           >
             {cartLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -494,7 +494,7 @@ function ProductCard({
           <div className="flex gap-1.5 mt-2">
             <button
               onClick={handleQuickBuy}
-              className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl bg-accent text-accent-foreground font-sans text-[13px] font-bold py-2.5 transition-all hover:brightness-110 active:scale-[0.96]"
+              className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl bg-buttons text-white font-sans text-[13px] font-bold py-2.5 transition-all hover:brightness-110 active:scale-[0.96]"
             >
               <Zap className="w-3.5 h-3.5" />
               Comprar
