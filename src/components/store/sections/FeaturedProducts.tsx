@@ -105,7 +105,7 @@ function ImageCarousel({
 
   return (
     <div
-      className="relative aspect-square bg-muted/20 overflow-hidden touch-pan-y"
+      className="relative aspect-square bg-muted/20 overflow-hidden touch-pan-y cursor-pointer"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -348,7 +348,7 @@ export function ProductCard({
       whileHover={{ y: -3, transition: { duration: 0.35, ease: "easeOut" } }}
       className="h-full"
     >
-      <div className="relative flex flex-col h-full bg-card rounded-2xl border border-border/40 overflow-hidden transition-all duration-300 md:hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)] group">
+      <div className="relative flex flex-col h-full bg-card rounded-2xl border border-border/40 overflow-hidden transition-all duration-300 md:hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)] group cursor-pointer">
         {/* ── Image ── */}
         <div className="relative">
           <ImageCarousel
