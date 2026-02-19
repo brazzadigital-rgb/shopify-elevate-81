@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { memo } from "react";
 import promoRastreio from "@/assets/promo-rastreio.png";
 import promoCartao from "@/assets/promo-cartao.png";
 import promoRedes from "@/assets/promo-redes.png";
@@ -34,7 +33,7 @@ function PromoCard({ src, alt }: { src: string; alt: string }) {
   );
 }
 
-const PromoTriplePanel = memo(function PromoTriplePanel() {
+function PromoTriplePanel() {
   return (
     <section className="container px-4 py-8 md:py-12">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -49,6 +48,6 @@ const PromoTriplePanel = memo(function PromoTriplePanel() {
       </div>
     </section>
   );
-});
+}
 
 export default PromoTriplePanel;
