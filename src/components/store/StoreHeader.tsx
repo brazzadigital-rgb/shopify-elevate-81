@@ -56,7 +56,7 @@ export function StoreHeader() {
 
   const navLinks = [
     { label: "Início", to: "/" },
-    { label: "Catálogo", to: "/colecoes" },
+    { label: "Catálogo", to: "/produtos" },
     { label: "Ofertas", to: "/ofertas" },
     { label: "Contato", to: "/contato" },
   ];

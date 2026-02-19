@@ -42,6 +42,7 @@ import SearchPage from "./pages/store/SearchPage";
 import CollectionPage from "./pages/store/CollectionPage";
 import CollectionsListPage from "./pages/store/CollectionsListPage";
 import OffersPage from "./pages/store/OffersPage";
+import AllProductsPage from "./pages/store/AllProductsPage";
 import FaqPage from "./pages/store/FaqPage";
 import ContactPage from "./pages/store/ContactPage";
 import PoliciesPage from "./pages/store/PoliciesPage";
@@ -65,6 +66,7 @@ function AppContent() {
             <Route path="/carrinho" element={<CartPage />} />
             <Route path="/busca" element={<SearchPage />} />
             <Route path="/colecoes" element={<CollectionsListPage />} />
+            <Route path="/produtos" element={<AllProductsPage />} />
             <Route path="/colecao/:slug" element={<CollectionPage />} />
             <Route path="/ofertas" element={<OffersPage />} />
             <Route path="/contato" element={<ContactPage />} />
