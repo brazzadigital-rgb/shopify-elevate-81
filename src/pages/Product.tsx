@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/useCart";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
+import { FavoriteButton } from "@/components/store/FavoriteButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -427,7 +428,15 @@ export default function ProductPage() {
                   </span>
                 )}
               </div>
-              <h1 className="text-2xl md:text-3xl font-display font-bold leading-tight">{product.name}</h1>
+              <div className="flex items-start justify-between gap-3">
+                <h1 className="text-2xl md:text-3xl font-display font-bold leading-tight">{product.name}</h1>
+                <FavoriteButton
+                  productId={product.id}
+                  variantId={selectedVariant?.id || null}
+                  size="lg"
+                  className="shrink-0 border border-border/50 bg-card hover:bg-muted shadow-sm"
+                />
+              </div>
               {soldCountEnabled && product.sold_count > 0 && (
                 <p className="text-[11px] text-muted-foreground font-sans mt-1.5">🔥 {product.sold_count} vendidos</p>
               )}

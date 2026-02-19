@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef, useCallback, TouchEvent as ReactTouchEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/useCart";
+import { useWishlist } from "@/hooks/useWishlist";
+import { FavoriteButton } from "@/components/store/FavoriteButton";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,7 +10,6 @@ import {
   ShoppingCart,
   Loader2,
   Truck,
-  Heart,
   Eye,
   Zap,
   Flame,
@@ -380,18 +381,17 @@ export function ProductCard({
                 exit={{ opacity: 0, x: 10, scale: 0.9 }}
                 transition={{ duration: 0.25, ease: "easeOut" }}
               >
-                <motion.button
-                  onClick={handleFavorite}
-                  className="w-9 h-9 rounded-xl bg-card/90 backdrop-blur border border-border/50 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors shadow-md"
-                  title="Favoritar"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                <motion.div
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.05 }}
                 >
-                  <Heart className="w-4 h-4" />
-                </motion.button>
+                  <FavoriteButton
+                    productId={product.id}
+                    size="sm"
+                    className="bg-card/90 backdrop-blur border border-border/50 hover:bg-accent hover:text-accent-foreground shadow-md"
+                  />
+                </motion.div>
                 <motion.div
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -411,12 +411,11 @@ export function ProductCard({
           </AnimatePresence>
 
           {/* Mobile favorite */}
-          <button
-            onClick={handleFavorite}
-            className="absolute top-2.5 right-2.5 z-10 md:hidden w-8 h-8 rounded-full bg-card/80 backdrop-blur flex items-center justify-center shadow"
-          >
-            <Heart className="w-3.5 h-3.5" />
-          </button>
+          <FavoriteButton
+            productId={product.id}
+            size="sm"
+            className="absolute top-2.5 right-2.5 z-10 md:hidden bg-card/80 backdrop-blur shadow"
+          />
         </div>
 
         {/* ── Content ── */}
