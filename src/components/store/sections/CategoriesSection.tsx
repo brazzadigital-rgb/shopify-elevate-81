@@ -32,24 +32,24 @@ const colorPalettes = {
   gold: {
     ring: "linear-gradient(135deg, hsl(40,60%,70%) 0%, hsl(38,80%,85%) 20%, hsl(35,50%,60%) 40%, hsl(42,70%,80%) 60%, hsl(30,55%,65%) 80%, hsl(40,60%,75%) 100%)",
     glow: "hsla(40,70%,70%,0.3)",
-    reflex: "hsla(45,60%,95%,VAR)",
-    facet: "hsla(45,80%,92%,0.8)",
+    reflex: "hsla(45,80%,97%,VAR)",
+    facet: "hsla(45,100%,95%,1)",
   },
   rose: {
     ring: "linear-gradient(135deg, hsl(350,50%,75%) 0%, hsl(340,60%,85%) 20%, hsl(355,40%,65%) 40%, hsl(345,55%,80%) 60%, hsl(350,45%,70%) 80%, hsl(340,50%,78%) 100%)",
     glow: "hsla(350,60%,75%,0.3)",
-    reflex: "hsla(340,50%,96%,VAR)",
-    facet: "hsla(345,70%,93%,0.8)",
+    reflex: "hsla(340,70%,97%,VAR)",
+    facet: "hsla(345,100%,95%,1)",
   },
   silver: {
     ring: "linear-gradient(135deg, hsl(220,10%,75%) 0%, hsl(210,15%,88%) 20%, hsl(215,8%,65%) 40%, hsl(220,12%,82%) 60%, hsl(210,10%,70%) 80%, hsl(220,10%,78%) 100%)",
     glow: "hsla(220,15%,75%,0.3)",
-    reflex: "hsla(210,20%,97%,VAR)",
-    facet: "hsla(215,25%,94%,0.8)",
+    reflex: "hsla(210,40%,98%,VAR)",
+    facet: "hsla(215,50%,96%,1)",
   },
 };
 
-const intensityMap = { low: 0.18, medium: 0.3, high: 0.45 };
+const intensityMap = { low: 0.35, medium: 0.55, high: 0.75 };
 const frequencyMap = { rare: 10000, normal: 7000 };
 
 function StudioReflexOverlay({
@@ -72,10 +72,10 @@ function StudioReflexOverlay({
   const runShine = useCallback(() => {
     setAnimating(true);
     // Spawn 2-3 micro facets during the shine
-    const numFacets = 2 + Math.floor(Math.random() * 2);
+    const numFacets = 3 + Math.floor(Math.random() * 3);
     const newFacets = Array.from({ length: numFacets }, () => ({
-      x: 20 + Math.random() * 60,
-      y: 10 + Math.random() * 40,
+      x: 15 + Math.random() * 70,
+      y: 8 + Math.random() * 50,
       id: facetIdRef.current++,
     }));
     setFacets(newFacets);
@@ -121,7 +121,7 @@ function StudioReflexOverlay({
       <div
         className={`absolute inset-0 rounded-full ${animating ? "studio-reflex-sweep" : "opacity-0"}`}
         style={{
-          background: `radial-gradient(ellipse 70% 40% at 30% 25%, ${reflexColor} 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse 80% 50% at 30% 25%, ${reflexColor} 0%, transparent 65%)`,
           mixBlendMode: "soft-light",
         }}
       />
@@ -134,11 +134,11 @@ function StudioReflexOverlay({
           style={{
             left: `${f.x}%`,
             top: `${f.y}%`,
-            width: 3,
-            height: 3,
+            width: 5,
+            height: 5,
             background: palette.facet,
             borderRadius: "50%",
-            boxShadow: `0 0 2px 1px ${palette.facet}`,
+            boxShadow: `0 0 6px 3px ${palette.facet}`,
           }}
         />
       ))}
@@ -176,7 +176,7 @@ function JewelRing({
     );
   }
 
-  const glowOpacity = tapped ? 0.6 : isActive && config.activeHighlight ? 0.5 : 0.3;
+  const glowOpacity = tapped ? 0.85 : isActive && config.activeHighlight ? 0.7 : 0.45;
 
   return (
     <motion.div
