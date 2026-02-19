@@ -1062,6 +1062,39 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_panels: {
+        Row: {
+          alt_text: string
+          created_at: string
+          id: string
+          image_url: string
+          is_active: boolean
+          link: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          alt_text?: string
+          created_at?: string
+          id?: string
+          image_url: string
+          is_active?: boolean
+          link?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          alt_text?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          link?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           comment: string | null
