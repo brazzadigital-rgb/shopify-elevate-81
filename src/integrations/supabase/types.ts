@@ -1507,6 +1507,87 @@ export type Database = {
           },
         ]
       }
+      seasonal_showcases: {
+        Row: {
+          badge_color: string | null
+          badge_position: string | null
+          badge_text: string | null
+          banner_clean_mode: boolean
+          banner_desktop_url: string | null
+          banner_link: string | null
+          banner_mobile_url: string | null
+          banner_overlay_opacity: number | null
+          banner_text_position: string | null
+          created_at: string
+          enable_campaign_badge: boolean
+          enable_countdown: boolean
+          enable_promo_strip: boolean
+          ends_at: string
+          id: string
+          name: string
+          priority: number
+          promo_strip_text: string | null
+          section_subtitle: string | null
+          section_title: string | null
+          slug: string
+          starts_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          badge_color?: string | null
+          badge_position?: string | null
+          badge_text?: string | null
+          banner_clean_mode?: boolean
+          banner_desktop_url?: string | null
+          banner_link?: string | null
+          banner_mobile_url?: string | null
+          banner_overlay_opacity?: number | null
+          banner_text_position?: string | null
+          created_at?: string
+          enable_campaign_badge?: boolean
+          enable_countdown?: boolean
+          enable_promo_strip?: boolean
+          ends_at: string
+          id?: string
+          name: string
+          priority?: number
+          promo_strip_text?: string | null
+          section_subtitle?: string | null
+          section_title?: string | null
+          slug: string
+          starts_at: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          badge_color?: string | null
+          badge_position?: string | null
+          badge_text?: string | null
+          banner_clean_mode?: boolean
+          banner_desktop_url?: string | null
+          banner_link?: string | null
+          banner_mobile_url?: string | null
+          banner_overlay_opacity?: number | null
+          banner_text_position?: string | null
+          created_at?: string
+          enable_campaign_badge?: boolean
+          enable_countdown?: boolean
+          enable_promo_strip?: boolean
+          ends_at?: string
+          id?: string
+          name?: string
+          priority?: number
+          promo_strip_text?: string | null
+          section_subtitle?: string | null
+          section_title?: string | null
+          slug?: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sellers: {
         Row: {
           avatar_url: string | null
@@ -1587,6 +1668,45 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      showcase_collections: {
+        Row: {
+          card_size: string
+          collection_id: string
+          id: string
+          showcase_id: string
+          sort_order: number
+        }
+        Insert: {
+          card_size?: string
+          collection_id: string
+          id?: string
+          showcase_id: string
+          sort_order?: number
+        }
+        Update: {
+          card_size?: string
+          collection_id?: string
+          id?: string
+          showcase_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "showcase_collections_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "showcase_collections_showcase_id_fkey"
+            columns: ["showcase_id"]
+            isOneToOne: false
+            referencedRelation: "seasonal_showcases"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       store_settings: {
         Row: {

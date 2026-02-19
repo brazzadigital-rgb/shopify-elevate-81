@@ -14,11 +14,37 @@ interface Collection {
   banner_url: string | null;
 }
 
-export function MosaicCollections() {
+interface OverrideCollection {
+  id: string;
+  collection_id: string;
+  sort_order: number;
+  card_size: string;
+  collection: {
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    image_url: string | null;
+    banner_url: string | null;
+  };
+}
+
+interface Props {
+  overrideTitle?: string | null;
+  overrideSubtitle?: string | null;
+  overrideCollections?: OverrideCollection[];
+}
+
+export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCollections }: Props) {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (overrideCollections && overrideCollections.length > 0) {
+      setCollections(overrideCollections.map((oc) => oc.collection));
+      setLoading(false);
+      return;
+    }
     const fetch = async () => {
       const { data } = await supabase
         .from("collections")
@@ -30,7 +56,7 @@ export function MosaicCollections() {
       setLoading(false);
     };
     fetch();
-  }, []);
+  }, [overrideCollections]);
 
   if (loading) {
     return (
@@ -71,8 +97,11 @@ export function MosaicCollections() {
             Explore
           </span>
           <h2 className="text-2xl md:text-4xl font-display font-bold text-foreground">
-            Coleções em Destaque
+            {overrideTitle || "Coleções em Destaque"}
           </h2>
+          {overrideSubtitle && (
+            <p className="text-sm text-muted-foreground font-sans mt-2 max-w-lg mx-auto">{overrideSubtitle}</p>
+          )}
         </motion.div>
 
         {/* Desktop: CSS Grid Mosaic */}

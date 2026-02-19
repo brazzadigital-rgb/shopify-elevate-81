@@ -10,9 +10,11 @@ import { NewsletterSection } from "@/components/store/sections/NewsletterSection
 import { MascotPromoPanel } from "@/components/store/sections/MascotPromoPanel";
 import PromoTriplePanel from "@/components/store/sections/PromoTriplePanel";
 import { MosaicCollections } from "@/components/store/sections/MosaicCollections";
+import { ShowcaseCountdown } from "@/components/store/sections/ShowcaseCountdown";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSellerReferral } from "@/hooks/useSellerReferral";
 import { useHomeTemplate, type HomeTemplate } from "@/hooks/useHomeTemplate";
+import { useActiveShowcase } from "@/hooks/useActiveShowcase";
 
 interface HomeSection {
   id: string;
@@ -25,6 +27,7 @@ interface HomeSection {
 const Index = () => {
   useSellerReferral();
   const { homeTemplate } = useHomeTemplate();
+  const { showcase } = useActiveShowcase();
   const [searchParams] = useSearchParams();
   
   // Allow preview override via query param (admin preview, no save)
@@ -69,10 +72,47 @@ const Index = () => {
     const heroSection = sections.find((s) => s.section_type === "hero");
     const otherSections = sections.filter((s) => s.section_type !== "hero" && s.section_type !== "featured_collections");
 
+    // If there's an active showcase with a banner, override hero config
+    const heroConfig = showcase?.banner_desktop_url
+      ? {
+          ...(heroSection?.config || {}),
+          desktop_image_url: showcase.banner_desktop_url,
+          mobile_image_url: showcase.banner_mobile_url || showcase.banner_desktop_url,
+          link: showcase.banner_link || undefined,
+          show_text: !showcase.banner_clean_mode,
+          overlay_opacity: showcase.banner_overlay_opacity ?? 0,
+          content_position: showcase.banner_text_position || "center",
+        }
+      : heroSection?.config;
+
+    // If showcase has collections, pass them to MosaicCollections
+    const showcaseCollections = showcase?.collections;
+
     return (
       <main className="min-h-screen">
-        {heroSection && <HeroSection config={heroSection.config} />}
-        <MosaicCollections />
+        {heroConfig && <HeroSection config={heroConfig} />}
+
+        {/* Promo strip */}
+        {showcase?.enable_promo_strip && showcase.promo_strip_text && (
+          <div className="w-full py-2.5 bg-accent text-accent-foreground text-center font-sans text-sm font-medium">
+            {showcase.promo_strip_text}
+          </div>
+        )}
+
+        {/* Countdown */}
+        {showcase?.enable_countdown && (
+          <ShowcaseCountdown
+            endsAt={showcase.ends_at}
+            title={showcase.section_title || showcase.name}
+          />
+        )}
+
+        <MosaicCollections
+          overrideTitle={showcase?.section_title}
+          overrideSubtitle={showcase?.section_subtitle}
+          overrideCollections={showcaseCollections}
+        />
+
         {otherSections.map((section) => {
           switch (section.section_type) {
             case "featured_products":

@@ -54,6 +54,7 @@ import AdminLogistics from "./pages/admin/AdminLogistics";
 import AdminPaymentSettings from "./pages/admin/AdminPaymentSettings";
 import AdminPromoPanels from "./pages/admin/AdminPromoPanels";
 import AdminHomeTemplates from "./pages/admin/AdminHomeTemplates";
+import AdminShowcases from "./pages/admin/AdminShowcases";
 import AdminHeaderStyles from "./pages/admin/AdminHeaderStyles";
 import FinancialDashboard from "./pages/admin/financial/FinancialDashboard";
 import FinancialSales from "./pages/admin/financial/FinancialSales";
@@ -125,6 +126,7 @@ function AppContent() {
             <Route path="logistica" element={<AdminLogistics />} />
             <Route path="paineis-promo" element={<AdminPromoPanels />} />
             <Route path="home-templates" element={<AdminHomeTemplates />} />
+            <Route path="vitrines" element={<AdminShowcases />} />
             <Route path="header-styles" element={<AdminHeaderStyles />} />
             <Route path="financeiro" element={<FinancialDashboard />} />
             <Route path="financeiro/vendas" element={<FinancialSales />} />

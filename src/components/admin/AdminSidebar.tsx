@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, LogOut, ShoppingBag,
-  Truck, UserCheck, Shield, Percent, TrendingUp, Columns3, Layout,
+  Truck, UserCheck, Shield, Percent, TrendingUp, Columns3, Layout, CalendarRange,
   DollarSign, BarChart3, ArrowDownCircle, CreditCard, Wallet, FileSpreadsheet, Wrench
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
@@ -44,6 +44,10 @@ const financialMenu = [
   { title: "Fluxo de Caixa", url: "/admin/financeiro/fluxo-caixa", icon: Wallet },
   { title: "Relatórios", url: "/admin/financeiro/relatorios", icon: FileSpreadsheet },
   { title: "Configurações", url: "/admin/financeiro/configuracoes", icon: Wrench },
+];
+
+const marketingMenu = [
+  { title: "Vitrines & Temporadas", url: "/admin/vitrines", icon: CalendarRange },
 ];
 
 const usersMenu = [
@@ -119,6 +123,7 @@ export function AdminSidebar() {
 
       <SidebarContent className="px-3 py-4 space-y-4">
         <MenuGroup label="Menu" items={mainMenu} />
+        <MenuGroup label="Marketing" items={marketingMenu} />
         <MenuGroup label="Financeiro" items={financialMenu} />
         <MenuGroup label="Aparência" items={appearanceMenu} />
         <MenuGroup label="Usuários e Operações" items={usersMenu} />
