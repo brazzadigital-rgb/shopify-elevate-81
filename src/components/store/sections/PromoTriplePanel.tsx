@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { memo } from "react";
 import promoRastreio from "@/assets/promo-rastreio.png";
 import promoCartao from "@/assets/promo-cartao.png";
 import promoRedes from "@/assets/promo-redes.png";
@@ -7,31 +8,47 @@ const panels = [
   { src: promoRastreio, alt: "Rastreie seu pedido", link: "/rastreamento" },
   { src: promoCartao, alt: "Pague pelo cartão com segurança", link: null },
   { src: promoRedes, alt: "Siga nossas redes sociais", link: null },
-];
+] as const;
 
-export default function PromoTriplePanel() {
+function PromoCard({ src, alt }: { src: string; alt: string }) {
+  return (
+    <div className="relative group rounded-2xl p-[2px] overflow-hidden hover:-translate-y-1 transition-transform duration-300">
+      {/* Animated gradient border */}
+      <div
+        className="absolute inset-0 rounded-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+        style={{
+          background: "conic-gradient(from var(--border-angle, 0deg), hsl(var(--accent)), hsl(var(--primary)), hsl(var(--accent)), hsl(var(--muted)), hsl(var(--accent)))",
+          animation: "spin-border 4s linear infinite",
+        }}
+      />
+      <div className="relative rounded-[14px] overflow-hidden bg-card">
+        <img
+          src={src}
+          alt={alt}
+          className="w-full h-auto block"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+    </div>
+  );
+}
+
+const PromoTriplePanel = memo(function PromoTriplePanel() {
   return (
     <section className="container px-4 py-8 md:py-12">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {panels.map((p, i) => {
-          const content = (
-            <div className="rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-              <img
-                src={p.src}
-                alt={p.alt}
-                className="w-full h-auto block"
-                loading="lazy"
-              />
-            </div>
-          );
-
+          const card = <PromoCard src={p.src} alt={p.alt} />;
           return p.link ? (
-            <Link key={i} to={p.link}>{content}</Link>
+            <Link key={i} to={p.link}>{card}</Link>
           ) : (
-            <div key={i}>{content}</div>
+            <div key={i}>{card}</div>
           );
         })}
       </div>
     </section>
   );
-}
+});
+
+export default PromoTriplePanel;
