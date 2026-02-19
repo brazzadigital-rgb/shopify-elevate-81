@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RectSwitch } from "@/components/ui/rect-switch";
+import { PremiumToggle3D } from "@/components/ui/premium-toggle-3d";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -150,7 +150,7 @@ export default function AdminCoupons() {
                 <Input type="date" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })} className="h-11 rounded-xl" />
               </div>
               <div className="flex items-center gap-2">
-                <RectSwitch size="sm" checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
+                <PremiumToggle3D size="sm" checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
                 <Label className="font-sans text-sm">Ativo</Label>
               </div>
               <Button onClick={handleSave} disabled={saving} className="h-11 rounded-xl shine font-sans">

@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RectSwitch } from "@/components/ui/rect-switch";
+import { PremiumToggle3D } from "@/components/ui/premium-toggle-3d";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -162,7 +162,7 @@ export default function AdminPromoPanels() {
                   />
                 </div>
                 <div className="flex items-end gap-2 pb-1">
-                  <RectSwitch size="sm" checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
+                  <PremiumToggle3D size="sm" checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
                   <Label className="font-sans text-sm">Ativo</Label>
                 </div>
               </div>

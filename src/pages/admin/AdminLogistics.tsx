@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RectSwitch } from "@/components/ui/rect-switch";
+import { PremiumToggle3D } from "@/components/ui/premium-toggle-3d";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -106,7 +106,7 @@ export default function AdminLogistics() {
   const Toggle = ({ k, label }: { k: string; label: string }) => (
     <div className="flex items-center justify-between gap-4">
       <Label className="font-sans text-sm flex-1">{label}</Label>
-      <RectSwitch
+      <PremiumToggle3D
         size="sm"
         checked={settings[k] === "true"}
         onCheckedChange={(v) => update(k, v ? "true" : "false")}

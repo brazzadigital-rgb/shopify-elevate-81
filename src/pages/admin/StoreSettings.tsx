@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RectSwitch } from "@/components/ui/rect-switch";
+import { PremiumToggle3D } from "@/components/ui/premium-toggle-3d";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -144,7 +144,7 @@ export default function StoreSettings() {
                 <div key={s.key} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
                   <Label className="font-sans text-sm">{s.label}</Label>
                   {s.type === "toggle" ? (
-                    <RectSwitch
+                    <PremiumToggle3D
                       size="sm"
                       checked={settings[s.key] === "true"}
                       onCheckedChange={(v) => updateSetting(s.key, v ? "true" : "false")}
