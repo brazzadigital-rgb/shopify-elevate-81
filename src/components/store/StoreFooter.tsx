@@ -184,7 +184,7 @@ export function StoreFooter() {
             backgroundImage: `url(${footerBg})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
-            opacity: 0.06,
+            opacity: 0.15,
           }}
         />
         <div className="container px-4 md:px-6 pt-10 pb-8 md:pt-14 md:pb-10">
