@@ -40,7 +40,7 @@ export function CategoriesSection() {
           Categorias
         </motion.h3>
 
-        <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+        <div className="flex overflow-x-auto no-scrollbar gap-6 md:gap-8 px-4 md:justify-center" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {collections.map((cat, i) => (
             <motion.div
               key={cat.id}
@@ -52,7 +52,7 @@ export function CategoriesSection() {
             >
               <Link
                 to={`/colecao/${cat.slug}`}
-                className="flex flex-col items-center gap-4 group shrink-0"
+                className="flex flex-col items-center gap-4 group shrink-0 min-w-fit"
               >
                 {/* Image ring container */}
                 <div className="relative">
