@@ -31,9 +31,9 @@ export function HeroSection({ config }: HeroSectionProps) {
   // If dynamic banners exist, show them instead
   if (hasDynamicBanners === true) {
     return (
-      <section className="bg-background py-4 md:py-6 lg:py-10">
-        <div className="container px-4 md:px-6">
-          <div className="rounded-2xl overflow-hidden">
+      <section className="bg-background md:py-6 lg:py-10">
+        <div className="md:container md:px-6">
+          <div className="md:rounded-2xl overflow-hidden">
             <DynamicHeroBanner />
           </div>
         </div>
@@ -52,11 +52,11 @@ export function HeroSection({ config }: HeroSectionProps) {
   const bannerImage = config.image_url || heroBanner;
 
   return (
-    <section className="bg-background py-4 md:py-6 lg:py-10">
-      <div className="container px-4 md:px-6">
-        {/* Mobile: 750x1100 aspect ratio */}
+    <section className="bg-background md:py-6 lg:py-10">
+      <div className="md:container md:px-6">
+        {/* Mobile: 750x1100 aspect ratio, full bleed */}
         <div
-          className="relative w-full rounded-2xl overflow-hidden md:hidden flex items-end"
+          className="relative w-full overflow-hidden md:hidden flex items-end"
           style={{
             aspectRatio: "750 / 1100",
             backgroundImage: `url(${bannerImage})`,
