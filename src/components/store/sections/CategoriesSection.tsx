@@ -40,7 +40,7 @@ export function CategoriesSection() {
           Categorias
         </motion.h3>
 
-        <div className="flex overflow-x-auto no-scrollbar gap-6 md:gap-8 px-4 md:justify-center" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div className="flex justify-center gap-4 md:gap-6 flex-wrap px-2">
           {collections.map((cat, i) => (
             <motion.div
               key={cat.id}
@@ -48,39 +48,28 @@ export function CategoriesSection() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05, type: "spring", stiffness: 260, damping: 20 }}
-              className="snap-center"
             >
               <Link
                 to={`/colecao/${cat.slug}`}
-                className="flex flex-col items-center gap-4 group shrink-0 min-w-fit"
+                className="flex flex-col items-center gap-3 group"
               >
-                {/* Image ring container */}
-                <div className="relative">
-                  {/* Glow effect on hover */}
-                  <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-accent/0 via-accent/0 to-accent/0 group-hover:from-accent/20 group-hover:via-accent/10 group-hover:to-transparent transition-all duration-500 blur-md" />
-                  
-                  {/* Ring border */}
-                  <div className="relative w-[110px] h-[110px] md:w-[130px] md:h-[130px] rounded-full p-[3px] bg-gradient-to-br from-border to-border group-hover:from-accent group-hover:to-accent/60 transition-all duration-400">
-                    {/* Inner image */}
-                    <div className="w-full h-full rounded-full overflow-hidden bg-card">
-                      {cat.image_url ? (
-                        <img
-                          src={cat.image_url}
-                          alt={cat.name}
-                          className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-110"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center">
-                          <span className="text-3xl">📦</span>
-                        </div>
-                      )}
-                    </div>
+                <div className="relative w-[80px] h-[80px] md:w-[100px] md:h-[100px] rounded-full p-[2px] bg-gradient-to-br from-border to-border group-hover:from-accent group-hover:to-accent/60 transition-all duration-400">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-card">
+                    {cat.image_url ? (
+                      <img
+                        src={cat.image_url}
+                        alt={cat.name}
+                        className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-110"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <span className="text-2xl">📦</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                {/* Label */}
-                <span className="font-sans text-[11px] md:text-xs font-bold uppercase tracking-[0.1em] text-foreground/70 group-hover:text-accent transition-colors duration-300 text-center leading-tight max-w-[120px]">
+                <span className="font-sans text-[10px] md:text-xs font-bold uppercase tracking-[0.1em] text-foreground/70 group-hover:text-accent transition-colors duration-300 text-center leading-tight max-w-[100px]">
                   {cat.name}
                 </span>
               </Link>
