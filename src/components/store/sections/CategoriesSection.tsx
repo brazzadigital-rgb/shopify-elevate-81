@@ -29,8 +29,8 @@ export function CategoriesSection() {
   if (collections.length === 0) return null;
 
   return (
-    <section className="py-12 md:py-16 bg-background">
-      <div className="container">
+    <section className="py-8 md:py-16 bg-background">
+      <div className="md:container">
         <motion.h3
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -40,7 +40,7 @@ export function CategoriesSection() {
           Categorias
         </motion.h3>
 
-        <div className="flex gap-4 px-4 overflow-x-auto no-scrollbar snap-x snap-mandatory sm:justify-center sm:flex-wrap sm:px-2 md:gap-8" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div className="flex gap-3 px-3 overflow-x-auto no-scrollbar snap-x snap-mandatory justify-start sm:justify-center sm:flex-wrap sm:px-2 sm:gap-4 md:gap-8" style={{ WebkitOverflowScrolling: 'touch' }}>
           {collections.map((cat, i) => (
             <motion.div
               key={cat.id}
@@ -54,7 +54,7 @@ export function CategoriesSection() {
                 to={`/colecao/${cat.slug}`}
                 className="flex flex-col items-center gap-2 sm:gap-3 group"
               >
-                <div className="relative w-[60px] h-[60px] sm:w-[90px] sm:h-[90px] md:w-[130px] md:h-[130px] lg:w-[150px] lg:h-[150px] rounded-full p-[2px] bg-gradient-to-br from-border to-border group-hover:from-accent group-hover:to-accent/60 transition-all duration-400 flex-shrink-0">
+                <div className="relative w-[75px] h-[75px] sm:w-[90px] sm:h-[90px] md:w-[130px] md:h-[130px] lg:w-[150px] lg:h-[150px] rounded-full p-[2px] bg-gradient-to-br from-border to-border group-hover:from-accent group-hover:to-accent/60 transition-all duration-400 flex-shrink-0">
                   <div className="w-full h-full rounded-full overflow-hidden bg-card">
                     {cat.image_url ? (
                       <img
