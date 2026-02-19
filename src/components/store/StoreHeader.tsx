@@ -46,15 +46,7 @@ function LogoStudioReflex({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative overflow-hidden">
       {children}
-      {/* Reflex sweep */}
-      <div
-        className={`absolute inset-0 pointer-events-none ${animating ? "studio-reflex-sweep" : "opacity-0"}`}
-        style={{
-          background: "radial-gradient(ellipse 80% 50% at 30% 25%, hsla(45,80%,97%,0.5) 0%, transparent 65%)",
-          mixBlendMode: "soft-light",
-        }}
-      />
-      {/* Micro facet sparkles */}
+      {/* Micro facet sparkles only */}
       {facets.map((f) => (
         <span
           key={f.id}
