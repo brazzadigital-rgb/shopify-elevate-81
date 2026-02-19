@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import paymentFlags from "@/assets/pagamento-pix.webp";
+import paymentFlags from "@/assets/pagamento-footer.webp";
 import footerBg from "@/assets/footer-jewelry-bg.jpg";
 import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
