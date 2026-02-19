@@ -41,18 +41,24 @@ export default function CollectionPage() {
       if (!colData) { setLoading(false); return; }
       setCollection(colData as Collection);
 
-      const { data: cpData } = await supabase
-        .from("collection_products")
-        .select("product_id")
-        .eq("collection_id", colData.id);
+      // Check both tables: collection_products AND product_categories
+      const [cpRes, pcRes] = await Promise.all([
+        supabase.from("collection_products").select("product_id").eq("collection_id", colData.id),
+        supabase.from("product_categories").select("product_id").eq("collection_id", colData.id),
+      ]);
+      const cpData = [
+        ...(cpRes.data || []),
+        ...(pcRes.data || []),
+      ];
+      // Deduplicate
+      const uniqueIds = [...new Set(cpData.map((cp: any) => cp.product_id))];
 
-      if (cpData && cpData.length > 0) {
-        const ids = cpData.map((cp: any) => cp.product_id);
+      if (uniqueIds.length > 0) {
         const { data: prodData } = await supabase
           .from("products")
           .select("id, name, slug, price, compare_at_price, is_new, product_images(url, is_primary)")
           .eq("is_active", true)
-          .in("id", ids);
+          .in("id", uniqueIds);
         setProducts((prodData as any) || []);
       }
       setLoading(false);
