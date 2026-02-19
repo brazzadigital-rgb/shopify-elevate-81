@@ -421,7 +421,7 @@ export default function ProductPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="flex-1 h-10 rounded-xl font-sans font-bold text-sm uppercase tracking-wider border-2 border-border hover:border-accent hover:text-accent transition-all duration-300"
+                className="flex-1 h-10 rounded-xl font-sans font-bold text-sm uppercase tracking-wider border-2 border-border hover:border-accent hover:bg-accent hover:text-accent-foreground transition-all duration-300"
                 onClick={handleAddToCart}
                 disabled={cartLoading || !inStock}
               >
@@ -432,7 +432,7 @@ export default function ProductPage() {
             {whatsappEnabled && whatsappNumber && (
               <Button
                 variant="outline"
-                className="w-full h-11 rounded-xl font-sans font-bold text-sm border-2 border-success text-success hover:bg-success/10 transition-all"
+                className="w-full h-11 rounded-xl font-sans font-bold text-sm border-2 border-success text-success hover:bg-success hover:text-success-foreground transition-all"
                 onClick={handleWhatsApp}
               >
                 📱 Comprar via WhatsApp
