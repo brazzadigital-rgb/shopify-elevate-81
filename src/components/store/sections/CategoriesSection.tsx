@@ -40,7 +40,7 @@ export function CategoriesSection() {
           Categorias
         </motion.h3>
 
-        <div className="flex gap-6 md:gap-8 overflow-x-auto pb-4 scrollbar-hide px-1 snap-x snap-mandatory md:justify-center">
+        <div className="flex flex-wrap justify-center gap-6 md:gap-8">
           {collections.map((cat, i) => (
             <motion.div
               key={cat.id}
