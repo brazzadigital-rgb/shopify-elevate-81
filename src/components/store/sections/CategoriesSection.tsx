@@ -40,7 +40,7 @@ export function CategoriesSection() {
           Categorias
         </motion.h3>
 
-        <div className="grid grid-cols-4 gap-3 px-2 sm:flex sm:justify-center sm:gap-4 md:gap-8 sm:flex-wrap">
+        <div className="flex gap-4 px-4 overflow-x-auto scrollbar-hide sm:justify-center sm:flex-wrap sm:px-2 md:gap-8">
           {collections.map((cat, i) => (
             <motion.div
               key={cat.id}
@@ -53,7 +53,7 @@ export function CategoriesSection() {
                 to={`/colecao/${cat.slug}`}
                 className="flex flex-col items-center gap-2 sm:gap-3 group"
               >
-                <div className="relative w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] md:w-[130px] md:h-[130px] lg:w-[150px] lg:h-[150px] rounded-full p-[2px] bg-gradient-to-br from-border to-border group-hover:from-accent group-hover:to-accent/60 transition-all duration-400">
+                <div className="relative w-[60px] h-[60px] sm:w-[90px] sm:h-[90px] md:w-[130px] md:h-[130px] lg:w-[150px] lg:h-[150px] rounded-full p-[2px] bg-gradient-to-br from-border to-border group-hover:from-accent group-hover:to-accent/60 transition-all duration-400 flex-shrink-0">
                   <div className="w-full h-full rounded-full overflow-hidden bg-card">
                     {cat.image_url ? (
                       <img
