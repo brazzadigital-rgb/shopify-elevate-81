@@ -86,7 +86,7 @@ export default function Auth() {
   };
 
   const titles: Record<AuthMode, { badge: string; heading: string; sub: string }> = {
-    login: { badge: "Bem-vinda de volta", heading: "Acesse sua Conta", sub: "Entre na sua área exclusiva" },
+    login: { badge: "Bem-vinda(o) de volta", heading: "Acesse sua Conta", sub: "Entre na sua área exclusiva" },
     register: { badge: "Junte-se a nós", heading: "Crie sua Conta", sub: "Cadastre-se e descubra peças exclusivas" },
     recover: { badge: "Recuperar acesso", heading: "Redefinir Senha", sub: "Informe seu email para receber o link de recuperação" },
   };
