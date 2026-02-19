@@ -73,8 +73,20 @@ export function ShowcaseCountdown({ endsAt, title }: Props) {
               ) : (
                 <Clock className="w-4 h-4 text-accent" />
               )}
-              <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-accent">
-                {title}
+              <p
+                className="text-2xl md:text-4xl leading-tight capitalize"
+                style={{ fontFamily: "'Pinyon Script', cursive" }}
+              >
+                {(() => {
+                  const words = (title || "").toLowerCase().split(" ");
+                  const lastWord = words.pop();
+                  return (
+                    <>
+                      <span className="text-foreground">{words.join(" ")} </span>
+                      <span className="text-primary">{lastWord}</span>
+                    </>
+                  );
+                })()}
               </p>
               {isUrgent && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-destructive/10 text-destructive text-[10px] font-bold uppercase tracking-wider animate-pulse">
