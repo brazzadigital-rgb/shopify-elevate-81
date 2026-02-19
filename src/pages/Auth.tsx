@@ -45,19 +45,19 @@ export default function Auth() {
 
   const validateStep1 = () => {
     if (!fullName.trim()) {
-      toast({ title: "Campo obrigatório", description: "Informe seu nome completo.", variant: "destructive" });
+      toast({ title: "Nome obrigatório", description: "Por favor, informe seu nome completo para continuar.", variant: "warning" as any });
       return false;
     }
     if (!cpf.trim()) {
-      toast({ title: "Campo obrigatório", description: "Informe seu CPF.", variant: "destructive" });
+      toast({ title: "CPF obrigatório", description: "Precisamos do seu CPF para emissão de nota fiscal.", variant: "warning" as any });
       return false;
     }
     if (!email.trim()) {
-      toast({ title: "Campo obrigatório", description: "Informe seu email.", variant: "destructive" });
+      toast({ title: "Email obrigatório", description: "Seu email será usado para login e comunicações.", variant: "warning" as any });
       return false;
     }
     if (!password || password.length < 6) {
-      toast({ title: "Senha inválida", description: "A senha deve ter pelo menos 6 caracteres.", variant: "destructive" });
+      toast({ title: "Senha muito curta", description: "Crie uma senha com pelo menos 6 caracteres para sua segurança.", variant: "warning" as any });
       return false;
     }
     return true;
@@ -76,7 +76,10 @@ export default function Auth() {
     if (mode === "login") {
       const { error } = await signIn(email, password);
       if (error) {
-        toast({ title: "Erro ao entrar", description: error.message, variant: "destructive" });
+        const msg = error.message.includes("Invalid login") 
+          ? "Email ou senha incorretos. Verifique e tente novamente."
+          : error.message;
+        toast({ title: "Não foi possível entrar", description: msg, variant: "destructive" });
       } else {
         navigate("/");
       }
@@ -89,7 +92,10 @@ export default function Auth() {
 
       const { error } = await signUp(email, password, fullName);
       if (error) {
-        toast({ title: "Erro ao cadastrar", description: error.message, variant: "destructive" });
+        const msg = error.message.includes("already registered")
+          ? "Este email já está cadastrado. Tente fazer login."
+          : error.message;
+        toast({ title: "Erro no cadastro", description: msg, variant: "destructive" });
       } else {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
           if (event === "SIGNED_IN" && session?.user) {
@@ -108,10 +114,10 @@ export default function Auth() {
             subscription.unsubscribe();
           }
         });
-        toast({ title: "Conta criada!", description: "Verifique seu email para confirmar o cadastro." });
+        toast({ title: "🎉 Conta criada com sucesso!", description: "Enviamos um link de confirmação para seu email. Verifique sua caixa de entrada.", variant: "success" as any });
       }
     } else if (mode === "recover") {
-      toast({ title: "Email enviado", description: "Verifique sua caixa de entrada para redefinir sua senha." });
+      toast({ title: "📧 Link enviado!", description: "Verifique sua caixa de entrada e spam para o link de recuperação de senha.", variant: "success" as any });
     }
     setLoading(false);
   };
