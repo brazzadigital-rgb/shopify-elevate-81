@@ -647,7 +647,9 @@ export type Database = {
           melhor_envio_order_id: string | null
           notes: string | null
           order_number: string
+          paid_at: string | null
           payment_method: string | null
+          payment_provider: string | null
           payment_status: string
           referral_code: string | null
           seller_id: string | null
@@ -664,6 +666,7 @@ export type Database = {
           total: number
           tracking_code: string | null
           tracking_url: string | null
+          transaction_id: string | null
           updated_at: string
           user_id: string | null
         }
@@ -679,7 +682,9 @@ export type Database = {
           melhor_envio_order_id?: string | null
           notes?: string | null
           order_number: string
+          paid_at?: string | null
           payment_method?: string | null
+          payment_provider?: string | null
           payment_status?: string
           referral_code?: string | null
           seller_id?: string | null
@@ -696,6 +701,7 @@ export type Database = {
           total?: number
           tracking_code?: string | null
           tracking_url?: string | null
+          transaction_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -711,7 +717,9 @@ export type Database = {
           melhor_envio_order_id?: string | null
           notes?: string | null
           order_number?: string
+          paid_at?: string | null
           payment_method?: string | null
+          payment_provider?: string | null
           payment_status?: string
           referral_code?: string | null
           seller_id?: string | null
@@ -728,6 +736,7 @@ export type Database = {
           total?: number
           tracking_code?: string | null
           tracking_url?: string | null
+          transaction_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -737,6 +746,153 @@ export type Database = {
             columns: ["seller_id"]
             isOneToOne: false
             referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "payment_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_gateway_configs: {
+        Row: {
+          config: Json
+          created_at: string
+          environment: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          provider: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          environment?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          provider: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          environment?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          provider?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payment_gateway_secrets: {
+        Row: {
+          created_at: string
+          id: string
+          provider: string
+          secret_key: string
+          secret_value: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          provider: string
+          secret_key: string
+          secret_value?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          provider?: string
+          secret_key?: string
+          secret_value?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payment_transactions: {
+        Row: {
+          amount: number
+          boleto_url: string | null
+          card_last4: string | null
+          checkout_url: string | null
+          created_at: string
+          currency: string
+          expires_at: string | null
+          fees: number | null
+          id: string
+          method: string
+          order_id: string | null
+          paid_at: string | null
+          provider: string
+          provider_payment_id: string | null
+          provider_reference: string | null
+          qr_code: string | null
+          qr_code_image_url: string | null
+          raw_payload: Json | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          boleto_url?: string | null
+          card_last4?: string | null
+          checkout_url?: string | null
+          created_at?: string
+          currency?: string
+          expires_at?: string | null
+          fees?: number | null
+          id?: string
+          method?: string
+          order_id?: string | null
+          paid_at?: string | null
+          provider: string
+          provider_payment_id?: string | null
+          provider_reference?: string | null
+          qr_code?: string | null
+          qr_code_image_url?: string | null
+          raw_payload?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          boleto_url?: string | null
+          card_last4?: string | null
+          checkout_url?: string | null
+          created_at?: string
+          currency?: string
+          expires_at?: string | null
+          fees?: number | null
+          id?: string
+          method?: string
+          order_id?: string | null
+          paid_at?: string | null
+          provider?: string
+          provider_payment_id?: string | null
+          provider_reference?: string | null
+          qr_code?: string | null
+          qr_code_image_url?: string | null
+          raw_payload?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -1583,6 +1739,39 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      webhook_events: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          provider: string
+          success: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          provider: string
+          success?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          provider?: string
+          success?: boolean | null
         }
         Relationships: []
       }

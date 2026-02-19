@@ -51,6 +51,7 @@ import TrackOrderPage from "./pages/store/TrackOrderPage";
 import SellerLayout from "./layouts/SellerLayout";
 import SellerDashboard from "./pages/seller/SellerDashboard";
 import AdminLogistics from "./pages/admin/AdminLogistics";
+import AdminPaymentSettings from "./pages/admin/AdminPaymentSettings";
 import AdminPromoPanels from "./pages/admin/AdminPromoPanels";
 import FinancialDashboard from "./pages/admin/financial/FinancialDashboard";
 import FinancialSales from "./pages/admin/financial/FinancialSales";
@@ -112,6 +113,7 @@ function AppContent() {
             <Route path="aparencia" element={<AdminVisualIdentity />} />
             <Route path="header" element={<AdminHeaderSettings />} />
             <Route path="configuracoes" element={<StoreSettings />} />
+            <Route path="pagamentos" element={<AdminPaymentSettings />} />
             <Route path="vendedores" element={<AdminSellers />} />
             <Route path="fornecedores" element={<AdminSuppliers />} />
             <Route path="funcoes" element={<AdminRoles />} />
