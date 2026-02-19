@@ -223,14 +223,14 @@ function PaymentMethods({ enabled }: { enabled: boolean }) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="rounded-2xl bg-card border border-border/40 p-4 space-y-3"
+      className="rounded-2xl bg-muted/40 p-4 space-y-3"
     >
       <div className="flex items-center gap-2">
         <CreditCard className="w-4 h-4 text-muted-foreground" />
         <p className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-wider">Formas de pagamento</p>
       </div>
-      <div className="flex flex-wrap gap-1.5 bg-foreground/80 rounded-xl px-4 py-2.5 w-fit">
-        <img src={paymentFlagsImg} alt="Bandeiras de pagamento: Visa, Master, Elo, Pix, Boleto" className="h-6 object-contain brightness-[2] invert" />
+      <div className="flex flex-wrap gap-1.5">
+        <img src={paymentFlagsImg} alt="Bandeiras de pagamento: Visa, Master, Elo, Pix, Boleto" className="h-7 object-contain" />
       </div>
     </motion.div>
   );
