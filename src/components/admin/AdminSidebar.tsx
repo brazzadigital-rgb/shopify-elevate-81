@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, LogOut, ShoppingBag,
-  Truck, UserCheck, Shield, Percent, TrendingUp
+  Truck, UserCheck, Shield, Percent, TrendingUp, Upload
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,6 +14,7 @@ import {
 const mainMenu = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Produtos", url: "/admin/produtos", icon: Package },
+  { title: "Importar Produtos", url: "/admin/importar", icon: Upload },
   { title: "Coleções", url: "/admin/colecoes", icon: FolderOpen },
   { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
   { title: "Clientes", url: "/admin/clientes", icon: Users },
