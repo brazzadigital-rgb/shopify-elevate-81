@@ -16,6 +16,7 @@ import {
   ArrowLeft, User, MapPin, Package, CreditCard, Truck, Clock,
   Copy, Check, Printer, Save, ShoppingCart
 } from "lucide-react";
+import { formatBRL } from "@/lib/exportCsv";
 
 const ORDER_STATUSES = [
   { value: "pending", label: "Pendente" },
@@ -245,19 +246,19 @@ export default function AdminOrderDetail() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-sans text-sm">
             <div className="bg-muted/50 rounded-xl p-3">
               <p className="text-xs text-muted-foreground">Subtotal</p>
-              <p className="font-semibold">R$ {Number(order.subtotal).toFixed(2)}</p>
+              <p className="font-semibold">{formatBRL(Number(order.subtotal))}</p>
             </div>
             <div className="bg-muted/50 rounded-xl p-3">
               <p className="text-xs text-muted-foreground">Frete</p>
-              <p className="font-semibold">R$ {Number(order.shipping_cost || order.shipping_price || 0).toFixed(2)}</p>
+              <p className="font-semibold">{formatBRL(Number(order.shipping_cost || order.shipping_price || 0))}</p>
             </div>
             <div className="bg-muted/50 rounded-xl p-3">
               <p className="text-xs text-muted-foreground">Desconto</p>
-              <p className="font-semibold text-destructive">-R$ {Number(order.discount || 0).toFixed(2)}</p>
+              <p className="font-semibold text-destructive">-{formatBRL(Number(order.discount || 0))}</p>
             </div>
             <div className="bg-accent/10 rounded-xl p-3">
               <p className="text-xs text-muted-foreground">Total</p>
-              <p className="font-bold text-lg">R$ {Number(order.total).toFixed(2)}</p>
+              <p className="font-bold text-lg">{formatBRL(Number(order.total))}</p>
             </div>
           </div>
         </div>
@@ -309,9 +310,9 @@ export default function AdminOrderDetail() {
               <div className="min-w-0">
                 <p className="font-medium truncate">{item.product_name}</p>
                 {item.variant_name && <p className="text-xs text-muted-foreground">{item.variant_name}</p>}
-                <p className="text-xs text-muted-foreground">Qtd: {item.quantity} × R$ {Number(item.unit_price).toFixed(2)}</p>
+                <p className="text-xs text-muted-foreground">Qtd: {item.quantity} × {formatBRL(Number(item.unit_price))}</p>
               </div>
-              <span className="font-semibold shrink-0 ml-3">R$ {Number(item.total_price).toFixed(2)}</span>
+              <span className="font-semibold shrink-0 ml-3">{formatBRL(Number(item.total_price))}</span>
             </div>
           ))}
         </div>

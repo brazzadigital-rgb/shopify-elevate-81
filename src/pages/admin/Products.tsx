@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { formatBRL } from "@/lib/exportCsv";
 
 interface Supplier { id: string; trade_name: string; }
 
@@ -265,9 +266,9 @@ export default function Products() {
                       )}
                     </TableCell>
                     <TableCell className="font-sans">
-                      <p className="font-semibold">R$ {Number(product.price).toFixed(2)}</p>
+                      <p className="font-semibold">{formatBRL(Number(product.price))}</p>
                       {product.compare_at_price && (
-                        <p className="text-xs text-muted-foreground line-through">R$ {Number(product.compare_at_price).toFixed(2)}</p>
+                        <p className="text-xs text-muted-foreground line-through">{formatBRL(Number(product.compare_at_price))}</p>
                       )}
                     </TableCell>
                     <TableCell className="font-sans">{product.stock}</TableCell>
