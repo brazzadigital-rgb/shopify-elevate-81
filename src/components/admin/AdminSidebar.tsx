@@ -36,13 +36,13 @@ const usersMenu = [
   { title: "Relatórios", url: "/admin/relatorios", icon: TrendingUp },
 ];
 
-const linkClass = "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 font-sans text-sm font-medium";
+const linkClass = "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 font-sans text-sm font-medium";
 const activeClass = "bg-accent/10 text-accent font-bold border border-accent/20";
 
 function MenuGroup({ label, items }: { label: string; items: typeof mainMenu }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel className="text-sidebar-foreground/30 uppercase text-[10px] tracking-widest font-sans font-bold mb-2">
+      <SidebarGroupLabel className="text-sidebar-foreground/40 uppercase text-[10px] tracking-widest font-sans font-bold mb-2">
         {label}
       </SidebarGroupLabel>
       <SidebarGroupContent>
