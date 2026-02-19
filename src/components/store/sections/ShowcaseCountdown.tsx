@@ -75,7 +75,7 @@ export function ShowcaseCountdown({ endsAt, title }: Props) {
               )}
               <p
                 className="text-2xl md:text-4xl leading-tight capitalize"
-                style={{ fontFamily: "'Pinyon Script', cursive" }}
+                style={{ fontFamily: "'Tangerine', cursive", fontWeight: 700 }}
               >
                 {(() => {
                   const words = (title || "").toLowerCase().split(" ");

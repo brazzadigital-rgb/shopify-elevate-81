@@ -556,7 +556,7 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
             </span>
             <h2
               className="text-3xl md:text-5xl lg:text-6xl leading-tight capitalize"
-              style={{ fontFamily: "'Pinyon Script', cursive" }}
+              style={{ fontFamily: "'Tangerine', cursive", fontWeight: 700 }}
             >
               {(() => {
                 const words = title.toLowerCase().split(" ");

@@ -110,7 +110,7 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
 
           <h2
             className="text-3xl md:text-5xl lg:text-6xl leading-tight capitalize"
-            style={{ fontFamily: "'Pinyon Script', cursive" }}
+            style={{ fontFamily: "'Tangerine', cursive", fontWeight: 700 }}
           >
             {(() => {
               const words = (overrideTitle || "Coleções em Destaque").toLowerCase().split(" ");
