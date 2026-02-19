@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Package, Filter, Upload, Download, Loader2, CheckCircle, AlertCircle, MoreVertical } from "lucide-react";
+import { Plus, Pencil, Trash2, Package, Filter, Upload, Download, Loader2, CheckCircle, AlertCircle, MoreVertical, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -37,6 +37,7 @@ export default function Products() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterSupplier, setFilterSupplier] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [productThumbnails, setProductThumbnails] = useState<Record<string, string>>({});
   const [importOpen, setImportOpen] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
@@ -150,11 +151,11 @@ export default function Products() {
     }
   };
 
-  const filteredProducts = filterSupplier === "all"
-    ? products
-    : filterSupplier === "none"
-      ? products.filter(p => !p.supplier_id)
-      : products.filter(p => p.supplier_id === filterSupplier);
+  const filteredProducts = products.filter(p => {
+    const matchesSupplier = filterSupplier === "all" || (filterSupplier === "none" ? !p.supplier_id : p.supplier_id === filterSupplier);
+    const matchesSearch = !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSupplier && matchesSearch;
+  });
 
   return (
     <div className="space-y-4 md:space-y-6 overflow-x-hidden">
@@ -183,6 +184,16 @@ export default function Products() {
             <Plus className="w-4 h-4" /> Novo Produto
           </Button>
         </div>
+      </div>
+
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="Buscar produto pelo nome..."
+          className="pl-9 h-11 rounded-2xl font-sans text-sm"
+        />
       </div>
 
       {suppliers.length > 0 && (
