@@ -72,29 +72,40 @@ function ImageCarousel({
   onTap: () => void;
 }) {
   const [current, setCurrent] = useState(0);
-  const touchStart = useRef<number | null>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
   const touchDelta = useRef(0);
   const swiped = useRef(false);
+  const isHorizontalSwipe = useRef<boolean | null>(null);
   const count = images.length;
 
   const handleTouchStart = (e: ReactTouchEvent) => {
-    touchStart.current = e.touches[0].clientX;
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     touchDelta.current = 0;
     swiped.current = false;
+    isHorizontalSwipe.current = null;
   };
 
   const handleTouchMove = (e: ReactTouchEvent) => {
-    if (touchStart.current === null) return;
-    touchDelta.current = e.touches[0].clientX - touchStart.current;
+    if (!touchStart.current) return;
+    const dx = e.touches[0].clientX - touchStart.current.x;
+    const dy = e.touches[0].clientY - touchStart.current.y;
+    // Determine direction on first significant movement
+    if (isHorizontalSwipe.current === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+      isHorizontalSwipe.current = Math.abs(dx) > Math.abs(dy);
+    }
+    if (isHorizontalSwipe.current) {
+      touchDelta.current = dx;
+    }
   };
 
   const handleTouchEnd = () => {
-    if (Math.abs(touchDelta.current) > 40 && count > 1) {
+    if (isHorizontalSwipe.current && Math.abs(touchDelta.current) > 40 && count > 1) {
       swiped.current = true;
       if (touchDelta.current < 0) setCurrent((c) => (c + 1) % count);
       else setCurrent((c) => (c - 1 + count) % count);
     }
     touchStart.current = null;
+    isHorizontalSwipe.current = null;
   };
 
   const handleClick = () => {
@@ -495,7 +506,7 @@ function ScrollHintCarousel({
   };
 
   return (
-    <div className="flex-1 min-w-0 relative overflow-hidden">
+    <div className="flex-1 min-w-0 relative">
       {/* Swipe hint */}
       {hintOpacity > 0 && (
         <div
@@ -510,8 +521,7 @@ function ScrollHintCarousel({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="overflow-x-auto scrollbar-hide"
-        style={{ WebkitOverflowScrolling: "touch" }}
+        className="overflow-x-auto overflow-y-hidden scrollbar-hide overscroll-x-contain"
       >
         <div className="flex gap-3 md:gap-4 pr-4" style={{ width: "max-content" }}>
           {products.map((product, i) => (
