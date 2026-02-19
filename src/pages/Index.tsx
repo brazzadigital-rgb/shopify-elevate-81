@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { HeroSection } from "@/components/store/sections/HeroSection";
 import { CategoriesSection } from "@/components/store/sections/CategoriesSection";
 import { FeaturedProducts } from "@/components/store/sections/FeaturedProducts";
@@ -8,8 +9,10 @@ import { BenefitsSection } from "@/components/store/sections/BenefitsSection";
 import { NewsletterSection } from "@/components/store/sections/NewsletterSection";
 import { MascotPromoPanel } from "@/components/store/sections/MascotPromoPanel";
 import PromoTriplePanel from "@/components/store/sections/PromoTriplePanel";
+import { MosaicCollections } from "@/components/store/sections/MosaicCollections";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSellerReferral } from "@/hooks/useSellerReferral";
+import { useHomeTemplate, type HomeTemplate } from "@/hooks/useHomeTemplate";
 
 interface HomeSection {
   id: string;
@@ -20,8 +23,13 @@ interface HomeSection {
 }
 
 const Index = () => {
-  // Track seller referral from URL
   useSellerReferral();
+  const { homeTemplate } = useHomeTemplate();
+  const [searchParams] = useSearchParams();
+  
+  // Allow preview override via query param (admin preview, no save)
+  const previewTemplate = searchParams.get("preview_template") as HomeTemplate | null;
+  const activeTemplate = previewTemplate || homeTemplate;
 
   const { data: sections = [], isLoading: loading } = useQuery({
     queryKey: ["home-sections"],
@@ -56,6 +64,32 @@ const Index = () => {
     );
   }
 
+  // Mosaic template: Hero + Mosaic grid + rest of sections
+  if (activeTemplate === "mosaic_collections_v1") {
+    const heroSection = sections.find((s) => s.section_type === "hero");
+    const otherSections = sections.filter((s) => s.section_type !== "hero" && s.section_type !== "featured_collections");
+
+    return (
+      <main className="min-h-screen">
+        {heroSection && <HeroSection config={heroSection.config} />}
+        <MosaicCollections />
+        {otherSections.map((section) => {
+          switch (section.section_type) {
+            case "featured_products":
+              return <FeaturedProducts key={section.id} config={section.config} title={section.title || undefined} />;
+            case "benefits":
+              return <BenefitsSection key={section.id} config={section.config} />;
+            case "newsletter":
+              return <NewsletterSection key={section.id} config={section.config} />;
+            default:
+              return null;
+          }
+        })}
+      </main>
+    );
+  }
+
+  // Classic template (default)
   return (
     <main className="min-h-screen">
       {(() => {

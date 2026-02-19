@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { StoreHeader } from "@/components/store/StoreHeader";
+import { StoreHeaderRouter } from "@/components/store/StoreHeaderRouter";
 import { StoreFooter } from "@/components/store/StoreFooter";
 import { CartDrawer } from "@/components/store/CartDrawer";
 import { BottomPromoBanner } from "@/components/store/BottomPromoBanner";
@@ -14,7 +14,7 @@ export default function StoreLayout() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <StoreHeader />
+      <StoreHeaderRouter />
       <main className="flex-1">
         <Outlet />
       </main>
