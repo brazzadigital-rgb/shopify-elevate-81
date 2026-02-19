@@ -36,19 +36,19 @@ interface Order {
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending: { label: "Pendente", color: "bg-muted text-muted-foreground" },
-  confirmed: { label: "Confirmado", color: "bg-primary/10 text-primary" },
-  processing: { label: "Em Separação", color: "bg-accent/10 text-accent" },
-  shipped: { label: "Enviado", color: "bg-accent/10 text-accent" },
-  delivered: { label: "Entregue", color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
-  cancelled: { label: "Cancelado", color: "bg-destructive/10 text-destructive" },
+  pending: { label: "Pendente", color: "bg-muted/60 text-muted-foreground" },
+  confirmed: { label: "Confirmado", color: "bg-primary/8 text-primary" },
+  processing: { label: "Em Separação", color: "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400" },
+  shipped: { label: "Enviado", color: "bg-sky-50 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400" },
+  delivered: { label: "Entregue", color: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400" },
+  cancelled: { label: "Cancelado", color: "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400" },
 };
 
 const PAYMENT_LABELS: Record<string, { label: string; color: string }> = {
-  pending: { label: "Pendente", color: "bg-muted text-muted-foreground" },
-  paid: { label: "Pago", color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
-  failed: { label: "Falhou", color: "bg-destructive/10 text-destructive" },
-  refunded: { label: "Reembolsado", color: "bg-muted text-muted-foreground" },
+  pending: { label: "Pendente", color: "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400" },
+  paid: { label: "Pago", color: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400" },
+  failed: { label: "Falhou", color: "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400" },
+  refunded: { label: "Reembolsado", color: "bg-muted/60 text-muted-foreground" },
 };
 
 const SHIPMENT_LABELS: Record<string, string> = {
@@ -142,29 +142,29 @@ export default function AdminOrders() {
       </div>
 
       {/* Filters */}
-      <Card className="border-0 shadow-premium">
+      <Card className="border border-border/40 shadow-sm bg-card/80 backdrop-blur-sm">
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input className="pl-9 rounded-lg font-sans" placeholder="Buscar pedido, cliente, email, rastreio..." value={search} onChange={e => setSearch(e.target.value)} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+              <Input className="pl-9 rounded-xl font-sans border-border/40 bg-background/60 focus:bg-background transition-colors" placeholder="Buscar pedido, cliente, email, rastreio..." value={search} onChange={e => setSearch(e.target.value)} />
             </div>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-[160px] rounded-lg font-sans text-sm"><Filter className="w-3 h-3 mr-1" /><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-[160px] rounded-xl font-sans text-sm border-border/40 bg-background/60 hover:bg-background transition-colors"><Filter className="w-3 h-3 mr-1 text-muted-foreground/60" /><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos status</SelectItem>
                 {Object.entries(STATUS_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filterPayment} onValueChange={setFilterPayment}>
-              <SelectTrigger className="w-[150px] rounded-lg font-sans text-sm"><CreditCard className="w-3 h-3 mr-1" /><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-[150px] rounded-xl font-sans text-sm border-border/40 bg-background/60 hover:bg-background transition-colors"><CreditCard className="w-3 h-3 mr-1 text-muted-foreground/60" /><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Pagamento</SelectItem>
                 {Object.entries(PAYMENT_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filterShipment} onValueChange={setFilterShipment}>
-              <SelectTrigger className="w-[150px] rounded-lg font-sans text-sm"><Truck className="w-3 h-3 mr-1" /><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-[150px] rounded-xl font-sans text-sm border-border/40 bg-background/60 hover:bg-background transition-colors"><Truck className="w-3 h-3 mr-1 text-muted-foreground/60" /><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Envio</SelectItem>
                 {Object.entries(SHIPMENT_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
@@ -175,28 +175,28 @@ export default function AdminOrders() {
       </Card>
 
       {/* Desktop Table */}
-      <Card className="shadow-premium border-0 overflow-hidden hidden md:block">
+      <Card className="border border-border/30 shadow-sm overflow-hidden hidden md:block bg-card">
         <CardContent className="p-0 overflow-x-auto">
           {loading ? (
-            <div className="p-6 space-y-4">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
+            <div className="p-6 space-y-4">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}</div>
           ) : filteredOrders.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-              <ShoppingCart className="w-12 h-12 mb-4 opacity-40" />
-              <p className="font-sans text-lg">Nenhum pedido encontrado</p>
+            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+              <ShoppingCart className="w-10 h-10 mb-3 opacity-30" />
+              <p className="font-sans text-sm">Nenhum pedido encontrado</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="font-sans text-xs">Pedido</TableHead>
-                  <TableHead className="font-sans text-xs">Data</TableHead>
-                  <TableHead className="font-sans text-xs">Cliente</TableHead>
-                  <TableHead className="font-sans text-xs">Total</TableHead>
-                  <TableHead className="font-sans text-xs">Pagamento</TableHead>
-                  <TableHead className="font-sans text-xs">Envio</TableHead>
-                  <TableHead className="font-sans text-xs">Rastreio</TableHead>
-                  <TableHead className="font-sans text-xs">Status</TableHead>
-                  <TableHead className="font-sans text-xs text-right">Ações</TableHead>
+                <TableRow className="border-b border-border/30 hover:bg-transparent">
+                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Pedido</TableHead>
+                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Data</TableHead>
+                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Cliente</TableHead>
+                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Total</TableHead>
+                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Pagamento</TableHead>
+                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Envio</TableHead>
+                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Rastreio</TableHead>
+                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium">Status</TableHead>
+                  <TableHead className="font-sans text-[11px] uppercase tracking-wider text-muted-foreground/70 font-medium text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -204,50 +204,48 @@ export default function AdminOrders() {
                   const st = STATUS_LABELS[order.status] || STATUS_LABELS.pending;
                   const pt = PAYMENT_LABELS[order.payment_status] || PAYMENT_LABELS.pending;
                   return (
-                    <TableRow key={order.id} className="hover:bg-muted/50 transition-colors">
-                      <TableCell className="font-sans font-semibold text-sm">#{order.order_number}</TableCell>
+                    <TableRow key={order.id} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
+                      <TableCell className="font-sans font-semibold text-sm text-foreground/90">#{order.order_number}</TableCell>
                       <TableCell className="font-sans text-xs text-muted-foreground whitespace-nowrap">
                         {new Date(order.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
                         <br />
-                        <span className="text-[10px]">{new Date(order.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+                        <span className="text-[10px] text-muted-foreground/60">{new Date(order.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
                       </TableCell>
                       <TableCell>
                         <div className="font-sans">
-                          <p className="text-sm font-medium truncate max-w-[150px]">{order.customer_name || "—"}</p>
-                          <p className="text-[11px] text-muted-foreground truncate max-w-[150px]">{order.customer_email || ""}</p>
+                          <p className="text-sm font-medium truncate max-w-[160px] text-foreground/85">{order.customer_name || "—"}</p>
+                          <p className="text-[11px] text-muted-foreground/60 truncate max-w-[160px]">{order.customer_email || ""}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="font-sans font-semibold text-sm whitespace-nowrap">R$ {Number(order.total).toFixed(2)}</TableCell>
+                      <TableCell className="font-sans font-semibold text-sm whitespace-nowrap text-foreground/90">R$ {Number(order.total).toFixed(2)}</TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          <Badge className={`${pt.color} border-0 text-[10px] font-sans`}>{pt.label}</Badge>
-                          {order.payment_method && <p className="text-[10px] text-muted-foreground font-sans">{order.payment_method}</p>}
+                          <Badge variant="secondary" className={`${pt.color} border-0 text-[10px] font-sans font-medium px-2.5 py-0.5 rounded-full shadow-none`}>{pt.label}</Badge>
+                          {order.payment_method && <p className="text-[10px] text-muted-foreground/50 font-sans">{order.payment_method}</p>}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className="bg-muted text-muted-foreground border-0 text-[10px] font-sans">
+                        <Badge variant="secondary" className="bg-muted/50 text-muted-foreground/70 border-0 text-[10px] font-sans font-medium px-2.5 py-0.5 rounded-full shadow-none">
                           {SHIPMENT_LABELS[order.shipment_status || "pending"] || "Aguardando"}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         {order.tracking_code ? (
-                          <button onClick={() => copyTracking(order.tracking_code!, order.id)} className="inline-flex items-center gap-1 text-[11px] font-mono font-sans text-accent hover:underline">
-                            {copiedId === order.id ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                          <button onClick={() => copyTracking(order.tracking_code!, order.id)} className="inline-flex items-center gap-1.5 text-[11px] font-mono text-foreground/70 hover:text-foreground transition-colors">
+                            {copiedId === order.id ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
                             {order.tracking_code.slice(0, 13)}
                           </button>
                         ) : (
-                          <span className="text-[11px] text-muted-foreground font-sans">—</span>
+                          <span className="text-[11px] text-muted-foreground/40 font-sans">—</span>
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge className={`${st.color} border-0 text-[10px] font-sans`}>{st.label}</Badge>
+                        <Badge variant="secondary" className={`${st.color} border-0 text-[10px] font-sans font-medium px-2.5 py-0.5 rounded-full shadow-none`}>{st.label}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" asChild>
-                            <Link to={`/admin/pedidos/${order.id}`}><Eye className="w-4 h-4" /></Link>
-                          </Button>
-                        </div>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground/60 hover:text-foreground hover:bg-muted/30 transition-colors" asChild>
+                          <Link to={`/admin/pedidos/${order.id}`}><Eye className="w-4 h-4" /></Link>
+                        </Button>
                       </TableCell>
                     </TableRow>
                   );
@@ -259,39 +257,39 @@ export default function AdminOrders() {
       </Card>
 
       {/* Mobile Cards */}
-      <div className="md:hidden space-y-3">
+      <div className="md:hidden space-y-2.5">
         {loading ? (
-          [...Array(4)].map((_, i) => <Skeleton key={i} className="h-32 w-full rounded-xl" />)
+          [...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 w-full rounded-xl" />)
         ) : filteredOrders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-            <ShoppingCart className="w-12 h-12 mb-4 opacity-40" />
-            <p className="font-sans text-lg">Nenhum pedido encontrado</p>
+            <ShoppingCart className="w-10 h-10 mb-3 opacity-30" />
+            <p className="font-sans text-sm">Nenhum pedido encontrado</p>
           </div>
         ) : filteredOrders.map(order => {
           const st = STATUS_LABELS[order.status] || STATUS_LABELS.pending;
           const pt = PAYMENT_LABELS[order.payment_status] || PAYMENT_LABELS.pending;
           return (
             <Link key={order.id} to={`/admin/pedidos/${order.id}`}>
-              <Card className="border-0 shadow-premium hover:shadow-premium-lg transition-shadow">
-                <CardContent className="p-4 space-y-3">
+              <Card className="border border-border/30 shadow-sm hover:shadow-md transition-shadow bg-card">
+                <CardContent className="p-4 space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="font-sans text-sm font-bold">#{order.order_number}</span>
-                    <span className="text-xs text-muted-foreground font-sans">
+                    <span className="font-sans text-sm font-semibold text-foreground/90">#{order.order_number}</span>
+                    <span className="text-[11px] text-muted-foreground/60 font-sans">
                       {new Date(order.created_at).toLocaleDateString("pt-BR")}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="min-w-0">
-                      <p className="font-sans text-sm font-medium truncate">{order.customer_name || "—"}</p>
-                      <p className="font-sans text-xs text-muted-foreground truncate">{order.customer_email || ""}</p>
+                      <p className="font-sans text-sm font-medium truncate text-foreground/85">{order.customer_name || "—"}</p>
+                      <p className="font-sans text-[11px] text-muted-foreground/55 truncate">{order.customer_email || ""}</p>
                     </div>
-                    <span className="font-sans text-sm font-bold shrink-0 ml-2">R$ {Number(order.total).toFixed(2)}</span>
+                    <span className="font-sans text-sm font-semibold shrink-0 ml-2 text-foreground/90">R$ {Number(order.total).toFixed(2)}</span>
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Badge className={`${st.color} border-0 text-[10px] font-sans`}>{st.label}</Badge>
-                    <Badge className={`${pt.color} border-0 text-[10px] font-sans`}>{pt.label}</Badge>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <Badge variant="secondary" className={`${st.color} border-0 text-[10px] font-sans font-medium px-2 py-0.5 rounded-full shadow-none`}>{st.label}</Badge>
+                    <Badge variant="secondary" className={`${pt.color} border-0 text-[10px] font-sans font-medium px-2 py-0.5 rounded-full shadow-none`}>{pt.label}</Badge>
                     {order.tracking_code && (
-                      <Badge className="bg-accent/10 text-accent border-0 text-[10px] font-sans">
+                      <Badge variant="secondary" className="bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-400 border-0 text-[10px] font-sans font-medium px-2 py-0.5 rounded-full shadow-none">
                         <Truck className="w-3 h-3 mr-1" /> Rastreio
                       </Badge>
                     )}
