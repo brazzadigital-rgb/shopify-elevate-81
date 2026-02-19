@@ -496,25 +496,24 @@ function ScrollHintCarousel({
   };
 
   return (
-    <div className="flex-1 relative">
+    <div className="flex-1 min-w-0 relative overflow-hidden">
       {/* Swipe hint */}
-      <motion.div
-        className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground/70 text-background font-sans text-[11px] font-semibold pointer-events-none"
-        style={{ opacity: hintOpacity }}
-        initial={{ x: 0 }}
-        animate={{ x: [0, 8, 0] }}
-        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-      >
-        Arraste
-        <ChevronRight className="w-3.5 h-3.5" />
-      </motion.div>
+      {hintOpacity > 0 && (
+        <div
+          className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground/70 text-background font-sans text-[11px] font-semibold pointer-events-none animate-[swipe-hint_1.2s_ease-in-out_infinite] transition-opacity duration-300"
+          style={{ opacity: hintOpacity }}
+        >
+          Arraste
+          <ChevronRight className="w-3.5 h-3.5" />
+        </div>
+      )}
 
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="overflow-x-auto scrollbar-hide -mr-4 md:mr-0 pr-4 md:pr-0"
+        className="overflow-x-auto scrollbar-hide touch-pan-x"
       >
-        <div className="flex gap-3 md:gap-4" style={{ width: "max-content" }}>
+        <div className="flex gap-3 md:gap-4 pr-4" style={{ width: "max-content" }}>
           {products.map((product, i) => (
             <div key={product.id} className="w-[44vw] min-w-[160px] md:w-[220px] lg:w-[240px] flex-shrink-0">
               <ProductCard
@@ -612,7 +611,7 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
             </div>
           ) : isBestsellersFilter ? (
             /* ── Bestsellers: highlight card + horizontal scroll ── */
-            <div className="flex gap-4 md:gap-6 items-stretch">
+            <div className="flex gap-4 md:gap-6 items-stretch overflow-hidden">
               {/* Left highlight card */}
               <div className="hidden md:flex flex-shrink-0 w-[280px] lg:w-[320px] rounded-2xl overflow-hidden relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50" />
