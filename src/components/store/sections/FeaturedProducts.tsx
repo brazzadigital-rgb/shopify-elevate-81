@@ -511,7 +511,8 @@ function ScrollHintCarousel({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="overflow-x-auto scrollbar-hide touch-pan-x"
+        className="overflow-x-auto scrollbar-hide"
+        style={{ WebkitOverflowScrolling: "touch" }}
       >
         <div className="flex gap-3 md:gap-4 pr-4" style={{ width: "max-content" }}>
           {products.map((product, i) => (
