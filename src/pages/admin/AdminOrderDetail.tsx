@@ -14,7 +14,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { toast } from "@/hooks/use-toast";
 import {
   ArrowLeft, User, MapPin, Package, CreditCard, Truck, Clock,
-  Copy, Check, Printer, Save, ShoppingCart
+  Copy, Check, Printer, Save, ShoppingCart, Link2
 } from "lucide-react";
 import { formatBRL } from "@/lib/exportCsv";
 
@@ -371,7 +371,55 @@ export default function AdminOrderDetail() {
         </div>
       ),
     },
-    // G) NOTAS ADMIN
+    // G) ATRIBUIÇÃO / UTM
+    {
+      id: "attribution",
+      title: "Atribuição / UTM",
+      icon: <Link2 className="w-4 h-4" />,
+      content: (() => {
+        const ft = order.tracking_first_touch_json as any;
+        const lt = order.tracking_last_touch_json as any;
+        const hasUtm = order.utm_source || ft || lt;
+        if (!hasUtm) return <p className="font-sans text-sm text-muted-foreground">Sem dados de atribuição</p>;
+        return (
+          <div className="space-y-4">
+            {/* Quick UTM summary */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 font-sans text-sm">
+              {order.utm_source && <div className="bg-muted/50 rounded-xl p-3"><p className="text-xs text-muted-foreground">Source</p><p className="font-medium">{order.utm_source}</p></div>}
+              {order.utm_medium && <div className="bg-muted/50 rounded-xl p-3"><p className="text-xs text-muted-foreground">Medium</p><p className="font-medium">{order.utm_medium}</p></div>}
+              {order.utm_campaign && <div className="bg-muted/50 rounded-xl p-3"><p className="text-xs text-muted-foreground">Campaign</p><p className="font-medium">{order.utm_campaign}</p></div>}
+              {order.fbclid && <div className="bg-muted/50 rounded-xl p-3"><p className="text-xs text-muted-foreground">fbclid</p><p className="font-medium font-mono text-xs truncate">{order.fbclid}</p></div>}
+              {order.gclid && <div className="bg-muted/50 rounded-xl p-3"><p className="text-xs text-muted-foreground">gclid</p><p className="font-medium font-mono text-xs truncate">{order.gclid}</p></div>}
+              {order.landing_page && <div className="bg-muted/50 rounded-xl p-3"><p className="text-xs text-muted-foreground">Landing Page</p><p className="font-medium text-xs truncate">{order.landing_page}</p></div>}
+            </div>
+            {/* First/Last touch details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {ft && (
+                <div>
+                  <p className="font-sans text-sm font-medium mb-2">First Touch</p>
+                  <div className="bg-muted/50 rounded-xl p-3 space-y-1">
+                    {Object.entries(ft).filter(([, v]) => v).map(([k, v]) => (
+                      <p key={k} className="font-sans text-xs"><span className="text-muted-foreground">{k}:</span> {String(v)}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {lt && (
+                <div>
+                  <p className="font-sans text-sm font-medium mb-2">Last Touch</p>
+                  <div className="bg-muted/50 rounded-xl p-3 space-y-1">
+                    {Object.entries(lt).filter(([, v]) => v).map(([k, v]) => (
+                      <p key={k} className="font-sans text-xs"><span className="text-muted-foreground">{k}:</span> {String(v)}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })(),
+    },
+    // H) NOTAS ADMIN
     {
       id: "notes",
       title: "Observações Internas",

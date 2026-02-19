@@ -58,6 +58,7 @@ import AdminPromoPanels from "./pages/admin/AdminPromoPanels";
 import AdminHomeTemplates from "./pages/admin/AdminHomeTemplates";
 import AdminShowcases from "./pages/admin/AdminShowcases";
 import AdminHeaderStyles from "./pages/admin/AdminHeaderStyles";
+import AdminTracking from "./pages/admin/AdminTracking";
 import FinancialDashboard from "./pages/admin/financial/FinancialDashboard";
 import FinancialSales from "./pages/admin/financial/FinancialSales";
 import FinancialProducts from "./pages/admin/financial/FinancialProducts";
@@ -131,6 +132,7 @@ function AppContent() {
             <Route path="home-templates" element={<AdminHomeTemplates />} />
             <Route path="vitrines" element={<AdminShowcases />} />
             <Route path="header-styles" element={<AdminHeaderStyles />} />
+            <Route path="rastreamento" element={<AdminTracking />} />
             <Route path="financeiro" element={<FinancialDashboard />} />
             <Route path="financeiro/vendas" element={<FinancialSales />} />
             <Route path="financeiro/produtos" element={<FinancialProducts />} />
