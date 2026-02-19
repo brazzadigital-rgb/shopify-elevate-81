@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -49,6 +50,7 @@ function hexToHsl(hex: string): string {
 }
 
 export default function AdminHeaderSettings() {
+  const queryClient = useQueryClient();
   const [settings, setSettings] = useState<SettingsMap>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -73,6 +75,7 @@ export default function AdminHeaderSettings() {
       supabase.from("store_settings").upsert({ key, value: settings[key] }, { onConflict: "key" })
     );
     await Promise.all(promises);
+    await queryClient.invalidateQueries({ queryKey: ["store-settings"] });
     toast({ title: "Configurações do header salvas!" });
     setSaving(false);
   };
