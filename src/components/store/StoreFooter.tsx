@@ -179,7 +179,7 @@ export function StoreFooter() {
       <div className="bg-secondary-soft relative overflow-hidden">
         {/* Decorative gradient background */}
         <div
-          className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-primary/5 to-primary/10"
+          className="absolute inset-0 pointer-events-none bg-gradient-to-br from-primary/15 via-primary/8 to-accent/10"
         />
         <div className="container px-4 md:px-6 pt-10 pb-8 md:pt-14 md:pb-10">
           {/* ── DESKTOP: 4 columns ── */}
