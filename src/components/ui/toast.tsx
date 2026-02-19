@@ -23,14 +23,14 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden rounded-xl border p-4 pr-8 shadow-xl transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
+  "group pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden rounded-xl border p-4 pr-8 shadow-xl backdrop-blur-xl transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
   {
     variants: {
       variant: {
-        default: "border-border bg-card text-foreground shadow-lg",
-        destructive: "destructive group border-destructive/30 bg-destructive/10 text-destructive shadow-destructive/10",
-        success: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 shadow-emerald-500/10",
-        warning: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400 shadow-amber-500/10",
+        default: "border-border/80 bg-card/95 text-foreground shadow-lg",
+        destructive: "destructive group border-destructive/40 bg-destructive/90 text-destructive-foreground shadow-destructive/20",
+        success: "border-emerald-600/40 bg-emerald-600/90 text-white shadow-emerald-600/20",
+        warning: "border-amber-500/40 bg-amber-500/90 text-white shadow-amber-500/20",
       },
     },
     defaultVariants: {
