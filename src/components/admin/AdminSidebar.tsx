@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, LogOut, ShoppingBag,
-  Truck, UserCheck, Shield, Percent, TrendingUp
+  Truck, UserCheck, Shield, Percent, TrendingUp, Columns3
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,6 +25,7 @@ const mainMenu = [
 const appearanceMenu = [
   { title: "Header", url: "/admin/header", icon: Settings },
   { title: "Banners", url: "/admin/banners", icon: Image },
+  { title: "Painéis Promo", url: "/admin/paineis-promo", icon: Columns3 },
   { title: "Identidade Visual", url: "/admin/aparencia", icon: Settings },
 ];
 

@@ -51,6 +51,7 @@ import TrackOrderPage from "./pages/store/TrackOrderPage";
 import SellerLayout from "./layouts/SellerLayout";
 import SellerDashboard from "./pages/seller/SellerDashboard";
 import AdminLogistics from "./pages/admin/AdminLogistics";
+import AdminPromoPanels from "./pages/admin/AdminPromoPanels";
 
 const queryClient = new QueryClient();
 
@@ -107,6 +108,7 @@ function AppContent() {
             
             <Route path="relatorios" element={<AdminReports />} />
             <Route path="logistica" element={<AdminLogistics />} />
+            <Route path="paineis-promo" element={<AdminPromoPanels />} />
           </Route>
           <Route path="/vendedor" element={<SellerLayout />}>
             <Route index element={<SellerDashboard />} />
