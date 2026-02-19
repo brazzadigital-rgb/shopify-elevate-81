@@ -150,6 +150,56 @@ export type Database = {
         }
         Relationships: []
       }
+      cashflow_entries: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          description: string
+          entry_date: string
+          entry_type: string
+          id: string
+          is_automatic: boolean
+          notes: string | null
+          order_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          description?: string
+          entry_date?: string
+          entry_type?: string
+          id?: string
+          is_automatic?: boolean
+          notes?: string | null
+          order_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          description?: string
+          entry_date?: string
+          entry_type?: string
+          id?: string
+          is_automatic?: boolean
+          notes?: string | null
+          order_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cashflow_entries_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collection_products: {
         Row: {
           collection_id: string
@@ -430,6 +480,62 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          fees: number
+          gateway: string
+          id: string
+          net_amount: number
+          notes: string | null
+          order_id: string | null
+          payment_date: string | null
+          receipt_url: string | null
+          status: string
+          transaction_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          fees?: number
+          gateway?: string
+          id?: string
+          net_amount?: number
+          notes?: string | null
+          order_id?: string | null
+          payment_date?: string | null
+          receipt_url?: string | null
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          fees?: number
+          gateway?: string
+          id?: string
+          net_amount?: number
+          notes?: string | null
+          order_id?: string | null
+          payment_date?: string | null
+          receipt_url?: string | null
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -859,6 +965,7 @@ export type Database = {
           cost_price: number | null
           created_at: string
           crosssell_product_ids: string[] | null
+          customization_cost: number | null
           description: string | null
           extra_prep_days: number | null
           free_shipping: boolean
@@ -878,6 +985,7 @@ export type Database = {
           min_stock_alert: number | null
           name: string
           og_image_url: string | null
+          packaging_cost: number | null
           pix_discount: number | null
           price: number
           product_type: string
@@ -915,6 +1023,7 @@ export type Database = {
           cost_price?: number | null
           created_at?: string
           crosssell_product_ids?: string[] | null
+          customization_cost?: number | null
           description?: string | null
           extra_prep_days?: number | null
           free_shipping?: boolean
@@ -934,6 +1043,7 @@ export type Database = {
           min_stock_alert?: number | null
           name: string
           og_image_url?: string | null
+          packaging_cost?: number | null
           pix_discount?: number | null
           price?: number
           product_type?: string
@@ -971,6 +1081,7 @@ export type Database = {
           cost_price?: number | null
           created_at?: string
           crosssell_product_ids?: string[] | null
+          customization_cost?: number | null
           description?: string | null
           extra_prep_days?: number | null
           free_shipping?: boolean
@@ -990,6 +1101,7 @@ export type Database = {
           min_stock_alert?: number | null
           name?: string
           og_image_url?: string | null
+          packaging_cost?: number | null
           pix_discount?: number | null
           price?: number
           product_type?: string
@@ -1094,6 +1206,59 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      refunds: {
+        Row: {
+          amount: number
+          chargeback_fee: number
+          created_at: string
+          id: string
+          is_chargeback: boolean
+          method: string | null
+          notes: string | null
+          order_id: string | null
+          reason: string | null
+          refund_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          chargeback_fee?: number
+          created_at?: string
+          id?: string
+          is_chargeback?: boolean
+          method?: string | null
+          notes?: string | null
+          order_id?: string | null
+          reason?: string | null
+          refund_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          chargeback_fee?: number
+          created_at?: string
+          id?: string
+          is_chargeback?: boolean
+          method?: string | null
+          notes?: string | null
+          order_id?: string | null
+          reason?: string | null
+          refund_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refunds_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {

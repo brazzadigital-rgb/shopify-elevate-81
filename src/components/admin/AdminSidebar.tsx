@@ -1,6 +1,7 @@
 import {
   LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, LogOut, ShoppingBag,
-  Truck, UserCheck, Shield, Percent, TrendingUp, Columns3
+  Truck, UserCheck, Shield, Percent, TrendingUp, Columns3,
+  DollarSign, BarChart3, ArrowDownCircle, CreditCard, Wallet, FileSpreadsheet, Wrench
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -27,6 +28,19 @@ const appearanceMenu = [
   { title: "Banners", url: "/admin/banners", icon: Image },
   { title: "Painéis Promo", url: "/admin/paineis-promo", icon: Columns3 },
   { title: "Identidade Visual", url: "/admin/aparencia", icon: Settings },
+];
+
+const financialMenu = [
+  { title: "Visão Geral", url: "/admin/financeiro", icon: DollarSign },
+  { title: "Vendas", url: "/admin/financeiro/vendas", icon: ShoppingCart },
+  { title: "Produtos", url: "/admin/financeiro/produtos", icon: Package },
+  { title: "Custos e Margem", url: "/admin/financeiro/custos", icon: BarChart3 },
+  { title: "Comissões", url: "/admin/financeiro/comissoes", icon: Percent },
+  { title: "Reembolsos", url: "/admin/financeiro/reembolsos", icon: ArrowDownCircle },
+  { title: "Conciliação", url: "/admin/financeiro/conciliacao", icon: CreditCard },
+  { title: "Fluxo de Caixa", url: "/admin/financeiro/fluxo-caixa", icon: Wallet },
+  { title: "Relatórios", url: "/admin/financeiro/relatorios", icon: FileSpreadsheet },
+  { title: "Configurações", url: "/admin/financeiro/configuracoes", icon: Wrench },
 ];
 
 const usersMenu = [
@@ -102,6 +116,7 @@ export function AdminSidebar() {
 
       <SidebarContent className="px-3 py-4 space-y-4">
         <MenuGroup label="Menu" items={mainMenu} />
+        <MenuGroup label="Financeiro" items={financialMenu} />
         <MenuGroup label="Aparência" items={appearanceMenu} />
         <MenuGroup label="Usuários e Operações" items={usersMenu} />
       </SidebarContent>

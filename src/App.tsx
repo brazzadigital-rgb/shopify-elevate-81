@@ -52,6 +52,16 @@ import SellerLayout from "./layouts/SellerLayout";
 import SellerDashboard from "./pages/seller/SellerDashboard";
 import AdminLogistics from "./pages/admin/AdminLogistics";
 import AdminPromoPanels from "./pages/admin/AdminPromoPanels";
+import FinancialDashboard from "./pages/admin/financial/FinancialDashboard";
+import FinancialSales from "./pages/admin/financial/FinancialSales";
+import FinancialProducts from "./pages/admin/financial/FinancialProducts";
+import FinancialCosts from "./pages/admin/financial/FinancialCosts";
+import FinancialCommissions from "./pages/admin/financial/FinancialCommissions";
+import FinancialRefunds from "./pages/admin/financial/FinancialRefunds";
+import FinancialConciliation from "./pages/admin/financial/FinancialConciliation";
+import FinancialCashflow from "./pages/admin/financial/FinancialCashflow";
+import FinancialReports from "./pages/admin/financial/FinancialReports";
+import FinancialSettings from "./pages/admin/financial/FinancialSettings";
 
 const queryClient = new QueryClient();
 
@@ -110,6 +120,16 @@ function AppContent() {
             <Route path="relatorios" element={<AdminReports />} />
             <Route path="logistica" element={<AdminLogistics />} />
             <Route path="paineis-promo" element={<AdminPromoPanels />} />
+            <Route path="financeiro" element={<FinancialDashboard />} />
+            <Route path="financeiro/vendas" element={<FinancialSales />} />
+            <Route path="financeiro/produtos" element={<FinancialProducts />} />
+            <Route path="financeiro/custos" element={<FinancialCosts />} />
+            <Route path="financeiro/comissoes" element={<FinancialCommissions />} />
+            <Route path="financeiro/reembolsos" element={<FinancialRefunds />} />
+            <Route path="financeiro/conciliacao" element={<FinancialConciliation />} />
+            <Route path="financeiro/fluxo-caixa" element={<FinancialCashflow />} />
+            <Route path="financeiro/relatorios" element={<FinancialReports />} />
+            <Route path="financeiro/configuracoes" element={<FinancialSettings />} />
           </Route>
           <Route path="/vendedor" element={<SellerLayout />}>
             <Route index element={<SellerDashboard />} />
