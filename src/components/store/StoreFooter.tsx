@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import paymentFlags from "@/assets/pagamento-pix.webp";
 import footerBg from "@/assets/footer-jewelry-bg.jpg";
 import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
@@ -221,15 +222,8 @@ export function StoreFooter() {
                   </button>
                 ))}
               </div>
-              <div className="mt-6 flex items-center gap-1.5 flex-wrap">
-                {payments.map((m) => (
-                  <span
-                    key={m}
-                    className="px-2 py-0.5 rounded border border-white/20 bg-white/10 text-white/70 text-[9px] font-sans font-bold uppercase tracking-wide shadow-sm"
-                  >
-                    {m}
-                  </span>
-                ))}
+              <div className="mt-6">
+                <img src={paymentFlags} alt="Bandeiras de pagamento: Visa, Master, Elo, Pix, Boleto" className="h-6 object-contain opacity-80" />
               </div>
             </motion.div>
 
@@ -368,15 +362,8 @@ export function StoreFooter() {
             </FooterAccordion>
 
             {/* Mobile payment badges */}
-            <div className="flex items-center gap-1.5 flex-wrap justify-center mt-6">
-              {payments.map((m) => (
-                <span
-                  key={m}
-                  className="px-2.5 py-1 rounded border border-white/20 bg-white/10 text-white/70 text-[10px] font-sans font-bold uppercase tracking-wide shadow-sm"
-                >
-                  {m}
-                </span>
-              ))}
+            <div className="flex items-center justify-center mt-6">
+              <img src={paymentFlags} alt="Bandeiras de pagamento: Visa, Master, Elo, Pix, Boleto" className="h-6 object-contain opacity-80" />
             </div>
           </div>
         </div>

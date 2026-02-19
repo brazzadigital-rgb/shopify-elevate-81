@@ -13,6 +13,7 @@ import {
   ShoppingCart, Zap, Minus, Plus, ChevronRight,
   Loader2, Truck, ShieldCheck, CreditCard, Package,
 } from "lucide-react";
+import paymentFlagsImg from "@/assets/pagamento-pix.webp";
 
 /* ── Types ────────────────────────────────────── */
 interface ProductData {
@@ -229,9 +230,7 @@ function PaymentMethods({ enabled }: { enabled: boolean }) {
         <p className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-wider">Formas de pagamento</p>
       </div>
       <div className="flex flex-wrap gap-1.5">
-        {methods.map((m) => (
-          <span key={m} className="px-3 py-1 rounded-full bg-card border border-border/60 text-[11px] font-sans font-medium">{m}</span>
-        ))}
+        <img src={paymentFlagsImg} alt="Bandeiras de pagamento: Visa, Master, Elo, Pix, Boleto" className="h-7 object-contain" />
       </div>
     </motion.div>
   );
