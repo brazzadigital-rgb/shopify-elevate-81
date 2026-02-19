@@ -90,7 +90,6 @@ export function StoreHeader() {
 
   const headerStyle: React.CSSProperties = {
     backgroundColor: `hsl(${headerBg})`,
-    height: `${headerHeight}px`,
     ...(scrolled && stickyEnabled ? {
       boxShadow: `0 4px ${shadowIntensity}px -8px rgba(0,0,0,0.${Math.min(shadowIntensity, 99)})`,
     } : {}),
@@ -119,7 +118,7 @@ export function StoreHeader() {
           background: `linear-gradient(180deg, hsl(${headerBg}) 0%, hsl(${headerBg} / 0.95) 100%)`,
         }} />
 
-        <div className="container relative flex items-center justify-between gap-6 h-full">
+        <div className="container relative flex items-center justify-between gap-6" style={{ height: `${headerHeight}px` }}>
           {/* MOBILE LEFT — Logo */}
           <Link to="/" className="flex md:hidden items-center shrink-0">
             <motion.div
