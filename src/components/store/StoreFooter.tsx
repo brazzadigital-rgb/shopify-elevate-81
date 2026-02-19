@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import footerBg from "@/assets/footer-jewelry-bg.jpg";
 import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import {
@@ -176,7 +177,16 @@ export function StoreFooter() {
 
       {/* ═══════ LEVEL 2 — Main Footer ═══════ */}
       <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-accent">
-        <div className="container px-4 md:px-6 pt-10 pb-8 md:pt-14 md:pb-10">
+        {/* Jewelry overlay image */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-15 mix-blend-overlay"
+          style={{
+            backgroundImage: `url(${footerBg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+        <div className="container relative z-10 px-4 md:px-6 pt-10 pb-8 md:pt-14 md:pb-10">
           {/* ── DESKTOP: 4 columns ── */}
           <div className="hidden md:grid md:grid-cols-12 gap-8 lg:gap-12">
             {/* Col 1 — Brand */}
