@@ -45,7 +45,7 @@ export function HeaderCompactSticky() {
               style={{ color: txtColor }}
               onClick={() => h.setMobileMenuOpen(!h.mobileMenuOpen)}
             >
-              {h.mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {h.mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
             </Button>
             <HeaderLogo
               logoUrl={h.logoUrl}
