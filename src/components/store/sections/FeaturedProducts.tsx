@@ -550,18 +550,37 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
               <p className="text-sm text-muted-foreground/60 font-sans">Adicione produtos no painel admin.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-              {products.map((product, i) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  index={i}
-                  addItem={addItem}
-                  cartLoading={cartLoading}
-                  onQuickBuy={setQuickBuyProduct}
-                />
-              ))}
-            </div>
+            <>
+              {/* Mobile: horizontal carousel */}
+              <div className="md:hidden -mx-4 px-4 overflow-x-auto scrollbar-hide">
+                <div className="flex gap-3" style={{ width: "max-content" }}>
+                  {products.map((product, i) => (
+                    <div key={product.id} className="w-[44vw] min-w-[160px] max-w-[200px] flex-shrink-0">
+                      <ProductCard
+                        product={product}
+                        index={i}
+                        addItem={addItem}
+                        cartLoading={cartLoading}
+                        onQuickBuy={setQuickBuyProduct}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Desktop: grid */}
+              <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {products.map((product, i) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    index={i}
+                    addItem={addItem}
+                    cartLoading={cartLoading}
+                    onQuickBuy={setQuickBuyProduct}
+                  />
+                ))}
+              </div>
+            </>
           )}
         </div>
       </section>
