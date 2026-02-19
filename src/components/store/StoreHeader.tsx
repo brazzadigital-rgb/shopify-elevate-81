@@ -262,23 +262,24 @@ export function StoreHeader() {
         </div>
 
         {/* Desktop nav bar — white background like reference */}
-        <nav className="hidden md:block bg-background border-t border-b border-border shadow-sm">
-          <div className="container flex items-center justify-center gap-2 h-12">
-            {navLinks.map((link) => (
+        <nav className="hidden md:block bg-background border-b border-border/50">
+          <div className="container flex items-center justify-center gap-10 h-14">
+            {navLinks.map((link, idx) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`relative px-5 py-2 font-sans text-sm font-bold uppercase tracking-widest transition-all duration-200 hover:text-accent active:scale-[0.97] ${
+                className={`relative flex items-center gap-2 py-3.5 font-sans text-[15px] font-bold uppercase tracking-[0.12em] transition-colors duration-200 hover:text-accent ${
                   location.pathname === link.to
                     ? "text-accent"
-                    : "text-foreground/80"
+                    : "text-foreground/70 hover:text-foreground"
                 }`}
               >
+                {idx === 0 && <Menu className="w-4 h-4" />}
                 {link.label}
                 {location.pathname === link.to && (
                   <motion.div
                     layoutId="nav-pill"
-                    className="absolute bottom-0 left-3 right-3 h-[2px] bg-accent rounded-full"
+                    className="absolute -bottom-px left-0 right-0 h-[3px] bg-accent rounded-full"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
