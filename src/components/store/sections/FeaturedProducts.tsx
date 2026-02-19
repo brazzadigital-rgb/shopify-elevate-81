@@ -347,7 +347,7 @@ function ProductCard({
       whileHover={{ y: -6, transition: { duration: 0.3, ease: "easeOut" } }}
       className="h-full"
     >
-      <div className="relative flex flex-col h-full bg-card rounded-2xl md:rounded-[20px] border border-border/40 overflow-hidden shadow-sm transition-all duration-500 ease-out md:hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] md:hover:border-accent/20 group">
+      <div className="relative flex flex-col h-full bg-card rounded-2xl md:rounded-[20px] border border-border/40 overflow-hidden shadow-sm transition-all duration-500 ease-out md:hover:shadow-lg md:hover:border-accent/20 group">
         {/* ── Image ── */}
         <div className="relative">
           <ImageCarousel
