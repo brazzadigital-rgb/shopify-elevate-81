@@ -16,9 +16,18 @@ interface HeroSectionProps {
     cta_link?: string;
     image_url?: string;
   };
+  /** When set, renders this banner directly instead of the DynamicHeroBanner carousel */
+  overrideBanner?: {
+    desktop_image_url: string;
+    mobile_image_url?: string;
+    link?: string;
+    show_text?: boolean;
+    overlay_opacity?: number;
+    content_position?: string;
+  } | null;
 }
 
-export function HeroSection({ config }: HeroSectionProps) {
+export function HeroSection({ config, overrideBanner }: HeroSectionProps) {
   const { data: hasDynamicBanners, isLoading: checkingBanners } = useQuery({
     queryKey: ["hero-banners-check"],
     queryFn: async () => {
@@ -27,6 +36,43 @@ export function HeroSection({ config }: HeroSectionProps) {
     },
     staleTime: 1000 * 60 * 5,
   });
+
+  // If showcase provides an override banner, render it directly
+  if (overrideBanner) {
+    const desktopImg = overrideBanner.desktop_image_url;
+    const mobileImg = overrideBanner.mobile_image_url || desktopImg;
+    const opacity = (overrideBanner.overlay_opacity ?? 0) / 100;
+
+    return (
+      <section className="bg-background md:py-6 lg:py-10">
+        <div className="md:container md:px-6">
+          <div className="md:rounded-2xl overflow-hidden">
+            {overrideBanner.link ? (
+              <Link to={overrideBanner.link} className="relative block w-full">
+                <picture>
+                  <source media="(max-width: 767px)" srcSet={mobileImg} />
+                  <img src={desktopImg} alt="" className="w-full h-auto block" />
+                </picture>
+                {opacity > 0 && (
+                  <div className="absolute inset-0" style={{ background: `rgba(0,0,0,${opacity})` }} />
+                )}
+              </Link>
+            ) : (
+              <div className="relative w-full">
+                <picture>
+                  <source media="(max-width: 767px)" srcSet={mobileImg} />
+                  <img src={desktopImg} alt="" className="w-full h-auto block" />
+                </picture>
+                {opacity > 0 && (
+                  <div className="absolute inset-0" style={{ background: `rgba(0,0,0,${opacity})` }} />
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   // Show skeleton while checking for banners — never show stale fallback
   if (checkingBanners || hasDynamicBanners === undefined) {

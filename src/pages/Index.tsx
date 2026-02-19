@@ -72,10 +72,9 @@ const Index = () => {
     const heroSection = sections.find((s) => s.section_type === "hero");
     const otherSections = sections.filter((s) => s.section_type !== "hero" && s.section_type !== "featured_collections");
 
-    // If there's an active showcase with a banner, override hero config
-    const heroConfig = showcase?.banner_desktop_url
+    // Build override banner object for the HeroSection when showcase is active
+    const showcaseBannerOverride = showcase?.banner_desktop_url
       ? {
-          ...(heroSection?.config || {}),
           desktop_image_url: showcase.banner_desktop_url,
           mobile_image_url: showcase.banner_mobile_url || showcase.banner_desktop_url,
           link: showcase.banner_link || undefined,
@@ -83,14 +82,19 @@ const Index = () => {
           overlay_opacity: showcase.banner_overlay_opacity ?? 0,
           content_position: showcase.banner_text_position || "center",
         }
-      : heroSection?.config;
+      : null;
 
     // If showcase has collections, pass them to MosaicCollections
     const showcaseCollections = showcase?.collections;
 
     return (
       <main className="min-h-screen">
-        {heroConfig && <HeroSection config={heroConfig} />}
+        {heroSection && (
+          <HeroSection
+            config={heroSection.config}
+            overrideBanner={showcaseBannerOverride}
+          />
+        )}
 
         {/* Promo strip */}
         {showcase?.enable_promo_strip && showcase.promo_strip_text && (
