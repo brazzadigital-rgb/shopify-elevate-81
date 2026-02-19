@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import mobileMenuBg from "@/assets/mobile-menu-bg.jpg";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
@@ -458,9 +459,19 @@ export function StoreHeader() {
                 animate={{ x: 0 }}
                 exit={{ x: "-100%" }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[320px] bg-background z-50 md:hidden overflow-y-auto shadow-2xl"
+                className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[320px] z-50 md:hidden overflow-y-auto shadow-2xl"
+                style={{ backgroundColor: "hsl(var(--background))" }}
               >
-                <div className="p-5 border-b border-border flex items-center justify-between">
+                {/* Background image overlay */}
+                <div
+                  className="absolute inset-0 pointer-events-none opacity-[0.08]"
+                  style={{
+                    backgroundImage: `url(${mobileMenuBg})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                />
+                <div className="relative z-10 p-5 border-b border-border flex items-center justify-between">
                   <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
                     <LogoComponent mobile />
                   </Link>
@@ -470,7 +481,7 @@ export function StoreHeader() {
                 </div>
 
                 {/* Quick access blocks */}
-                <div className="px-4 py-4">
+                <div className="relative z-10 px-4 py-4">
                   <div className="grid grid-cols-1 gap-2">
                     {accountEnabled && (
                       <Link
@@ -502,7 +513,7 @@ export function StoreHeader() {
                 </div>
 
                 {/* Nav links */}
-                <nav className="px-4 py-2 flex flex-col gap-0.5">
+                <nav className="relative z-10 px-4 py-2 flex flex-col gap-0.5">
                   {navLinks.map((link) => (
                     <Link
                       key={link.to}
@@ -521,7 +532,7 @@ export function StoreHeader() {
                 </nav>
 
                 {!user && (
-                  <div className="p-4 mt-auto">
+                  <div className="relative z-10 p-4 mt-auto">
                     <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
                       <Button className="w-full rounded-xl font-sans h-12 bg-accent text-accent-foreground font-bold uppercase tracking-wider shine">
                         Entrar / Cadastrar
