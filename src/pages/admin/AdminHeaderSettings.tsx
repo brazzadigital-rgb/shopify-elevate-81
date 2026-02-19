@@ -202,20 +202,43 @@ export default function AdminHeaderSettings() {
             </div>
           </div>
 
-          {/* Preview */}
-          {settings.logo_url && (
-            <div className="border-t pt-4 space-y-2">
+          {/* Preview Desktop & Mobile */}
+          {(settings.logo_url || settings.logo_mobile_url) && (
+            <div className="border-t pt-4 space-y-3">
               <p className="font-sans text-sm font-medium text-muted-foreground">Preview</p>
-              <div className="bg-muted/30 rounded-xl p-4 flex items-center justify-center">
-                <img
-                  src={settings.logo_url}
-                  alt="Logo preview"
-                  style={{
-                    width: `${settings.header_logo_width || "160"}px`,
-                    height: `${settings.header_logo_height || "48"}px`,
-                    objectFit: "contain",
-                  }}
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {settings.logo_url && (
+                  <div className="space-y-1.5">
+                    <p className="text-xs text-muted-foreground font-sans">Desktop</p>
+                    <div className="bg-muted/30 rounded-xl p-4 flex items-center justify-center">
+                      <img
+                        src={settings.logo_url}
+                        alt="Logo desktop preview"
+                        className="object-contain"
+                        style={{
+                          width: `${settings.header_logo_width || "160"}px`,
+                          height: `${settings.header_logo_height || "48"}px`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+                {(settings.logo_mobile_url || settings.logo_url) && (
+                  <div className="space-y-1.5">
+                    <p className="text-xs text-muted-foreground font-sans">Mobile</p>
+                    <div className="bg-muted/30 rounded-xl p-4 flex items-center justify-center">
+                      <img
+                        src={settings.logo_mobile_url || settings.logo_url}
+                        alt="Logo mobile preview"
+                        className="object-contain"
+                        style={{
+                          width: `${settings.header_logo_mobile_width || "120"}px`,
+                          height: `${settings.header_logo_mobile_height || "36"}px`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
