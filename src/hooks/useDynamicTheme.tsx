@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useStoreSettings } from "./useStoreSettings";
 
-export function useDynamicTheme() {
+export function useDynamicTheme(): boolean {
   const { settings, loading } = useStoreSettings();
+  const [applied, setApplied] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -47,8 +48,8 @@ export function useDynamicTheme() {
       if (link) link.href = settings.favicon_url;
     }
 
-    return () => {
-      // Clean up custom properties on unmount (optional)
-    };
+    setApplied(true);
   }, [settings, loading]);
+
+  return applied || !loading;
 }

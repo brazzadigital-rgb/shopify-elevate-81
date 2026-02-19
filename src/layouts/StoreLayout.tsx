@@ -6,7 +6,11 @@ import { BottomPromoBanner } from "@/components/store/BottomPromoBanner";
 import { useDynamicTheme } from "@/hooks/useDynamicTheme";
 
 export default function StoreLayout() {
-  useDynamicTheme();
+  const themeReady = useDynamicTheme();
+
+  if (!themeReady) {
+    return <div className="min-h-screen bg-background" />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
