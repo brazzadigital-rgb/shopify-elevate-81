@@ -47,31 +47,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    let mounted = true;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      (_event, session) => {
+        if (!mounted) return;
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          await checkRoles(session.user.id);
+          checkRoles(session.user.id).finally(() => {
+            if (mounted) setIsLoading(false);
+          });
         } else {
           setIsAdmin(false);
           setIsSeller(false);
           setSellerId(null);
+          setIsLoading(false);
         }
-        setIsLoading(false);
       }
     );
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        await checkRoles(session.user.id);
+        checkRoles(session.user.id).finally(() => {
+          if (mounted) setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
