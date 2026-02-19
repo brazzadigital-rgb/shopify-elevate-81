@@ -110,6 +110,10 @@ export default {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-8px)" },
         },
+        "swipe-hint": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "50%": { transform: "translateX(8px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
