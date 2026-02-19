@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
+import { RectSwitch } from "@/components/ui/rect-switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -377,7 +377,7 @@ export default function ProductEditor() {
                   { key: "show_on_home", label: "Exibir na home" },
                 ].map(flag => (
                   <div key={flag.key} className="flex items-center gap-2">
-                    <Switch checked={(form as any)[flag.key]} onCheckedChange={v => setForm({ ...form, [flag.key]: v })} />
+                    <RectSwitch size="sm" checked={(form as any)[flag.key]} onCheckedChange={v => setForm({ ...form, [flag.key]: v })} />
                     <Label className="font-sans text-sm">{flag.label}</Label>
                   </div>
                 ))}
@@ -430,7 +430,7 @@ export default function ProductEditor() {
                   <Input type="number" value={form.max_installments} onChange={e => setForm({ ...form, max_installments: parseInt(e.target.value) || 1 })} className={inputClass} />
                 </div>
                 <div className="flex items-center gap-2 pt-6">
-                  <Switch checked={form.installments_interest} onCheckedChange={v => setForm({ ...form, installments_interest: v })} />
+                  <RectSwitch size="sm" checked={form.installments_interest} onCheckedChange={v => setForm({ ...form, installments_interest: v })} />
                   <Label className="font-sans text-sm">Com juros</Label>
                 </div>
                 <div className="grid gap-2">
@@ -467,7 +467,7 @@ export default function ProductEditor() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Switch checked={form.track_stock} onCheckedChange={v => setForm({ ...form, track_stock: v })} />
+                <RectSwitch size="sm" checked={form.track_stock} onCheckedChange={v => setForm({ ...form, track_stock: v })} />
                 <Label className="font-sans text-sm">Controlar estoque</Label>
               </div>
               {form.track_stock && (
@@ -487,7 +487,7 @@ export default function ProductEditor() {
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <Switch checked={form.allow_backorder} onCheckedChange={v => setForm({ ...form, allow_backorder: v })} />
+                <RectSwitch size="sm" checked={form.allow_backorder} onCheckedChange={v => setForm({ ...form, allow_backorder: v })} />
                 <Label className="font-sans text-sm">Permitir vender sem estoque</Label>
               </div>
               <div className="grid gap-2">
@@ -541,7 +541,7 @@ export default function ProductEditor() {
                   </div>
                   <div className="flex flex-wrap gap-6">
                     <div className="flex items-center gap-2">
-                      <Switch checked={form.free_shipping} onCheckedChange={v => setForm({ ...form, free_shipping: v })} />
+                      <RectSwitch size="sm" checked={form.free_shipping} onCheckedChange={v => setForm({ ...form, free_shipping: v })} />
                       <Label className="font-sans text-sm">Frete grátis</Label>
                     </div>
                   </div>
@@ -675,7 +675,7 @@ export default function ProductEditor() {
                         <Input type="number" value={f.max_length || ""} onChange={e => { const u = [...customFields]; u[i].max_length = parseInt(e.target.value) || null; setCustomFields(u); }} className="h-9 rounded-lg text-sm w-20" />
                       </div>
                       <div className="flex items-center gap-1 pb-0.5">
-                        <Switch checked={f.is_required} onCheckedChange={v => { const u = [...customFields]; u[i].is_required = v; setCustomFields(u); }} />
+                        <RectSwitch size="sm" checked={f.is_required} onCheckedChange={v => { const u = [...customFields]; u[i].is_required = v; setCustomFields(u); }} />
                         <Label className="text-xs font-sans">Obrigatório</Label>
                       </div>
                       <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-destructive" onClick={() => setCustomFields(customFields.filter((_, j) => j !== i))}>
@@ -695,11 +695,11 @@ export default function ProductEditor() {
             <CardContent className="p-6 space-y-5">
               <div className="flex flex-wrap gap-x-6 gap-y-3">
                 <div className="flex items-center gap-2">
-                  <Switch checked={form.hide_price} onCheckedChange={v => setForm({ ...form, hide_price: v })} />
+                  <RectSwitch size="sm" checked={form.hide_price} onCheckedChange={v => setForm({ ...form, hide_price: v })} />
                   <Label className="font-sans text-sm">Esconder preço</Label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Switch checked={form.quote_only} onCheckedChange={v => setForm({ ...form, quote_only: v })} />
+                  <RectSwitch size="sm" checked={form.quote_only} onCheckedChange={v => setForm({ ...form, quote_only: v })} />
                   <Label className="font-sans text-sm">Somente orçamento</Label>
                 </div>
               </div>

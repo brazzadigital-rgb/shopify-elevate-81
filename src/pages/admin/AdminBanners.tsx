@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { RectSwitch } from "@/components/ui/rect-switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -219,15 +219,15 @@ export default function AdminBanners() {
 
                 <div className="flex flex-wrap gap-6">
                   <div className="flex items-center gap-2">
-                    <Switch checked={form.show_text} onCheckedChange={(v) => setForm({ ...form, show_text: v })} />
+                    <RectSwitch size="sm" checked={form.show_text} onCheckedChange={(v) => setForm({ ...form, show_text: v })} />
                     <Label className="font-sans text-sm">Mostrar textos</Label>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Switch checked={form.full_width} onCheckedChange={(v) => setForm({ ...form, full_width: v })} />
+                    <RectSwitch size="sm" checked={form.full_width} onCheckedChange={(v) => setForm({ ...form, full_width: v })} />
                     <Label className="font-sans text-sm">Largura total</Label>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
+                    <RectSwitch size="sm" checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
                     <Label className="font-sans text-sm">Ativo</Label>
                   </div>
                 </div>

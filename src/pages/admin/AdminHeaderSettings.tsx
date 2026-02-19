@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
+import { RectSwitch } from "@/components/ui/rect-switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -105,7 +105,8 @@ export default function AdminHeaderSettings() {
   const toggleField = (key: string, label: string) => (
     <div className="flex items-center justify-between gap-4">
       <Label className="font-sans text-sm flex-1">{label}</Label>
-      <Switch
+      <RectSwitch
+        size="sm"
         checked={settings[key] === "true"}
         onCheckedChange={(v) => update(key, v ? "true" : "false")}
       />

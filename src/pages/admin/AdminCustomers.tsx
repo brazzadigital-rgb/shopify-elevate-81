@@ -43,8 +43,8 @@ export default function AdminCustomers() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold">Clientes</h1>
-        <p className="text-muted-foreground font-sans mt-1">Lista de clientes cadastrados</p>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold">Clientes</h1>
+        <p className="text-muted-foreground font-sans mt-1 text-sm">Lista de clientes cadastrados</p>
       </div>
 
       <Card className="shadow-premium border-0">
@@ -57,28 +57,48 @@ export default function AdminCustomers() {
               <p className="font-sans text-lg">Nenhum cliente cadastrado</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="font-sans">Nome</TableHead>
-                  <TableHead className="font-sans">Telefone</TableHead>
-                  <TableHead className="font-sans">Pedidos</TableHead>
-                  <TableHead className="font-sans">Cadastro</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Desktop table */}
+              <div className="hidden sm:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="font-sans">Nome</TableHead>
+                      <TableHead className="font-sans">Telefone</TableHead>
+                      <TableHead className="font-sans">Pedidos</TableHead>
+                      <TableHead className="font-sans">Cadastro</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {profiles.map((p) => (
+                      <TableRow key={p.id} className="hover:bg-muted/50 transition-colors">
+                        <TableCell className="font-sans font-medium">{p.full_name || "Sem nome"}</TableCell>
+                        <TableCell className="font-sans text-sm text-muted-foreground">{p.phone || "—"}</TableCell>
+                        <TableCell className="font-sans">{orderCounts[p.user_id] || 0}</TableCell>
+                        <TableCell className="font-sans text-sm text-muted-foreground">
+                          {new Date(p.created_at).toLocaleDateString("pt-BR")}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              {/* Mobile cards */}
+              <div className="sm:hidden divide-y divide-border">
                 {profiles.map((p) => (
-                  <TableRow key={p.id} className="hover:bg-muted/50 transition-colors">
-                    <TableCell className="font-sans font-medium">{p.full_name || "Sem nome"}</TableCell>
-                    <TableCell className="font-sans text-sm text-muted-foreground">{p.phone || "—"}</TableCell>
-                    <TableCell className="font-sans">{orderCounts[p.user_id] || 0}</TableCell>
-                    <TableCell className="font-sans text-sm text-muted-foreground">
-                      {new Date(p.created_at).toLocaleDateString("pt-BR")}
-                    </TableCell>
-                  </TableRow>
+                  <div key={p.id} className="p-4 space-y-1">
+                    <p className="font-sans font-medium text-sm">{p.full_name || "Sem nome"}</p>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground font-sans">
+                      <span>{p.phone || "Sem telefone"}</span>
+                      <span>{orderCounts[p.user_id] || 0} pedidos</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-sans">
+                      Desde {new Date(p.created_at).toLocaleDateString("pt-BR")}
+                    </p>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

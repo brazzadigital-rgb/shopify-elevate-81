@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
+import { RectSwitch } from "@/components/ui/rect-switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ImageUpload } from "@/components/store/ImageUpload";
 import { toast } from "@/hooks/use-toast";
@@ -357,7 +357,8 @@ export default function AdminVisualIdentity() {
               <Label className="font-sans text-sm font-medium">Reflexo de Estúdio</Label>
               <p className="text-xs text-muted-foreground mt-0.5">Anel metálico com reflexo de softbox premium</p>
             </div>
-            <Switch
+            <RectSwitch
+              size="sm"
               checked={settings.jewel_enabled === "true"}
               onCheckedChange={(v) => update("jewel_enabled", v ? "true" : "false")}
             />
@@ -404,7 +405,8 @@ export default function AdminVisualIdentity() {
               <Label className="font-sans text-sm font-medium">Shine ao Toque</Label>
               <p className="text-xs text-muted-foreground mt-0.5">Reflexo imediato ao tocar no mobile</p>
             </div>
-            <Switch
+            <RectSwitch
+              size="sm"
               checked={settings.jewel_shine_tap !== "false"}
               onCheckedChange={(v) => update("jewel_shine_tap", v ? "true" : "false")}
             />
@@ -415,7 +417,8 @@ export default function AdminVisualIdentity() {
               <Label className="font-sans text-sm font-medium">Realçar Categoria Ativa</Label>
               <p className="text-xs text-muted-foreground mt-0.5">Glow mais forte na categoria selecionada</p>
             </div>
-            <Switch
+            <RectSwitch
+              size="sm"
               checked={settings.jewel_active_highlight !== "false"}
               onCheckedChange={(v) => update("jewel_active_highlight", v ? "true" : "false")}
             />
