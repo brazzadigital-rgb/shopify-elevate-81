@@ -537,6 +537,7 @@ export type Database = {
           order_number: string
           payment_method: string | null
           payment_status: string
+          referral_code: string | null
           seller_id: string | null
           shipping_address: Json | null
           shipping_cost: number
@@ -557,6 +558,7 @@ export type Database = {
           order_number: string
           payment_method?: string | null
           payment_status?: string
+          referral_code?: string | null
           seller_id?: string | null
           shipping_address?: Json | null
           shipping_cost?: number
@@ -577,6 +579,7 @@ export type Database = {
           order_number?: string
           payment_method?: string | null
           payment_status?: string
+          referral_code?: string | null
           seller_id?: string | null
           shipping_address?: Json | null
           shipping_cost?: number
@@ -1107,6 +1110,7 @@ export type Database = {
           monthly_goal: number | null
           name: string
           phone: string | null
+          referral_code: string | null
           status: string
           updated_at: string
           user_id: string | null
@@ -1121,6 +1125,7 @@ export type Database = {
           monthly_goal?: number | null
           name: string
           phone?: string | null
+          referral_code?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -1135,6 +1140,7 @@ export type Database = {
           monthly_goal?: number | null
           name?: string
           phone?: string | null
+          referral_code?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -1245,7 +1251,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "seller"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1373,7 +1379,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "seller"],
     },
   },
 } as const
