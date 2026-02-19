@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Banner {
   id: string;
@@ -17,24 +18,70 @@ interface Banner {
   show_text: boolean;
   content_position: string;
   height: string | null;
+  updated_at: string;
+}
+
+/** Append cache-bust param based on updated_at */
+function cacheBust(url: string | null, updatedAt: string): string {
+  if (!url) return "";
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}v=${new Date(updatedAt).getTime()}`;
+}
+
+/** Preload an image and resolve when ready */
+function preloadImage(src: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (!src) { resolve(); return; }
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => reject();
+    img.src = src;
+  });
 }
 
 export function DynamicHeroBanner() {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [current, setCurrent] = useState(0);
+  const [imagesReady, setImagesReady] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAndPreload = useCallback(async () => {
+    setLoading(true);
+    setImagesReady(false);
+
+    const { data } = await supabase
+      .from("banners")
+      .select("*")
+      .eq("location", "hero")
+      .eq("is_active", true)
+      .order("sort_order");
+
+    const list = (data as Banner[]) || [];
+    setBanners(list);
+
+    if (list.length === 0) {
+      setLoading(false);
+      return;
+    }
+
+    // Preload first banner's images before showing
+    const first = list[0];
+    const desktopSrc = cacheBust(first.desktop_image_url, first.updated_at);
+    const mobileSrc = cacheBust(first.mobile_image_url || first.desktop_image_url, first.updated_at);
+
+    try {
+      await Promise.all([preloadImage(desktopSrc), preloadImage(mobileSrc)]);
+    } catch {
+      // Even if preload fails, still show the banner
+    }
+
+    setImagesReady(true);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("banners")
-        .select("*")
-        .eq("location", "hero")
-        .eq("is_active", true)
-        .order("sort_order");
-      setBanners((data as Banner[]) || []);
-    };
-    fetch();
-  }, []);
+    fetchAndPreload();
+  }, [fetchAndPreload]);
 
   // Auto-rotate
   useEffect(() => {
@@ -43,11 +90,20 @@ export function DynamicHeroBanner() {
     return () => clearInterval(timer);
   }, [banners.length]);
 
+  // Show skeleton while loading or images not ready
+  if (loading || !imagesReady) {
+    return (
+      <section className="relative w-full overflow-hidden">
+        <Skeleton className="w-full h-[280px] md:h-[480px] lg:h-[540px]" />
+      </section>
+    );
+  }
+
   if (banners.length === 0) return null;
 
   const b = banners[current];
-  const desktopImg = b.desktop_image_url;
-  const mobileImg = b.mobile_image_url || desktopImg;
+  const desktopImg = cacheBust(b.desktop_image_url, b.updated_at);
+  const mobileImg = cacheBust(b.mobile_image_url || b.desktop_image_url, b.updated_at);
   const heightStyle = b.height && b.height !== "adaptive" ? { minHeight: `${b.height}px` } : {};
 
   const positionClass = {
@@ -58,13 +114,20 @@ export function DynamicHeroBanner() {
 
   return (
     <section className="relative w-full overflow-hidden">
-      {/* Mobile: image defines its own height, no cropping */}
+      {/* Mobile */}
       <div className="md:hidden relative w-full">
-        <img
-          src={mobileImg || desktopImg || ""}
-          alt={b.title || ""}
-          className="w-full h-auto block"
-        />
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={b.id + "-mobile"}
+            src={mobileImg || desktopImg}
+            alt={b.title || ""}
+            className="w-full h-auto block"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          />
+        </AnimatePresence>
         <div
           className="absolute inset-0"
           style={{
@@ -73,28 +136,17 @@ export function DynamicHeroBanner() {
         />
         {b.show_text && (
           <motion.div
-            key={b.id + "-mobile"}
+            key={b.id + "-mobile-text"}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className={`absolute bottom-0 left-0 right-0 z-10 p-5 sm:p-8 max-w-lg flex flex-col ${positionClass}`}
           >
-            {b.title && (
-              <h2 className="font-display text-2xl sm:text-3xl font-bold leading-tight text-white mb-2">
-                {b.title}
-              </h2>
-            )}
-            {b.subtitle && (
-              <p className="text-xs sm:text-sm text-white/70 font-sans mb-4 leading-relaxed">
-                {b.subtitle}
-              </p>
-            )}
+            {b.title && <h2 className="font-display text-2xl sm:text-3xl font-bold leading-tight text-white mb-2">{b.title}</h2>}
+            {b.subtitle && <p className="text-xs sm:text-sm text-white/70 font-sans mb-4 leading-relaxed">{b.subtitle}</p>}
             {b.cta_text && b.link && (
               <Link to={b.link}>
-                <Button
-                  size="lg"
-                  className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full shine font-sans h-11 px-6 text-xs font-bold uppercase tracking-[0.15em] glow-orange transition-all duration-300 w-full sm:w-auto"
-                >
+                <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full shine font-sans h-11 px-6 text-xs font-bold uppercase tracking-[0.15em] glow-orange transition-all duration-300 w-full sm:w-auto">
                   {b.cta_text} <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </Link>
@@ -104,38 +156,32 @@ export function DynamicHeroBanner() {
         {banners.length > 1 && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
             {banners.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrent(i)}
-                className={`w-2.5 h-2.5 rounded-full transition-all min-h-[unset] min-w-[unset] ${
-                  i === current ? "bg-white scale-110" : "bg-white/30 hover:bg-white/50"
-                }`}
-              />
+              <button key={i} onClick={() => setCurrent(i)} className={`w-2.5 h-2.5 rounded-full transition-all min-h-[unset] min-w-[unset] ${i === current ? "bg-white scale-110" : "bg-white/30 hover:bg-white/50"}`} />
             ))}
           </div>
         )}
       </div>
 
       {/* Desktop */}
-      <div
-        className="relative w-full hidden md:flex items-end md:min-h-[480px] lg:min-h-[540px]"
-        style={heightStyle}
-      >
-        <img
-          src={desktopImg || ""}
-          alt={b.title || ""}
-          className="absolute inset-0 w-full h-full object-cover object-center"
-        />
-
-        {/* Overlay */}
+      <div className="relative w-full hidden md:flex items-end md:min-h-[480px] lg:min-h-[540px]" style={heightStyle}>
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={b.id + "-desktop"}
+            src={desktopImg}
+            alt={b.title || ""}
+            className="absolute inset-0 w-full h-full object-cover object-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          />
+        </AnimatePresence>
         <div
           className="absolute inset-0"
           style={{
             background: `linear-gradient(to right, rgba(0,0,0,${b.overlay_opacity / 100 * 1.2}), rgba(0,0,0,${b.overlay_opacity / 100 * 0.4}), transparent)`,
           }}
         />
-
-        {/* Content */}
         {b.show_text && (
           <motion.div
             key={b.id}
@@ -144,40 +190,21 @@ export function DynamicHeroBanner() {
             transition={{ duration: 0.5 }}
             className={`relative z-10 p-5 sm:p-8 md:p-12 lg:p-16 max-w-lg flex flex-col ${positionClass}`}
           >
-            {b.title && (
-              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-white mb-2 md:mb-3">
-                {b.title}
-              </h2>
-            )}
-            {b.subtitle && (
-              <p className="text-xs sm:text-sm md:text-base text-white/70 font-sans mb-4 md:mb-6 leading-relaxed">
-                {b.subtitle}
-              </p>
-            )}
+            {b.title && <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-white mb-2 md:mb-3">{b.title}</h2>}
+            {b.subtitle && <p className="text-xs sm:text-sm md:text-base text-white/70 font-sans mb-4 md:mb-6 leading-relaxed">{b.subtitle}</p>}
             {b.cta_text && b.link && (
               <Link to={b.link}>
-                <Button
-                  size="lg"
-                  className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full shine font-sans h-11 md:h-12 px-6 md:px-10 text-xs md:text-sm font-bold uppercase tracking-[0.15em] glow-orange transition-all duration-300 hover:glow-orange-lg w-full sm:w-auto"
-                >
+                <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full shine font-sans h-11 md:h-12 px-6 md:px-10 text-xs md:text-sm font-bold uppercase tracking-[0.15em] glow-orange transition-all duration-300 hover:glow-orange-lg w-full sm:w-auto">
                   {b.cta_text} <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </Link>
             )}
           </motion.div>
         )}
-
-        {/* Dots */}
         {banners.length > 1 && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
             {banners.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrent(i)}
-                className={`w-2.5 h-2.5 rounded-full transition-all min-h-[unset] min-w-[unset] ${
-                  i === current ? "bg-white scale-110" : "bg-white/30 hover:bg-white/50"
-                }`}
-              />
+              <button key={i} onClick={() => setCurrent(i)} className={`w-2.5 h-2.5 rounded-full transition-all min-h-[unset] min-w-[unset] ${i === current ? "bg-white scale-110" : "bg-white/30 hover:bg-white/50"}`} />
             ))}
           </div>
         )}
