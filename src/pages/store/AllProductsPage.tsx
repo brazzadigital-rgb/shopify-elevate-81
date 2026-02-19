@@ -300,14 +300,19 @@ export default function AllProductsPage() {
   const [collectionProductIds, setCollectionProductIds] = useState<string[]>([]);
   useEffect(() => {
     if (!collectionFilter) { setCollectionProductIds([]); return; }
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("collection_products")
-        .select("product_id")
-        .eq("collection_id", collectionFilter);
-      setCollectionProductIds((data || []).map((d) => d.product_id));
+    const fetchCollectionProducts = async () => {
+      // Try both tables since data may be in either
+      const [cpRes, pcRes] = await Promise.all([
+        supabase.from("collection_products").select("product_id").eq("collection_id", collectionFilter),
+        supabase.from("product_categories").select("product_id").eq("collection_id", collectionFilter),
+      ]);
+      const ids = new Set([
+        ...((cpRes.data || []).map((d) => d.product_id)),
+        ...((pcRes.data || []).map((d) => d.product_id)),
+      ]);
+      setCollectionProductIds(Array.from(ids));
     };
-    fetch();
+    fetchCollectionProducts();
   }, [collectionFilter]);
 
   // Filter + sort
