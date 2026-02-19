@@ -58,21 +58,73 @@ export function DynamicHeroBanner() {
 
   return (
     <section className="relative w-full overflow-hidden">
-      <div
-        className="relative w-full min-h-[280px] sm:min-h-[380px] md:min-h-[480px] lg:min-h-[540px] flex items-end"
-        style={heightStyle}
-      >
-        {/* Desktop image */}
-        <img
-          src={desktopImg || ""}
-          alt={b.title || ""}
-          className="absolute inset-0 w-full h-full object-cover object-center hidden md:block"
-        />
-        {/* Mobile image */}
+      {/* Mobile: fixed 750x1100 aspect ratio */}
+      <div className="md:hidden relative w-full" style={{ aspectRatio: "750 / 1100" }}>
         <img
           src={mobileImg || desktopImg || ""}
           alt={b.title || ""}
-          className="absolute inset-0 w-full h-full object-cover object-center md:hidden"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(to right, rgba(0,0,0,${b.overlay_opacity / 100 * 1.2}), rgba(0,0,0,${b.overlay_opacity / 100 * 0.4}), transparent)`,
+          }}
+        />
+        {b.show_text && (
+          <motion.div
+            key={b.id + "-mobile"}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className={`absolute bottom-0 left-0 right-0 z-10 p-5 sm:p-8 max-w-lg flex flex-col ${positionClass}`}
+          >
+            {b.title && (
+              <h2 className="font-display text-2xl sm:text-3xl font-bold leading-tight text-white mb-2">
+                {b.title}
+              </h2>
+            )}
+            {b.subtitle && (
+              <p className="text-xs sm:text-sm text-white/70 font-sans mb-4 leading-relaxed">
+                {b.subtitle}
+              </p>
+            )}
+            {b.cta_text && b.link && (
+              <Link to={b.link}>
+                <Button
+                  size="lg"
+                  className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full shine font-sans h-11 px-6 text-xs font-bold uppercase tracking-[0.15em] glow-orange transition-all duration-300 w-full sm:w-auto"
+                >
+                  {b.cta_text} <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+            )}
+          </motion.div>
+        )}
+        {banners.length > 1 && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+            {banners.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`w-2.5 h-2.5 rounded-full transition-all min-h-[unset] min-w-[unset] ${
+                  i === current ? "bg-white scale-110" : "bg-white/30 hover:bg-white/50"
+                }`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop */}
+      <div
+        className="relative w-full hidden md:flex items-end md:min-h-[480px] lg:min-h-[540px]"
+        style={heightStyle}
+      >
+        <img
+          src={desktopImg || ""}
+          alt={b.title || ""}
+          className="absolute inset-0 w-full h-full object-cover object-center"
         />
 
         {/* Overlay */}

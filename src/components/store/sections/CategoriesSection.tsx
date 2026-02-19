@@ -40,7 +40,7 @@ export function CategoriesSection() {
           Categorias
         </motion.h3>
 
-        <div className="flex justify-center gap-4 md:gap-6 flex-wrap px-2">
+        <div className="grid grid-cols-4 gap-3 px-2 sm:flex sm:justify-center sm:gap-4 md:gap-8 sm:flex-wrap">
           {collections.map((cat, i) => (
             <motion.div
               key={cat.id}
@@ -51,9 +51,9 @@ export function CategoriesSection() {
             >
               <Link
                 to={`/colecao/${cat.slug}`}
-                className="flex flex-col items-center gap-3 group"
+                className="flex flex-col items-center gap-2 sm:gap-3 group"
               >
-                <div className="relative w-[80px] h-[80px] md:w-[100px] md:h-[100px] rounded-full p-[2px] bg-gradient-to-br from-border to-border group-hover:from-accent group-hover:to-accent/60 transition-all duration-400">
+                <div className="relative w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] md:w-[130px] md:h-[130px] lg:w-[150px] lg:h-[150px] rounded-full p-[2px] bg-gradient-to-br from-border to-border group-hover:from-accent group-hover:to-accent/60 transition-all duration-400">
                   <div className="w-full h-full rounded-full overflow-hidden bg-card">
                     {cat.image_url ? (
                       <img
@@ -69,7 +69,7 @@ export function CategoriesSection() {
                     )}
                   </div>
                 </div>
-                <span className="font-sans text-[10px] md:text-xs font-bold uppercase tracking-[0.1em] text-foreground/70 group-hover:text-accent transition-colors duration-300 text-center leading-tight max-w-[100px]">
+                <span className="font-sans text-[9px] sm:text-[10px] md:text-sm font-bold uppercase tracking-[0.1em] text-foreground/70 group-hover:text-accent transition-colors duration-300 text-center leading-tight max-w-[80px] sm:max-w-[100px] md:max-w-[140px]">
                   {cat.name}
                 </span>
               </Link>
