@@ -111,8 +111,10 @@ export default function Auth() {
           />
         ))}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="relative z-10 text-center px-12">
-          <h2 className="font-display text-2xl font-bold text-foreground tracking-wide">{storeName || "Sua Joalheria"}</h2>
-          <p className="text-muted-foreground text-sm mt-2 tracking-widest uppercase">Elegância & Exclusividade</p>
+          <div className="inline-block bg-black/40 backdrop-blur-sm rounded-2xl px-8 py-5">
+            <h2 className="font-display text-2xl font-bold text-white tracking-wide">{storeName || "Sua Joalheria"}</h2>
+            <p className="text-white/80 text-sm mt-2 tracking-widest uppercase">Elegância & Exclusividade</p>
+          </div>
         </motion.div>
       </div>
 
