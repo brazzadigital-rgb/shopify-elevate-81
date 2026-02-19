@@ -7,6 +7,7 @@ import { FeaturedCollections } from "@/components/store/sections/FeaturedCollect
 import { BenefitsSection } from "@/components/store/sections/BenefitsSection";
 import { NewsletterSection } from "@/components/store/sections/NewsletterSection";
 import { MascotPromoPanel } from "@/components/store/sections/MascotPromoPanel";
+import PromoTriplePanel from "@/components/store/sections/PromoTriplePanel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSellerReferral } from "@/hooks/useSellerReferral";
 
@@ -74,6 +75,7 @@ const Index = () => {
                 <div key={section.id}>
                   <FeaturedProducts config={section.config} title={section.title || undefined} />
                   {featuredProductsCount === 1 && <MascotPromoPanel />}
+                  {featuredProductsCount === 2 && <PromoTriplePanel />}
                 </div>
               );
             }
