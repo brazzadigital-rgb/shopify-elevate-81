@@ -161,8 +161,8 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
           })}
         </div>
 
-        {/* Mobile: 2-column grid with scroll snap */}
-        <div className="md:hidden grid grid-cols-2 gap-3">
+        {/* Mobile: uniform 2-column grid */}
+        <div className="md:hidden grid grid-cols-2 gap-1">
           {collections.slice(0, 6).map((c, i) => (
             <motion.div
               key={c.id}
@@ -170,12 +170,10 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.06 }}
-              className={i === 0 ? "col-span-2" : ""}
             >
               <Link
                 to={`/colecao/${c.slug}`}
-                className="group relative block w-full rounded-[18px] overflow-hidden"
-                style={{ height: i === 0 ? 220 : 160 }}
+                className="group relative block w-full aspect-square overflow-hidden"
               >
                 {(c.banner_url || c.image_url) ? (
                   <img
@@ -187,13 +185,13 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <h3 className="font-display text-base font-bold text-white uppercase leading-tight">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end justify-between">
+                  <h3 className="font-display text-sm font-bold text-white uppercase leading-tight">
                     {c.name}
                   </h3>
-                  <span className="inline-flex items-center gap-1 text-white/70 font-sans text-[10px] font-semibold uppercase tracking-wider mt-1">
-                    clique e confira <ArrowRight className="w-3 h-3" />
+                  <span className="inline-flex items-center gap-1 text-white/80 bg-black/30 backdrop-blur-sm rounded-full px-2 py-0.5 font-sans text-[9px] font-semibold uppercase tracking-wider whitespace-nowrap">
+                    clique e confira
                   </span>
                 </div>
               </Link>
