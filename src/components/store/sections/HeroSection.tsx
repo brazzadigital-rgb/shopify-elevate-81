@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -19,15 +19,14 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ config }: HeroSectionProps) {
-  const [hasDynamicBanners, setHasDynamicBanners] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const check = async () => {
+  const { data: hasDynamicBanners } = useQuery({
+    queryKey: ["hero-banners-check"],
+    queryFn: async () => {
       const { count } = await supabase.from("banners").select("id", { count: "exact", head: true }).eq("location", "hero").eq("is_active", true);
-      setHasDynamicBanners((count || 0) > 0);
-    };
-    check();
-  }, []);
+      return (count || 0) > 0;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
 
   // If dynamic banners exist, show them instead
   if (hasDynamicBanners === true) {
