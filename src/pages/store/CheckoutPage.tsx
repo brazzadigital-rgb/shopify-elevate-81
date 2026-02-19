@@ -300,27 +300,83 @@ export default function CheckoutPage() {
 
   return (
     <div className="container px-4 md:px-6 py-6 md:py-12 max-w-6xl">
-      {/* Stepper */}
-      <div className="flex items-center justify-between sm:justify-center gap-1 mb-6 md:mb-10 overflow-x-auto scrollbar-hide">
-        {STEPS.map((s, i) => (
-          <div key={s.key} className="flex items-center shrink-0">
-            <button
-              onClick={() => i < stepIndex && setStep(s.key)}
-              disabled={i > stepIndex}
-              className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-sans font-medium transition-all ${
-                i === stepIndex
-                  ? "bg-primary text-primary-foreground"
-                  : i < stepIndex
-                    ? "bg-success/10 text-success cursor-pointer"
-                    : "bg-muted text-muted-foreground"
-              }`}
-            >
-              {i < stepIndex ? <Check className="w-4 h-4" /> : s.icon}
-              <span className="hidden sm:inline">{s.label}</span>
-            </button>
-            {i < STEPS.length - 1 && <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground mx-0.5 sm:mx-1" />}
-          </div>
-        ))}
+      {/* Premium Stepper */}
+      <div className="flex items-center justify-center gap-0 mb-8 md:mb-12 px-2">
+        {STEPS.map((s, i) => {
+          const isActive = i === stepIndex;
+          const isCompleted = i < stepIndex;
+          const isPending = i > stepIndex;
+
+          return (
+            <div key={s.key} className="flex items-center">
+              <motion.button
+                onClick={() => isCompleted && setStep(s.key)}
+                disabled={isPending}
+                className={`relative flex items-center gap-2 px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl font-sans text-xs sm:text-sm font-semibold transition-all duration-300 ${
+                  isActive
+                    ? "bg-primary text-primary-foreground shadow-lg"
+                    : isCompleted
+                      ? "bg-primary/10 text-primary cursor-pointer hover:bg-primary/20"
+                      : "bg-muted/60 text-muted-foreground/50"
+                }`}
+                layout
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                whileTap={isCompleted ? { scale: 0.95 } : undefined}
+              >
+                {/* Animated glow ring for active */}
+                {isActive && (
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl border-2 border-primary/30"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: [0.4, 0.8, 0.4], scale: [0.98, 1.02, 0.98] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                )}
+
+                {/* Icon */}
+                <motion.span
+                  className="relative z-10"
+                  initial={false}
+                  animate={isCompleted ? { rotate: [0, -10, 10, 0] } : { rotate: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  {isCompleted ? <Check className="w-4 h-4" /> : s.icon}
+                </motion.span>
+
+                {/* Label — visible on sm+ */}
+                <span className="hidden sm:inline relative z-10">{s.label}</span>
+
+                {/* Active shimmer */}
+                {isActive && (
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent"
+                      animate={{ x: ["-100%", "200%"] }}
+                      transition={{ duration: 2, repeat: Infinity, repeatDelay: 3, ease: "easeInOut" }}
+                    />
+                  </motion.div>
+                )}
+              </motion.button>
+
+              {/* Connector line */}
+              {i < STEPS.length - 1 && (
+                <div className="relative w-6 sm:w-10 h-[2px] mx-0.5">
+                  <div className="absolute inset-0 bg-border rounded-full" />
+                  <motion.div
+                    className="absolute inset-y-0 left-0 bg-primary rounded-full"
+                    initial={{ width: "0%" }}
+                    animate={{ width: isCompleted ? "100%" : "0%" }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
