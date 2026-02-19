@@ -7,20 +7,21 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
 import { ImageUpload } from "@/components/store/ImageUpload";
 import { toast } from "@/hooks/use-toast";
-import { Save, Palette, Type, ImageIcon, Gem } from "lucide-react";
+import { Save, Palette, Type, ImageIcon, Gem, Eye, Sparkles, ShoppingCart } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface SettingsMap { [key: string]: string; }
 
 const colorSettings = [
-  { key: "color_primary", label: "Cor Primária (accent)" },
-  { key: "color_secondary", label: "Cor Secundária" },
-  { key: "color_buttons", label: "Cor dos Botões" },
-  { key: "color_background", label: "Cor de Fundo" },
-  { key: "color_text", label: "Cor dos Textos" },
-  { key: "color_promotions", label: "Cor de Promoções" },
+  { key: "color_primary", label: "Cor Principal (Bordô)", description: "Header, títulos, destaques" },
+  { key: "color_secondary", label: "Cor Secundária (Bege)", description: "Fundos suaves, bordas" },
+  { key: "color_buttons", label: "Cor dos Botões", description: "CTAs de compra" },
+  { key: "color_background", label: "Cor de Fundo", description: "Fundo principal do site" },
+  { key: "color_text", label: "Cor dos Textos", description: "Corpo de texto" },
+  { key: "color_links", label: "Cor dos Links", description: "Links e hover" },
+  { key: "color_promotions", label: "Cor de Promoções", description: "Badges de desconto" },
 ];
 
 const fontSettings = [
@@ -30,11 +31,53 @@ const fontSettings = [
   { key: "font_size_base", label: "Tamanho Base (px)" },
 ];
 
+const themePresets: { name: string; icon: string; colors: Record<string, string> }[] = [
+  {
+    name: "Bordô Luxo",
+    icon: "🍷",
+    colors: {
+      color_primary: "345 45% 25%",
+      color_secondary: "30 30% 88%",
+      color_buttons: "345 45% 25%",
+      color_background: "30 15% 97%",
+      color_text: "345 15% 15%",
+      color_links: "345 45% 30%",
+      color_promotions: "0 65% 48%",
+    },
+  },
+  {
+    name: "Rosé Gold",
+    icon: "🌸",
+    colors: {
+      color_primary: "350 40% 55%",
+      color_secondary: "20 30% 90%",
+      color_buttons: "350 40% 50%",
+      color_background: "20 15% 97%",
+      color_text: "350 15% 18%",
+      color_links: "350 40% 45%",
+      color_promotions: "0 60% 50%",
+    },
+  },
+  {
+    name: "Champagne Claro",
+    icon: "🥂",
+    colors: {
+      color_primary: "38 35% 42%",
+      color_secondary: "35 25% 90%",
+      color_buttons: "38 40% 38%",
+      color_background: "35 15% 97%",
+      color_text: "35 12% 15%",
+      color_links: "38 35% 35%",
+      color_promotions: "0 55% 50%",
+    },
+  },
+];
+
 // Convert HSL string "H S% L%" to hex for the color picker
 function hslToHex(hsl: string): string {
-  if (!hsl || hsl.length < 5) return "#ff4900";
+  if (!hsl || hsl.length < 5) return "#6b2030";
   const parts = hsl.replace(/%/g, "").split(/\s+/).map(Number);
-  if (parts.length < 3) return "#ff4900";
+  if (parts.length < 3) return "#6b2030";
   const [h, s, l] = parts;
   const sn = s / 100;
   const ln = l / 100;
@@ -67,10 +110,80 @@ function hexToHsl(hex: string): string {
   return `${Math.round(h)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }
 
+/* ─── Live Preview Component ─── */
+function ThemePreview({ settings }: { settings: SettingsMap }) {
+  const primary = settings.color_primary || "345 45% 25%";
+  const secondary = settings.color_secondary || "30 30% 88%";
+  const buttons = settings.color_buttons || primary;
+  const bg = settings.color_background || "30 15% 97%";
+  const text = settings.color_text || "345 15% 15%";
+
+  return (
+    <div className="rounded-2xl overflow-hidden border border-border shadow-premium" style={{ backgroundColor: `hsl(${bg})` }}>
+      {/* Mini header */}
+      <div className="h-12 flex items-center px-4 gap-3" style={{ backgroundColor: `hsl(${primary})` }}>
+        <div className="w-16 h-5 rounded bg-white/20" />
+        <div className="flex-1" />
+        <div className="flex gap-2">
+          <div className="w-6 h-6 rounded-full bg-white/15" />
+          <div className="w-6 h-6 rounded-full bg-white/15" />
+        </div>
+      </div>
+
+      {/* Content area */}
+      <div className="p-4 space-y-3">
+        {/* Title */}
+        <div className="space-y-1">
+          <p className="font-display text-sm font-bold uppercase tracking-wide" style={{ color: `hsl(${text})` }}>
+            Anel Solitário Diamante
+          </p>
+          <p className="text-xs" style={{ color: `hsl(${text} / 0.55)` }}>
+            Ouro 18k com brilhante central
+          </p>
+        </div>
+
+        {/* Product card preview */}
+        <div className="flex gap-3">
+          <div className="w-20 h-20 rounded-xl flex items-center justify-center text-2xl" style={{ backgroundColor: `hsl(${secondary})` }}>
+            💍
+          </div>
+          <div className="flex-1 space-y-2">
+            <p className="font-sans text-lg font-bold" style={{ color: `hsl(${text})` }}>R$ 4.299,00</p>
+            <p className="text-[10px]" style={{ color: `hsl(${text} / 0.5)` }}>12x de R$ 358,25 s/ juros</p>
+            <button
+              className="h-8 px-4 rounded-lg text-xs font-bold flex items-center gap-1.5 min-h-[unset]"
+              style={{
+                backgroundColor: `hsl(${buttons})`,
+                color: `hsl(${bg})`,
+              }}
+            >
+              <ShoppingCart className="w-3 h-3" /> Comprar
+            </button>
+          </div>
+        </div>
+
+        {/* Badge samples */}
+        <div className="flex gap-2 flex-wrap">
+          <span className="px-2 py-0.5 rounded text-[9px] font-bold" style={{ backgroundColor: `hsl(${primary} / 0.12)`, color: `hsl(${primary})` }}>
+            NOVO
+          </span>
+          <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-destructive/10 text-destructive">
+            -30% OFF
+          </span>
+          <span className="px-2 py-0.5 rounded text-[9px] font-bold" style={{ backgroundColor: `hsl(${secondary})`, color: `hsl(${text} / 0.7)` }}>
+            Frete Grátis
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminVisualIdentity() {
   const [settings, setSettings] = useState<SettingsMap>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const fetch = async () => {
@@ -85,13 +198,19 @@ export default function AdminVisualIdentity() {
 
   const update = (key: string, value: string) => setSettings((p) => ({ ...p, [key]: value }));
 
+  const applyPreset = (preset: typeof themePresets[0]) => {
+    setSettings((prev) => ({ ...prev, ...preset.colors }));
+    toast({ title: `Preset "${preset.name}" aplicado`, description: "Clique em Salvar para confirmar." });
+  };
+
   const handleSave = async () => {
     setSaving(true);
     const promises = Object.entries(settings).map(([key, value]) =>
       supabase.from("store_settings").upsert({ key, value }, { onConflict: "key" })
     );
     await Promise.all(promises);
-    toast({ title: "Identidade visual salva!" });
+    queryClient.invalidateQueries({ queryKey: ["store-settings"] });
+    toast({ title: "Identidade visual salva!", description: "As mudanças serão aplicadas imediatamente." });
     setSaving(false);
   };
 
@@ -105,7 +224,7 @@ export default function AdminVisualIdentity() {
           <p className="text-muted-foreground font-sans mt-1 text-sm">Personalize a aparência da sua loja</p>
         </div>
         <Button onClick={handleSave} disabled={saving} className="gap-2 rounded-xl shine h-10 font-sans text-sm">
-          <Save className="w-4 h-4" /> {saving ? "Salvando..." : "Salvar"}
+          <Save className="w-4 h-4" /> {saving ? "Salvando..." : "Salvar Alterações"}
         </Button>
       </div>
 
@@ -132,35 +251,79 @@ export default function AdminVisualIdentity() {
         </CardContent>
       </Card>
 
-      {/* Colors */}
+      {/* Theme Presets */}
       <Card className="shadow-premium border-0">
         <CardHeader className="pb-4">
-          <CardTitle className="font-display text-lg flex items-center gap-2"><Palette className="w-5 h-5 text-accent" /> Cores</CardTitle>
+          <CardTitle className="font-display text-lg flex items-center gap-2"><Sparkles className="w-5 h-5 text-accent" /> Presets de Tema</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {colorSettings.map((c) => (
-              <div key={c.key} className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={hslToHex(settings[c.key] || "")}
-                  onChange={(e) => update(c.key, hexToHsl(e.target.value))}
-                  className="w-10 h-10 rounded-xl border border-border cursor-pointer shrink-0 min-h-[unset] min-w-[unset]"
-                />
-                <div className="flex-1">
-                  <Label className="font-sans text-xs text-muted-foreground">{c.label}</Label>
-                  <Input
-                    value={settings[c.key] || ""}
-                    onChange={(e) => update(c.key, e.target.value)}
-                    className="h-8 rounded-lg text-xs font-mono"
-                    placeholder="H S% L%"
-                  />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {themePresets.map((preset) => (
+              <button
+                key={preset.name}
+                onClick={() => applyPreset(preset)}
+                className="flex flex-col items-center gap-3 p-4 rounded-2xl border border-border hover:border-accent/40 hover:shadow-md transition-all group min-h-[unset]"
+              >
+                <div className="flex gap-1.5">
+                  {Object.entries(preset.colors).slice(0, 4).map(([k, v]) => (
+                    <div
+                      key={k}
+                      className="w-7 h-7 rounded-full border border-foreground/10 group-hover:scale-110 transition-transform"
+                      style={{ backgroundColor: `hsl(${v})` }}
+                    />
+                  ))}
                 </div>
-              </div>
+                <div className="text-center">
+                  <p className="font-sans text-sm font-bold">{preset.icon} {preset.name}</p>
+                </div>
+              </button>
             ))}
           </div>
         </CardContent>
       </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Colors */}
+        <Card className="shadow-premium border-0 lg:col-span-2">
+          <CardHeader className="pb-4">
+            <CardTitle className="font-display text-lg flex items-center gap-2"><Palette className="w-5 h-5 text-accent" /> Cores do Tema</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {colorSettings.map((c) => (
+                <div key={c.key} className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={hslToHex(settings[c.key] || "")}
+                    onChange={(e) => update(c.key, hexToHsl(e.target.value))}
+                    className="w-10 h-10 rounded-xl border border-border cursor-pointer shrink-0 min-h-[unset] min-w-[unset]"
+                  />
+                  <div className="flex-1">
+                    <Label className="font-sans text-xs font-semibold">{c.label}</Label>
+                    <p className="text-[10px] text-muted-foreground">{c.description}</p>
+                    <Input
+                      value={settings[c.key] || ""}
+                      onChange={(e) => update(c.key, e.target.value)}
+                      className="h-7 rounded-lg text-xs font-mono mt-1"
+                      placeholder="H S% L%"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Live Preview */}
+        <Card className="shadow-premium border-0">
+          <CardHeader className="pb-4">
+            <CardTitle className="font-display text-lg flex items-center gap-2"><Eye className="w-5 h-5 text-accent" /> Pré-visualização</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ThemePreview settings={settings} />
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Typography */}
       <Card className="shadow-premium border-0">
@@ -182,7 +345,8 @@ export default function AdminVisualIdentity() {
           </div>
         </CardContent>
       </Card>
-      {/* Jewel Ring Categories — Studio Reflex */}
+
+      {/* Jewel Ring Categories */}
       <Card className="shadow-premium border-0">
         <CardHeader className="pb-4">
           <CardTitle className="font-display text-lg flex items-center gap-2"><Gem className="w-5 h-5 text-accent" /> Categorias — Reflexo de Estúdio</CardTitle>

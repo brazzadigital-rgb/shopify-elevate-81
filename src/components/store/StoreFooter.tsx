@@ -47,7 +47,7 @@ function FooterAccordion({ title, children }: { title: string; children: React.R
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="border-b border-foreground/[0.08]">
+    <div className="border-b border-border/50">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between py-4 text-left"
@@ -57,7 +57,7 @@ function FooterAccordion({ title, children }: { title: string; children: React.R
           {title}
         </span>
         <ChevronDown
-          className={`w-4 h-4 text-foreground/40 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-muted-foreground transition-transform duration-300 ${open ? "rotate-180" : ""}`}
         />
       </button>
       <div
@@ -88,7 +88,7 @@ function FooterNewsletter({ isMobile }: { isMobile: boolean }) {
       <h4 className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-foreground/70 mb-4">
         Receba Novidades
       </h4>
-      <p className="font-sans text-[13px] text-foreground/55 mb-4 leading-relaxed">
+      <p className="font-sans text-[13px] text-muted-foreground mb-4 leading-relaxed">
         Cadastre-se e ganhe 10% de desconto na primeira compra.
       </p>
       <form onSubmit={handleSubmit} className={`flex gap-2 ${isMobile ? "flex-col" : ""}`}>
@@ -98,17 +98,17 @@ function FooterNewsletter({ isMobile }: { isMobile: boolean }) {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Seu melhor email"
           required
-          className="flex-1 h-11 px-4 rounded-lg bg-white border border-foreground/[0.12] text-foreground text-sm font-sans placeholder:text-foreground/35 focus:outline-none focus:border-[hsl(30,30%,60%)] focus:ring-1 focus:ring-[hsl(30,30%,60%)]/30 shadow-sm transition-all"
+          className="flex-1 h-11 px-4 rounded-lg bg-card border border-border text-foreground text-sm font-sans placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 shadow-sm transition-all"
         />
         <button
           type="submit"
-          className="h-11 px-6 rounded-lg bg-foreground/[0.08] border border-foreground/[0.12] text-foreground/70 text-xs font-sans font-bold uppercase tracking-wider hover:bg-foreground/14 active:scale-[0.98] shadow-sm transition-all"
+          className="h-11 px-6 rounded-lg bg-muted border border-border text-foreground/70 text-xs font-sans font-bold uppercase tracking-wider hover:bg-secondary active:scale-[0.98] shadow-sm transition-all"
         >
           <Send className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
           Assinar
         </button>
       </form>
-      <p className="font-sans text-[10px] text-foreground/35 mt-2.5">Sem spam. Cancele quando quiser.</p>
+      <p className="font-sans text-[10px] text-muted-foreground/60 mt-2.5">Sem spam. Cancele quando quiser.</p>
     </div>
   );
 }
@@ -131,10 +131,10 @@ export function StoreFooter() {
   return (
     <footer ref={footerRef} className="relative">
       {/* ═══════ LEVEL 1 — Trust Bar ═══════ */}
-      <div className="bg-[hsl(30,12%,95%)] border-y border-foreground/[0.07]">
+      <div className="bg-secondary-soft border-y border-border/50">
         <div className="container px-4 md:px-6">
           {/* Desktop: 3 cards inline */}
-          <div className="hidden md:grid md:grid-cols-3 divide-x divide-foreground/[0.07]">
+          <div className="hidden md:grid md:grid-cols-3 divide-x divide-border/50">
             {trustCards.map((card, i) => (
               <motion.div
                 key={card.title}
@@ -144,12 +144,12 @@ export function StoreFooter() {
                 transition={{ duration: 0.4, delay: i * 0.1 }}
                 className="flex items-center gap-4 py-6 px-8 group cursor-default hover:-translate-y-0.5 transition-transform duration-300"
               >
-                <div className="w-11 h-11 rounded-full bg-[hsl(30,20%,88%)] flex items-center justify-center shrink-0 group-hover:bg-[hsl(30,25%,83%)] transition-colors shadow-sm">
-                  <card.icon className="w-5 h-5 text-[hsl(30,25%,35%)]" />
+                <div className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center shrink-0 group-hover:bg-secondary-light transition-colors shadow-sm">
+                  <card.icon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <p className="font-sans text-sm font-bold text-foreground/80">{card.title}</p>
-                  <p className="font-sans text-xs text-foreground/50">{card.text}</p>
+                  <p className="font-sans text-xs text-muted-foreground">{card.text}</p>
                 </div>
               </motion.div>
             ))}
@@ -160,14 +160,14 @@ export function StoreFooter() {
             {trustCards.map((card) => (
               <div
                 key={card.title}
-                className="flex items-center gap-3 bg-white rounded-xl border border-foreground/[0.08] px-4 py-3.5 snap-center shrink-0 min-w-[210px] shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+                className="flex items-center gap-3 bg-card rounded-xl border border-border/50 px-4 py-3.5 snap-center shrink-0 min-w-[210px] shadow-sm"
               >
-                <div className="w-9 h-9 rounded-full bg-[hsl(30,20%,89%)] flex items-center justify-center shrink-0">
-                  <card.icon className="w-4 h-4 text-[hsl(30,25%,35%)]" />
+                <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center shrink-0">
+                  <card.icon className="w-4 h-4 text-primary" />
                 </div>
                 <div>
                   <p className="font-sans text-xs font-bold text-foreground/80">{card.title}</p>
-                  <p className="font-sans text-[10px] text-foreground/50">{card.text}</p>
+                  <p className="font-sans text-[10px] text-muted-foreground">{card.text}</p>
                 </div>
               </div>
             ))}
@@ -176,7 +176,7 @@ export function StoreFooter() {
       </div>
 
       {/* ═══════ LEVEL 2 — Main Footer ═══════ */}
-      <div className="bg-[hsl(30,8%,96%)] relative overflow-hidden">
+      <div className="bg-secondary-soft relative overflow-hidden">
         {/* Decorative jewelry background */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -207,7 +207,7 @@ export function StoreFooter() {
                   </span>
                 )}
               </div>
-              <p className="font-sans text-[13px] text-foreground/55 leading-relaxed mb-6 max-w-[220px]">
+              <p className="font-sans text-[13px] text-muted-foreground leading-relaxed mb-6 max-w-[220px]">
                 Joias que contam histórias. Elegância e sofisticação em cada detalhe.
               </p>
               <div className="flex gap-2.5">
@@ -215,7 +215,7 @@ export function StoreFooter() {
                   <button
                     key={label}
                     aria-label={label}
-                    className="w-9 h-9 rounded-full border border-foreground/[0.12] flex items-center justify-center text-foreground/50 hover:text-[hsl(30,30%,40%)] hover:border-[hsl(30,30%,70%)] hover:bg-[hsl(30,25%,93%)] hover:scale-105 shadow-sm transition-all duration-300"
+                    className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 hover:bg-secondary hover:scale-105 shadow-sm transition-all duration-300"
                   >
                     <Icon className="w-4 h-4" />
                   </button>
@@ -225,7 +225,7 @@ export function StoreFooter() {
                 {payments.map((m) => (
                   <span
                     key={m}
-                    className="px-2 py-0.5 rounded border border-foreground/[0.1] bg-white/60 text-foreground/45 text-[9px] font-sans font-bold uppercase tracking-wide shadow-sm"
+                    className="px-2 py-0.5 rounded border border-border/60 bg-card/60 text-muted-foreground text-[9px] font-sans font-bold uppercase tracking-wide shadow-sm"
                   >
                     {m}
                   </span>
@@ -249,7 +249,7 @@ export function StoreFooter() {
                   <li key={link.label}>
                     <Link
                       to={link.to}
-                      className="font-sans text-[13px] text-foreground/55 hover:text-foreground/85 relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-px after:bottom-0 after:left-0 after:bg-[hsl(30,30%,60%)] after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left transition-colors"
+                      className="font-sans text-[13px] text-muted-foreground hover:text-foreground relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-px after:bottom-0 after:left-0 after:bg-primary/40 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -272,12 +272,12 @@ export function StoreFooter() {
               <ul className="space-y-3">
                 {serviceLinks.map((link) => {
                   const content = (
-                    <span className="flex items-center gap-2.5 font-sans text-[13px] text-foreground/55 hover:text-foreground/85 transition-colors">
-                      {link.icon && <link.icon className="w-4 h-4 shrink-0 text-foreground/40" />}
+                    <span className="flex items-center gap-2.5 font-sans text-[13px] text-muted-foreground hover:text-foreground transition-colors">
+                      {link.icon && <link.icon className="w-4 h-4 shrink-0 text-muted-foreground" />}
                       {link.label}
                     </span>
                   );
-                  if (link.isText) return <li key={link.label}><span className="flex items-center gap-2.5 font-sans text-[13px] text-foreground/55"><link.icon className="w-4 h-4 shrink-0 text-foreground/40" />{link.label}</span></li>;
+                  if (link.isText) return <li key={link.label}><span className="flex items-center gap-2.5 font-sans text-[13px] text-muted-foreground"><link.icon className="w-4 h-4 shrink-0 text-muted-foreground" />{link.label}</span></li>;
                   if (link.external) return <li key={link.label}><a href={link.to} target="_blank" rel="noopener noreferrer">{content}</a></li>;
                   return <li key={link.label}><Link to={link.to}>{content}</Link></li>;
                 })}
@@ -309,7 +309,7 @@ export function StoreFooter() {
                   </span>
                 )}
               </div>
-              <p className="font-sans text-sm text-foreground/55 max-w-[260px] mx-auto leading-relaxed">
+              <p className="font-sans text-sm text-muted-foreground max-w-[260px] mx-auto leading-relaxed">
                 Joias que contam histórias. Elegância e sofisticação em cada detalhe.
               </p>
               <div className="flex gap-2.5 justify-center mt-4">
@@ -317,7 +317,7 @@ export function StoreFooter() {
                   <button
                     key={label}
                     aria-label={label}
-                    className="w-10 h-10 rounded-full border border-foreground/[0.12] flex items-center justify-center text-foreground/50 hover:text-[hsl(30,30%,40%)] hover:border-[hsl(30,30%,70%)] shadow-sm transition-all"
+                    className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 shadow-sm transition-all"
                   >
                     <Icon className="w-4 h-4" />
                   </button>
@@ -330,7 +330,7 @@ export function StoreFooter() {
               <ul className="space-y-1">
                 {institutionalLinks.map((link) => (
                   <li key={link.label}>
-                    <Link to={link.to} className="block py-2 font-sans text-sm text-foreground/60 hover:text-foreground/85 transition-colors">
+                    <Link to={link.to} className="block py-2 font-sans text-sm text-muted-foreground hover:text-foreground transition-colors">
                       {link.label}
                     </Link>
                   </li>
@@ -343,18 +343,18 @@ export function StoreFooter() {
                 {serviceLinks.map((link) => (
                   <li key={link.label}>
                     {link.isText ? (
-                      <span className="flex items-center gap-2 py-2 font-sans text-sm text-foreground/60">
-                        {link.icon && <link.icon className="w-4 h-4 text-foreground/40" />}
+                      <span className="flex items-center gap-2 py-2 font-sans text-sm text-muted-foreground">
+                        {link.icon && <link.icon className="w-4 h-4 text-muted-foreground" />}
                         {link.label}
                       </span>
                     ) : link.external ? (
-                      <a href={link.to} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 py-2 font-sans text-sm text-foreground/60 hover:text-foreground/85 transition-colors">
-                        {link.icon && <link.icon className="w-4 h-4 text-foreground/40" />}
+                      <a href={link.to} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 py-2 font-sans text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        {link.icon && <link.icon className="w-4 h-4 text-muted-foreground" />}
                         {link.label}
                       </a>
                     ) : (
-                      <Link to={link.to} className="flex items-center gap-2 py-2 font-sans text-sm text-foreground/60 hover:text-foreground/85 transition-colors">
-                        {link.icon && <link.icon className="w-4 h-4 text-foreground/40" />}
+                      <Link to={link.to} className="flex items-center gap-2 py-2 font-sans text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        {link.icon && <link.icon className="w-4 h-4 text-muted-foreground" />}
                         {link.label}
                       </Link>
                     )}
@@ -372,7 +372,7 @@ export function StoreFooter() {
               {payments.map((m) => (
                 <span
                   key={m}
-                  className="px-2.5 py-1 rounded border border-foreground/[0.1] bg-white/60 text-foreground/50 text-[10px] font-sans font-bold uppercase tracking-wide shadow-sm"
+                  className="px-2.5 py-1 rounded border border-border/60 bg-card/60 text-muted-foreground text-[10px] font-sans font-bold uppercase tracking-wide shadow-sm"
                 >
                   {m}
                 </span>
@@ -383,15 +383,15 @@ export function StoreFooter() {
       </div>
 
       {/* ═══════ BOTTOM BAR ═══════ */}
-      <div className="bg-[hsl(30,6%,92%)] border-t border-foreground/[0.07]">
+      <div className="bg-secondary border-t border-border/50">
         <div className="container px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="font-sans text-[11px] text-foreground/40 text-center sm:text-left">
+          <p className="font-sans text-[11px] text-muted-foreground text-center sm:text-left">
             © {new Date().getFullYear()} {storeName}. Todos os direitos reservados.
           </p>
-          <div className="flex items-center gap-3 text-[11px] font-sans text-foreground/40">
-            <Link to="/politicas" className="hover:text-foreground/65 transition-colors">Privacidade</Link>
-            <span className="text-foreground/15">|</span>
-            <Link to="/politicas" className="hover:text-foreground/65 transition-colors">Termos</Link>
+          <div className="flex items-center gap-3 text-[11px] font-sans text-muted-foreground">
+            <Link to="/politicas" className="hover:text-foreground transition-colors">Privacidade</Link>
+            <span className="text-border">|</span>
+            <Link to="/politicas" className="hover:text-foreground transition-colors">Termos</Link>
           </div>
         </div>
       </div>
