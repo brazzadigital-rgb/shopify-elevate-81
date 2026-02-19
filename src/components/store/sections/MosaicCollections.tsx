@@ -109,10 +109,19 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
           </motion.span>
 
           <h2
-            className="text-3xl md:text-5xl lg:text-6xl leading-tight capitalize bg-gradient-to-r from-foreground via-foreground/70 to-primary bg-clip-text text-transparent"
+            className="text-3xl md:text-5xl lg:text-6xl leading-tight capitalize"
             style={{ fontFamily: "'Pinyon Script', cursive" }}
           >
-            {(overrideTitle || "Coleções em Destaque").toLowerCase()}
+            {(() => {
+              const words = (overrideTitle || "Coleções em Destaque").toLowerCase().split(" ");
+              const lastWord = words.pop();
+              return (
+                <>
+                  <span className="text-foreground">{words.join(" ")} </span>
+                  <span className="text-primary">{lastWord}</span>
+                </>
+              );
+            })()}
           </h2>
 
           <div className="flex justify-center mt-3">
