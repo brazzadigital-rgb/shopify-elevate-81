@@ -58,12 +58,12 @@ export function DynamicHeroBanner() {
 
   return (
     <section className="relative w-full overflow-hidden">
-      {/* Mobile: fixed 750x1100 aspect ratio */}
-      <div className="md:hidden relative w-full" style={{ aspectRatio: "750 / 1100" }}>
+      {/* Mobile: image defines its own height, no cropping */}
+      <div className="md:hidden relative w-full">
         <img
           src={mobileImg || desktopImg || ""}
           alt={b.title || ""}
-          className="absolute inset-0 w-full h-full object-cover object-center"
+          className="w-full h-auto block"
         />
         <div
           className="absolute inset-0"
