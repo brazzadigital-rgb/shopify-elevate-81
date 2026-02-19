@@ -54,18 +54,15 @@ export function HeroSection({ config }: HeroSectionProps) {
   return (
     <section className="bg-background md:py-6 lg:py-10">
       <div className="md:container md:px-6">
-        {/* Mobile: 750x1100 aspect ratio, full bleed */}
+        {/* Mobile: image flows naturally, no cropping */}
         <div
-          className="relative w-full overflow-hidden md:hidden flex items-end"
-          style={{
-            aspectRatio: "750 / 1100",
-            backgroundImage: `url(${bannerImage})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            backgroundColor: "hsl(var(--primary))",
-          }}
+          className="relative w-full overflow-hidden md:hidden"
         >
+          <img
+            src={bannerImage}
+            alt={title}
+            className="w-full h-auto block"
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
           <motion.div
             initial={{ opacity: 0, y: 20 }}
