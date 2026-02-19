@@ -348,7 +348,7 @@ export function ProductCard({
       whileHover={{ y: -3, transition: { duration: 0.35, ease: "easeOut" } }}
       className="h-full"
     >
-      <div className="relative flex flex-col h-full bg-card rounded-[20px] border border-border/30 overflow-hidden shadow-premium transition-all duration-500 ease-out md:hover:shadow-premium-lg md:hover:border-accent/15 group vitrine-glow vitrine-glow-idle">
+      <div className="relative flex flex-col h-full bg-card rounded-2xl border border-border/40 overflow-hidden transition-all duration-300 md:hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)] group">
         {/* ── Image ── */}
         <div className="relative">
           <ImageCarousel
@@ -359,14 +359,14 @@ export function ProductCard({
 
           {/* Badges */}
           <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1">
-             {disc > 0 && (
-              <span className="chip-jewel bg-destructive/8 border-destructive/15 text-destructive font-semibold">
-                {disc}% OFF
+            {disc > 0 && (
+              <span className="inline-block px-2 py-0.5 rounded-full bg-destructive/90 text-destructive-foreground font-sans text-[10px] font-semibold">
+                -{disc}%
               </span>
             )}
             {product.is_new && (
-              <span className="chip-jewel">
-                Novidade
+              <span className="inline-block px-2 py-0.5 rounded-full bg-accent text-accent-foreground font-sans text-[10px] font-semibold">
+                Novo
               </span>
             )}
           </div>
@@ -381,22 +381,14 @@ export function ProductCard({
                 exit={{ opacity: 0, x: 10, scale: 0.9 }}
                 transition={{ duration: 0.25, ease: "easeOut" }}
               >
-                <motion.div
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 }}
-                >
+                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
                   <FavoriteButton
                     productId={product.id}
                     size="sm"
                     className="bg-card/90 backdrop-blur border border-border/50 hover:bg-accent hover:text-accent-foreground shadow-md"
                   />
                 </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                >
+                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
                   <Link
                     to={`/produto/${product.slug}`}
                     onClick={(e) => e.stopPropagation()}
@@ -419,81 +411,45 @@ export function ProductCard({
         </div>
 
         {/* ── Content ── */}
-        <div className="flex flex-col flex-1 px-3 pb-3 pt-1 md:px-4 md:pb-4 md:pt-2">
-          {/* Name — always first, always aligned */}
+        <div className="flex flex-col flex-1 p-3 md:p-4">
+          {/* Category label */}
+          <span className="font-sans text-[10px] font-bold uppercase tracking-wider text-accent mb-1">
+            Coleção Premium
+          </span>
+
+          {/* Name */}
           <Link to={`/produto/${product.slug}`}>
-            <p className="font-sans text-[13px] md:text-sm font-semibold leading-snug line-clamp-2 hover:text-accent transition-colors min-h-[2.5em]">
+            <p className="font-sans text-xs md:text-sm font-bold leading-snug line-clamp-2 hover:text-accent transition-colors min-h-[2.5em] uppercase">
               {product.name}
             </p>
           </Link>
 
-          {/* Variant pills + Conversion badges — variable height zone */}
-          <div className="mt-1 space-y-1">
-            {variants.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {variants.slice(0, 4).map((v) => (
-                  <span
-                    key={v.id}
-                    className={`px-1.5 py-[1px] rounded border text-[9px] font-medium ${
-                      v.stock > 0
-                        ? "border-border text-muted-foreground"
-                        : "border-border/40 text-muted-foreground/40 line-through"
-                    }`}
-                  >
-                    {v.name}
-                  </span>
-                ))}
-                {variants.length > 4 && (
-                  <span className="px-1.5 py-[1px] text-[9px] text-muted-foreground">+{variants.length - 4}</span>
-                )}
-              </div>
-            )}
-
-            {(isBestseller || lowStock) && (
-              <div className="flex flex-wrap gap-1">
-                {isBestseller && (
-                  <span className="inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded bg-warning/10 text-warning text-[9px] font-semibold">
-                    <Flame className="w-2.5 h-2.5" />
-                    Mais vendido
-                  </span>
-                )}
-                {lowStock && (
-                  <span className="inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded bg-destructive/10 text-destructive text-[9px] font-semibold">
-                    <Zap className="w-2.5 h-2.5" />
-                    Só {product.stock} restam
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-
           {/* Prices — pushed to bottom */}
-          <div className="mt-auto pt-2">
+          <div className="mt-auto pt-3">
             {product.compare_at_price && product.compare_at_price > product.price && (
-              <p className="font-sans text-[11px] text-muted-foreground line-through leading-none">
+              <p className="font-sans text-[11px] text-muted-foreground line-through leading-none mb-0.5">
                 R$ {fmt(product.compare_at_price)}
               </p>
             )}
-            <p className="font-display text-lg md:text-xl font-bold text-foreground leading-tight">
+            <p className="font-sans text-lg md:text-xl font-bold text-foreground leading-tight">
               R$ {fmt(product.price)}
             </p>
-            <p className="font-sans text-[10px] text-muted-foreground flex items-center gap-0.5 mt-0.5">
-              <CreditCard className="w-2.5 h-2.5 flex-shrink-0" />
-              {installment(product.price)}
+            <p className="font-sans text-[11px] text-muted-foreground mt-0.5">
+              em até {installment(product.price)}
             </p>
           </div>
 
-          {/* Frete grátis */}
-          <span className="chip-jewel self-start mt-1">
-            <Truck className="w-2.5 h-2.5" />
-            Frete grátis
+          {/* Frete grátis badge */}
+          <span className="inline-flex items-center gap-1 self-start mt-2 px-2.5 py-1 rounded-md bg-success/10 text-success font-sans text-[10px] font-bold uppercase tracking-wide border border-success/20">
+            <Truck className="w-3 h-3" />
+            Frete Grátis
           </span>
 
           {/* CTA */}
-          <div className="flex gap-1.5 mt-2">
+          <div className="flex gap-1.5 mt-3">
             <button
               onClick={handleQuickBuy}
-              className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl bg-buttons text-white font-sans text-[13px] font-bold py-2.5 transition-all hover:brightness-110 active:scale-[0.96]"
+              className="flex-1 min-h-[40px] flex items-center justify-center gap-1.5 rounded-xl bg-buttons text-white font-sans text-xs font-bold py-2 transition-all hover:brightness-110 active:scale-[0.96]"
             >
               <Zap className="w-3.5 h-3.5" />
               Comprar
@@ -501,7 +457,7 @@ export function ProductCard({
             <button
               onClick={handleAddToCart}
               disabled={cartLoading || product.stock <= 0}
-              className="group/cart min-h-[44px] w-11 flex items-center justify-center rounded-xl border border-border hover:bg-accent hover:border-accent hover:text-accent-foreground active:scale-90 transition-all duration-300 disabled:opacity-50"
+              className="group/cart min-h-[40px] w-10 flex items-center justify-center rounded-xl border border-border hover:bg-accent hover:border-accent hover:text-accent-foreground active:scale-90 transition-all duration-300 disabled:opacity-50"
             >
               {cartLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
