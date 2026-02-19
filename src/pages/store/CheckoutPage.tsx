@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
 import { useSellerReferral } from "@/hooks/useSellerReferral";
+import { useCepLookup } from "@/hooks/useCepLookup";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag, User, MapPin, CreditCard, Check, ChevronRight,
@@ -53,6 +55,7 @@ export default function CheckoutPage() {
   const { user } = useAuth();
   const { items, subtotal, clearCart } = useCart();
   const { getReferralCode, clearReferral } = useSellerReferral();
+  const { lookup: lookupCep, loading: cepLoading } = useCepLookup();
   const [step, setStep] = useState<Step>("identification");
   const [loading, setLoading] = useState(false);
   const [couponCode, setCouponCode] = useState("");
@@ -62,6 +65,7 @@ export default function CheckoutPage() {
   const [sellerCode, setSellerCode] = useState(getReferralCode() || "");
   const [sellerVerified, setSellerVerified] = useState(false);
   const [sellerName, setSellerName] = useState("");
+  const [saveAsDefault, setSaveAsDefault] = useState(false);
 
   const [customer, setCustomer] = useState<CustomerInfo>({ name: "", email: "", phone: "" });
   const [address, setAddress] = useState<AddressInfo>({
@@ -250,7 +254,29 @@ export default function CheckoutPage() {
           .select("id, used_count")
           .eq("code", couponApplied)
           .maybeSingle();
-        // Note: can't update coupons as user - admin only. Skip for now.
+      }
+
+      // Save address as default if requested
+      if (saveAsDefault && !selectedAddressId) {
+        // Unset all existing defaults
+        await supabase.from("customer_addresses").update({ is_default: false } as any).eq("user_id", user.id);
+        await supabase.from("customer_addresses").insert({
+          user_id: user.id,
+          label: "Casa",
+          recipient_name: customer.name,
+          zip_code: address.zip_code,
+          street: address.street,
+          number: address.number,
+          complement: address.complement || null,
+          neighborhood: address.neighborhood,
+          city: address.city,
+          state: address.state,
+          is_default: true,
+        } as any);
+      } else if (saveAsDefault && selectedAddressId) {
+        // Set the selected one as default
+        await supabase.from("customer_addresses").update({ is_default: false } as any).eq("user_id", user.id);
+        await supabase.from("customer_addresses").update({ is_default: true } as any).eq("id", selectedAddressId);
       }
 
       await clearCart();
@@ -441,9 +467,10 @@ export default function CheckoutPage() {
                     )}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
+                      <div className="relative">
                         <Label className="font-sans text-sm">CEP</Label>
-                        <Input value={address.zip_code} onChange={e => { setAddress({ ...address, zip_code: e.target.value }); setSelectedAddressId(null); }} placeholder="00000-000" className="mt-1 rounded-xl h-12 font-sans" />
+                        <Input value={address.zip_code} onChange={e => { setAddress({ ...address, zip_code: e.target.value }); setSelectedAddressId(null); }} onBlur={async () => { const r = await lookupCep(address.zip_code); if (r) { setAddress(p => ({ ...p, ...r })); setSelectedAddressId(null); } }} placeholder="00000-000" className="mt-1 rounded-xl h-12 font-sans" />
+                        {cepLoading && <Loader2 className="absolute right-3 top-9 w-4 h-4 animate-spin text-muted-foreground" />}
                       </div>
                       <div className="sm:col-span-2">
                         <Label className="font-sans text-sm">Rua</Label>
@@ -469,6 +496,10 @@ export default function CheckoutPage() {
                         <Label className="font-sans text-sm">Estado</Label>
                         <Input value={address.state} onChange={e => { setAddress({ ...address, state: e.target.value }); setSelectedAddressId(null); }} placeholder="SP" maxLength={2} className="mt-1 rounded-xl h-12 font-sans" />
                       </div>
+                    </div>
+                    <div className="flex items-center space-x-2 pt-2">
+                      <Checkbox id="saveDefault" checked={saveAsDefault} onCheckedChange={(v) => setSaveAsDefault(v === true)} />
+                      <label htmlFor="saveDefault" className="font-sans text-sm cursor-pointer">Salvar como endereço principal</label>
                     </div>
                   </CardContent>
                 </Card>

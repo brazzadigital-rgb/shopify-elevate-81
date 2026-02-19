@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useCepLookup } from "@/hooks/useCepLookup";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Plus, Pencil, Trash2, Star } from "lucide-react";
+import { MapPin, Plus, Pencil, Trash2, Star, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface Address {
@@ -29,6 +30,7 @@ const emptyAddr = { label: "Casa", recipient_name: "", street: "", number: "", c
 
 export default function Addresses() {
   const { user } = useAuth();
+  const { lookup: lookupCep, loading: cepLoading } = useCepLookup();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -90,7 +92,7 @@ export default function Addresses() {
                 <div className="grid gap-2"><Label className="font-sans text-sm">Rótulo</Label><Input value={form.label} onChange={e => setForm({ ...form, label: e.target.value })} className="h-10 rounded-xl" placeholder="Casa, Trabalho..." /></div>
                 <div className="grid gap-2"><Label className="font-sans text-sm">Destinatário *</Label><Input value={form.recipient_name} onChange={e => setForm({ ...form, recipient_name: e.target.value })} className="h-10 rounded-xl" /></div>
               </div>
-              <div className="grid gap-2"><Label className="font-sans text-sm">CEP *</Label><Input value={form.zip_code} onChange={e => setForm({ ...form, zip_code: e.target.value })} className="h-10 rounded-xl" /></div>
+              <div className="grid gap-2"><Label className="font-sans text-sm">CEP *</Label><div className="relative"><Input value={form.zip_code} onChange={e => setForm({ ...form, zip_code: e.target.value })} onBlur={async () => { const r = await lookupCep(form.zip_code); if (r) setForm(f => ({ ...f, ...r })); }} className="h-10 rounded-xl" />{cepLoading && <Loader2 className="absolute right-3 top-2.5 w-4 h-4 animate-spin text-muted-foreground" />}</div></div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2 grid gap-2"><Label className="font-sans text-sm">Rua *</Label><Input value={form.street} onChange={e => setForm({ ...form, street: e.target.value })} className="h-10 rounded-xl" /></div>
                 <div className="grid gap-2"><Label className="font-sans text-sm">Nº *</Label><Input value={form.number} onChange={e => setForm({ ...form, number: e.target.value })} className="h-10 rounded-xl" /></div>
@@ -127,6 +129,15 @@ export default function Addresses() {
                 <p className="font-sans text-sm text-muted-foreground">{a.neighborhood} - {a.city}/{a.state} - CEP: {a.zip_code}</p>
               </div>
               <div className="flex gap-1 shrink-0">
+                {!a.is_default && (
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-warning" title="Definir como padrão" onClick={async () => {
+                    if (!user) return;
+                    await supabase.from("customer_addresses").update({ is_default: false } as any).eq("user_id", user.id);
+                    await supabase.from("customer_addresses").update({ is_default: true } as any).eq("id", a.id);
+                    toast({ title: "Endereço definido como padrão!" });
+                    fetch();
+                  }}><Star className="w-4 h-4" /></Button>
+                )}
                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleEdit(a)}><Pencil className="w-4 h-4" /></Button>
                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive" onClick={() => handleDelete(a.id)}><Trash2 className="w-4 h-4" /></Button>
               </div>
