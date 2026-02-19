@@ -22,6 +22,7 @@ const mainMenu = [
 ];
 
 const appearanceMenu = [
+  { title: "Header", url: "/admin/header", icon: Settings },
   { title: "Banners", url: "/admin/banners", icon: Image },
   { title: "Identidade Visual", url: "/admin/aparencia", icon: Settings },
 ];
