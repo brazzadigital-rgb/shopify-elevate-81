@@ -130,37 +130,8 @@ const Index = () => {
   }
 
   // Classic template (default)
-  // If there's an active showcase with a banner, override hero config for classic too
-  const classicHeroSection = sections.find((s) => s.section_type === "hero");
-  const classicHeroConfig = showcase?.banner_desktop_url
-    ? {
-        ...(classicHeroSection?.config || {}),
-        desktop_image_url: showcase.banner_desktop_url,
-        mobile_image_url: showcase.banner_mobile_url || showcase.banner_desktop_url,
-        link: showcase.banner_link || undefined,
-        show_text: !showcase.banner_clean_mode,
-        overlay_opacity: showcase.banner_overlay_opacity ?? 0,
-        content_position: showcase.banner_text_position || "center",
-      }
-    : null;
-
   return (
     <main className="min-h-screen">
-      {/* Promo strip for classic */}
-      {showcase?.enable_promo_strip && showcase.promo_strip_text && (
-        <div className="w-full py-2.5 bg-accent text-accent-foreground text-center font-sans text-sm font-medium">
-          {showcase.promo_strip_text}
-        </div>
-      )}
-
-      {/* Countdown for classic */}
-      {showcase?.enable_countdown && (
-        <ShowcaseCountdown
-          endsAt={showcase.ends_at}
-          title={showcase.section_title || showcase.name}
-        />
-      )}
-
       {(() => {
         let featuredProductsCount = 0;
         return sections.map((section) => {
@@ -168,7 +139,7 @@ const Index = () => {
             case "hero":
               return (
                 <div key={section.id}>
-                  <HeroSection config={classicHeroConfig || section.config} />
+                  <HeroSection config={section.config} />
                   <CategoriesSection />
                 </div>
               );
