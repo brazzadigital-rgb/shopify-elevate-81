@@ -182,9 +182,9 @@ export function StoreHeader() {
     <>
       {/* Top bar — info strip */}
       {isEnabled("topbar_enabled") && (
-        <div style={{ backgroundColor: bgColor }}>
+        <div className="bg-white">
           <div className="container flex items-center justify-center h-8 gap-4">
-            <p className="text-[11px] font-sans font-medium tracking-widest uppercase truncate text-center" style={{ color: txtColor, opacity: 0.8 }}>
+            <p className="text-[11px] font-sans font-medium tracking-widest uppercase truncate text-center text-primary" style={{ opacity: 0.9 }}>
               {getSetting("topbar_text", "✈️ Frete Grátis para todo Brasil")}
             </p>
           </div>
