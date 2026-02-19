@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, Save, Loader2, Plus, Trash2, Eye } from "lucide-react";
 import { ProductImageGallery } from "@/components/admin/ProductImageGallery";
+import { ImageUpload } from "@/components/store/ImageUpload";
 
 interface ProductImage {
   id?: string;
@@ -617,8 +618,13 @@ export default function ProductEditor() {
                 <span className="text-xs text-muted-foreground font-sans">{form.meta_description.length}/160</span>
               </div>
               <div className="grid gap-2">
-                <Label className={labelClass}>Imagem social (OG Image URL)</Label>
-                <Input value={form.og_image_url} onChange={e => setForm({ ...form, og_image_url: e.target.value })} className={inputClass} placeholder="URL da imagem para compartilhamento" />
+                <Label className={labelClass}>Imagem social (OG Image)</Label>
+                <ImageUpload
+                  value={form.og_image_url}
+                  onChange={(url) => setForm({ ...form, og_image_url: url })}
+                  folder="seo"
+                  label="Enviar imagem social"
+                />
               </div>
               {/* Google Preview */}
               <div className="border border-border rounded-xl p-4 space-y-1">
