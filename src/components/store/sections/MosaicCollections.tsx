@@ -110,7 +110,7 @@ export function MosaicCollections({ overrideTitle, overrideSubtitle, overrideCol
 
           <h2
             className="text-2xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight tracking-tight"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            style={{ fontFamily: "'Great Vibes', cursive" }}
           >
             {overrideTitle || "Coleções em Destaque"}
           </h2>
