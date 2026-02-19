@@ -49,7 +49,6 @@ import CheckoutPage from "./pages/store/CheckoutPage";
 import SellerLayout from "./layouts/SellerLayout";
 import SellerDashboard from "./pages/seller/SellerDashboard";
 
-
 const queryClient = new QueryClient();
 
 function AppContent() {
