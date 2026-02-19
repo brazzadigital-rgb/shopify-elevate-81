@@ -9,9 +9,10 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, FolderOpen } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderOpen, ImageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ImageUpload } from "@/components/store/ImageUpload";
 
 interface Collection {
   id: string;
@@ -109,8 +110,13 @@ export default function Collections() {
                 <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="rounded-xl" />
               </div>
               <div className="grid gap-2">
-                <Label className="font-sans text-sm font-medium">URL da imagem</Label>
-                <Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} className="h-11 rounded-xl" />
+                <Label className="font-sans text-sm font-medium">Imagem</Label>
+                <ImageUpload
+                  value={form.image_url}
+                  onChange={(url) => setForm({ ...form, image_url: url })}
+                  folder="collections"
+                  label="Enviar imagem"
+                />
               </div>
               <div className="flex items-center gap-2">
                 <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
@@ -136,17 +142,27 @@ export default function Collections() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="font-sans">Nome</TableHead>
-                  <TableHead className="font-sans">Slug</TableHead>
-                  <TableHead className="font-sans">Status</TableHead>
-                  <TableHead className="font-sans text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {collections.map((c) => (
-                  <TableRow key={c.id} className="hover:bg-muted/50 transition-colors">
-                    <TableCell className="font-sans font-medium">{c.name}</TableCell>
+               <TableRow>
+                   <TableHead className="font-sans w-16">Imagem</TableHead>
+                   <TableHead className="font-sans">Nome</TableHead>
+                   <TableHead className="font-sans">Slug</TableHead>
+                   <TableHead className="font-sans">Status</TableHead>
+                   <TableHead className="font-sans text-right">Ações</TableHead>
+                 </TableRow>
+               </TableHeader>
+               <TableBody>
+                 {collections.map((c) => (
+                   <TableRow key={c.id} className="hover:bg-muted/50 transition-colors">
+                     <TableCell>
+                       {c.image_url ? (
+                         <img src={c.image_url} alt={c.name} className="w-12 h-12 rounded-lg object-cover border border-border" />
+                       ) : (
+                         <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
+                           <ImageIcon className="w-5 h-5 text-muted-foreground/50" />
+                         </div>
+                       )}
+                     </TableCell>
+                     <TableCell className="font-sans font-medium">{c.name}</TableCell>
                     <TableCell className="font-sans text-muted-foreground text-sm">{c.slug}</TableCell>
                     <TableCell>
                       <Badge variant={c.is_active ? "default" : "secondary"} className="text-xs font-sans">
