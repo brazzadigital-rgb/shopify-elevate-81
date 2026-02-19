@@ -50,7 +50,7 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
   };
 
   return (
-    <div className="lg:sticky lg:top-24">
+    <div>
       <div className="rounded-[20px] overflow-hidden border border-border/50 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)]">
         {/* Desktop: side thumbnails */}
         <div className="hidden lg:flex">
