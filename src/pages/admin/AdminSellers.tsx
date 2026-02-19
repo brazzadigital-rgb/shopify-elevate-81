@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, UserCheck, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, UserCheck, Pencil, Trash2, Copy, Link as LinkIcon } from "lucide-react";
+import { toast as toastFn } from "@/hooks/use-toast";
 import { useToast } from "@/hooks/use-toast";
 
 interface Seller {
@@ -19,6 +20,8 @@ interface Seller {
   status: string;
   monthly_goal: number;
   commission_rate: number;
+  referral_code: string | null;
+  user_id: string | null;
   created_at: string;
 }
 
@@ -118,14 +121,15 @@ export default function AdminSellers() {
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Status</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden lg:table-cell">Meta Mensal</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden lg:table-cell">Comissão</th>
+              <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden lg:table-cell">Código</th>
               <th className="text-right px-4 py-3 font-semibold text-muted-foreground">Ações</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan={6} className="text-center py-12 text-muted-foreground">Carregando...</td></tr>
+              <tr><td colSpan={7} className="text-center py-12 text-muted-foreground">Carregando...</td></tr>
             ) : filtered.length === 0 ? (
-              <tr><td colSpan={6} className="text-center py-12 text-muted-foreground">
+              <tr><td colSpan={7} className="text-center py-12 text-muted-foreground">
                 <UserCheck className="w-10 h-10 mx-auto mb-2 opacity-30" />
                 Nenhum vendedor encontrado
               </td></tr>
@@ -140,6 +144,17 @@ export default function AdminSellers() {
                 </td>
                 <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">{formatCurrency(s.monthly_goal)}</td>
                 <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">{s.commission_rate}%</td>
+                <td className="px-4 py-3 hidden lg:table-cell">
+                  {s.referral_code && (
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/?ref=${s.referral_code}`); toastFn({ title: "Link copiado!" }); }}
+                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground font-mono"
+                      title="Copiar link de indicação"
+                    >
+                      <Copy className="w-3 h-3" /> {s.referral_code}
+                    </button>
+                  )}
+                </td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end gap-1">
                     <Button variant="ghost" size="icon" className="rounded-lg w-8 h-8" onClick={() => openEdit(s)}><Pencil className="w-4 h-4" /></Button>

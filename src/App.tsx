@@ -45,6 +45,8 @@ import FaqPage from "./pages/store/FaqPage";
 import ContactPage from "./pages/store/ContactPage";
 import PoliciesPage from "./pages/store/PoliciesPage";
 import CheckoutPage from "./pages/store/CheckoutPage";
+import SellerLayout from "./layouts/SellerLayout";
+import SellerDashboard from "./pages/seller/SellerDashboard";
 
 const queryClient = new QueryClient();
 
@@ -97,6 +99,9 @@ function AppContent() {
             <Route path="funcoes" element={<AdminRoles />} />
             <Route path="comissoes" element={<AdminCommissions />} />
             <Route path="relatorios" element={<AdminReports />} />
+          </Route>
+          <Route path="/vendedor" element={<SellerLayout />}>
+            <Route index element={<SellerDashboard />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

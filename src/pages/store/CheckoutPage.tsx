@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
+import { useSellerReferral } from "@/hooks/useSellerReferral";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag, User, MapPin, CreditCard, Check, ChevronRight,
-  Loader2, Lock, ArrowLeft, Tag
+  Loader2, Lock, ArrowLeft, Tag, UserCheck
 } from "lucide-react";
 
 type Step = "identification" | "address" | "payment" | "confirmation";
@@ -51,12 +52,16 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { items, subtotal, clearCart } = useCart();
+  const { getReferralCode, clearReferral } = useSellerReferral();
   const [step, setStep] = useState<Step>("identification");
   const [loading, setLoading] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponApplied, setCouponApplied] = useState("");
   const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [sellerCode, setSellerCode] = useState(getReferralCode() || "");
+  const [sellerVerified, setSellerVerified] = useState(false);
+  const [sellerName, setSellerName] = useState("");
 
   const [customer, setCustomer] = useState<CustomerInfo>({ name: "", email: "", phone: "" });
   const [address, setAddress] = useState<AddressInfo>({
@@ -82,6 +87,31 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (!user) navigate("/auth?redirect=/checkout");
   }, [user, navigate]);
+
+  // Auto-verify referral code from cookie
+  useEffect(() => {
+    if (sellerCode && !sellerVerified) {
+      verifySeller(sellerCode);
+    }
+  }, []);
+
+  const verifySeller = async (code: string) => {
+    if (!code.trim()) { setSellerVerified(false); setSellerName(""); return; }
+    const { data } = await supabase
+      .from("sellers")
+      .select("name, referral_code")
+      .eq("referral_code", code.trim())
+      .eq("status", "active")
+      .maybeSingle();
+    if (data) {
+      setSellerVerified(true);
+      setSellerName(data.name);
+      setSellerCode(data.referral_code);
+    } else {
+      setSellerVerified(false);
+      setSellerName("");
+    }
+  };
 
   // Load profile and addresses
   useEffect(() => {
@@ -192,7 +222,8 @@ export default function CheckoutPage() {
           payment_method: paymentMethod,
           payment_status: "pending",
           status: "pending",
-        })
+          referral_code: sellerVerified ? sellerCode : null,
+        } as any)
         .select("id")
         .single();
 
@@ -424,6 +455,40 @@ export default function CheckoutPage() {
                         </p>
                       </motion.div>
                     )}
+
+                    {/* Seller referral code */}
+                    <Separator className="my-4" />
+                    <div className="space-y-2">
+                      <Label className="font-sans text-sm flex items-center gap-2">
+                        <UserCheck className="w-4 h-4" /> Código do vendedor (opcional)
+                      </Label>
+                      <div className="flex gap-2">
+                        <Input
+                          value={sellerCode}
+                          onChange={e => { setSellerCode(e.target.value); setSellerVerified(false); setSellerName(""); }}
+                          placeholder="Ex: joao-ab12"
+                          className="rounded-xl h-10 font-sans text-sm flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => verifySeller(sellerCode)}
+                          className="rounded-xl h-10 font-sans"
+                          disabled={!sellerCode.trim()}
+                        >
+                          Verificar
+                        </Button>
+                      </div>
+                      {sellerVerified && (
+                        <p className="text-xs text-success font-sans flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Vendedor: {sellerName}
+                        </p>
+                      )}
+                      {sellerCode && !sellerVerified && sellerName === "" && (
+                        <p className="text-xs text-muted-foreground font-sans">Clique em "Verificar" para validar o código</p>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               )}
