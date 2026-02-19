@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Truck, MapPin, Copy, Check, Clock, CheckCircle2, Package } from "lucide-react";
+import { ArrowLeft, Truck, MapPin, Copy, Check, Clock, CheckCircle2, Package, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 
@@ -31,14 +31,19 @@ export default function OrderDetail() {
   useEffect(() => {
     if (!user || !id) return;
     const fetch = async () => {
-      const [o, i, e] = await Promise.all([
+      const [o, i, e, oe] = await Promise.all([
         supabase.from("orders").select("*").eq("id", id).eq("user_id", user.id).maybeSingle(),
         supabase.from("order_items").select("*").eq("order_id", id),
         supabase.from("tracking_events").select("*").eq("order_id", id).order("event_date", { ascending: false }),
+        supabase.from("order_events").select("*").eq("order_id", id).order("created_at", { ascending: false }),
       ]);
       setOrder(o.data);
       setItems(i.data || []);
-      setEvents(e.data || []);
+      // Merge tracking_events and order_events into a unified timeline
+      const trackEvts = (e.data || []).map((t: any) => ({ ...t, source: "tracking" }));
+      const orderEvts = (oe.data || []).map((t: any) => ({ ...t, event_date: t.created_at, source: "order" }));
+      const merged = [...trackEvts, ...orderEvts].sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
+      setEvents(merged);
       setLoading(false);
     };
     fetch();
@@ -71,40 +76,55 @@ export default function OrderDetail() {
       </div>
 
       {/* Shipping info */}
-      {(order.tracking_code || order.shipping_method_name) && (
-        <Card className="border-0 shadow-premium">
-          <CardHeader className="pb-2">
-            <CardTitle className="font-display text-base flex items-center gap-2">
-              <Truck className="w-4 h-4" /> Envio
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {order.shipping_method_name && (
-              <p className="font-sans text-sm">
-                <span className="text-muted-foreground">Método:</span> {order.shipping_method_name}
-                {order.shipping_days ? ` • ${order.shipping_days} dias úteis` : ""}
-              </p>
-            )}
-            {order.tracking_code && (
+      <Card className="border-0 shadow-premium">
+        <CardHeader className="pb-2">
+          <CardTitle className="font-display text-base flex items-center gap-2">
+            <Truck className="w-4 h-4" /> Envio
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {order.shipping_method_name && (
+            <p className="font-sans text-sm">
+              <span className="text-muted-foreground">Método:</span> {order.shipping_method_name}
+              {order.shipping_days ? ` • ${order.shipping_days} dias úteis` : ""}
+            </p>
+          )}
+          {order.tracking_code ? (
+            <>
               <div className="p-3 rounded-xl bg-muted/50 flex items-center justify-between gap-2">
                 <div className="min-w-0">
                   <p className="font-sans text-xs text-muted-foreground">Código de rastreio</p>
                   <p className="font-sans text-sm font-bold font-mono truncate">{order.tracking_code}</p>
                 </div>
-                <Button variant="ghost" size="icon" onClick={copyTracking} className="shrink-0 rounded-lg">
-                  {copied ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
-                </Button>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button variant="ghost" size="icon" onClick={copyTracking} className="rounded-lg">
+                    {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                  </Button>
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+              {order.tracking_url && (
+                <Button variant="outline" size="sm" className="rounded-xl font-sans gap-2 w-full" asChild>
+                  <a href={order.tracking_url} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="w-4 h-4" /> Rastrear Pedido
+                  </a>
+                </Button>
+              )}
+            </>
+          ) : (
+            <div className="p-4 rounded-xl bg-muted/30 text-center">
+              <Package className="w-8 h-8 mx-auto mb-2 text-muted-foreground/40" />
+              <p className="font-sans text-sm font-medium text-muted-foreground">Aguardando postagem</p>
+              <p className="font-sans text-xs text-muted-foreground/60 mt-1">O código de rastreio será disponibilizado assim que o pedido for enviado</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Tracking timeline */}
+      {/* Timeline */}
       {events.length > 0 && (
         <Card className="border-0 shadow-premium">
           <CardHeader className="pb-2">
-            <CardTitle className="font-display text-base">Rastreamento</CardTitle>
+            <CardTitle className="font-display text-base">Histórico do Pedido</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="relative">
