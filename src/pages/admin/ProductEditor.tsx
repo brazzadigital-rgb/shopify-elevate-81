@@ -68,15 +68,15 @@ const defaultForm = {
 };
 
 const tabs = [
-  { v: "geral", l: "Geral", icon: PackageOpen },
-  { v: "midias", l: "Mídias", icon: Image },
-  { v: "precos", l: "Preços", icon: DollarSign },
-  { v: "estoque", l: "Estoque", icon: Warehouse },
-  { v: "frete", l: "Frete", icon: Truck },
-  { v: "variacoes", l: "Variações", icon: Layers },
-  { v: "seo", l: "SEO", icon: Search },
-  { v: "personalizacao", l: "Personalização", icon: Wrench },
-  { v: "avancado", l: "Avançado", icon: Settings2 },
+  { v: "geral", l: "Geral", icon: PackageOpen, hint: "Informações básicas do produto" },
+  { v: "midias", l: "Mídias", icon: Image, hint: "Fotos e imagens" },
+  { v: "precos", l: "Preços", icon: DollarSign, hint: "Valores e promoções" },
+  { v: "estoque", l: "Estoque", icon: Warehouse, hint: "Controle de inventário" },
+  { v: "frete", l: "Frete", icon: Truck, hint: "Envio e dimensões" },
+  { v: "variacoes", l: "Variações", icon: Layers, hint: "Tamanhos, cores, etc." },
+  { v: "seo", l: "SEO", icon: Search, hint: "Otimização para buscas" },
+  { v: "personalizacao", l: "Personalização", icon: Wrench, hint: "Campos customizáveis" },
+  { v: "avancado", l: "Avançado", icon: Settings2, hint: "Configurações extras" },
 ];
 
 export default function ProductEditor() {
@@ -340,6 +340,11 @@ export default function ProductEditor() {
                 }`}>
                   {tab.l}
                 </span>
+                {isActive && tab.hint && (
+                  <span className="text-[9px] font-sans text-muted-foreground/70 text-center leading-tight hidden md:block max-w-[80px]">
+                    {tab.hint}
+                  </span>
+                )}
                 {isActive && (
                   <motion.div
                     layoutId="activeTabDot"
@@ -364,11 +369,13 @@ export default function ProductEditor() {
                 <div className="grid gap-2">
                   <Label className={labelClass}>Nome do produto *</Label>
                   <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value, slug: form.slug || generateSlug(e.target.value) })} className={inputClass} placeholder="Ex: Anel Solitário Ouro 18k" />
+                  <p className="text-[11px] text-muted-foreground/70 font-sans">Nome exibido na loja e nos resultados de busca</p>
                 </div>
                 <div className="grid md:grid-cols-2 gap-5">
                   <div className="grid gap-2">
                     <Label className={labelClass}>Descrição curta</Label>
                     <Input value={form.short_description} onChange={e => setForm({ ...form, short_description: e.target.value })} className={inputClass} placeholder="Breve descrição" />
+                    <p className="text-[11px] text-muted-foreground/70 font-sans">Resumo exibido nos cards de produto</p>
                   </div>
                   <div className="grid gap-2">
                     <Label className={labelClass}>Marca</Label>
@@ -378,6 +385,7 @@ export default function ProductEditor() {
                 <div className="grid gap-2">
                   <Label className={labelClass}>Descrição completa</Label>
                   <Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={5} className="rounded-2xl font-sans text-sm border-border/60 focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all" placeholder="Descrição detalhada do produto" />
+                  <p className="text-[11px] text-muted-foreground/70 font-sans">Detalhes completos visíveis na página do produto</p>
                 </div>
                 <div className="grid gap-2">
                   <Label className={labelClass}>Fornecedor</Label>
@@ -393,6 +401,7 @@ export default function ProductEditor() {
                 {/* Categories */}
                 <div className="grid gap-3">
                   <Label className={labelClass}>Categorias</Label>
+                  <p className="text-[11px] text-muted-foreground/70 font-sans -mt-1">Organize o produto em coleções para facilitar a navegação</p>
                   <div className="flex flex-wrap gap-2">
                     {collections.map(c => (
                       <motion.button key={c.id} type="button" onClick={() => toggleCategory(c.id)}
@@ -486,16 +495,19 @@ export default function ProductEditor() {
               <CardContent className="p-6 md:p-8 space-y-6">
                 <div className="grid md:grid-cols-3 gap-5">
                   <div className="grid gap-2">
-                    <Label className={labelClass}>Preço normal (R$) *</Label>
+                  <Label className={labelClass}>Preço normal (R$) *</Label>
                     <Input type="number" step="0.01" value={form.price} onChange={e => setForm({ ...form, price: parseFloat(e.target.value) || 0 })} className={inputClass} />
+                    <p className="text-[11px] text-muted-foreground/70 font-sans">Valor principal exibido ao cliente</p>
                   </div>
                   <div className="grid gap-2">
-                    <Label className={labelClass}>Preço promocional (R$)</Label>
+                  <Label className={labelClass}>Preço promocional (R$)</Label>
                     <Input type="number" step="0.01" value={form.compare_at_price || ""} onChange={e => setForm({ ...form, compare_at_price: parseFloat(e.target.value) || null })} className={inputClass} />
+                    <p className="text-[11px] text-muted-foreground/70 font-sans">Preço "de" riscado (deixe vazio se não houver)</p>
                   </div>
                   <div className="grid gap-2">
-                    <Label className={labelClass}>Custo (R$)</Label>
+                  <Label className={labelClass}>Custo (R$)</Label>
                     <Input type="number" step="0.01" value={form.cost_price || ""} onChange={e => setForm({ ...form, cost_price: parseFloat(e.target.value) || null })} className={inputClass} />
+                    <p className="text-[11px] text-muted-foreground/70 font-sans">Para cálculo de margem (não visível ao cliente)</p>
                     {margin && (
                       <div className="flex items-center gap-1.5">
                         <div className={`w-2 h-2 rounded-full ${Number(margin) > 30 ? 'bg-emerald-500' : Number(margin) > 15 ? 'bg-amber-500' : 'bg-destructive'}`} />
@@ -556,9 +568,12 @@ export default function ProductEditor() {
                     <Input value={form.barcode} onChange={e => setForm({ ...form, barcode: e.target.value })} className={inputClass} placeholder="EAN / GTIN" />
                   </div>
                 </div>
-                <div className="flex items-center gap-2.5 bg-muted/30 rounded-2xl p-4">
-                  <PremiumToggle3D size="sm" checked={form.track_stock} onCheckedChange={v => setForm({ ...form, track_stock: v })} />
-                  <Label className="font-sans text-sm">Controlar estoque</Label>
+                <div className="bg-muted/30 rounded-2xl p-4 space-y-1">
+                  <div className="flex items-center gap-2.5">
+                    <PremiumToggle3D size="sm" checked={form.track_stock} onCheckedChange={v => setForm({ ...form, track_stock: v })} />
+                    <Label className="font-sans text-sm">Controlar estoque</Label>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground/70 font-sans ml-[52px]">Ative para descontar automaticamente a cada venda</p>
                 </div>
                 {form.track_stock && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="grid md:grid-cols-3 gap-5">
@@ -576,9 +591,12 @@ export default function ProductEditor() {
                     </div>
                   </motion.div>
                 )}
-                <div className="flex items-center gap-2.5 bg-muted/30 rounded-2xl p-4">
-                  <PremiumToggle3D size="sm" checked={form.allow_backorder} onCheckedChange={v => setForm({ ...form, allow_backorder: v })} />
-                  <Label className="font-sans text-sm">Permitir vender sem estoque</Label>
+                <div className="bg-muted/30 rounded-2xl p-4 space-y-1">
+                  <div className="flex items-center gap-2.5">
+                    <PremiumToggle3D size="sm" checked={form.allow_backorder} onCheckedChange={v => setForm({ ...form, allow_backorder: v })} />
+                    <Label className="font-sans text-sm">Permitir vender sem estoque</Label>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground/70 font-sans ml-[52px]">Aceita pedidos mesmo com estoque zerado</p>
                 </div>
                 <div className="grid gap-2">
                   <Label className={labelClass}>Fornecedor vinculado</Label>
@@ -629,9 +647,12 @@ export default function ProductEditor() {
                         <Input type="number" step="0.1" value={form.length || ""} onChange={e => setForm({ ...form, length: parseFloat(e.target.value) || null })} className={inputClass} />
                       </div>
                     </div>
-                    <div className="flex items-center gap-2.5 bg-muted/30 rounded-2xl p-4">
-                      <PremiumToggle3D size="sm" checked={form.free_shipping} onCheckedChange={v => setForm({ ...form, free_shipping: v })} />
-                      <Label className="font-sans text-sm">Frete grátis</Label>
+                    <div className="bg-muted/30 rounded-2xl p-4 space-y-1">
+                      <div className="flex items-center gap-2.5">
+                        <PremiumToggle3D size="sm" checked={form.free_shipping} onCheckedChange={v => setForm({ ...form, free_shipping: v })} />
+                        <Label className="font-sans text-sm">Frete grátis</Label>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground/70 font-sans ml-[52px]">O frete será por conta da loja</p>
                     </div>
                     <div className="grid gap-2 max-w-xs">
                       <Label className={labelClass}>Prazo adicional preparo (dias)</Label>
