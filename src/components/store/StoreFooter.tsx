@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import footerBg from "@/assets/footer-jewelry-bg.jpg";
 import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import {
@@ -47,17 +46,17 @@ function FooterAccordion({ title, children }: { title: string; children: React.R
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="border-b border-border/50">
+    <div className="border-b border-white/20">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between py-4 text-left"
         aria-expanded={open}
       >
-        <span className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-foreground/70">
+        <span className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-white/80">
           {title}
         </span>
         <ChevronDown
-          className={`w-4 h-4 text-muted-foreground transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-white/50 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
         />
       </button>
       <div
@@ -85,10 +84,10 @@ function FooterNewsletter({ isMobile }: { isMobile: boolean }) {
 
   return (
     <div>
-      <h4 className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-foreground/70 mb-4">
+      <h4 className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-white/80 mb-4">
         Receba Novidades
       </h4>
-      <p className="font-sans text-[13px] text-muted-foreground mb-4 leading-relaxed">
+      <p className="font-sans text-[13px] text-white/60 mb-4 leading-relaxed">
         Cadastre-se e ganhe 10% de desconto na primeira compra.
       </p>
       <form onSubmit={handleSubmit} className={`flex gap-2 ${isMobile ? "flex-col" : ""}`}>
@@ -98,17 +97,17 @@ function FooterNewsletter({ isMobile }: { isMobile: boolean }) {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Seu melhor email"
           required
-          className="flex-1 h-11 px-4 rounded-lg bg-card border border-border text-foreground text-sm font-sans placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 shadow-sm transition-all"
+          className="flex-1 h-11 px-4 rounded-lg bg-white/10 border border-white/20 text-white text-sm font-sans placeholder:text-white/40 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/20 shadow-sm transition-all"
         />
         <button
           type="submit"
-          className="h-11 px-6 rounded-lg bg-muted border border-border text-foreground/70 text-xs font-sans font-bold uppercase tracking-wider hover:bg-secondary active:scale-[0.98] shadow-sm transition-all"
+          className="h-11 px-6 rounded-lg bg-white/15 border border-white/20 text-white text-xs font-sans font-bold uppercase tracking-wider hover:bg-white/25 active:scale-[0.98] shadow-sm transition-all"
         >
           <Send className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
           Assinar
         </button>
       </form>
-      <p className="font-sans text-[10px] text-muted-foreground/60 mt-2.5">Sem spam. Cancele quando quiser.</p>
+      <p className="font-sans text-[10px] text-white/40 mt-2.5">Sem spam. Cancele quando quiser.</p>
     </div>
   );
 }
@@ -176,11 +175,7 @@ export function StoreFooter() {
       </div>
 
       {/* ═══════ LEVEL 2 — Main Footer ═══════ */}
-      <div className="bg-secondary-soft relative overflow-hidden">
-        {/* Decorative gradient background */}
-        <div
-          className="absolute inset-0 pointer-events-none bg-gradient-to-br from-primary/15 via-primary/8 to-accent/10"
-        />
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-accent">
         <div className="container px-4 md:px-6 pt-10 pb-8 md:pt-14 md:pb-10">
           {/* ── DESKTOP: 4 columns ── */}
           <div className="hidden md:grid md:grid-cols-12 gap-8 lg:gap-12">
@@ -194,14 +189,14 @@ export function StoreFooter() {
             >
               <div className="flex items-center gap-2.5 mb-4">
                 {logoUrl ? (
-                  <img src={logoUrl} alt={storeName} className="h-20 object-contain" />
+                  <img src={logoUrl} alt={storeName} className="h-20 object-contain brightness-0 invert" />
                 ) : (
-                  <span className="font-display text-lg font-bold uppercase tracking-wide text-foreground/85">
+                  <span className="font-display text-lg font-bold uppercase tracking-wide text-white">
                     {storeName}
                   </span>
                 )}
               </div>
-              <p className="font-sans text-[13px] text-muted-foreground leading-relaxed mb-6 max-w-[220px]">
+              <p className="font-sans text-[13px] text-white/70 leading-relaxed mb-6 max-w-[220px]">
                 Joias que contam histórias. Elegância e sofisticação em cada detalhe.
               </p>
               <div className="flex gap-2.5">
@@ -209,7 +204,7 @@ export function StoreFooter() {
                   <button
                     key={label}
                     aria-label={label}
-                    className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 hover:bg-secondary hover:scale-105 shadow-sm transition-all duration-300"
+                    className="w-9 h-9 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white/60 hover:bg-white/10 hover:scale-105 shadow-sm transition-all duration-300"
                   >
                     <Icon className="w-4 h-4" />
                   </button>
@@ -219,7 +214,7 @@ export function StoreFooter() {
                 {payments.map((m) => (
                   <span
                     key={m}
-                    className="px-2 py-0.5 rounded border border-border/60 bg-card/60 text-muted-foreground text-[9px] font-sans font-bold uppercase tracking-wide shadow-sm"
+                    className="px-2 py-0.5 rounded border border-white/20 bg-white/10 text-white/70 text-[9px] font-sans font-bold uppercase tracking-wide shadow-sm"
                   >
                     {m}
                   </span>
@@ -235,7 +230,7 @@ export function StoreFooter() {
               transition={{ duration: 0.5, delay: 0.25 }}
               className="col-span-3"
             >
-              <h4 className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-foreground/70 mb-5">
+              <h4 className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-white/80 mb-5">
                 Institucional
               </h4>
               <ul className="space-y-3">
@@ -243,7 +238,7 @@ export function StoreFooter() {
                   <li key={link.label}>
                     <Link
                       to={link.to}
-                      className="font-sans text-[13px] text-muted-foreground hover:text-foreground relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-px after:bottom-0 after:left-0 after:bg-primary/40 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left transition-colors"
+                      className="font-sans text-[13px] text-white/60 hover:text-white relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-px after:bottom-0 after:left-0 after:bg-white/40 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -260,18 +255,18 @@ export function StoreFooter() {
               transition={{ duration: 0.5, delay: 0.35 }}
               className="col-span-3"
             >
-              <h4 className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-foreground/70 mb-5">
+              <h4 className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-white/80 mb-5">
                 Atendimento
               </h4>
               <ul className="space-y-3">
                 {serviceLinks.map((link) => {
                   const content = (
-                    <span className="flex items-center gap-2.5 font-sans text-[13px] text-muted-foreground hover:text-foreground transition-colors">
-                      {link.icon && <link.icon className="w-4 h-4 shrink-0 text-muted-foreground" />}
+                    <span className="flex items-center gap-2.5 font-sans text-[13px] text-white/60 hover:text-white transition-colors">
+                      {link.icon && <link.icon className="w-4 h-4 shrink-0 text-white/50" />}
                       {link.label}
                     </span>
                   );
-                  if (link.isText) return <li key={link.label}><span className="flex items-center gap-2.5 font-sans text-[13px] text-muted-foreground"><link.icon className="w-4 h-4 shrink-0 text-muted-foreground" />{link.label}</span></li>;
+                  if (link.isText) return <li key={link.label}><span className="flex items-center gap-2.5 font-sans text-[13px] text-white/60"><link.icon className="w-4 h-4 shrink-0 text-white/50" />{link.label}</span></li>;
                   if (link.external) return <li key={link.label}><a href={link.to} target="_blank" rel="noopener noreferrer">{content}</a></li>;
                   return <li key={link.label}><Link to={link.to}>{content}</Link></li>;
                 })}
@@ -296,14 +291,14 @@ export function StoreFooter() {
             <div className="text-center mb-6">
               <div className="flex items-center justify-center gap-2 mb-3">
                 {logoUrl ? (
-                  <img src={logoUrl} alt={storeName} className="h-16 object-contain" />
+                  <img src={logoUrl} alt={storeName} className="h-16 object-contain brightness-0 invert" />
                 ) : (
-                  <span className="font-display text-lg font-bold uppercase tracking-wide text-foreground/85">
+                  <span className="font-display text-lg font-bold uppercase tracking-wide text-white">
                     {storeName}
                   </span>
                 )}
               </div>
-              <p className="font-sans text-sm text-muted-foreground max-w-[260px] mx-auto leading-relaxed">
+              <p className="font-sans text-sm text-white/70 max-w-[260px] mx-auto leading-relaxed">
                 Joias que contam histórias. Elegância e sofisticação em cada detalhe.
               </p>
               <div className="flex gap-2.5 justify-center mt-4">
@@ -311,7 +306,7 @@ export function StoreFooter() {
                   <button
                     key={label}
                     aria-label={label}
-                    className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 shadow-sm transition-all"
+                    className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white/60 shadow-sm transition-all"
                   >
                     <Icon className="w-4 h-4" />
                   </button>
@@ -324,7 +319,7 @@ export function StoreFooter() {
               <ul className="space-y-1">
                 {institutionalLinks.map((link) => (
                   <li key={link.label}>
-                    <Link to={link.to} className="block py-2 font-sans text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    <Link to={link.to} className="block py-2 font-sans text-sm text-white/60 hover:text-white transition-colors">
                       {link.label}
                     </Link>
                   </li>
@@ -337,18 +332,18 @@ export function StoreFooter() {
                 {serviceLinks.map((link) => (
                   <li key={link.label}>
                     {link.isText ? (
-                      <span className="flex items-center gap-2 py-2 font-sans text-sm text-muted-foreground">
-                        {link.icon && <link.icon className="w-4 h-4 text-muted-foreground" />}
+                      <span className="flex items-center gap-2 py-2 font-sans text-sm text-white/60">
+                        {link.icon && <link.icon className="w-4 h-4 text-white/50" />}
                         {link.label}
                       </span>
                     ) : link.external ? (
-                      <a href={link.to} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 py-2 font-sans text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        {link.icon && <link.icon className="w-4 h-4 text-muted-foreground" />}
+                      <a href={link.to} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 py-2 font-sans text-sm text-white/60 hover:text-white transition-colors">
+                        {link.icon && <link.icon className="w-4 h-4 text-white/50" />}
                         {link.label}
                       </a>
                     ) : (
-                      <Link to={link.to} className="flex items-center gap-2 py-2 font-sans text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        {link.icon && <link.icon className="w-4 h-4 text-muted-foreground" />}
+                      <Link to={link.to} className="flex items-center gap-2 py-2 font-sans text-sm text-white/60 hover:text-white transition-colors">
+                        {link.icon && <link.icon className="w-4 h-4 text-white/50" />}
                         {link.label}
                       </Link>
                     )}
@@ -366,7 +361,7 @@ export function StoreFooter() {
               {payments.map((m) => (
                 <span
                   key={m}
-                  className="px-2.5 py-1 rounded border border-border/60 bg-card/60 text-muted-foreground text-[10px] font-sans font-bold uppercase tracking-wide shadow-sm"
+                  className="px-2.5 py-1 rounded border border-white/20 bg-white/10 text-white/70 text-[10px] font-sans font-bold uppercase tracking-wide shadow-sm"
                 >
                   {m}
                 </span>
@@ -377,15 +372,15 @@ export function StoreFooter() {
       </div>
 
       {/* ═══════ BOTTOM BAR ═══════ */}
-      <div className="bg-secondary border-t border-border/50">
+      <div className="bg-primary border-t border-white/10">
         <div className="container px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="font-sans text-[11px] text-muted-foreground text-center sm:text-left">
+          <p className="font-sans text-[11px] text-white/60 text-center sm:text-left">
             © {new Date().getFullYear()} {storeName}. Todos os direitos reservados.
           </p>
-          <div className="flex items-center gap-3 text-[11px] font-sans text-muted-foreground">
-            <Link to="/politicas" className="hover:text-foreground transition-colors">Privacidade</Link>
-            <span className="text-border">|</span>
-            <Link to="/politicas" className="hover:text-foreground transition-colors">Termos</Link>
+          <div className="flex items-center gap-3 text-[11px] font-sans text-white/60">
+            <Link to="/politicas" className="hover:text-white transition-colors">Privacidade</Link>
+            <span className="text-white/20">|</span>
+            <Link to="/politicas" className="hover:text-white transition-colors">Termos</Link>
           </div>
         </div>
       </div>
