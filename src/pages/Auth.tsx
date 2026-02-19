@@ -60,29 +60,18 @@ export default function Auth() {
       if (error) {
         toast({ title: "Erro ao cadastrar", description: error.message, variant: "destructive" });
       } else {
-        // Listen for auth state to save extra fields after signup
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
           if (event === "SIGNED_IN" && session?.user) {
             const uid = session.user.id;
-            // Update profile with phone/cpf
             if (phone || cpf) {
               await supabase.from("profiles").update({ phone, cpf } as any).eq("user_id", uid);
             }
-            // Save address if filled
             if (addr.zip_code && addr.street && addr.number) {
               await supabase.from("customer_addresses").insert({
-                user_id: uid,
-                label: "Casa",
-                recipient_name: fullName,
-                phone,
-                zip_code: addr.zip_code,
-                street: addr.street,
-                number: addr.number,
-                complement: addr.complement || null,
-                neighborhood: addr.neighborhood,
-                city: addr.city,
-                state: addr.state,
-                is_default: true,
+                user_id: uid, label: "Casa", recipient_name: fullName, phone,
+                zip_code: addr.zip_code, street: addr.street, number: addr.number,
+                complement: addr.complement || null, neighborhood: addr.neighborhood,
+                city: addr.city, state: addr.state, is_default: true,
               } as any);
             }
             subscription.unsubscribe();
@@ -104,34 +93,34 @@ export default function Auth() {
 
   const current = titles[mode];
 
-  const inputClass = "h-12 bg-transparent border-0 border-b border-[#E0D6CC] rounded-none px-0 focus-visible:ring-0 focus-visible:border-[#C9A96E] placeholder:text-[#C4B8AB] text-[#3D3225] transition-colors duration-300";
-  const labelClass = "text-xs font-semibold uppercase tracking-wider text-[#8B7D6B]";
+  const inputClass = "h-12 bg-transparent border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary placeholder:text-muted-foreground text-foreground transition-colors duration-300";
+  const labelClass = "text-xs font-semibold uppercase tracking-wider text-muted-foreground";
 
   return (
-    <div className="min-h-screen flex bg-[#FAF8F5]">
-      {/* Left side — Jewelry hero image */}
+    <div className="min-h-screen flex bg-background">
+      {/* Left side — Hero image */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center">
         <img src={authHeroImg} alt="Joias elegantes sobre tecido acetinado" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#FAF8F5]/60 via-[#FAF8F5]/30 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#FAF8F5]/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-background/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent" />
         {[...Array(6)].map((_, i) => (
-          <motion.div key={i} className="absolute w-1 h-1 rounded-full bg-[#C9A96E]/60"
+          <motion.div key={i} className="absolute w-1 h-1 rounded-full bg-primary/60"
             style={{ top: `${15 + i * 14}%`, left: `${20 + (i % 3) * 25}%` }}
             animate={{ opacity: [0, 1, 0], scale: [0.5, 1.5, 0.5] }}
             transition={{ duration: 3 + i * 0.5, repeat: Infinity, delay: i * 0.8 }}
           />
         ))}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="relative z-10 text-center px-12">
-          <h2 className="font-display text-2xl font-bold text-[#5A4A3B] tracking-wide">{storeName || "Sua Joalheria"}</h2>
-          <p className="text-[#8B7D6B] text-sm mt-2 tracking-widest uppercase">Elegância & Exclusividade</p>
+          <h2 className="font-display text-2xl font-bold text-foreground tracking-wide">{storeName || "Sua Joalheria"}</h2>
+          <p className="text-muted-foreground text-sm mt-2 tracking-widest uppercase">Elegância & Exclusividade</p>
         </motion.div>
       </div>
 
       {/* Right side — Form */}
-      <div className="w-full lg:w-1/2 flex flex-col bg-[#FAF8F5]">
+      <div className="w-full lg:w-1/2 flex flex-col bg-background">
         <div className="lg:hidden relative h-48 overflow-hidden">
           <img src={authHeroImg} alt="Joias elegantes" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#FAF8F5]/50 to-[#FAF8F5]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
           {logoUrl && (
             <motion.img initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} src={logoUrl} alt="Logo" className="absolute bottom-4 left-1/2 -translate-x-1/2 w-20 h-20 object-contain drop-shadow-lg" />
           )}
@@ -140,7 +129,7 @@ export default function Auth() {
         <div className="flex-1 flex items-center justify-center px-6 py-12">
           <AnimatePresence mode="wait">
             <motion.div key={mode} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.35 }} className="w-full max-w-md">
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.06)] border border-[#E8E0D8]/60 p-8 md:p-10">
+              <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.06)] border border-border/60 p-8 md:p-10">
                 {logoUrl && (
                   <div className="flex justify-center mb-6">
                     <img src={logoUrl} alt="Logo da loja" className="w-40 h-40 object-contain drop-shadow-md" />
@@ -148,14 +137,14 @@ export default function Auth() {
                 )}
 
                 <div className="flex items-center gap-2 mb-6">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C9A96E]/10 text-[#C9A96E]">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary">
                     {mode === "recover" ? <Diamond className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
                     <span className="text-xs font-semibold tracking-wider uppercase">{current.badge}</span>
                   </div>
                 </div>
 
-                <h1 className="text-2xl md:text-3xl font-display font-bold text-[#3D3225] tracking-wide mb-1">{current.heading}</h1>
-                <p className="text-[#8B7D6B] text-sm mb-8">{current.sub}</p>
+                <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground tracking-wide mb-1">{current.heading}</h1>
+                <p className="text-muted-foreground text-sm mb-8">{current.sub}</p>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                   {mode === "register" && (
@@ -187,7 +176,7 @@ export default function Auth() {
                       <Label htmlFor="password" className={labelClass}>Senha</Label>
                       <div className="relative">
                         <Input id="password" type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} className={`${inputClass} pr-10`} />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 top-1/2 -translate-y-1/2 text-[#C4B8AB] hover:text-[#C9A96E] transition-colors">
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
                           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
@@ -200,7 +189,7 @@ export default function Auth() {
                       <button
                         type="button"
                         onClick={() => setShowAddress(!showAddress)}
-                        className="flex items-center gap-2 text-sm text-[#C9A96E] hover:text-[#B8963F] transition-colors font-semibold"
+                        className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-semibold"
                       >
                         <MapPin className="w-4 h-4" />
                         {showAddress ? "Ocultar endereço" : "Adicionar endereço de entrega"}
@@ -214,7 +203,7 @@ export default function Auth() {
                             exit={{ opacity: 0, height: 0 }}
                             className="space-y-4 overflow-hidden"
                           >
-                            <div className="p-4 rounded-xl border border-[#E8E0D8]/60 bg-white/50 space-y-4">
+                            <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-4">
                               <div className="space-y-1.5">
                                 <Label className={labelClass}>CEP</Label>
                                 <div className="relative">
@@ -225,7 +214,7 @@ export default function Auth() {
                                     placeholder="00000-000"
                                     className={inputClass}
                                   />
-                                  {cepLoading && <Loader2 className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-[#C9A96E]" />}
+                                  {cepLoading && <Loader2 className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-primary" />}
                                 </div>
                               </div>
                               <div className="grid grid-cols-3 gap-3">
@@ -265,45 +254,41 @@ export default function Auth() {
 
                   {mode === "login" && (
                     <div className="text-right">
-                      <button type="button" onClick={() => setMode("recover")} className="text-xs text-[#C9A96E] hover:text-[#B8963F] transition-colors tracking-wide">
+                      <button type="button" onClick={() => setMode("recover")} className="text-xs text-primary hover:text-primary/80 transition-colors tracking-wide">
                         Esqueceu sua senha?
                       </button>
                     </div>
                   )}
 
                   <Button type="submit" disabled={loading}
-                    className="w-full h-12 rounded-xl text-sm font-semibold uppercase tracking-widest text-white border-0 relative overflow-hidden transition-all duration-300 hover:shadow-[0_8px_24px_rgba(201,169,110,0.35)] active:scale-[0.98]"
-                    style={{ background: "linear-gradient(135deg, #C9A96E 0%, #DFC198 50%, #C9A96E 100%)", backgroundSize: "200% 200%" }}
-                    onMouseEnter={e => { e.currentTarget.style.backgroundPosition = "100% 100%"; }}
-                    onMouseLeave={e => { e.currentTarget.style.backgroundPosition = "0% 0%"; }}
+                    className="w-full h-12 rounded-xl text-sm font-semibold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 border-0 relative overflow-hidden transition-all duration-300 hover:shadow-lg active:scale-[0.98]"
                   >
-                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full hover:translate-x-full transition-transform duration-700 pointer-events-none" />
                     <span className="relative flex items-center justify-center gap-2">
                       {loading ? "Processando..." : mode === "login" ? <>Entrar <ArrowRight className="w-4 h-4" /></> : mode === "register" ? <>Criar Conta <Sparkles className="w-4 h-4" /></> : <>Enviar Link <ArrowRight className="w-4 h-4" /></>}
                     </span>
                   </Button>
                 </form>
 
-                <div className="mt-6 pt-6 border-t border-[#E8E0D8]/60 text-center space-y-2">
+                <div className="mt-6 pt-6 border-t border-border/60 text-center space-y-2">
                   {mode === "login" && (
-                    <button onClick={() => setMode("register")} className="text-sm text-[#8B7D6B] hover:text-[#C9A96E] transition-colors">
+                    <button onClick={() => setMode("register")} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                       Não tem conta? <span className="font-semibold">Cadastre-se</span>
                     </button>
                   )}
                   {mode === "register" && (
-                    <button onClick={() => setMode("login")} className="text-sm text-[#8B7D6B] hover:text-[#C9A96E] transition-colors">
+                    <button onClick={() => setMode("login")} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                       Já tem conta? <span className="font-semibold">Faça login</span>
                     </button>
                   )}
                   {mode === "recover" && (
-                    <button onClick={() => setMode("login")} className="text-sm text-[#8B7D6B] hover:text-[#C9A96E] transition-colors">
+                    <button onClick={() => setMode("login")} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                       ← Voltar para o login
                     </button>
                   )}
                 </div>
               </div>
 
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-center text-[10px] text-[#C4B8AB] mt-6 tracking-widest uppercase">
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-center text-[10px] text-muted-foreground mt-6 tracking-widest uppercase">
                 <Diamond className="w-3 h-3 inline-block mr-1 -mt-0.5" /> Ambiente seguro e criptografado
               </motion.p>
             </motion.div>
