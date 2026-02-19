@@ -123,9 +123,6 @@ export default function Auth() {
         <div className="lg:hidden relative h-48 overflow-hidden">
           <img src={authHeroImg} alt="Joias elegantes" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
-          {logoUrl && (
-            <motion.img initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} src={logoUrl} alt="Logo" className="absolute bottom-4 left-1/2 -translate-x-1/2 w-20 h-20 object-contain drop-shadow-lg" />
-          )}
         </div>
 
         <div className="flex-1 flex items-center justify-center px-6 py-12">
