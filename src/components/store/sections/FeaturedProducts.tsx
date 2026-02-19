@@ -346,8 +346,7 @@ export function ProductCard({
       transition={{ delay: index * 0.05, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      whileHover={{ y: -3, transition: { duration: 0.35, ease: "easeOut" } }}
-      className="h-full"
+      className="h-full md:hover:-translate-y-[3px] md:transition-transform md:duration-300"
     >
       <div className="relative flex flex-col h-full bg-card rounded-2xl border border-border/40 overflow-hidden transition-all duration-300 md:hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)] group cursor-pointer">
         {/* ── Image ── */}
