@@ -41,6 +41,7 @@
     --ring: 18 100% 50%;
 
     --radius: 1rem;
+    --buttons: 18 100% 50%;
 
     --glow-orange: 0 0 20px hsla(18, 100%, 50%, 0.3);
     --glow-orange-lg: 0 0 40px hsla(18, 100%, 50%, 0.25), 0 0 80px hsla(18, 100%, 50%, 0.1);

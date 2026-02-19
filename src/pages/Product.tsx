@@ -400,7 +400,7 @@ export default function ProductPage() {
             {/* Buy Now */}
             <Button
               size="lg"
-              className="w-full h-14 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground font-sans font-bold text-base uppercase tracking-wider shine glow-orange hover:glow-orange-lg transition-all duration-300"
+              className="w-full h-14 rounded-2xl bg-buttons hover:brightness-110 text-white font-sans font-bold text-base uppercase tracking-wider shine transition-all duration-300"
               onClick={handleBuyNow}
               disabled={cartLoading || !inStock}
             >
@@ -487,7 +487,7 @@ export default function ProductPage() {
             <ShoppingCart className="w-5 h-5" />
           </Button>
           <Button
-            className="h-11 rounded-xl bg-accent text-accent-foreground font-sans font-bold text-sm uppercase tracking-wider shine flex-1 max-w-[180px]"
+            className="h-11 rounded-xl bg-buttons text-white font-sans font-bold text-sm uppercase tracking-wider shine flex-1 max-w-[180px]"
             onClick={handleBuyNow}
             disabled={cartLoading || !inStock}
           >
