@@ -702,10 +702,6 @@ export default function ProductEditor() {
                   <Switch checked={form.quote_only} onCheckedChange={v => setForm({ ...form, quote_only: v })} />
                   <Label className="font-sans text-sm">Somente orçamento</Label>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Switch checked={form.is_subscription} onCheckedChange={v => setForm({ ...form, is_subscription: v })} />
-                  <Label className="font-sans text-sm">Produto assinatura</Label>
-                </div>
               </div>
               <p className="text-xs text-muted-foreground font-sans mt-4">
                 Produtos relacionados, upsell e cross-sell podem ser configurados após salvar o produto, vinculando outros itens do catálogo.
