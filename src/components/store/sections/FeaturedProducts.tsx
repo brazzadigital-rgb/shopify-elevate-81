@@ -478,6 +478,7 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
   const [loading, setLoading] = useState(true);
   const { addItem, loading: cartLoading } = useCart();
   const [quickBuyProduct, setQuickBuyProduct] = useState<Product | null>(null);
+  const isBestsellersFilter = (config as any).filter === "bestsellers";
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -549,13 +550,34 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
               <p className="text-muted-foreground font-sans">Nenhum produto encontrado.</p>
               <p className="text-sm text-muted-foreground/60 font-sans">Adicione produtos no painel admin.</p>
             </div>
-          ) : (
-            <>
-              {/* Mobile: horizontal carousel */}
-              <div className="md:hidden -mx-4 px-4 overflow-x-auto scrollbar-hide">
-                <div className="flex gap-3" style={{ width: "max-content" }}>
+          ) : isBestsellersFilter ? (
+            /* ── Bestsellers: highlight card + horizontal scroll ── */
+            <div className="flex gap-4 md:gap-6 items-stretch">
+              {/* Left highlight card */}
+              <div className="hidden md:flex flex-shrink-0 w-[280px] lg:w-[320px] rounded-2xl overflow-hidden relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50" />
+                <div className="absolute inset-0 bg-[url('/showcases/vitrine-namorados.jpg')] bg-cover bg-center mix-blend-overlay opacity-40" />
+                <div className="relative z-10 flex flex-col justify-end p-6 text-primary-foreground">
+                  <h3 className="font-sans text-2xl lg:text-3xl font-bold leading-tight mb-2">
+                    Os produtos mais vendidos da sua coleção
+                  </h3>
+                  <p className="font-sans text-sm opacity-80 mb-5">
+                    Veja mais produtos relacionados clicando no botão abaixo
+                  </p>
+                  <Link
+                    to="/produtos?sort=bestsellers"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-card text-foreground font-sans text-sm font-bold hover:brightness-110 transition-all self-start"
+                  >
+                    Ver mais produtos
+                  </Link>
+                </div>
+              </div>
+
+              {/* Scrollable products */}
+              <div className="flex-1 overflow-x-auto scrollbar-hide -mr-4 md:mr-0 pr-4 md:pr-0">
+                <div className="flex gap-3 md:gap-4" style={{ width: "max-content" }}>
                   {products.map((product, i) => (
-                    <div key={product.id} className="w-[44vw] min-w-[160px] max-w-[200px] flex-shrink-0">
+                    <div key={product.id} className="w-[44vw] min-w-[160px] md:w-[220px] lg:w-[240px] flex-shrink-0">
                       <ProductCard
                         product={product}
                         index={i}
@@ -567,20 +589,21 @@ export function FeaturedProducts({ config, title = "Produtos em Destaque" }: Fea
                   ))}
                 </div>
               </div>
-              {/* Desktop: grid */}
-              <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {products.map((product, i) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    index={i}
-                    addItem={addItem}
-                    cartLoading={cartLoading}
-                    onQuickBuy={setQuickBuyProduct}
-                  />
-                ))}
-              </div>
-            </>
+            </div>
+          ) : (
+            /* ── Default: grid layout ── */
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
+              {products.map((product, i) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  index={i}
+                  addItem={addItem}
+                  cartLoading={cartLoading}
+                  onQuickBuy={setQuickBuyProduct}
+                />
+              ))}
+            </div>
           )}
         </div>
       </section>
