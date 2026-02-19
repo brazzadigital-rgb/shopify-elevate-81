@@ -169,7 +169,7 @@ export function DynamicHeroBanner() {
             key={b.id + "-desktop"}
             src={desktopImg}
             alt={b.title || ""}
-            className="w-full h-auto block scale-110 origin-center"
+            className="w-full h-auto block scale-105 origin-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
