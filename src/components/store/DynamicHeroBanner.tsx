@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,51 @@ function preloadImage(src: string): Promise<void> {
     img.onerror = () => reject();
     img.src = src;
   });
+}
+
+const SLIDE_DURATION = 5000;
+
+function SliderProgressBar({ count, current, onSelect }: { count: number; current: number; onSelect: (i: number) => void }) {
+  const [progress, setProgress] = useState(0);
+  const rafRef = useRef<number>(0);
+  const startRef = useRef(Date.now());
+
+  useEffect(() => {
+    startRef.current = Date.now();
+    setProgress(0);
+
+    const tick = () => {
+      const elapsed = Date.now() - startRef.current;
+      setProgress(Math.min(elapsed / SLIDE_DURATION, 1));
+      if (elapsed < SLIDE_DURATION) {
+        rafRef.current = requestAnimationFrame(tick);
+      }
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [current]);
+
+  if (count <= 1) return null;
+
+  return (
+    <div className="absolute bottom-0 left-0 right-0 z-20 flex gap-1 px-4 md:px-8 pb-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <button
+          key={i}
+          onClick={() => onSelect(i)}
+          className="flex-1 h-[3px] rounded-full overflow-hidden bg-white/25 transition-all min-h-[unset] min-w-[unset] hover:bg-white/35 cursor-pointer"
+        >
+          <div
+            className="h-full rounded-full bg-white"
+            style={{
+              width: i === current ? `${progress * 100}%` : i < current ? "100%" : "0%",
+              transition: i === current ? "none" : "width 0.3s ease",
+            }}
+          />
+        </button>
+      ))}
+    </div>
+  );
 }
 
 export function DynamicHeroBanner() {
@@ -86,7 +131,7 @@ export function DynamicHeroBanner() {
   // Auto-rotate
   useEffect(() => {
     if (banners.length <= 1) return;
-    const timer = setInterval(() => setCurrent((c) => (c + 1) % banners.length), 5000);
+    const timer = setInterval(() => setCurrent((c) => (c + 1) % banners.length), SLIDE_DURATION);
     return () => clearInterval(timer);
   }, [banners.length]);
 
@@ -153,13 +198,7 @@ export function DynamicHeroBanner() {
             )}
           </motion.div>
         )}
-        {banners.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-            {banners.map((_, i) => (
-              <button key={i} onClick={() => setCurrent(i)} className={`w-2.5 h-2.5 rounded-full transition-all min-h-[unset] min-w-[unset] ${i === current ? "bg-white scale-110" : "bg-white/30 hover:bg-white/50"}`} />
-            ))}
-          </div>
-        )}
+        <SliderProgressBar count={banners.length} current={current} onSelect={setCurrent} />
       </div>
 
       {/* Desktop */}
@@ -201,13 +240,7 @@ export function DynamicHeroBanner() {
             )}
           </motion.div>
         )}
-        {banners.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-            {banners.map((_, i) => (
-              <button key={i} onClick={() => setCurrent(i)} className={`w-2.5 h-2.5 rounded-full transition-all min-h-[unset] min-w-[unset] ${i === current ? "bg-white scale-110" : "bg-white/30 hover:bg-white/50"}`} />
-            ))}
-          </div>
-        )}
+        <SliderProgressBar count={banners.length} current={current} onSelect={setCurrent} />
       </div>
     </section>
   );
