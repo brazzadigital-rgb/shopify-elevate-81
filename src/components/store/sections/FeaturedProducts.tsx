@@ -117,7 +117,7 @@ function ImageCarousel({
 
   return (
     <div
-      className="relative aspect-square bg-muted/20 overflow-hidden touch-pan-y cursor-pointer"
+      className="relative aspect-square bg-muted/20 overflow-hidden cursor-pointer"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
