@@ -157,8 +157,9 @@ export default function Collections() {
                    <TableHead className="font-sans w-16">Imagem</TableHead>
                    <TableHead className="font-sans">Nome</TableHead>
                    <TableHead className="font-sans">Slug</TableHead>
-                   <TableHead className="font-sans">Status</TableHead>
-                   <TableHead className="font-sans text-right">Ações</TableHead>
+                    <TableHead className="font-sans">Banner</TableHead>
+                    <TableHead className="font-sans">Status</TableHead>
+                    <TableHead className="font-sans text-right">Ações</TableHead>
                  </TableRow>
                </TableHeader>
                <TableBody>
@@ -174,8 +175,19 @@ export default function Collections() {
                        )}
                      </TableCell>
                      <TableCell className="font-sans font-medium">{c.name}</TableCell>
-                    <TableCell className="font-sans text-muted-foreground text-sm">{c.slug}</TableCell>
-                    <TableCell>
+                     <TableCell className="font-sans text-muted-foreground text-sm">{c.slug}</TableCell>
+                     <TableCell>
+                       {c.banner_url ? (
+                         <Badge variant="default" className="text-xs font-sans">
+                           <ImageIcon className="w-3 h-3 mr-1" /> Configurado
+                         </Badge>
+                       ) : (
+                         <Badge variant="secondary" className="text-xs font-sans text-muted-foreground">
+                           Sem banner
+                         </Badge>
+                       )}
+                     </TableCell>
+                     <TableCell>
                       <Badge variant={c.is_active ? "default" : "secondary"} className="text-xs font-sans">
                         {c.is_active ? "Ativa" : "Inativa"}
                       </Badge>
