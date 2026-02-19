@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Zap, ShieldCheck, ArrowRight } from "lucide-react";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,7 +17,9 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
+  const { getSetting } = useStoreSettings();
   const navigate = useNavigate();
+  const logoUrl = getSetting("logo_url");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,8 +61,12 @@ export default function Auth() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mb-8"
           >
-            <div className="w-40 h-40 mx-auto rounded-3xl glass-card border-glow flex items-center justify-center animate-float">
-              <span className="text-7xl">🐆</span>
+            <div className="w-40 h-40 mx-auto rounded-3xl glass-card border-glow flex items-center justify-center animate-float overflow-hidden">
+              {logoUrl ? (
+                <img src={logoUrl} alt="Logo da loja" className="w-28 h-28 object-contain" />
+              ) : (
+                <span className="text-7xl">🐆</span>
+              )}
             </div>
           </motion.div>
 
