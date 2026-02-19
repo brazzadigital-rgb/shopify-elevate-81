@@ -67,6 +67,13 @@ export default function ContactPage() {
 
   const whatsappNumber = getSetting("whatsapp_number", "(11) 99999-9999");
   const whatsappLink = `https://wa.me/${whatsappNumber.replace(/\D/g, "")}`;
+  const contactEmail = getSetting("contact_email", "contato@minhalojaonline.com.br");
+  const contactAddress = getSetting("contact_address", "São Paulo, SP – Brasil");
+  const hoursWeekday = getSetting("contact_hours_weekday", "9h – 18h");
+  const hoursSaturday = getSetting("contact_hours_saturday", "9h – 13h");
+  const hoursSunday = getSetting("contact_hours_sunday", "Fechado");
+  const instagramLink = getSetting("contact_instagram", "");
+  const facebookLink = getSetting("contact_facebook", "");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -268,7 +275,7 @@ export default function ContactPage() {
                   Chamar no WhatsApp
                 </a>
                 <p className="font-sans text-[11px] text-muted-foreground mt-2.5 text-center">
-                  Seg a Sex: 9h às 18h · Sáb: 9h às 13h
+                  Seg a Sex: {hoursWeekday} · Sáb: {hoursSaturday}
                 </p>
               </div>
             </motion.div>
@@ -283,10 +290,10 @@ export default function ContactPage() {
                   <div>
                     <p className="font-sans font-semibold text-sm">E-mail</p>
                     <a
-                      href="mailto:contato@minhalojaonline.com.br"
+                      href={`mailto:${contactEmail}`}
                       className="font-sans text-xs text-accent hover:underline"
                     >
-                      contato@minhalojaonline.com.br
+                      {contactEmail}
                     </a>
                   </div>
                 </div>
@@ -326,15 +333,15 @@ export default function ContactPage() {
                 <div className="space-y-1.5 font-sans text-sm text-muted-foreground">
                   <div className="flex justify-between">
                     <span>Segunda a Sexta</span>
-                    <span className="font-medium text-foreground/70">9h – 18h</span>
+                    <span className="font-medium text-foreground/70">{hoursWeekday}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Sábado</span>
-                    <span className="font-medium text-foreground/70">9h – 13h</span>
+                    <span className="font-medium text-foreground/70">{hoursSaturday}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Domingo e Feriados</span>
-                    <span className="font-medium text-foreground/70">Fechado</span>
+                    <span className="font-medium text-foreground/70">{hoursSunday}</span>
                   </div>
                 </div>
               </div>
@@ -349,7 +356,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <p className="font-sans font-semibold text-sm">Endereço</p>
-                    <p className="font-sans text-xs text-muted-foreground">São Paulo, SP – Brasil</p>
+                    <p className="font-sans text-xs text-muted-foreground">{contactAddress}</p>
                   </div>
                 </div>
               </div>
@@ -361,9 +368,9 @@ export default function ContactPage() {
                 <p className="font-sans font-semibold text-sm mb-3">Redes Sociais</p>
                 <div className="flex gap-2">
                   {[
-                    { icon: Instagram, href: "#", label: "Instagram" },
-                    { icon: Facebook, href: "#", label: "Facebook" },
-                  ].map((social) => (
+                    { icon: Instagram, href: instagramLink || "#", label: "Instagram" },
+                    { icon: Facebook, href: facebookLink || "#", label: "Facebook" },
+                  ].filter(s => s.href !== "#" || !instagramLink && !facebookLink).map((social) => (
                     <a
                       key={social.label}
                       href={social.href}
