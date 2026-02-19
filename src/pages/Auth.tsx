@@ -23,6 +23,7 @@ export default function Auth() {
   const { getSetting } = useStoreSettings();
   const navigate = useNavigate();
   const logoUrl = getSetting("logo_url");
+  const storeName = getSetting("store_name");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,15 +111,8 @@ export default function Auth() {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="relative z-10 text-center px-12"
         >
-          {logoUrl && (
-            <img
-              src={logoUrl}
-              alt="Logo da loja"
-              className="w-32 h-32 object-contain mx-auto mb-6 drop-shadow-lg"
-            />
-          )}
           <h2 className="font-display text-2xl font-bold text-[#5A4A3B] tracking-wide">
-            Sua Joalheria
+            {storeName || "Sua Joalheria"}
           </h2>
           <p className="text-[#8B7D6B] text-sm mt-2 tracking-widest uppercase">
             Elegância & Exclusividade
@@ -159,6 +153,17 @@ export default function Auth() {
             >
               {/* Premium card */}
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.06)] border border-[#E8E0D8]/60 p-8 md:p-10">
+                {/* Logo inside card */}
+                {logoUrl && (
+                  <div className="flex justify-center mb-6">
+                    <img
+                      src={logoUrl}
+                      alt="Logo da loja"
+                      className="w-24 h-24 object-contain drop-shadow-md"
+                    />
+                  </div>
+                )}
+
                 {/* Badge */}
                 <div className="flex items-center gap-2 mb-6">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C9A96E]/10 text-[#C9A96E]">
