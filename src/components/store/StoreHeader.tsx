@@ -114,51 +114,73 @@ export function StoreHeader() {
         className={`${stickyEnabled ? 'sticky top-0' : ''} z-50 transition-all duration-500`}
         style={headerStyle}
       >
-        <div className="container flex items-center justify-between gap-4 h-full">
+        {/* Premium gradient overlay for depth */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: `linear-gradient(180deg, hsl(${headerBg}) 0%, hsl(${headerBg} / 0.95) 100%)`,
+        }} />
+
+        <div className="container relative flex items-center justify-between gap-6 h-full">
           {/* MOBILE LEFT — Logo */}
           <Link to="/" className="flex md:hidden items-center shrink-0">
-            <LogoComponent mobile />
+            <motion.div
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            >
+              <LogoComponent mobile />
+            </motion.div>
           </Link>
 
           {/* DESKTOP LEFT — Logo */}
-          <Link to="/" className="hidden md:flex items-center gap-2 shrink-0 group">
-            <LogoComponent />
+          <Link to="/" className="hidden md:flex items-center gap-2 shrink-0">
+            <motion.div
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              className="relative"
+            >
+              <LogoComponent />
+            </motion.div>
           </Link>
 
           {/* CENTER — Search bar (desktop) */}
-          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-auto">
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-2xl mx-auto">
             <div className="relative w-full group">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full h-11 rounded-full border-0 text-foreground placeholder:text-muted-foreground text-sm font-sans pl-5 pr-12 focus:outline-none focus:ring-2 focus:ring-accent/40 transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                className="w-full h-12 rounded-full border-2 border-transparent text-foreground placeholder:text-muted-foreground/70 text-sm font-sans pl-6 pr-14 focus:outline-none focus:border-accent/30 focus:shadow-[0_0_25px_rgba(255,255,255,0.08)] transition-all duration-400 group-hover:shadow-[0_0_30px_rgba(255,255,255,0.06)]"
                 style={{ backgroundColor: `hsl(${searchBg})` }}
               />
-              <button
+              <motion.button
                 type="submit"
-                className="absolute right-1.5 top-1.5 w-8 h-8 rounded-full bg-accent hover:bg-accent/90 flex items-center justify-center transition-all duration-200 active:scale-95 min-h-[unset] min-w-[unset]"
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.92 }}
+                className="absolute right-1.5 top-1.5 w-9 h-9 rounded-full bg-accent hover:bg-accent/90 flex items-center justify-center transition-colors duration-200 min-h-[unset] min-w-[unset] shadow-md"
               >
                 <Search className="w-4 h-4 text-accent-foreground" />
-              </button>
+              </motion.button>
             </div>
           </form>
 
           {/* RIGHT — Account / Track / Cart (desktop) */}
-          <div className="hidden md:flex items-center gap-0 shrink-0">
+          <div className="hidden md:flex items-center gap-1 shrink-0">
             {/* Minha Conta */}
             {accountEnabled && (
               <Link
                 to={user ? (isAdmin ? "/admin" : "/conta") : "/auth"}
-                className="flex items-center gap-2.5 px-4 py-2 rounded-lg transition-all duration-200 hover:brightness-125 group active:scale-[0.98]"
+                className="group flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.97]"
               >
-                <User className="w-5 h-5 shrink-0" style={{ color: `hsl(${headerTextColor})` }} />
+                <div className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white/10" style={{ border: `1.5px solid hsl(${headerTextColor} / 0.25)` }}>
+                  <User className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ color: `hsl(${headerTextColor})` }} />
+                </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-sans leading-tight opacity-70" style={{ color: `hsl(${headerTextColor})` }}>
+                  <span className="text-[10px] font-sans leading-tight transition-opacity duration-300 opacity-60 group-hover:opacity-90" style={{ color: `hsl(${headerTextColor})` }}>
                     {user ? "Olá, bem-vindo!" : accountTopText}
                   </span>
-                  <span className="text-xs font-sans font-semibold leading-tight" style={{ color: `hsl(${headerTextColor})` }}>
+                  <span className="text-[13px] font-sans font-bold leading-tight tracking-wide" style={{ color: `hsl(${headerTextColor})` }}>
                     Minha conta
                   </span>
                 </div>
@@ -167,21 +189,23 @@ export function StoreHeader() {
 
             {/* Separator */}
             {accountEnabled && trackEnabled && (
-              <div className="w-px h-8 mx-1" style={{ backgroundColor: `hsl(${headerTextColor} / 0.15)` }} />
+              <div className="w-px h-9 mx-1 rounded-full" style={{ background: `linear-gradient(180deg, transparent 0%, hsl(${headerTextColor} / 0.2) 50%, transparent 100%)` }} />
             )}
 
             {/* Rastrear Pedido */}
             {trackEnabled && (
               <Link
                 to="/conta/pedidos"
-                className="flex items-center gap-2.5 px-4 py-2 rounded-lg transition-all duration-200 hover:brightness-125 group active:scale-[0.98]"
+                className="group flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.97]"
               >
-                <MapPin className="w-5 h-5 shrink-0" style={{ color: `hsl(${headerTextColor})` }} />
+                <div className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white/10" style={{ border: `1.5px solid hsl(${headerTextColor} / 0.25)` }}>
+                  <MapPin className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ color: `hsl(${headerTextColor})` }} />
+                </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-sans leading-tight opacity-70" style={{ color: `hsl(${headerTextColor})` }}>
+                  <span className="text-[10px] font-sans leading-tight transition-opacity duration-300 opacity-60 group-hover:opacity-90" style={{ color: `hsl(${headerTextColor})` }}>
                     {trackTopText}
                   </span>
-                  <span className="text-xs font-sans font-semibold leading-tight" style={{ color: `hsl(${headerTextColor})` }}>
+                  <span className="text-[13px] font-sans font-bold leading-tight tracking-wide" style={{ color: `hsl(${headerTextColor})` }}>
                     Rastrear pedido
                   </span>
                 </div>
@@ -190,49 +214,53 @@ export function StoreHeader() {
 
             {/* Separator */}
             {trackEnabled && cartEnabled && (
-              <div className="w-px h-8 mx-1" style={{ backgroundColor: `hsl(${headerTextColor} / 0.15)` }} />
+              <div className="w-px h-9 mx-1 rounded-full" style={{ background: `linear-gradient(180deg, transparent 0%, hsl(${headerTextColor} / 0.2) 50%, transparent 100%)` }} />
             )}
 
             {/* Carrinho */}
             {cartEnabled && (
-              <button
+              <motion.button
                 onClick={() => setIsOpen(true)}
-                className="flex items-center gap-2.5 px-4 py-2 rounded-lg transition-all duration-200 hover:brightness-125 active:scale-[0.98]"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
+                className="group flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 hover:bg-white/[0.06]"
               >
-                <div className="relative">
-                  <ShoppingBag className="w-5 h-5" style={{ color: `hsl(${headerTextColor})` }} />
+                <div className="relative w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white/10" style={{ border: `1.5px solid hsl(${headerTextColor} / 0.25)` }}>
+                  <ShoppingBag className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ color: `hsl(${headerTextColor})` }} />
                   {itemCount > 0 && (
                     <motion.span
                       key={itemCount}
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
+                      initial={{ scale: 0, y: 5 }}
+                      animate={{ scale: 1, y: 0 }}
                       transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                      className="absolute -top-2 -right-2.5 rounded-full bg-accent text-accent-foreground text-[9px] font-bold min-w-[18px] h-[18px] flex items-center justify-center px-1 font-sans shadow-sm min-h-[unset]"
+                      className="absolute -top-1.5 -right-1.5 rounded-full bg-accent text-accent-foreground text-[9px] font-bold min-w-[18px] h-[18px] flex items-center justify-center px-1 font-sans shadow-lg min-h-[unset]"
                     >
                       {itemCount}
                     </motion.span>
                   )}
                 </div>
-                <span className="text-xs font-sans font-semibold" style={{ color: `hsl(${headerTextColor})` }}>
+                <span className="text-[13px] font-sans font-bold tracking-wide" style={{ color: `hsl(${headerTextColor})` }}>
                   Carrinho
                 </span>
-              </button>
+              </motion.button>
             )}
           </div>
 
           {/* MOBILE RIGHT — Search + Cart + Hamburger */}
-          <div className="flex items-center gap-1 md:hidden">
-            <button
+          <div className="flex items-center gap-0.5 md:hidden">
+            <motion.button
+              whileTap={{ scale: 0.9 }}
               onClick={() => setMobileSearchOpen(true)}
-              className="flex items-center justify-center w-10 h-10 rounded-full transition-colors min-h-[unset] min-w-[unset]"
+              className="flex items-center justify-center w-10 h-10 rounded-full transition-colors min-h-[unset] min-w-[unset] hover:bg-white/10"
             >
               <Search className="w-5 h-5" style={{ color: `hsl(${headerTextColor})` }} />
-            </button>
+            </motion.button>
 
             {cartEnabled && (
-              <button
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(true)}
-                className="relative flex items-center justify-center w-10 h-10 rounded-full transition-colors min-h-[unset] min-w-[unset]"
+                className="relative flex items-center justify-center w-10 h-10 rounded-full transition-colors min-h-[unset] min-w-[unset] hover:bg-white/10"
               >
                 <ShoppingBag className="w-5 h-5" style={{ color: `hsl(${headerTextColor})` }} />
                 {itemCount > 0 && (
@@ -246,13 +274,13 @@ export function StoreHeader() {
                     {itemCount}
                   </motion.span>
                 )}
-              </button>
+              </motion.button>
             )}
 
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full w-10 h-10 shrink-0 min-h-[unset] min-w-[unset]"
+              className="rounded-full w-10 h-10 shrink-0 min-h-[unset] min-w-[unset] hover:bg-white/10"
               style={{ color: `hsl(${headerTextColor})` }}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
