@@ -38,9 +38,16 @@ export function StoreHeader() {
   const logoMobileUrl = getSetting("logo_mobile_url", "") || logoUrl;
   const storeName = getSetting("store_name", "SPORT STORE");
   const stickyEnabled = getSetting("header_sticky_enabled", "true") === "true";
-  const headerBg = getSetting("header_bg_color", "0 0% 20%");
-  const headerTextColor = getSetting("header_text_color", "0 0% 100%");
-  const searchBg = getSetting("header_search_bg_color", "0 0% 95%");
+
+  // Theme-derived header colors via CSS vars; store_settings override if explicitly set
+  const headerBgSetting = getSetting("header_bg_color", "");
+  const headerTextSetting = getSetting("header_text_color", "");
+  const searchBgSetting = getSetting("header_search_bg_color", "");
+
+  const bgColor = headerBgSetting ? `hsl(${headerBgSetting})` : `hsl(var(--header-bg))`;
+  const txtColor = headerTextSetting ? `hsl(${headerTextSetting})` : `hsl(var(--header-text))`;
+  const searchBgColor = searchBgSetting ? `hsl(${searchBgSetting})` : `hsl(var(--secondary-light))`;
+
   const searchPlaceholder = getSetting("header_search_placeholder", "O que está buscando?");
   const headerHeight = parseInt(getSetting("header_height", "110"));
   const accountEnabled = getSetting("header_account_enabled", "true") === "true";
@@ -53,6 +60,11 @@ export function StoreHeader() {
   const logoHeight = parseInt(getSetting("header_logo_height", "48"));
   const logoMobileWidth = parseInt(getSetting("header_logo_mobile_width", "120"));
   const logoMobileHeight = parseInt(getSetting("header_logo_mobile_height", "36"));
+
+  // Separator gradient using text color
+  const separatorBg = headerTextSetting
+    ? `linear-gradient(180deg, transparent 0%, hsl(${headerTextSetting} / 0.2) 50%, transparent 100%)`
+    : `linear-gradient(180deg, transparent 0%, hsl(var(--header-text) / 0.2) 50%, transparent 100%)`;
 
   const navLinks = [
     { label: "Início", to: "/" },
@@ -81,7 +93,7 @@ export function StoreHeader() {
         <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-accent flex items-center justify-center">
           <span className="text-accent-foreground font-bold text-base">🐆</span>
         </div>
-        <span className="font-display text-lg font-bold tracking-tight uppercase" style={{ color: `hsl(${headerTextColor})` }}>
+        <span className="font-display text-lg font-bold tracking-tight uppercase" style={{ color: txtColor }}>
           {storeName}
         </span>
       </div>
@@ -89,19 +101,29 @@ export function StoreHeader() {
   };
 
   const headerStyle: React.CSSProperties = {
-    backgroundColor: `hsl(${headerBg})`,
+    backgroundColor: bgColor,
     ...(scrolled && stickyEnabled ? {
       boxShadow: `0 4px ${shadowIntensity}px -8px rgba(0,0,0,0.${Math.min(shadowIntensity, 99)})`,
     } : {}),
   };
 
+  // Gradient overlay using same bg
+  const overlayBg = headerBgSetting
+    ? `linear-gradient(180deg, hsl(${headerBgSetting}) 0%, hsl(${headerBgSetting} / 0.95) 100%)`
+    : `linear-gradient(180deg, hsl(var(--header-bg)) 0%, hsl(var(--header-bg) / 0.95) 100%)`;
+
+  // Border style for icon circles
+  const iconBorder = headerTextSetting
+    ? `1.5px solid hsl(${headerTextSetting} / 0.25)`
+    : `1.5px solid hsl(var(--header-text) / 0.25)`;
+
   return (
     <>
       {/* Top bar — info strip */}
       {isEnabled("topbar_enabled") && (
-        <div className="bg-foreground">
+        <div style={{ backgroundColor: bgColor }}>
           <div className="container flex items-center justify-center h-8 gap-4">
-            <p className="text-[11px] font-sans font-medium tracking-widest uppercase truncate text-center" style={{ color: `hsl(${headerTextColor} / 0.8)` }}>
+            <p className="text-[11px] font-sans font-medium tracking-widest uppercase truncate text-center" style={{ color: txtColor, opacity: 0.8 }}>
               {getSetting("topbar_text", "✈️ Frete Grátis para todo Brasil")}
             </p>
           </div>
@@ -114,30 +136,19 @@ export function StoreHeader() {
         style={headerStyle}
       >
         {/* Premium gradient overlay for depth */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background: `linear-gradient(180deg, hsl(${headerBg}) 0%, hsl(${headerBg} / 0.95) 100%)`,
-        }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: overlayBg }} />
 
         <div className="container relative flex items-center justify-between gap-6" style={{ height: `${headerHeight}px` }}>
           {/* MOBILE LEFT — Logo */}
           <Link to="/" className="flex md:hidden items-center shrink-0">
-            <motion.div
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            >
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}>
               <LogoComponent mobile />
             </motion.div>
           </Link>
 
           {/* DESKTOP LEFT — Logo */}
           <Link to="/" className="hidden md:flex items-center gap-2 shrink-0">
-            <motion.div
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              className="relative"
-            >
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }} className="relative">
               <LogoComponent />
             </motion.div>
           </Link>
@@ -151,7 +162,7 @@ export function StoreHeader() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={searchPlaceholder}
                 className="w-full h-12 rounded-full border-2 border-transparent text-foreground placeholder:text-muted-foreground/70 text-sm font-sans pl-6 pr-14 focus:outline-none focus:border-accent/30 focus:shadow-[0_0_25px_rgba(255,255,255,0.08)] transition-all duration-400 group-hover:shadow-[0_0_30px_rgba(255,255,255,0.06)]"
-                style={{ backgroundColor: `hsl(${searchBg})` }}
+                style={{ backgroundColor: searchBgColor }}
               />
               <motion.button
                 type="submit"
@@ -166,57 +177,52 @@ export function StoreHeader() {
 
           {/* RIGHT — Account / Track / Cart (desktop) */}
           <div className="hidden md:flex items-center gap-1 shrink-0">
-            {/* Minha Conta */}
             {accountEnabled && (
               <Link
                 to={user ? (isAdmin ? "/admin" : "/conta") : "/auth"}
                 className="group flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.97]"
               >
-                <div className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white/10" style={{ border: `1.5px solid hsl(${headerTextColor} / 0.25)` }}>
-                  <User className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ color: `hsl(${headerTextColor})` }} />
+                <div className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white/10" style={{ border: iconBorder }}>
+                  <User className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ color: txtColor }} />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-sans leading-tight transition-opacity duration-300 opacity-60 group-hover:opacity-90" style={{ color: `hsl(${headerTextColor})` }}>
+                  <span className="text-[10px] font-sans leading-tight transition-opacity duration-300 opacity-60 group-hover:opacity-90" style={{ color: txtColor }}>
                     {user ? "Olá, bem-vindo!" : accountTopText}
                   </span>
-                  <span className="text-[13px] font-sans font-bold leading-tight tracking-wide" style={{ color: `hsl(${headerTextColor})` }}>
+                  <span className="text-[13px] font-sans font-bold leading-tight tracking-wide" style={{ color: txtColor }}>
                     Minha conta
                   </span>
                 </div>
               </Link>
             )}
 
-            {/* Separator */}
             {accountEnabled && trackEnabled && (
-              <div className="w-px h-9 mx-1 rounded-full" style={{ background: `linear-gradient(180deg, transparent 0%, hsl(${headerTextColor} / 0.2) 50%, transparent 100%)` }} />
+              <div className="w-px h-9 mx-1 rounded-full" style={{ background: separatorBg }} />
             )}
 
-            {/* Rastrear Pedido */}
             {trackEnabled && (
               <Link
                 to="/rastreamento"
                 className="group flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.97]"
               >
-                <div className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white/10" style={{ border: `1.5px solid hsl(${headerTextColor} / 0.25)` }}>
-                  <MapPin className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ color: `hsl(${headerTextColor})` }} />
+                <div className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white/10" style={{ border: iconBorder }}>
+                  <MapPin className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ color: txtColor }} />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-sans leading-tight transition-opacity duration-300 opacity-60 group-hover:opacity-90" style={{ color: `hsl(${headerTextColor})` }}>
+                  <span className="text-[10px] font-sans leading-tight transition-opacity duration-300 opacity-60 group-hover:opacity-90" style={{ color: txtColor }}>
                     {trackTopText}
                   </span>
-                  <span className="text-[13px] font-sans font-bold leading-tight tracking-wide" style={{ color: `hsl(${headerTextColor})` }}>
+                  <span className="text-[13px] font-sans font-bold leading-tight tracking-wide" style={{ color: txtColor }}>
                     Rastrear pedido
                   </span>
                 </div>
               </Link>
             )}
 
-            {/* Separator */}
             {trackEnabled && cartEnabled && (
-              <div className="w-px h-9 mx-1 rounded-full" style={{ background: `linear-gradient(180deg, transparent 0%, hsl(${headerTextColor} / 0.2) 50%, transparent 100%)` }} />
+              <div className="w-px h-9 mx-1 rounded-full" style={{ background: separatorBg }} />
             )}
 
-            {/* Carrinho */}
             {cartEnabled && (
               <motion.button
                 onClick={() => setIsOpen(true)}
@@ -224,8 +230,8 @@ export function StoreHeader() {
                 whileTap={{ scale: 0.96 }}
                 className="group flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 hover:bg-white/[0.06]"
               >
-                <div className="relative w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white/10" style={{ border: `1.5px solid hsl(${headerTextColor} / 0.25)` }}>
-                  <ShoppingBag className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ color: `hsl(${headerTextColor})` }} />
+                <div className="relative w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white/10" style={{ border: iconBorder }}>
+                  <ShoppingBag className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ color: txtColor }} />
                   {itemCount > 0 && (
                     <motion.span
                       key={itemCount}
@@ -238,7 +244,7 @@ export function StoreHeader() {
                     </motion.span>
                   )}
                 </div>
-                <span className="text-[13px] font-sans font-bold tracking-wide" style={{ color: `hsl(${headerTextColor})` }}>
+                <span className="text-[13px] font-sans font-bold tracking-wide" style={{ color: txtColor }}>
                   Carrinho
                 </span>
               </motion.button>
@@ -252,7 +258,7 @@ export function StoreHeader() {
               onClick={() => setMobileSearchOpen(true)}
               className="flex items-center justify-center w-10 h-10 rounded-full transition-colors min-h-[unset] min-w-[unset] hover:bg-white/10"
             >
-              <Search className="w-5 h-5" style={{ color: `hsl(${headerTextColor})` }} />
+              <Search className="w-5 h-5" style={{ color: txtColor }} />
             </motion.button>
 
             {cartEnabled && (
@@ -261,7 +267,7 @@ export function StoreHeader() {
                 onClick={() => setIsOpen(true)}
                 className="relative flex items-center justify-center w-10 h-10 rounded-full transition-colors min-h-[unset] min-w-[unset] hover:bg-white/10"
               >
-                <ShoppingBag className="w-5 h-5" style={{ color: `hsl(${headerTextColor})` }} />
+                <ShoppingBag className="w-5 h-5" style={{ color: txtColor }} />
                 {itemCount > 0 && (
                   <motion.span
                     key={itemCount}
@@ -280,7 +286,7 @@ export function StoreHeader() {
               variant="ghost"
               size="icon"
               className="rounded-full w-10 h-10 shrink-0 min-h-[unset] min-w-[unset] hover:bg-white/10"
-              style={{ color: `hsl(${headerTextColor})` }}
+              style={{ color: txtColor }}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -288,7 +294,7 @@ export function StoreHeader() {
           </div>
         </div>
 
-        {/* Desktop nav bar — white background like reference */}
+        {/* Desktop nav bar */}
         <nav className="hidden md:block relative z-10 bg-background border-b border-border/50">
           <div className="container flex items-center justify-center gap-8 h-10">
             {navLinks.map((link, idx) => (
@@ -331,7 +337,7 @@ export function StoreHeader() {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -20, opacity: 0 }}
                 className="fixed top-0 left-0 right-0 z-50 p-4 md:hidden"
-                style={{ backgroundColor: `hsl(${headerBg})` }}
+                style={{ backgroundColor: bgColor }}
               >
                 <form onSubmit={handleSearch} className="flex gap-2">
                   <div className="relative flex-1">
@@ -342,7 +348,7 @@ export function StoreHeader() {
                       placeholder={searchPlaceholder}
                       autoFocus
                       className="w-full h-12 rounded-full border-0 text-foreground placeholder:text-muted-foreground text-sm font-sans pl-5 pr-12 focus:outline-none focus:ring-2 focus:ring-accent/40"
-                      style={{ backgroundColor: `hsl(${searchBg})` }}
+                      style={{ backgroundColor: searchBgColor }}
                     />
                     <button type="submit" className="absolute right-2 top-2 w-8 h-8 rounded-full bg-accent flex items-center justify-center min-h-[unset] min-w-[unset]">
                       <Search className="w-4 h-4 text-accent-foreground" />
@@ -352,7 +358,7 @@ export function StoreHeader() {
                     type="button"
                     onClick={() => setMobileSearchOpen(false)}
                     className="w-12 h-12 rounded-full flex items-center justify-center min-h-[unset] min-w-[unset]"
-                    style={{ color: `hsl(${headerTextColor})` }}
+                    style={{ color: txtColor }}
                   >
                     <X className="w-5 h-5" />
                   </button>
