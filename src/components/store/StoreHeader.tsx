@@ -49,6 +49,10 @@ export function StoreHeader() {
   const accountTopText = getSetting("header_account_top_text", "Entrar / Cadastrar");
   const trackTopText = getSetting("header_track_top_text", "Onde está meu produto?");
   const shadowIntensity = parseInt(getSetting("header_shadow_intensity", "50"));
+  const logoWidth = parseInt(getSetting("header_logo_width", "160"));
+  const logoHeight = parseInt(getSetting("header_logo_height", "48"));
+  const logoMobileWidth = parseInt(getSetting("header_logo_mobile_width", "120"));
+  const logoMobileHeight = parseInt(getSetting("header_logo_mobile_height", "36"));
 
   const navLinks = [
     { label: "Início", to: "/" },
@@ -60,7 +64,17 @@ export function StoreHeader() {
   const LogoComponent = ({ mobile = false }: { mobile?: boolean }) => {
     const src = mobile ? logoMobileUrl : logoUrl;
     if (src) {
-      return <img src={src} alt={storeName} className="h-8 md:h-10 object-contain" />;
+      return (
+        <img
+          src={src}
+          alt={storeName}
+          className="object-contain"
+          style={{
+            width: `${mobile ? logoMobileWidth : logoWidth}px`,
+            height: `${mobile ? logoMobileHeight : logoHeight}px`,
+          }}
+        />
+      );
     }
     return (
       <div className="flex items-center gap-2">

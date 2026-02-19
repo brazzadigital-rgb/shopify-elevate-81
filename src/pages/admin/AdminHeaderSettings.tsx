@@ -140,7 +140,7 @@ export default function AdminHeaderSettings() {
         <CardHeader className="pb-4">
           <CardTitle className="font-display text-lg flex items-center gap-2"><Eye className="w-5 h-5 text-accent" /> Logos</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label className="font-sans text-sm">Logo Desktop</Label>
@@ -151,6 +151,74 @@ export default function AdminHeaderSettings() {
               <ImageUpload value={settings.logo_mobile_url || ""} onChange={(v) => update("logo_mobile_url", v)} folder="logos" label="Upload Mobile" />
             </div>
           </div>
+
+          <div className="border-t pt-4 space-y-4">
+            <p className="font-sans text-sm font-medium text-muted-foreground">Dimensões da Logo Desktop</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="font-sans text-sm">Largura: {settings.header_logo_width || "160"}px</Label>
+                <Slider
+                  value={[parseInt(settings.header_logo_width || "160")]}
+                  onValueChange={([v]) => update("header_logo_width", String(v))}
+                  min={60}
+                  max={400}
+                  step={4}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-sans text-sm">Altura: {settings.header_logo_height || "48"}px</Label>
+                <Slider
+                  value={[parseInt(settings.header_logo_height || "48")]}
+                  onValueChange={([v]) => update("header_logo_height", String(v))}
+                  min={20}
+                  max={120}
+                  step={2}
+                />
+              </div>
+            </div>
+
+            <p className="font-sans text-sm font-medium text-muted-foreground pt-2">Dimensões da Logo Mobile</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="font-sans text-sm">Largura: {settings.header_logo_mobile_width || "120"}px</Label>
+                <Slider
+                  value={[parseInt(settings.header_logo_mobile_width || "120")]}
+                  onValueChange={([v]) => update("header_logo_mobile_width", String(v))}
+                  min={40}
+                  max={300}
+                  step={4}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-sans text-sm">Altura: {settings.header_logo_mobile_height || "36"}px</Label>
+                <Slider
+                  value={[parseInt(settings.header_logo_mobile_height || "36")]}
+                  onValueChange={([v]) => update("header_logo_mobile_height", String(v))}
+                  min={16}
+                  max={80}
+                  step={2}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Preview */}
+          {settings.logo_url && (
+            <div className="border-t pt-4 space-y-2">
+              <p className="font-sans text-sm font-medium text-muted-foreground">Preview</p>
+              <div className="bg-muted/30 rounded-xl p-4 flex items-center justify-center">
+                <img
+                  src={settings.logo_url}
+                  alt="Logo preview"
+                  style={{
+                    width: `${settings.header_logo_width || "160"}px`,
+                    height: `${settings.header_logo_height || "48"}px`,
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
