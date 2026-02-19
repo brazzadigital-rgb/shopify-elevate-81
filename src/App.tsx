@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import AdminLayout from "./layouts/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import Products from "./pages/admin/Products";
+import ProductEditor from "./pages/admin/ProductEditor";
 import Collections from "./pages/admin/Collections";
 import StoreSettings from "./pages/admin/StoreSettings";
 import AdminOrders from "./pages/admin/AdminOrders";
@@ -80,6 +81,8 @@ function AppContent() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="produtos" element={<Products />} />
+            <Route path="produtos/novo" element={<ProductEditor />} />
+            <Route path="produtos/:id/editar" element={<ProductEditor />} />
             <Route path="colecoes" element={<Collections />} />
             <Route path="pedidos" element={<AdminOrders />} />
             <Route path="clientes" element={<AdminCustomers />} />
