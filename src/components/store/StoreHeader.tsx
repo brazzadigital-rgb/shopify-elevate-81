@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
@@ -6,6 +6,94 @@ import { useCart } from "@/hooks/useCart";
 import { ShoppingBag, Search, User, Menu, X, ChevronRight, Package, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+
+/* ─── Studio Reflex Effect for Logo ─── */
+function LogoStudioReflex({ children }: { children: React.ReactNode }) {
+  const [animating, setAnimating] = useState(false);
+  const [facets, setFacets] = useState<{ x: number; y: number; id: number }[]>([]);
+  const facetIdRef = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const runShine = useCallback(() => {
+    setAnimating(true);
+    const numFacets = 2 + Math.floor(Math.random() * 3);
+    const newFacets = Array.from({ length: numFacets }, () => ({
+      x: 10 + Math.random() * 80,
+      y: 10 + Math.random() * 60,
+      id: facetIdRef.current++,
+    }));
+    setFacets(newFacets);
+    setTimeout(() => {
+      setAnimating(false);
+      setFacets([]);
+    }, 1500);
+  }, []);
+
+  useEffect(() => {
+    const initialDelay = 2000 + Math.random() * 2000;
+    const startTimer = setTimeout(() => {
+      runShine();
+      timerRef.current = setInterval(() => {
+        runShine();
+      }, 7000 + Math.random() * 3000);
+    }, initialDelay);
+    return () => {
+      clearTimeout(startTimer);
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [runShine]);
+
+  return (
+    <div className="relative">
+      {/* Outer glow */}
+      <div
+        className="absolute inset-[-4px] rounded-2xl transition-opacity duration-500"
+        style={{
+          background: "radial-gradient(circle, hsla(40,70%,70%,0.25) 60%, transparent 70%)",
+          filter: "blur(5px)",
+          opacity: animating ? 0.8 : 0.3,
+        }}
+      />
+      {/* Metallic border */}
+      <div
+        className="relative rounded-xl p-[2px]"
+        style={{
+          background: "linear-gradient(135deg, hsl(40,60%,70%) 0%, hsl(38,80%,85%) 20%, hsl(35,50%,60%) 40%, hsl(42,70%,80%) 60%, hsl(30,55%,65%) 80%, hsl(40,60%,75%) 100%)",
+          backgroundSize: "200% 200%",
+          animation: "jewel-shimmer 4s ease-in-out infinite",
+        }}
+      >
+        <div className="relative rounded-[10px] overflow-hidden bg-background/80 backdrop-blur-sm">
+          {children}
+          {/* Reflex sweep */}
+          <div
+            className={`absolute inset-0 pointer-events-none ${animating ? "studio-reflex-sweep" : "opacity-0"}`}
+            style={{
+              background: "radial-gradient(ellipse 80% 50% at 30% 25%, hsla(45,80%,97%,0.5) 0%, transparent 65%)",
+              mixBlendMode: "soft-light",
+            }}
+          />
+          {/* Micro facet sparkles */}
+          {facets.map((f) => (
+            <span
+              key={f.id}
+              className="absolute studio-facet-flash pointer-events-none"
+              style={{
+                left: `${f.x}%`,
+                top: `${f.y}%`,
+                width: 4,
+                height: 4,
+                background: "hsla(45,100%,95%,1)",
+                borderRadius: "50%",
+                boxShadow: "0 0 6px 3px hsla(45,100%,95%,1)",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function StoreHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -77,15 +165,17 @@ export function StoreHeader() {
     const src = mobile ? logoMobileUrl : logoUrl;
     if (src) {
       return (
-        <img
-          src={src}
-          alt={storeName}
-          className="object-contain"
-          style={{
-            width: `${mobile ? logoMobileWidth : logoWidth}px`,
-            height: `${mobile ? logoMobileHeight : logoHeight}px`,
-          }}
-        />
+        <LogoStudioReflex>
+          <img
+            src={src}
+            alt={storeName}
+            className="object-contain"
+            style={{
+              width: `${mobile ? logoMobileWidth : logoWidth}px`,
+              height: `${mobile ? logoMobileHeight : logoHeight}px`,
+            }}
+          />
+        </LogoStudioReflex>
       );
     }
     return (
