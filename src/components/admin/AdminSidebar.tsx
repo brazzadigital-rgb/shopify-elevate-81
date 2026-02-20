@@ -30,6 +30,7 @@ const mainMenu = [
   { title: "Seções da Home", url: "/admin/secoes", icon: Image },
   { title: "Pagamentos", url: "/admin/pagamentos", icon: CreditCard },
   { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
+  { title: "Assinatura", url: "/admin/assinatura", icon: DollarSign },
 ];
 
 const appearanceMenu = [
