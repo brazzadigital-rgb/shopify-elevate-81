@@ -297,7 +297,7 @@ Deno.serve(async (req) => {
 
     // Generate invoice
     if (action === "generate_invoice") {
-      const { amount: invAmount } = body;
+      const { amount: invAmount, plan_id, billing_cycle } = body;
 
       const { data: subData } = await supabase
         .from("owner_subscription")
@@ -314,6 +314,7 @@ Deno.serve(async (req) => {
           status: "pending",
           gateway: "efi",
           payment_method: "pix",
+          meta_json: { plan_id: plan_id || null, billing_cycle: billing_cycle || null },
         })
         .select()
         .single();
@@ -323,7 +324,7 @@ Deno.serve(async (req) => {
       await supabase.from("owner_audit_logs").insert({
         action: "GENERATE_INVOICE",
         actor_type: "owner",
-        meta_json: { invoice_id: invoice.id, amount: invAmount },
+        meta_json: { invoice_id: invoice.id, amount: invAmount, plan_id, billing_cycle },
       });
 
       return new Response(JSON.stringify({ success: true, invoice }), {

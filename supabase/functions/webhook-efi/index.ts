@@ -43,25 +43,31 @@ Deno.serve(async (req) => {
         })
         .eq("id", invoice.id);
 
-      // If subscription was past_due or suspended, reactivate
-      if (invoice.subscription_id) {
-        const { data: sub } = await supabase
-          .from("owner_subscription")
-          .select("status")
-          .eq("id", invoice.subscription_id)
-          .maybeSingle();
+      // Apply plan/cycle change from invoice metadata
+      const meta = invoice.meta_json || {};
+      const pendingPlanId = meta.plan_id;
+      const pendingCycle = meta.billing_cycle;
 
-        if (sub && (sub.status === "past_due" || sub.status === "suspended")) {
-          await supabase
-            .from("owner_subscription")
-            .update({
-              status: "active",
-              current_period_start: new Date().toISOString(),
-              current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", invoice.subscription_id);
-        }
+      if (invoice.subscription_id) {
+        const cycleDays: Record<string, number> = { monthly: 30, semiannual: 180, annual: 365 };
+        const days = (pendingCycle && cycleDays[pendingCycle]) || 30;
+        const now = new Date();
+        const periodEnd = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+
+        const updatePayload: Record<string, any> = {
+          status: "active",
+          current_period_start: now.toISOString(),
+          current_period_end: periodEnd.toISOString(),
+          updated_at: now.toISOString(),
+        };
+
+        if (pendingPlanId) updatePayload.plan_id = pendingPlanId;
+        if (pendingCycle) updatePayload.billing_cycle = pendingCycle;
+
+        await supabase
+          .from("owner_subscription")
+          .update(updatePayload)
+          .eq("id", invoice.subscription_id);
       }
 
       // Audit log
