@@ -85,15 +85,6 @@ export function SidebarPlanWidget() {
         boxShadow: "0 2px 12px hsl(var(--primary) / 0.06)",
       }}
     >
-      {/* Animated shine sweep */}
-      <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-        style={{
-          background: "linear-gradient(105deg, transparent 40%, hsl(var(--primary) / 0.08) 45%, hsl(var(--primary) / 0.12) 50%, hsl(var(--primary) / 0.08) 55%, transparent 60%)",
-          backgroundSize: "200% 100%",
-          animation: "shine-sweep 1.5s ease-in-out infinite",
-        }}
-      />
 
       {/* Floating sparkle */}
       <motion.div
