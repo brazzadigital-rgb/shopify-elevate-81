@@ -88,72 +88,72 @@ export default function AdminSuppliers() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-display font-bold">Fornecedores</h1>
-          <p className="text-sm text-muted-foreground">Gerencie seus fornecedores e parceiros</p>
+          <h1 className="text-2xl font-bold tracking-tight">Fornecedores</h1>
+          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>Gerencie seus fornecedores e parceiros</p>
         </div>
-        <Button onClick={openNew} className="rounded-xl gap-2">
+        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
           <Plus className="w-4 h-4" /> Novo Fornecedor
-        </Button>
+        </button>
       </div>
 
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input placeholder="Buscar por nome ou CNPJ..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 rounded-xl border-0 bg-muted/30" />
+      <div className="admin-card p-4">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: `hsl(var(--admin-text-secondary))` }} />
+          <Input placeholder="Buscar por nome ou CNPJ..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-10 rounded-xl border-0 bg-muted/30 text-sm" />
+        </div>
       </div>
 
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <Card className="admin-card overflow-hidden">
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/30">
-                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Fornecedor</th>
-                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden md:table-cell">CNPJ/CPF</th>
-                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden lg:table-cell">Contato</th>
-                    <th className="text-center px-4 py-3 font-semibold text-muted-foreground">Status</th>
-                    <th className="text-right px-4 py-3 font-semibold text-muted-foreground hidden md:table-cell">Prazo</th>
-                    <th className="text-right px-4 py-3 font-semibold text-muted-foreground">Ações</th>
+        <div className="admin-card overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr style={{ borderBottom: `1px solid hsl(var(--admin-border))` }}>
+                  <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: `hsl(var(--admin-text-secondary))` }}>Fornecedor</th>
+                  <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold hidden md:table-cell" style={{ color: `hsl(var(--admin-text-secondary))` }}>CNPJ/CPF</th>
+                  <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold hidden lg:table-cell" style={{ color: `hsl(var(--admin-text-secondary))` }}>Contato</th>
+                  <th className="text-center px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: `hsl(var(--admin-text-secondary))` }}>Status</th>
+                  <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold hidden md:table-cell" style={{ color: `hsl(var(--admin-text-secondary))` }}>Prazo</th>
+                  <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: `hsl(var(--admin-text-secondary))` }}>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr><td colSpan={6} className="text-center py-12" style={{ color: `hsl(var(--admin-text-secondary))` }}>Carregando...</td></tr>
+                ) : filtered.length === 0 ? (
+                  <tr><td colSpan={6} className="text-center py-12" style={{ color: `hsl(var(--admin-text-secondary))` }}>
+                    <Truck className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                    Nenhum fornecedor encontrado
+                  </td></tr>
+                ) : filtered.map(s => (
+                  <tr key={s.id} className="transition-colors hover:bg-muted/20" style={{ borderBottom: `1px solid hsl(var(--admin-border-subtle))` }}>
+                    <td className="px-4 py-3.5 font-medium">{s.trade_name}</td>
+                    <td className="px-4 py-3.5 hidden md:table-cell" style={{ color: `hsl(var(--admin-text-secondary))` }}>{s.document || "—"}</td>
+                    <td className="px-4 py-3.5 hidden lg:table-cell" style={{ color: `hsl(var(--admin-text-secondary))` }}>{s.email || s.phone || "—"}</td>
+                    <td className="px-4 py-3.5 text-center">
+                      <span className={`admin-status-pill text-[10px] ${s.status === "active" ? "admin-status-success" : "admin-status-danger"}`}>
+                        {s.status === "active" ? "Ativo" : "Inativo"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-right hidden md:table-cell" style={{ color: `hsl(var(--admin-text-secondary))` }}>{s.shipping_days ? `${s.shipping_days}d` : "—"}</td>
+                    <td className="px-4 py-3.5 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="icon" className="rounded-lg w-8 h-8" onClick={() => openEdit(s)}><Pencil className="w-3.5 h-3.5" /></Button>
+                        <Button variant="ghost" size="icon" className="rounded-lg w-8 h-8 text-destructive" onClick={() => deleteMutation.mutate(s.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {isLoading ? (
-                    <tr><td colSpan={6} className="text-center py-12 text-muted-foreground">Carregando...</td></tr>
-                  ) : filtered.length === 0 ? (
-                    <tr><td colSpan={6} className="text-center py-12 text-muted-foreground">
-                      <Truck className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                      Nenhum fornecedor encontrado
-                    </td></tr>
-                  ) : filtered.map(s => (
-                    <tr key={s.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                      <td className="px-4 py-3 font-medium">{s.trade_name}</td>
-                      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{s.document || "—"}</td>
-                      <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">{s.email || s.phone || "—"}</td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`admin-status-pill ${s.status === "active" ? "admin-status-pill-success" : "admin-status-pill-muted"}`}>
-                          {s.status === "active" ? "Ativo" : "Inativo"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right text-muted-foreground hidden md:table-cell">{s.shipping_days ? `${s.shipping_days}d` : "—"}</td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="rounded-lg w-8 h-8" onClick={() => openEdit(s)}><Pencil className="w-4 h-4" /></Button>
-                          <Button variant="ghost" size="icon" className="rounded-lg w-8 h-8 text-destructive" onClick={() => deleteMutation.mutate(s.id)}><Trash2 className="w-4 h-4" /></Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </motion.div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="font-display">{editing ? "Editar Fornecedor" : "Novo Fornecedor"}</DialogTitle>
+            <DialogTitle className="text-lg font-bold">{editing ? "Editar Fornecedor" : "Novo Fornecedor"}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-2">
             <div><Label>Nome Fantasia *</Label><Input value={form.trade_name} onChange={e => setForm(f => ({ ...f, trade_name: e.target.value }))} className="rounded-xl border-0 bg-muted/30" /></div>

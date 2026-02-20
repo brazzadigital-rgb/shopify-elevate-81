@@ -83,8 +83,8 @@ export default function AdminHeaderStyles() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-display font-bold text-foreground">Estilos de Header</h1>
-        <p className="text-sm text-muted-foreground font-sans mt-1">
+        <h1 className="text-2xl font-bold tracking-tight">Estilos de Header</h1>
+        <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>
           Escolha entre 5 estilos premium. Todas as informações (logo, busca, conta, rastreio, carrinho) são mantidas.
         </p>
       </div>

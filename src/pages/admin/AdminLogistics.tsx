@@ -105,14 +105,14 @@ export default function AdminLogistics() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-display font-bold flex items-center gap-3">
-            <Truck className="w-7 h-7 text-accent" /> Logística
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-3">
+            <Truck className="w-6 h-6 text-primary" /> Logística
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">Frete, rastreamento e configurações de envio</p>
+          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>Frete, rastreamento e configurações de envio</p>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2 rounded-xl h-10">
+        <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
           <Save className="w-4 h-4" /> {saving ? "Salvando..." : "Salvar"}
-        </Button>
+        </button>
       </div>
 
       <Tabs defaultValue="melhor-envio" className="w-full">

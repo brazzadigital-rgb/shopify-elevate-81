@@ -74,8 +74,8 @@ export default function AdminReports() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-display font-bold">Relatórios de Performance</h1>
-        <p className="text-sm text-muted-foreground">Visão geral da equipe e fornecedores</p>
+        <h1 className="text-2xl font-bold tracking-tight">Relatórios de Performance</h1>
+        <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>Visão geral da equipe e fornecedores</p>
       </div>
 
       {/* Global KPIs */}
