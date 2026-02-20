@@ -17,3 +17,6 @@ export const useHideValues = create<HideValuesState>()(
 );
 
 export const HIDDEN_PLACEHOLDER = "••••••";
+
+/** CSS class to blur values instead of replacing them */
+export const BLUR_CLASS = "select-none blur-sm";

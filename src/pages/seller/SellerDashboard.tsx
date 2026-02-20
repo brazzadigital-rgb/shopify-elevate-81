@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   DollarSign, TrendingUp, ShoppingBag, Clock, Target, Percent, ArrowUpRight, Eye, EyeOff
 } from "lucide-react";
-import { useHideValues, HIDDEN_PLACEHOLDER } from "@/hooks/useHideValues";
+import { useHideValues, BLUR_CLASS } from "@/hooks/useHideValues";
 import { motion } from "framer-motion";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -113,7 +113,8 @@ export default function SellerDashboard() {
     load();
   }, [sellerId]);
 
-  const fmt = (v: number) => hidden ? HIDDEN_PLACEHOLDER : v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const blurIf = hidden ? BLUR_CLASS : "";
 
   const fadeUp = (i: number) => ({
     initial: { opacity: 0, y: 12 },
@@ -163,7 +164,7 @@ export default function SellerDashboard() {
                   <kpi.icon className="w-4 h-4" />
                 </div>
               </div>
-              <p className="text-xl font-bold text-slate-800 tracking-tight">{kpi.value}</p>
+              <p className={`text-xl font-bold text-slate-800 tracking-tight ${kpi.isMoney ? blurIf : ""}`}>{kpi.value}</p>
               <p className="text-[11px] text-slate-400 mt-2">{kpi.sub}</p>
             </div>
           </motion.div>
@@ -235,7 +236,7 @@ export default function SellerDashboard() {
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0 ml-3">
-                      <p className="text-sm font-semibold text-slate-800">{hidden ? HIDDEN_PLACEHOLDER : fmt(Number(o.total))}</p>
+                      <p className={`text-sm font-semibold text-slate-800 ${blurIf}`}>{fmt(Number(o.total))}</p>
                       <span className={`inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full ${statusPillClass[o.status] || "bg-slate-50 text-slate-600"}`}>
                         {statusLabel[o.status] || o.status}
                       </span>
