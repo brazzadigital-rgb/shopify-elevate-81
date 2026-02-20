@@ -23,6 +23,7 @@ import StoreSettings from "./pages/admin/StoreSettings";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminOrderDetail from "./pages/admin/AdminOrderDetail";
 import AdminCustomers from "./pages/admin/AdminCustomers";
+import AdminCustomerDetail from "./pages/admin/AdminCustomerDetail";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminSections from "./pages/admin/AdminSections";
 import AdminBanners from "./pages/admin/AdminBanners";
@@ -118,6 +119,7 @@ function AppContent() {
             <Route path="pedidos" element={<AdminOrders />} />
             <Route path="pedidos/:id" element={<AdminOrderDetail />} />
             <Route path="clientes" element={<AdminCustomers />} />
+            <Route path="clientes/:id" element={<AdminCustomerDetail />} />
             <Route path="cupons" element={<AdminCoupons />} />
             <Route path="secoes" element={<AdminSections />} />
             <Route path="banners" element={<AdminBanners />} />
