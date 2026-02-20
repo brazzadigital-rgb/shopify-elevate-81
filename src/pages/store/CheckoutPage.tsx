@@ -84,14 +84,22 @@ export default function CheckoutPage() {
   const finalTotal = total - pixDiscount;
 
   // Build shipping items from cart
-  const shippingItems = items.map(item => ({
-    weight: (item.product as any)?.shipping_weight || 0,
-    width: (item.product as any)?.shipping_width || 0,
-    height: (item.product as any)?.shipping_height || 0,
-    length: (item.product as any)?.shipping_length || 0,
-    quantity: item.quantity,
-    price: item.variant?.price ?? item.product?.price ?? 0,
-  }));
+  const shippingItems = items.map(item => {
+    const meta = item.metadata_json as any;
+    const variantsDetail = meta?.variants_detail;
+    let itemPrice = item.variant?.price ?? item.product?.price ?? 0;
+    if (variantsDetail && variantsDetail.length > 0) {
+      itemPrice = variantsDetail.reduce((s: number, v: any) => s + (v.price ? Number(v.price) : 0), 0) || itemPrice;
+    }
+    return {
+      weight: (item.product as any)?.shipping_weight || 0,
+      width: (item.product as any)?.shipping_width || 0,
+      height: (item.product as any)?.shipping_height || 0,
+      length: (item.product as any)?.shipping_length || 0,
+      quantity: item.quantity,
+      price: itemPrice,
+    };
+  });
 
   // Redirect if empty cart
   useEffect(() => {
@@ -266,18 +274,31 @@ export default function CheckoutPage() {
 
       if (error || !order) throw error;
 
-      const orderItems = items.map(item => ({
-        order_id: order.id,
-        product_id: item.product_id,
-        variant_id: item.variant_id,
-        product_name: item.product?.name || "Produto",
-        variant_name: item.variant?.name || null,
-        quantity: item.quantity,
-        unit_price: item.variant?.price ?? item.product?.price ?? 0,
-        total_price: (item.variant?.price ?? item.product?.price ?? 0) * item.quantity,
-      }));
+      const orderItems = items.map(item => {
+        const meta = item.metadata_json as any;
+        const variantsDetail = meta?.variants_detail;
+        let unitPrice = item.variant?.price ?? item.product?.price ?? 0;
+        let variantName = item.variant?.name || null;
+        
+        if (variantsDetail && variantsDetail.length > 0) {
+          unitPrice = variantsDetail.reduce((s: number, v: any) => s + (v.price ? Number(v.price) : 0), 0) || unitPrice;
+          variantName = variantsDetail.map((v: any) => `${v.group}: ${v.name}`).join(" | ");
+        }
+        
+        return {
+          order_id: order.id,
+          product_id: item.product_id,
+          variant_id: item.variant_id,
+          product_name: item.product?.name || "Produto",
+          variant_name: variantName,
+          quantity: item.quantity,
+          unit_price: unitPrice,
+          total_price: unitPrice * item.quantity,
+          variants_detail_json: variantsDetail || null,
+        };
+      });
 
-      await supabase.from("order_items").insert(orderItems);
+      await supabase.from("order_items").insert(orderItems as any);
 
       // Increment coupon usage
       if (couponApplied) {
@@ -811,8 +832,24 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-sans text-xs font-medium line-clamp-2">{item.product?.name}</p>
-                      {item.variant && <p className="font-sans text-xs text-muted-foreground">{item.variant.name}</p>}
-                      <p className="font-sans text-xs text-muted-foreground">{item.quantity}x R$ {((item.variant?.price ?? item.product?.price ?? 0)).toFixed(2)}</p>
+                      {(() => {
+                        const meta = item.metadata_json as any;
+                        const vd = meta?.variants_detail;
+                        if (vd?.length) {
+                          return vd.map((v: any, idx: number) => (
+                            <p key={idx} className="font-sans text-[10px] text-muted-foreground">{v.group}: {v.name} {v.price != null && <span className="text-accent">R$ {Number(v.price).toFixed(2)}</span>}</p>
+                          ));
+                        }
+                        return item.variant ? <p className="font-sans text-xs text-muted-foreground">{item.variant.name}</p> : null;
+                      })()}
+                      {(() => {
+                        const meta = item.metadata_json as any;
+                        const vd = meta?.variants_detail;
+                        const p = vd?.length
+                          ? vd.reduce((s: number, v: any) => s + (v.price ? Number(v.price) : 0), 0) || (item.product?.price ?? 0)
+                          : (item.variant?.price ?? item.product?.price ?? 0);
+                        return <p className="font-sans text-xs text-muted-foreground">{item.quantity}x R$ {Number(p).toFixed(2)}</p>;
+                      })()}
                     </div>
                   </div>
                 ))}

@@ -62,7 +62,11 @@ export function CartDrawer() {
               <AnimatePresence mode="popLayout">
                 {items.map((item, index) => {
                   const imageUrl = getItemImage(item);
-                  const price = item.variant?.price ?? item.product?.price ?? 0;
+                  const meta = item.metadata_json as any;
+                  const variantsDetail = meta?.variants_detail;
+                  const price = variantsDetail?.length
+                    ? variantsDetail.reduce((s: number, v: any) => s + (v.price ? Number(v.price) : 0), 0) || (item.product?.price ?? 0)
+                    : (item.variant?.price ?? item.product?.price ?? 0);
                   const totalPrice = Number(price) * item.quantity;
 
                   return (
@@ -90,11 +94,19 @@ export function CartDrawer() {
                           {item.product?.name}
                         </p>
 
-                        {item.variant && (
+                        {variantsDetail?.length ? (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {variantsDetail.map((vd: any, idx: number) => (
+                              <span key={idx} className="chip-jewel self-start text-[9px]">
+                                {vd.group}: {vd.name}
+                              </span>
+                            ))}
+                          </div>
+                        ) : item.variant ? (
                           <span className="chip-jewel mt-1 self-start text-[9px]">
                             {item.variant.name}
                           </span>
-                        )}
+                        ) : null}
 
                         <div className="flex items-end justify-between mt-auto pt-2">
                           {/* Quantity controls */}

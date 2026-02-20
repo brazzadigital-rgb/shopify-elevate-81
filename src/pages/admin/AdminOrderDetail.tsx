@@ -309,8 +309,19 @@ export default function AdminOrderDetail() {
             <div key={item.id} className="flex items-center justify-between p-3 bg-muted/40 rounded-xl font-sans text-sm">
               <div className="min-w-0">
                 <p className="font-medium truncate">{item.product_name}</p>
-                {item.variant_name && <p className="text-xs text-muted-foreground">{item.variant_name}</p>}
-                <p className="text-xs text-muted-foreground">Qtd: {item.quantity} × {formatBRL(Number(item.unit_price))}</p>
+                {item.variants_detail_json && Array.isArray(item.variants_detail_json) ? (
+                  <div className="space-y-0.5 mt-1">
+                    {(item.variants_detail_json as any[]).map((vd: any, idx: number) => (
+                      <p key={idx} className="text-xs text-muted-foreground">
+                        {vd.group}: <span className="text-foreground">{vd.name}</span>
+                        {vd.price != null && <span className="ml-1 text-accent">{formatBRL(Number(vd.price))}</span>}
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  item.variant_name && <p className="text-xs text-muted-foreground">{item.variant_name}</p>
+                )}
+                <p className="text-xs text-muted-foreground mt-0.5">Qtd: {item.quantity} × {formatBRL(Number(item.unit_price))}</p>
               </div>
               <span className="font-semibold shrink-0 ml-3">{formatBRL(Number(item.total_price))}</span>
             </div>

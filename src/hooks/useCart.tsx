@@ -3,11 +3,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 
+export interface VariantGroupDetail {
+  group: string;
+  name: string;
+  price: number | null;
+  variant_id: string | null;
+}
+
 export interface CartItem {
   id: string;
   product_id: string;
   variant_id: string | null;
   quantity: number;
+  metadata_json?: { variants_detail?: VariantGroupDetail[] } | null;
   product: {
     name: string;
     slug: string;
@@ -26,7 +34,7 @@ interface CartContextType {
   subtotal: number;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  addItem: (productId: string, variantId?: string | null, qty?: number) => Promise<void>;
+  addItem: (productId: string, variantId?: string | null, qty?: number, metadata?: { variants_detail?: VariantGroupDetail[] }) => Promise<void>;
   updateQuantity: (itemId: string, qty: number) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -80,7 +88,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const { data } = await supabase
       .from("cart_items")
       .select(`
-        id, product_id, variant_id, quantity,
+        id, product_id, variant_id, quantity, metadata_json,
         product:products(name, slug, price, compare_at_price, stock, product_images(url, is_primary)),
         variant:product_variants(name, price)
       `)
@@ -92,17 +100,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { fetchItems(); }, [fetchItems]);
 
-  const addItem = async (productId: string, variantId: string | null = null, qty = 1) => {
+  const addItem = async (productId: string, variantId: string | null = null, qty = 1, metadata?: { variants_detail?: VariantGroupDetail[] }) => {
     if (!user) { toast({ title: "Faça login para adicionar ao carrinho", variant: "destructive" }); return; }
     const cid = await getOrCreateCart();
     if (!cid) return;
 
-    // Check if already in cart
-    const existing = items.find(i => i.product_id === productId && i.variant_id === variantId);
+    // Check if already in cart (only match if no grouped variants metadata)
+    const existing = !metadata?.variants_detail?.length
+      ? items.find(i => i.product_id === productId && i.variant_id === variantId)
+      : null;
     if (existing) {
       await supabase.from("cart_items").update({ quantity: existing.quantity + qty }).eq("id", existing.id);
     } else {
-      await supabase.from("cart_items").insert({ cart_id: cid, product_id: productId, variant_id: variantId, quantity: qty });
+      await supabase.from("cart_items").insert({ cart_id: cid, product_id: productId, variant_id: variantId, quantity: qty, metadata_json: metadata || {} } as any);
     }
     await fetchItems();
     setIsOpen(true);
@@ -129,6 +139,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
   const subtotal = items.reduce((sum, i) => {
+    const meta = i.metadata_json as any;
+    const variantsDetail = meta?.variants_detail as VariantGroupDetail[] | undefined;
+    if (variantsDetail && variantsDetail.length > 0) {
+      const groupTotal = variantsDetail.reduce((s, v) => s + (v.price ? Number(v.price) : 0), 0);
+      return sum + (groupTotal || Number(i.product?.price ?? 0)) * i.quantity;
+    }
     const price = i.variant?.price ?? i.product?.price ?? 0;
     return sum + Number(price) * i.quantity;
   }, 0);
