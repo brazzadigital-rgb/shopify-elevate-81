@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,8 @@ export default function Auth() {
   const { getSetting } = useStoreSettings();
   const { lookup: lookupCep, loading: cepLoading } = useCepLookup();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
   const logoUrl = getSetting("logo_url");
   const storeName = getSetting("store_name");
 
@@ -81,7 +83,7 @@ export default function Auth() {
           : error.message;
         toast({ title: "Não foi possível entrar", description: msg, variant: "destructive" });
       } else {
-        navigate("/");
+        navigate(redirectTo);
       }
     } else if (mode === "register") {
       if (registerStep === 1) {
