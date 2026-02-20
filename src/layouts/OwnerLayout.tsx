@@ -11,6 +11,7 @@ const routeTitles: Record<string, string> = {
   "/owner/subscription": "Assinatura",
   "/owner/plans": "Planos",
   "/owner/invoices": "Faturas",
+  "/owner/admins": "Administradores",
   "/owner/audit": "Auditoria",
   "/owner/settings": "Configurações",
 };
