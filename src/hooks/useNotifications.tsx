@@ -157,9 +157,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         setUnreadCount(prev => {
           const next = prev + 1;
           if (preferences.enable_sound && hasInteractedRef.current) {
-            if (newNotif.recipient_type === "admin") {
+            if (newNotif.recipient_type === "admin" && newNotif.type === "payment_paid") {
               playSound();
-            } else {
+            } else if (newNotif.recipient_type !== "admin") {
               playCustomerSound();
             }
           }
