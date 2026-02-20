@@ -58,15 +58,33 @@ export default function SellerDashboard() {
       const now = new Date();
       const thirtyDaysAgo = subDays(now, 30);
 
-      const [sellerRes, commissionsRes, ordersRes, clicksRes] = await Promise.all([
+      const [sellerRes, commissionsRes, clicksRes] = await Promise.all([
         supabase.from("sellers").select("id, name, commission_rate, monthly_goal, referral_code").eq("id", sellerId).maybeSingle(),
         supabase.from("commissions").select("*").eq("seller_id", sellerId),
-        supabase.from("orders").select("id, order_number, total, status, created_at, customer_name").eq("seller_id", sellerId).order("created_at", { ascending: false }).limit(5),
         supabase.from("seller_link_clicks").select("id, converted").eq("seller_id", sellerId),
       ]);
 
       const s = sellerRes.data as SellerData | null;
       setSeller(s);
+
+      // Fetch orders by seller_id AND referral_code
+      const ordersBySellerP = supabase.from("orders").select("id, order_number, total, status, created_at, customer_name").eq("seller_id", sellerId).order("created_at", { ascending: false }).limit(20);
+      const ordersByRefP = s?.referral_code
+        ? supabase.from("orders").select("id, order_number, total, status, created_at, customer_name").eq("referral_code", s.referral_code).order("created_at", { ascending: false }).limit(20)
+        : Promise.resolve({ data: [] });
+
+      const [ordersBySellerRes, ordersByRefRes] = await Promise.all([ordersBySellerP, ordersByRefP]);
+
+      // Merge & deduplicate orders
+      const allOrders = [...(ordersBySellerRes.data || []), ...((ordersByRefRes as any).data || [])];
+      const seenIds = new Set<string>();
+      const uniqueOrders = allOrders.filter(o => {
+        if (seenIds.has(o.id)) return false;
+        seenIds.add(o.id);
+        return true;
+      }).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      setRecentOrders(uniqueOrders.slice(0, 5));
 
       const comms = (commissionsRes.data as any[]) || [];
       const totalSales = comms.reduce((a, c) => a + Number(c.sale_amount), 0);
@@ -78,9 +96,6 @@ export default function SellerDashboard() {
       const conversions = clicks.filter(c => c.converted).length;
       const conversionRate = clicks.length > 0 ? (conversions / clicks.length) * 100 : 0;
 
-      const orders = (ordersRes.data as any[]) || [];
-      setRecentOrders(orders);
-
       // Build daily revenue from commissions (last 30 days)
       const days = eachDayOfInterval({ start: thirtyDaysAgo, end: now });
       const dailyData = days.map(d => {
@@ -90,7 +105,7 @@ export default function SellerDashboard() {
       });
       setDailyRevenue(dailyData);
 
-      setStats({ totalSales, totalCommission, pendingCommission, availableCommission: totalCommission - paidCommission - pendingCommission, orderCount: orders.length, conversionRate });
+      setStats({ totalSales, totalCommission, pendingCommission, availableCommission: totalCommission - paidCommission - pendingCommission, orderCount: uniqueOrders.length, conversionRate });
       setLoading(false);
     };
     load();
