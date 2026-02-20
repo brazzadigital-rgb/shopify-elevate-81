@@ -84,9 +84,9 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { action } = body;
 
-    // Load Efí credentials from owner_settings
-    const clientId = await getOwnerSetting(supabase, "efi_client_id");
-    const clientSecret = await getOwnerSetting(supabase, "efi_client_secret");
+    // Load Efí credentials from secrets (env vars)
+    const clientId = Deno.env.get("EFI_CLIENT_ID") || "";
+    const clientSecret = Deno.env.get("EFI_CLIENT_SECRET") || "";
     const environment = await getOwnerSetting(supabase, "efi_environment");
     const isSandbox = environment !== "production";
 
@@ -131,7 +131,7 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           calendario: { expiracao: expSeconds },
           valor: { original: Number(amount).toFixed(2) },
-          chave: await getOwnerSetting(supabase, "efi_pix_key") || "",
+          chave: Deno.env.get("EFI_PIX_KEY") || "",
           infoAdicionais: [{ nome: "Fatura", valor: description || "Assinatura" }],
         }),
       });
