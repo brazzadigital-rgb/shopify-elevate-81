@@ -259,10 +259,10 @@ export default function Products() {
                     >
                       <TableCell className="py-3">
                         {productThumbnails[product.id] ? (
-                          <img src={productThumbnails[product.id]} alt={product.name} className="w-14 h-14 rounded-sm object-cover border border-slate-100 aspect-square" />
+                          <img src={productThumbnails[product.id]} alt={product.name} className="w-20 h-20 rounded object-cover border border-slate-100" />
                         ) : (
-                          <div className="w-14 h-14 rounded-sm bg-slate-50 flex items-center justify-center border border-slate-100 aspect-square">
-                            <Package className="w-5 h-5 text-slate-300" />
+                          <div className="w-20 h-20 rounded bg-slate-50 flex items-center justify-center border border-slate-100">
+                            <Package className="w-6 h-6 text-slate-300" />
                           </div>
                         )}
                       </TableCell>
