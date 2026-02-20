@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, LogOut, ShoppingBag,
   Truck, UserCheck, Shield, Percent, TrendingUp, Columns3, Layout, CalendarRange,
@@ -7,6 +8,8 @@ import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useNotifications } from "@/hooks/useNotifications";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter,
@@ -16,10 +19,10 @@ const mainMenu = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Produtos", url: "/admin/produtos", icon: Package },
   { title: "Coleções", url: "/admin/colecoes", icon: FolderOpen },
-  { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
+  { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart, badgeKey: "orders" as const },
   { title: "Clientes", url: "/admin/clientes", icon: Users },
   { title: "Cupons", url: "/admin/cupons", icon: Tag },
-  { title: "Notificações", url: "/admin/notificacoes", icon: Bell },
+  { title: "Notificações", url: "/admin/notificacoes", icon: Bell, badgeKey: "notifications" as const },
   { title: "Seções da Home", url: "/admin/secoes", icon: Image },
   { title: "Pagamentos", url: "/admin/pagamentos", icon: CreditCard },
   { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
@@ -64,7 +67,9 @@ const usersMenu = [
 const linkClass = "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 font-sans text-sm font-medium";
 const activeClass = "bg-accent/10 text-accent font-bold border border-accent/20";
 
-function MenuGroup({ label, items }: { label: string; items: typeof mainMenu }) {
+type MenuItem = { title: string; url: string; icon: any; badgeKey?: "orders" | "notifications" };
+
+function MenuGroup({ label, items, badges }: { label: string; items: MenuItem[]; badges?: Record<string, number> }) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="text-sidebar-foreground/40 uppercase text-[10px] tracking-widest font-sans font-bold mb-2">
@@ -72,21 +77,29 @@ function MenuGroup({ label, items }: { label: string; items: typeof mainMenu }) 
       </SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
-                <NavLink
-                  to={item.url}
-                  end={item.url === "/admin"}
-                  className={linkClass}
-                  activeClassName={activeClass}
-                >
-                  <item.icon className="w-[18px] h-[18px]" />
-                  <span>{item.title}</span>
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {items.map((item) => {
+            const count = item.badgeKey && badges ? badges[item.badgeKey] || 0 : 0;
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild>
+                  <NavLink
+                    to={item.url}
+                    end={item.url === "/admin"}
+                    className={linkClass}
+                    activeClassName={activeClass}
+                  >
+                    <item.icon className="w-[18px] h-[18px]" />
+                    <span className="flex-1">{item.title}</span>
+                    {count > 0 && (
+                      <span className="ml-auto min-w-[20px] h-5 px-1.5 flex items-center justify-center rounded-full bg-accent text-white text-[10px] font-bold leading-none">
+                        {count > 99 ? "99+" : count}
+                      </span>
+                    )}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
@@ -97,6 +110,28 @@ export function AdminSidebar() {
   const { signOut } = useAuth();
   const { getSetting } = useStoreSettings();
   const navigate = useNavigate();
+  const { unreadCount } = useNotifications();
+
+  const [pendingOrders, setPendingOrders] = useState(0);
+
+  useEffect(() => {
+    const fetchPending = async () => {
+      const { count } = await supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending");
+      setPendingOrders(count || 0);
+    };
+    fetchPending();
+
+    const channel = supabase
+      .channel("sidebar-orders")
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => fetchPending())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  const badges = { orders: pendingOrders, notifications: unreadCount };
 
   const logoUrl = getSetting("logo_url");
 
@@ -124,7 +159,7 @@ export function AdminSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-3 py-4 space-y-4">
-        <MenuGroup label="Menu" items={mainMenu} />
+        <MenuGroup label="Menu" items={mainMenu} badges={badges} />
         <MenuGroup label="Marketing" items={marketingMenu} />
         <MenuGroup label="Financeiro" items={financialMenu} />
         <MenuGroup label="Aparência" items={appearanceMenu} />
