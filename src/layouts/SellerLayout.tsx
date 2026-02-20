@@ -14,8 +14,11 @@ export default function SellerLayout() {
   const [checkingStatus, setCheckingStatus] = useState(true);
 
   useEffect(() => {
-    if (!isLoading && (!user || !isSeller)) {
+    if (isLoading) return;
+    if (!user) {
       navigate("/auth?redirect=/vendedor");
+    } else if (!isSeller) {
+      navigate("/");
     }
   }, [user, isSeller, isLoading, navigate]);
 
