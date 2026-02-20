@@ -106,16 +106,16 @@ export default function AdminPromoPanels() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-display font-bold">Painéis Promocionais</h1>
-          <p className="text-muted-foreground font-sans mt-1 text-sm">
+          <h1 className="text-2xl font-bold tracking-tight">Painéis Promocionais</h1>
+          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>
             Gerencie os 3 painéis promocionais exibidos na home (rastreio, cartão, redes)
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { setEditingId(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
-            <Button className="gap-2 rounded-xl shine h-10 font-sans text-sm">
+            <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
               <Plus className="w-4 h-4" /> Novo Painel
-            </Button>
+            </button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
@@ -179,17 +179,17 @@ export default function AdminPromoPanels() {
           {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}
         </div>
       ) : panels.length === 0 ? (
-        <Card className="shadow-premium border-0">
-          <CardContent className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+        <div className="admin-card">
+          <div className="flex flex-col items-center justify-center py-16" style={{ color: `hsl(var(--admin-text-secondary))` }}>
             <Image className="w-12 h-12 mb-4 opacity-40" />
-            <p className="font-sans text-lg">Nenhum painel configurado</p>
-          </CardContent>
-        </Card>
+            <p className="text-lg">Nenhum painel configurado</p>
+          </div>
+        </div>
       ) : (
         <div className="grid gap-4">
           {panels.map((p) => (
-            <Card key={p.id} className="shadow-premium border-0 overflow-hidden">
-              <CardContent className="p-0">
+            <div key={p.id} className="admin-card overflow-hidden">
+              <div className="p-0">
                 <div className="flex flex-col sm:flex-row">
                   {p.image_url && (
                     <div className="w-full sm:w-48 h-28 sm:h-auto shrink-0">
@@ -222,8 +222,8 @@ export default function AdminPromoPanels() {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}

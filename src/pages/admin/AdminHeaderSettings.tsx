@@ -117,16 +117,16 @@ export default function AdminHeaderSettings() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-display font-bold">Configurações do Header</h1>
-          <p className="text-muted-foreground font-sans mt-1 text-sm">Personalize o cabeçalho da sua loja</p>
+          <h1 className="text-2xl font-bold tracking-tight">Configurações do Header</h1>
+          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>Personalize o cabeçalho da sua loja</p>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2 rounded-xl shine h-10 font-sans text-sm">
+        <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
           <Save className="w-4 h-4" /> {saving ? "Salvando..." : "Salvar"}
-        </Button>
+        </button>
       </div>
 
       {/* Cores */}
-      <Card className="shadow-premium border-0">
+      <div className="admin-card">
         <CardHeader className="pb-4">
           <CardTitle className="font-display text-lg flex items-center gap-2"><Palette className="w-5 h-5 text-accent" /> Cores do Header</CardTitle>
         </CardHeader>
@@ -137,10 +137,10 @@ export default function AdminHeaderSettings() {
             {colorField("header_search_bg_color", "Cor do Campo de Busca")}
           </div>
         </CardContent>
-      </Card>
+      </div>
 
       {/* Logos */}
-      <Card className="shadow-premium border-0">
+      <div className="admin-card">
         <CardHeader className="pb-4">
           <CardTitle className="font-display text-lg flex items-center gap-2"><Eye className="w-5 h-5 text-accent" /> Logos</CardTitle>
         </CardHeader>
@@ -247,10 +247,10 @@ export default function AdminHeaderSettings() {
             </div>
           )}
         </CardContent>
-      </Card>
+      </div>
 
       {/* Dimensões e Efeitos */}
-      <Card className="shadow-premium border-0">
+      <div className="admin-card">
         <CardHeader className="pb-4">
           <CardTitle className="font-display text-lg flex items-center gap-2"><Settings2 className="w-5 h-5 text-accent" /> Dimensões e Efeitos</CardTitle>
         </CardHeader>
@@ -277,10 +277,10 @@ export default function AdminHeaderSettings() {
           </div>
           {toggleField("header_sticky_enabled", "Header Sticky (fixo ao rolar)")}
         </CardContent>
-      </Card>
+      </div>
 
       {/* Textos */}
-      <Card className="shadow-premium border-0">
+      <div className="admin-card">
         <CardHeader className="pb-4">
           <CardTitle className="font-display text-lg flex items-center gap-2"><Type className="w-5 h-5 text-accent" /> Textos e Visibilidade</CardTitle>
         </CardHeader>
@@ -319,7 +319,7 @@ export default function AdminHeaderSettings() {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }

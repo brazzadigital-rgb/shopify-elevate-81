@@ -220,16 +220,16 @@ export default function AdminVisualIdentity() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-display font-bold">Identidade Visual</h1>
-          <p className="text-muted-foreground font-sans mt-1 text-sm">Personalize a aparência da sua loja</p>
+          <h1 className="text-2xl font-bold tracking-tight">Identidade Visual</h1>
+          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>Personalize a aparência da sua loja</p>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2 rounded-xl shine h-10 font-sans text-sm">
+        <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
           <Save className="w-4 h-4" /> {saving ? "Salvando..." : "Salvar Alterações"}
-        </Button>
+        </button>
       </div>
 
       {/* Logos */}
-      <Card className="shadow-premium border-0">
+      <div className="admin-card">
         <CardHeader className="pb-4">
           <CardTitle className="font-display text-lg flex items-center gap-2"><ImageIcon className="w-5 h-5 text-accent" /> Logos</CardTitle>
         </CardHeader>
@@ -249,10 +249,10 @@ export default function AdminVisualIdentity() {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </div>
 
       {/* Theme Presets */}
-      <Card className="shadow-premium border-0">
+      <div className="admin-card">
         <CardHeader className="pb-4">
           <CardTitle className="font-display text-lg flex items-center gap-2"><Sparkles className="w-5 h-5 text-accent" /> Presets de Tema</CardTitle>
         </CardHeader>
@@ -280,11 +280,11 @@ export default function AdminVisualIdentity() {
             ))}
           </div>
         </CardContent>
-      </Card>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Colors */}
-        <Card className="shadow-premium border-0 lg:col-span-2">
+        <div className="admin-card lg:col-span-2">
           <CardHeader className="pb-4">
             <CardTitle className="font-display text-lg flex items-center gap-2"><Palette className="w-5 h-5 text-accent" /> Cores do Tema</CardTitle>
           </CardHeader>
@@ -312,21 +312,21 @@ export default function AdminVisualIdentity() {
               ))}
             </div>
           </CardContent>
-        </Card>
+        </div>
 
         {/* Live Preview */}
-        <Card className="shadow-premium border-0">
+        <div className="admin-card">
           <CardHeader className="pb-4">
             <CardTitle className="font-display text-lg flex items-center gap-2"><Eye className="w-5 h-5 text-accent" /> Pré-visualização</CardTitle>
           </CardHeader>
           <CardContent>
             <ThemePreview settings={settings} />
           </CardContent>
-        </Card>
+        </div>
       </div>
 
       {/* Typography */}
-      <Card className="shadow-premium border-0">
+      <div className="admin-card">
         <CardHeader className="pb-4">
           <CardTitle className="font-display text-lg flex items-center gap-2"><Type className="w-5 h-5 text-accent" /> Tipografia</CardTitle>
         </CardHeader>
@@ -344,10 +344,10 @@ export default function AdminVisualIdentity() {
             ))}
           </div>
         </CardContent>
-      </Card>
+      </div>
 
       {/* Jewel Ring Categories */}
-      <Card className="shadow-premium border-0">
+      <div className="admin-card">
         <CardHeader className="pb-4">
           <CardTitle className="font-display text-lg flex items-center gap-2"><Gem className="w-5 h-5 text-accent" /> Categorias — Reflexo de Estúdio</CardTitle>
         </CardHeader>
@@ -424,7 +424,7 @@ export default function AdminVisualIdentity() {
             />
           </div>
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }

@@ -255,14 +255,14 @@ export default function AdminShowcases() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">Vitrines & Temporadas</h1>
-          <p className="text-sm text-muted-foreground font-sans mt-1">
+          <h1 className="text-2xl font-bold tracking-tight">Vitrines & Temporadas</h1>
+          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>
             Controle automático de campanhas sazonais na Home
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
-            <Button className="gap-2 rounded-xl font-sans"><Plus className="w-4 h-4" /> Nova Vitrine</Button>
+            <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"><Plus className="w-4 h-4" /> Nova Vitrine</button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
             <DialogHeader>
@@ -513,7 +513,7 @@ export default function AdminShowcases() {
       </div>
 
       {/* List */}
-      <Card className="shadow-premium border-0">
+      <div className="admin-card">
         <CardContent className="p-0">
           {isLoading ? (
             <div className="p-6 space-y-4">
@@ -565,7 +565,7 @@ export default function AdminShowcases() {
             </Table>
           )}
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }

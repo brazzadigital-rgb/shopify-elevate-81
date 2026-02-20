@@ -257,12 +257,12 @@ export default function AdminSections() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-display font-bold">Seções da Home</h1>
-          <p className="text-muted-foreground font-sans mt-1">Configure as seções da página inicial</p>
+          <h1 className="text-2xl font-bold tracking-tight">Seções da Home</h1>
+          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>Configure as seções da página inicial</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingId(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
-            <Button className="gap-2 rounded-xl shine h-11 font-sans"><Plus className="w-4 h-4" /> Nova Seção</Button>
+            <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"><Plus className="w-4 h-4" /> Nova Seção</button>
           </DialogTrigger>
           <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
             <DialogHeader>
@@ -305,8 +305,8 @@ export default function AdminSections() {
         </Dialog>
       </div>
 
-      <Card className="shadow-premium border-0">
-        <CardContent className="p-0">
+      <div className="admin-card overflow-hidden">
+        <div className="p-0">
           {loading ? (
             <div className="p-6 space-y-4">{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
           ) : sections.length === 0 ? (
@@ -347,10 +347,10 @@ export default function AdminSections() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+          </Table>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

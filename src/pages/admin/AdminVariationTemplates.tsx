@@ -249,8 +249,8 @@ export default function AdminVariationTemplates() {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-display font-bold tracking-tight">Templates de Variações</h1>
-          <p className="text-sm text-muted-foreground font-sans mt-0.5">Modelos prontos de variações para agilizar o cadastro de produtos</p>
+          <h1 className="text-2xl font-bold tracking-tight">Templates de Variações</h1>
+          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>Modelos prontos de variações para agilizar o cadastro de produtos</p>
         </div>
         <Button onClick={openNew} className="gap-2 rounded-2xl h-11 px-5 font-sans font-semibold shadow-premium">
           <Plus className="w-4 h-4" /> Novo Template

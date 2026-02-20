@@ -61,8 +61,8 @@ export default function AdminHomeTemplates() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-display font-bold text-foreground">Templates da Home</h1>
-        <p className="text-sm text-muted-foreground font-sans mt-1">
+        <h1 className="text-2xl font-bold tracking-tight">Templates da Home</h1>
+        <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>
           Escolha o layout da página inicial. A alteração é reversível a qualquer momento.
         </p>
       </div>

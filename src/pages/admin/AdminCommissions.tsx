@@ -56,8 +56,8 @@ export default function AdminCommissions() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-display font-bold">Comissões</h1>
-        <p className="text-sm text-muted-foreground">Acompanhe e gerencie comissões dos vendedores</p>
+        <h1 className="text-2xl font-bold tracking-tight">Comissões</h1>
+        <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>Acompanhe e gerencie comissões dos vendedores</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -83,20 +83,19 @@ export default function AdminCommissions() {
       </div>
 
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <Card className="admin-card overflow-hidden">
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/30">
-                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Vendedor</th>
-                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden md:table-cell">Pedido</th>
-                    <th className="text-right px-4 py-3 font-semibold text-muted-foreground">Venda</th>
-                    <th className="text-right px-4 py-3 font-semibold text-muted-foreground">Comissão</th>
-                    <th className="text-center px-4 py-3 font-semibold text-muted-foreground">Status</th>
-                    <th className="text-right px-4 py-3 font-semibold text-muted-foreground">Ações</th>
-                  </tr>
-                </thead>
+        <div className="admin-card overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr style={{ borderBottom: `1px solid hsl(var(--admin-border))` }}>
+                  <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: `hsl(var(--admin-text-secondary))` }}>Vendedor</th>
+                  <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold hidden md:table-cell" style={{ color: `hsl(var(--admin-text-secondary))` }}>Pedido</th>
+                  <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: `hsl(var(--admin-text-secondary))` }}>Venda</th>
+                  <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: `hsl(var(--admin-text-secondary))` }}>Comissão</th>
+                  <th className="text-center px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: `hsl(var(--admin-text-secondary))` }}>Status</th>
+                  <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: `hsl(var(--admin-text-secondary))` }}>Ações</th>
+                </tr>
+              </thead>
                 <tbody>
                   {isLoading ? (
                     <tr><td colSpan={6} className="text-center py-12 text-muted-foreground">Carregando...</td></tr>
@@ -106,17 +105,17 @@ export default function AdminCommissions() {
                       Nenhuma comissão encontrada
                     </td></tr>
                   ) : filtered.map(c => (
-                    <tr key={c.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                      <td className="px-4 py-3 font-medium">{c.sellers?.name || "—"}</td>
-                      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell font-mono text-xs">#{c.orders?.order_number || "—"}</td>
-                      <td className="px-4 py-3 text-right">{formatCurrency(Number(c.sale_amount))}</td>
-                      <td className="px-4 py-3 text-right font-semibold">{formatCurrency(Number(c.commission_amount))} <span className="text-muted-foreground font-normal text-xs">({c.commission_rate}%)</span></td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`admin-status-pill ${c.payment_status === "paid" ? "admin-status-pill-success" : c.payment_status === "cancelled" ? "admin-status-pill-danger" : "admin-status-pill-warning"}`}>
+                    <tr key={c.id} className="transition-colors hover:bg-muted/20" style={{ borderBottom: `1px solid hsl(var(--admin-border-subtle))` }}>
+                      <td className="px-4 py-3.5 font-medium">{c.sellers?.name || "—"}</td>
+                      <td className="px-4 py-3.5 hidden md:table-cell font-mono text-xs" style={{ color: `hsl(var(--admin-text-secondary))` }}>#{c.orders?.order_number || "—"}</td>
+                      <td className="px-4 py-3.5 text-right">{formatCurrency(Number(c.sale_amount))}</td>
+                      <td className="px-4 py-3.5 text-right font-semibold">{formatCurrency(Number(c.commission_amount))} <span className="font-normal text-xs" style={{ color: `hsl(var(--admin-text-secondary))` }}>({c.commission_rate}%)</span></td>
+                      <td className="px-4 py-3.5 text-center">
+                        <span className={`admin-status-pill text-[10px] ${c.payment_status === "paid" ? "admin-status-success" : c.payment_status === "cancelled" ? "admin-status-danger" : "admin-status-warning"}`}>
                           {c.payment_status === "paid" ? "Pago" : c.payment_status === "cancelled" ? "Cancelado" : "Pendente"}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-3.5 text-right">
                         {c.payment_status === "pending" && (
                           <Button variant="ghost" size="sm" className="rounded-lg text-emerald-600 gap-1 hover:bg-emerald-50" onClick={() => markPaidMutation.mutate(c.id)}>
                             <CheckCircle className="w-4 h-4" /> Pagar
@@ -125,11 +124,10 @@ export default function AdminCommissions() {
                       </td>
                     </tr>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </motion.div>
     </div>
   );
