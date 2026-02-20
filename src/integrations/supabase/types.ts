@@ -576,6 +576,99 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          enable_inapp: boolean
+          enable_push: boolean
+          enable_sound: boolean
+          id: string
+          quiet_from: string
+          quiet_hours_enabled: boolean
+          quiet_to: string
+          sound_volume: number
+          types_enabled_json: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          enable_inapp?: boolean
+          enable_push?: boolean
+          enable_sound?: boolean
+          id?: string
+          quiet_from?: string
+          quiet_hours_enabled?: boolean
+          quiet_to?: string
+          sound_volume?: number
+          types_enabled_json?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          enable_inapp?: boolean
+          enable_push?: boolean
+          enable_sound?: boolean
+          id?: string
+          quiet_from?: string
+          quiet_hours_enabled?: boolean
+          quiet_to?: string
+          sound_volume?: number
+          types_enabled_json?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string
+          channel: string
+          created_at: string
+          data_json: Json | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          is_read: boolean
+          priority: string
+          read_at: string | null
+          recipient_type: string
+          recipient_user_id: string
+          title: string
+          type: string
+        }
+        Insert: {
+          body?: string
+          channel?: string
+          created_at?: string
+          data_json?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          is_read?: boolean
+          priority?: string
+          read_at?: string | null
+          recipient_type?: string
+          recipient_user_id: string
+          title: string
+          type?: string
+        }
+        Update: {
+          body?: string
+          channel?: string
+          created_at?: string
+          data_json?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          is_read?: boolean
+          priority?: string
+          read_at?: string | null
+          recipient_type?: string
+          recipient_user_id?: string
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       order_events: {
         Row: {
           created_at: string
@@ -1449,6 +1542,42 @@ export type Database = {
           link?: string | null
           sort_order?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          is_active: boolean
+          p256dh: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth?: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          is_active?: boolean
+          p256dh?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          is_active?: boolean
+          p256dh?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
         }
         Relationships: []
       }
