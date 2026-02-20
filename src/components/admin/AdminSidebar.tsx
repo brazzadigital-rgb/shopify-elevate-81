@@ -7,7 +7,7 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useNotifications } from "@/hooks/useNotifications";
 import {
@@ -110,9 +110,11 @@ export function AdminSidebar() {
   const { signOut } = useAuth();
   const { getSetting } = useStoreSettings();
   const navigate = useNavigate();
+  const location = useLocation();
   const { unreadCount } = useNotifications();
 
   const [pendingOrders, setPendingOrders] = useState(0);
+  const [seenOrders, setSeenOrders] = useState(false);
 
   useEffect(() => {
     const fetchPending = async () => {
@@ -126,12 +128,25 @@ export function AdminSidebar() {
 
     const channel = supabase
       .channel("sidebar-orders")
-      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => fetchPending())
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => {
+        fetchPending();
+        // Reset seen if new order arrives while not on orders page
+        if (!location.pathname.startsWith("/admin/pedidos")) {
+          setSeenOrders(false);
+        }
+      })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [location.pathname]);
 
-  const badges = { orders: pendingOrders, notifications: unreadCount };
+  // Mark as seen when visiting orders page
+  useEffect(() => {
+    if (location.pathname.startsWith("/admin/pedidos")) {
+      setSeenOrders(true);
+    }
+  }, [location.pathname]);
+
+  const badges = { orders: seenOrders ? 0 : pendingOrders, notifications: unreadCount };
 
   const logoUrl = getSetting("logo_url");
 
