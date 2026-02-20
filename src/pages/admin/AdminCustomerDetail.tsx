@@ -14,8 +14,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, Mail, Phone, MessageCircle, Copy, ShoppingBag, MapPin,
-  Heart, StickyNote, Activity, Crown, Calendar, Edit3, Plus, Trash2
+  Heart, StickyNote, Activity, Crown, Calendar, Edit3, Plus, Trash2, ShieldCheck, ShieldOff
 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 export default function AdminCustomerDetail() {
   const { id: userId } = useParams<{ id: string }>();
@@ -24,6 +25,38 @@ export default function AdminCustomerDetail() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [newNote, setNewNote] = useState("");
+
+  // User roles
+  const { data: customerRoles = [] } = useQuery({
+    queryKey: ["admin-customer-roles", userId],
+    queryFn: async () => {
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId!);
+      return (data || []).map((r: any) => r.role as string);
+    },
+    enabled: !!userId,
+  });
+
+  const customerIsAdmin = customerRoles.includes("admin");
+
+  const toggleAdminMutation = useMutation({
+    mutationFn: async () => {
+      if (customerIsAdmin) {
+        const { error } = await supabase.from("user_roles").delete().eq("user_id", userId!).eq("role", "admin");
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("user_roles").insert({ user_id: userId!, role: "admin" });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-customer-roles", userId] });
+      qc.invalidateQueries({ queryKey: ["admin-customer-roles"] });
+      toast({ title: customerIsAdmin ? "Permissão de admin removida" : "Usuário promovido a admin" });
+    },
+    onError: (err: any) => {
+      toast({ title: "Erro", description: err.message, variant: "destructive" });
+    },
+  });
 
   // Profile
   const { data: profile, isLoading } = useQuery({
@@ -204,7 +237,43 @@ export default function AdminCustomerDetail() {
                     <Crown className="w-3 h-3" /> VIP
                   </span>
                 )}
+                {customerIsAdmin && (
+                  <span className="inline-flex items-center gap-1 mt-1 px-3 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+                    <ShieldCheck className="w-3 h-3" /> Admin
+                  </span>
+                )}
               </div>
+
+              {/* Admin toggle */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant={customerIsAdmin ? "destructive" : "outline"}
+                    size="sm"
+                    className="w-full rounded-xl gap-2 text-xs"
+                    disabled={toggleAdminMutation.isPending || userId === user?.id}
+                  >
+                    {customerIsAdmin ? <ShieldOff className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+                    {customerIsAdmin ? "Remover Admin" : "Tornar Admin"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="rounded-2xl">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{customerIsAdmin ? "Remover permissão de admin?" : "Promover a admin?"}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {customerIsAdmin
+                        ? `${profile.full_name || "Este usuário"} perderá acesso ao painel administrativo.`
+                        : `${profile.full_name || "Este usuário"} terá acesso total ao painel administrativo.`}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel>
+                    <AlertDialogAction className="rounded-xl" onClick={() => toggleAdminMutation.mutate()}>
+                      Confirmar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
 
               {/* Contact info */}
               <div className="space-y-3">
