@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { PremiumToggle3D } from "@/components/ui/premium-toggle-3d";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Save } from "lucide-react";
+import { Save, Settings, Flame, CreditCard, Package, MessageCircle, Phone, Truck, Store } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SettingsMap {
   [key: string]: string;
@@ -15,7 +16,10 @@ interface SettingsMap {
 
 const settingsGroups = [
   {
-    title: "⚙️ Geral",
+    id: "geral",
+    title: "Geral",
+    icon: Settings,
+    description: "Nome, recursos e funcionalidades básicas",
     settings: [
       { key: "store_name", label: "Nome da Loja", type: "text" },
       { key: "topbar_enabled", label: "Ativar TopBar", type: "toggle" },
@@ -30,7 +34,10 @@ const settingsGroups = [
     ],
   },
   {
-    title: "🔥 Promoções",
+    id: "promocoes",
+    title: "Promoções",
+    icon: Flame,
+    description: "Black Friday, Natal e queima de estoque",
     settings: [
       { key: "black_friday_enabled", label: "Ativar Black Friday", type: "toggle" },
       { key: "black_friday_text", label: "Texto Black Friday", type: "text" },
@@ -39,7 +46,10 @@ const settingsGroups = [
     ],
   },
   {
-    title: "💳 Pagamento",
+    id: "pagamento",
+    title: "Pagamento",
+    icon: CreditCard,
+    description: "Pix, parcelamento e bandeiras",
     settings: [
       { key: "pix_enabled", label: "Ativar Pix", type: "toggle" },
       { key: "pix_discount_percent", label: "Desconto Pix (%)", type: "number" },
@@ -49,7 +59,10 @@ const settingsGroups = [
     ],
   },
   {
-    title: "📦 Estoque & Urgência",
+    id: "estoque",
+    title: "Estoque & Urgência",
+    icon: Package,
+    description: "Avisos de estoque e urgência",
     settings: [
       { key: "stock_warning_enabled", label: "Aviso 'Apenas X restantes'", type: "toggle" },
       { key: "stock_warning_threshold", label: "Limite para aviso", type: "number" },
@@ -57,7 +70,10 @@ const settingsGroups = [
     ],
   },
   {
-    title: "📱 WhatsApp",
+    id: "whatsapp",
+    title: "WhatsApp",
+    icon: MessageCircle,
+    description: "Botão e mensagem padrão",
     settings: [
       { key: "whatsapp_enabled", label: "Botão WhatsApp no produto", type: "toggle" },
       { key: "whatsapp_number", label: "Número WhatsApp", type: "text" },
@@ -65,7 +81,10 @@ const settingsGroups = [
     ],
   },
   {
-    title: "📞 Página de Contato",
+    id: "contato",
+    title: "Contato",
+    icon: Phone,
+    description: "Dados da empresa e redes sociais",
     settings: [
       { key: "contact_cnpj", label: "CNPJ da Empresa", type: "text" },
       { key: "contact_email", label: "E-mail de contato", type: "text" },
@@ -79,7 +98,10 @@ const settingsGroups = [
     ],
   },
   {
-    title: "🚚 Frete",
+    id: "frete",
+    title: "Frete",
+    icon: Truck,
+    description: "Frete grátis e prazos",
     settings: [
       { key: "shipping_enabled", label: "Bloco Frete no produto", type: "toggle" },
       { key: "free_shipping_min_value", label: "Frete grátis acima de (R$)", type: "number" },
@@ -88,7 +110,10 @@ const settingsGroups = [
     ],
   },
   {
-    title: "🏪 Vendido por",
+    id: "vendido-por",
+    title: "Vendido por",
+    icon: Store,
+    description: "Informações do vendedor",
     settings: [
       { key: "sold_by_enabled", label: "Mostrar 'Vendido e enviado por'", type: "toggle" },
       { key: "sold_by_name", label: "Nome do vendedor", type: "text" },
@@ -100,6 +125,7 @@ export default function StoreSettings() {
   const [settings, setSettings] = useState<SettingsMap>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("geral");
 
   useEffect(() => {
     const fetch = async () => {
@@ -126,6 +152,8 @@ export default function StoreSettings() {
     setSaving(false);
   };
 
+  const activeGroup = settingsGroups.find(g => g.id === activeTab)!;
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -137,6 +165,7 @@ export default function StoreSettings() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl sm:text-3xl font-display font-bold">Configurações da Loja</h1>
@@ -147,15 +176,46 @@ export default function StoreSettings() {
         </Button>
       </div>
 
-      <div className="grid gap-6">
-        {settingsGroups.map((group) => (
-          <Card key={group.title} className="shadow-premium border-0">
-            <CardHeader className="pb-4">
-              <CardTitle className="font-display text-lg">{group.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {group.settings.map((s) => (
-                <div key={s.key} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Sidebar navigation */}
+        <nav className="lg:w-56 shrink-0">
+          <div className="flex lg:flex-col gap-1.5 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
+            {settingsGroups.map((group) => {
+              const Icon = group.icon;
+              const isActive = activeTab === group.id;
+              return (
+                <button
+                  key={group.id}
+                  onClick={() => setActiveTab(group.id)}
+                  className={cn(
+                    "flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-sans whitespace-nowrap transition-all text-left",
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span>{group.title}</span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+
+        {/* Content area */}
+        <Card className="shadow-premium border-0 flex-1 min-w-0">
+          <CardContent className="p-5 sm:p-6">
+            <div className="mb-5">
+              <h2 className="text-lg font-display font-semibold flex items-center gap-2">
+                <activeGroup.icon className="w-5 h-5 text-primary" />
+                {activeGroup.title}
+              </h2>
+              <p className="text-muted-foreground text-sm mt-0.5">{activeGroup.description}</p>
+            </div>
+
+            <div className="divide-y divide-border/50">
+              {activeGroup.settings.map((s) => (
+                <div key={s.key} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 py-4 first:pt-0 last:pb-0">
                   <Label className="font-sans text-sm">{s.label}</Label>
                   {s.type === "toggle" ? (
                     <PremiumToggle3D
@@ -173,9 +233,9 @@ export default function StoreSettings() {
                   )}
                 </div>
               ))}
-            </CardContent>
-          </Card>
-        ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
