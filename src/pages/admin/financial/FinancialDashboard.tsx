@@ -10,18 +10,15 @@ import {
   ArrowDownCircle, Percent, CreditCard, BarChart3
 } from "lucide-react";
 import {
-  ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
+  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
   BarChart, Bar, PieChart, Pie, Cell
 } from "recharts";
 import { format, eachDayOfInterval } from "date-fns";
+import { motion } from "framer-motion";
 
-interface DailyStat {
-  date: string;
-  revenue: number;
-  orders: number;
-}
+interface DailyStat { date: string; revenue: number; orders: number; }
 
-const PIE_COLORS = ["hsl(var(--accent))", "hsl(var(--primary))", "hsl(var(--muted-foreground))"];
+const PIE_COLORS = ["hsl(var(--accent))", "hsl(var(--primary))", "hsl(var(--muted-foreground))", "hsl(var(--admin-success))"];
 
 export default function FinancialDashboard() {
   const filters = useFinancialFilters("30d");
@@ -36,7 +33,7 @@ export default function FinancialDashboard() {
   const [paymentMethods, setPaymentMethods] = useState<{ name: string; value: number }[]>([]);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchAll = async () => {
       setLoading(true);
       const { from, to } = filters.dateRange;
 
@@ -61,7 +58,6 @@ export default function FinancialDashboard() {
       const itemsSold = items.reduce((s, i) => s + Number(i.quantity), 0);
       const feesTotal = transactions.reduce((s, t) => s + Number(t.fees), 0);
 
-      // COGS estimation from cost_price
       let cogs = 0;
       for (const item of items) {
         if (item.product_id) {
@@ -83,7 +79,6 @@ export default function FinancialDashboard() {
         feesTotal, operationalProfit,
       });
 
-      // Daily data
       const days = eachDayOfInterval({ start: filters.dateRange.fromDate, end: filters.dateRange.toDate });
       const daily = days.map(d => {
         const key = format(d, "yyyy-MM-dd");
@@ -92,7 +87,6 @@ export default function FinancialDashboard() {
       });
       setDailyData(daily);
 
-      // Payment methods
       const methodMap: Record<string, number> = {};
       paidOrders.forEach(o => {
         const m = o.payment_method || "Não informado";
@@ -102,7 +96,7 @@ export default function FinancialDashboard() {
 
       setLoading(false);
     };
-    fetch();
+    fetchAll();
   }, [filters.dateRange]);
 
   const cards = [
@@ -131,71 +125,81 @@ export default function FinancialDashboard() {
         <PeriodFilter {...filters} />
       </div>
 
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {cards.map((c, i) => (
           <KpiCard key={c.title} {...c} index={i} />
         ))}
       </div>
 
-      {/* Gráfico Receita Diária */}
-      <Card className="shadow-premium border-0">
-        <CardHeader><CardTitle className="font-display text-lg">Receita Diária</CardTitle></CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={dailyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="date" fontSize={11} stroke="hsl(var(--muted-foreground))" />
-                <YAxis fontSize={11} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
-                <Tooltip formatter={(v: number) => formatBRL(v)} />
-                <Line type="monotone" dataKey="revenue" stroke="hsl(var(--accent))" strokeWidth={2} dot={false} name="Receita" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Pedidos por dia */}
-        <Card className="shadow-premium border-0">
-          <CardHeader><CardTitle className="font-display text-lg">Pedidos por Dia</CardTitle></CardHeader>
+      {/* Receita Diária - Area Chart */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        <Card className="admin-card">
+          <CardHeader><CardTitle className="font-display text-lg">Receita Diária</CardTitle></CardHeader>
           <CardContent>
-            <div className="h-[250px]">
+            <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={dailyData}>
+                <AreaChart data={dailyData}>
+                  <defs>
+                    <linearGradient id="finRevGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="date" fontSize={11} stroke="hsl(var(--muted-foreground))" />
-                  <YAxis fontSize={11} stroke="hsl(var(--muted-foreground))" />
-                  <Tooltip />
-                  <Bar dataKey="orders" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Pedidos" />
-                </BarChart>
+                  <YAxis fontSize={11} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
+                  <Tooltip formatter={(v: number) => formatBRL(v)} contentStyle={{ borderRadius: 12, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} />
+                  <Area type="monotone" dataKey="revenue" stroke="hsl(var(--accent))" strokeWidth={2} fill="url(#finRevGrad)" name="Receita" />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
+      </motion.div>
 
-        {/* Métodos de pagamento */}
-        <Card className="shadow-premium border-0">
-          <CardHeader><CardTitle className="font-display text-lg">Métodos de Pagamento</CardTitle></CardHeader>
-          <CardContent>
-            <div className="h-[250px] flex items-center justify-center">
-              {paymentMethods.length > 0 ? (
+      <div className="grid gap-6 md:grid-cols-2">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+          <Card className="admin-card h-full">
+            <CardHeader><CardTitle className="font-display text-lg">Pedidos por Dia</CardTitle></CardHeader>
+            <CardContent>
+              <div className="h-[250px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={paymentMethods} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} fontSize={11}>
-                      {paymentMethods.map((_, i) => (
-                        <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(v: number) => formatBRL(v)} />
-                  </PieChart>
+                  <BarChart data={dailyData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="date" fontSize={11} stroke="hsl(var(--muted-foreground))" />
+                    <YAxis fontSize={11} stroke="hsl(var(--muted-foreground))" />
+                    <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} />
+                    <Bar dataKey="orders" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} name="Pedidos" />
+                  </BarChart>
                 </ResponsiveContainer>
-              ) : (
-                <p className="text-muted-foreground text-sm">Sem dados no período</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+          <Card className="admin-card h-full">
+            <CardHeader><CardTitle className="font-display text-lg">Métodos de Pagamento</CardTitle></CardHeader>
+            <CardContent>
+              <div className="h-[250px] flex items-center justify-center">
+                {paymentMethods.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={paymentMethods} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} fontSize={11}>
+                        {paymentMethods.map((_, i) => (
+                          <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(v: number) => formatBRL(v)} contentStyle={{ borderRadius: 12, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-muted-foreground text-sm">Sem dados no período</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );
