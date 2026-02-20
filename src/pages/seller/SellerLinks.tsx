@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import { motion } from "framer-motion";
 
 export default function SellerLinks() {
   const { sellerId } = useAuth();
+  const { getSetting } = useStoreSettings();
   const [seller, setSeller] = useState<any>(null);
   const [clicks, setClicks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +35,8 @@ export default function SellerLinks() {
   if (loading) return <div className="space-y-4"><Skeleton className="h-10 w-48" /><Skeleton className="h-40 rounded-2xl" /></div>;
   if (!seller) return null;
 
-  const baseUrl = window.location.origin;
+  const storeDomain = getSetting("store_domain", "").replace(/\/+$/, "");
+  const baseUrl = storeDomain || window.location.origin;
   const mainLink = `${baseUrl}/?ref=${seller.referral_code}`;
   const totalClicks = clicks.length;
   const conversions = clicks.filter(c => c.converted).length;
