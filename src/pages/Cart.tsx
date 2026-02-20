@@ -45,8 +45,8 @@ export default function CartPage() {
               <motion.div key={item.id} layout>
                 <Card className="border-0 shadow-premium">
                   <CardContent className="p-4 flex gap-4">
-                    <div className="w-24 h-24 rounded-xl overflow-hidden bg-muted shrink-0">
-                      <img src={imageUrl} alt={item.product?.name} className="w-full h-full object-cover" />
+                    <div className="product-thumb-mini w-24 h-24 shrink-0">
+                      <img src={imageUrl} alt={item.product?.name} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <Link to={`/produto/${item.product?.slug}`} className="font-sans text-sm font-medium hover:text-accent transition-colors line-clamp-2">

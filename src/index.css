@@ -533,6 +533,44 @@
   }
 }
 
+/* ─── Product Thumbnail System (square 1:1) ─── */
+.product-thumb {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background: hsl(30 15% 95%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.product-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  transition: transform 0.35s ease;
+}
+.product-thumb:hover img {
+  transform: scale(1.06);
+}
+.product-thumb-mini {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 10px;
+  background: hsl(30 15% 95%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.product-thumb-mini img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
 /* Hide scrollbar utility */
 .scrollbar-hide {
   -ms-overflow-style: none;

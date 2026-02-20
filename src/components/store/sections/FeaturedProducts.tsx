@@ -118,7 +118,7 @@ function ImageCarousel({
 
   return (
     <div
-      className="relative aspect-square bg-muted/20 overflow-hidden cursor-pointer"
+      className="product-thumb !rounded-t-2xl !rounded-b-none cursor-pointer"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -131,7 +131,7 @@ function ImageCarousel({
           key={src}
           src={src}
           alt={i === 0 ? alt : `${alt} - ${i + 1}`}
-          className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out will-change-[opacity,transform] group-hover:scale-[1.03] ${
+          className={`absolute inset-0 w-full h-full object-contain transition-all duration-700 ease-out will-change-[opacity,transform] ${
             i === current ? "opacity-100" : "opacity-0"
           } ${i === 0 && hovered && count > 1 && current === 0 ? "md:opacity-0" : ""}
           ${i === 1 && hovered && count > 1 && current === 0 ? "md:opacity-100" : ""}`}
@@ -226,8 +226,8 @@ export function QuickBuyModal({
         <div className="p-5 md:p-6 space-y-5">
           {/* Header */}
           <div className="flex gap-4">
-            <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-muted/30 flex-shrink-0 overflow-hidden">
-              <img src={images[0]} alt={product.name} className="w-full h-full object-cover" />
+            <div className="product-thumb-mini w-24 h-24 md:w-28 md:h-28 flex-shrink-0">
+              <img src={images[0]} alt={product.name} />
             </div>
             <div className="flex-1 min-w-0 space-y-1">
               <p className="font-sans text-sm font-semibold leading-snug line-clamp-2">{product.name}</p>

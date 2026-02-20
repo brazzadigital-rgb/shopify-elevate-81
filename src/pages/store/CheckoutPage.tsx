@@ -827,8 +827,8 @@ export default function CheckoutPage() {
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {items.map(item => (
                   <div key={item.id} className="flex gap-3">
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted shrink-0">
-                      <img src={getItemImage(item)} alt={item.product?.name} className="w-full h-full object-cover" />
+                    <div className="product-thumb-mini w-16 h-16 shrink-0">
+                      <img src={getItemImage(item)} alt={item.product?.name} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-sans text-sm font-semibold line-clamp-2">{item.product?.name}</p>

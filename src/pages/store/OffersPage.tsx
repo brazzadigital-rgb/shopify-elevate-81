@@ -71,8 +71,8 @@ export default function OffersPage() {
             <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
               <Link to={`/produto/${product.slug}`} className="group block">
                 <Card className="border-0 shadow-none hover:shadow-premium-lg transition-all duration-300 overflow-hidden rounded-2xl bg-transparent">
-                  <div className="relative aspect-square bg-muted rounded-2xl overflow-hidden">
-                    <img src={getImage(product)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                  <div className="product-thumb !rounded-t-2xl !rounded-b-none">
+                    <img src={getImage(product)} alt={product.name} loading="lazy" />
                     <Badge className="absolute top-3 left-3 bg-destructive text-destructive-foreground font-sans text-[10px] px-2 py-0.5 rounded-lg">
                       -{discount(product)}%
                     </Badge>

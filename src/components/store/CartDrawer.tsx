@@ -80,11 +80,10 @@ export function CartDrawer() {
                       className="group flex gap-3.5 p-3.5 rounded-2xl bg-background border border-border/40 hover:border-border/60 hover:shadow-premium transition-all duration-300"
                     >
                       {/* Image */}
-                      <div className="w-[76px] h-[76px] rounded-xl overflow-hidden bg-muted/30 shrink-0 border border-border/20">
+                      <div className="product-thumb-mini w-[76px] h-[76px] shrink-0 border border-border/20">
                         <img
                           src={imageUrl}
                           alt={item.product?.name}
-                          className="w-full h-full object-contain p-1.5"
                         />
                       </div>
 

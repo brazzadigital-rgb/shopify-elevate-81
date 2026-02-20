@@ -112,8 +112,8 @@ export default function Favorites() {
                 className="group relative rounded-2xl border border-border/40 bg-card overflow-hidden shadow-sm hover:shadow-premium transition-all"
               >
                 <div className="flex gap-4 p-4">
-                  <Link to={`/produto/${p.slug}`} className="w-24 h-24 rounded-xl overflow-hidden bg-muted/30 shrink-0">
-                    <img src={getImage(p)} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <Link to={`/produto/${p.slug}`} className="product-thumb-mini w-24 h-24 shrink-0">
+                    <img src={getImage(p)} alt={p.name} />
                   </Link>
                   <div className="flex-1 min-w-0 flex flex-col justify-between">
                     <div>
