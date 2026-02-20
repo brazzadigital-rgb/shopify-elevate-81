@@ -1112,6 +1112,51 @@ export type Database = {
           },
         ]
       }
+      plans: {
+        Row: {
+          annual_price: number
+          created_at: string
+          description: string | null
+          features_json: Json
+          highlight_badge: string | null
+          id: string
+          is_active: boolean
+          monthly_price: number
+          name: string
+          semiannual_price: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          annual_price?: number
+          created_at?: string
+          description?: string | null
+          features_json?: Json
+          highlight_badge?: string | null
+          id?: string
+          is_active?: boolean
+          monthly_price?: number
+          name: string
+          semiannual_price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          annual_price?: number
+          created_at?: string
+          description?: string | null
+          features_json?: Json
+          highlight_badge?: string | null
+          id?: string
+          is_active?: boolean
+          monthly_price?: number
+          name?: string
+          semiannual_price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_badges: {
         Row: {
           badge_type: string
@@ -1982,6 +2027,53 @@ export type Database = {
           value?: string
         }
         Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          billing_cycle: string
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string
+          current_period_start: string
+          id: string
+          plan_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_cycle?: string
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          plan_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_cycle?: string
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          plan_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       suppliers: {
         Row: {

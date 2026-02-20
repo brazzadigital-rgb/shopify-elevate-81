@@ -16,6 +16,7 @@ import {
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { SidebarPlanWidget } from "@/components/admin/SidebarPlanWidget";
 
 const mainMenu = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
@@ -202,6 +203,7 @@ export function AdminSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-3 space-y-1" style={{ borderTop: `1px solid hsl(var(--admin-border-subtle))` }}>
+        <SidebarPlanWidget />
         <button
           onClick={() => navigate("/")}
           className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all duration-150 w-full text-[13px] font-medium"
