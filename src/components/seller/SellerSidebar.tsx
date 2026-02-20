@@ -9,6 +9,7 @@ import {
   Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
 } from "@/components/ui/sidebar";
 import { NavLink } from "react-router-dom";
+import { SellerSidebarWidget } from "./SellerSidebarWidget";
 
 const mainMenu = [
   { title: "Dashboard", url: "/vendedor", icon: LayoutDashboard },
@@ -86,6 +87,10 @@ export default function SellerSidebar() {
         <SidebarSection label="Principal" items={mainMenu} />
         <SidebarSection label="Financeiro" items={financialMenu} />
         <SidebarSection label="Conta" items={accountMenu} />
+
+        <div className="mt-auto pt-4">
+          <SellerSidebarWidget />
+        </div>
       </SidebarContent>
 
       <SidebarFooter className="p-3 space-y-1 border-t border-slate-100">
