@@ -106,33 +106,33 @@ export default function AdminCoupons() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Cupons</h1>
-          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>{filtered.length} cupom(ns) cadastrado(s)</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800 font-display">Cupons</h1>
+          <p className="text-sm mt-1 text-slate-400">{filtered.length} cupom(ns) cadastrado(s)</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingId(null); setForm(emptyCoupon); } }}>
           <DialogTrigger asChild>
-            <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
+            <button className="admin-btn-primary">
               <Plus className="w-4 h-4" /> Novo Cupom
             </button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg rounded-2xl">
             <DialogHeader>
-              <DialogTitle className="text-lg">{editingId ? "Editar Cupom" : "Novo Cupom"}</DialogTitle>
+              <DialogTitle className="text-lg font-display text-slate-800">{editingId ? "Editar Cupom" : "Novo Cupom"}</DialogTitle>
             </DialogHeader>
             <div className="grid gap-5 py-4">
               <div className="grid gap-2">
-                <Label className="text-sm font-medium">Código *</Label>
-                <Input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} placeholder="PROMO10" className="h-10 rounded-xl uppercase" />
+                <Label className="text-sm font-medium text-slate-700">Código *</Label>
+                <Input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} placeholder="PROMO10" className="admin-input uppercase font-bold text-slate-800" />
               </div>
               <div className="grid gap-2">
-                <Label className="text-sm font-medium">Descrição</Label>
-                <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="h-10 rounded-xl" />
+                <Label className="text-sm font-medium text-slate-700">Descrição</Label>
+                <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="admin-input" placeholder="Desconto de verão" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label className="text-sm font-medium">Tipo</Label>
+                  <Label className="text-sm font-medium text-slate-700">Tipo</Label>
                   <Select value={form.discount_type} onValueChange={(v) => setForm({ ...form, discount_type: v })}>
-                    <SelectTrigger className="h-10 rounded-xl"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="admin-input"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="percentage">Porcentagem (%)</SelectItem>
                       <SelectItem value="fixed">Valor fixo (R$)</SelectItem>
@@ -140,30 +140,30 @@ export default function AdminCoupons() {
                   </Select>
                 </div>
                 <div className="grid gap-2">
-                  <Label className="text-sm font-medium">Valor</Label>
-                  <Input type="number" step="0.01" value={form.discount_value} onChange={(e) => setForm({ ...form, discount_value: parseFloat(e.target.value) || 0 })} className="h-10 rounded-xl" />
+                  <Label className="text-sm font-medium text-slate-700">Valor</Label>
+                  <Input type="number" step="0.01" value={form.discount_value} onChange={(e) => setForm({ ...form, discount_value: parseFloat(e.target.value) || 0 })} className="admin-input" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label className="text-sm font-medium">Pedido mínimo (R$)</Label>
-                  <Input type="number" step="0.01" value={form.min_order_value || ""} onChange={(e) => setForm({ ...form, min_order_value: parseFloat(e.target.value) || null })} className="h-10 rounded-xl" />
+                  <Label className="text-sm font-medium text-slate-700">Pedido mínimo (R$)</Label>
+                  <Input type="number" step="0.01" value={form.min_order_value || ""} onChange={(e) => setForm({ ...form, min_order_value: parseFloat(e.target.value) || null })} className="admin-input" />
                 </div>
                 <div className="grid gap-2">
-                  <Label className="text-sm font-medium">Máx. usos</Label>
-                  <Input type="number" value={form.max_uses || ""} onChange={(e) => setForm({ ...form, max_uses: parseInt(e.target.value) || null })} className="h-10 rounded-xl" />
+                  <Label className="text-sm font-medium text-slate-700">Máx. usos</Label>
+                  <Input type="number" value={form.max_uses || ""} onChange={(e) => setForm({ ...form, max_uses: parseInt(e.target.value) || null })} className="admin-input" />
                 </div>
               </div>
               <div className="grid gap-2">
-                <Label className="text-sm font-medium">Expira em</Label>
-                <Input type="date" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })} className="h-10 rounded-xl" />
+                <Label className="text-sm font-medium text-slate-700">Expira em</Label>
+                <Input type="date" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })} className="admin-input" />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3 py-2">
                 <PremiumToggle3D size="sm" checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
-                <Label className="text-sm">Ativo</Label>
+                <Label className="text-sm font-medium text-slate-700">Cupom Ativo</Label>
               </div>
-              <Button onClick={handleSave} disabled={saving} className="h-11 rounded-xl w-full">
-                {saving ? "Salvando..." : editingId ? "Salvar" : "Criar cupom"}
+              <Button onClick={handleSave} disabled={saving} className="h-11 rounded-xl w-full bg-slate-900 hover:bg-slate-800 text-white font-medium">
+                {saving ? "Salvando..." : editingId ? "Salvar Alterações" : "Criar Cupom"}
               </Button>
             </div>
           </DialogContent>
@@ -173,8 +173,8 @@ export default function AdminCoupons() {
       {/* Search */}
       <div className="admin-card p-4">
         <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: `hsl(var(--admin-text-secondary))` }} />
-          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar cupom..." className="pl-9 h-10 rounded-xl border-0 bg-muted/30 text-sm" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar cupom..." className="admin-input pl-10" />
         </div>
       </div>
 
@@ -184,8 +184,8 @@ export default function AdminCoupons() {
           <div className="p-6 space-y-3">{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}</div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <Tag className="w-12 h-12 mb-4" style={{ color: `hsl(var(--admin-text-secondary) / 0.3)` }} />
-            <p className="text-base font-medium" style={{ color: `hsl(var(--admin-text-secondary))` }}>Nenhum cupom encontrado</p>
+            <Tag className="w-12 h-12 mb-4 text-slate-200" />
+            <p className="text-base font-medium text-slate-600">Nenhum cupom encontrado</p>
           </div>
         ) : (
           <>
@@ -193,34 +193,34 @@ export default function AdminCoupons() {
             <div className="hidden sm:block overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="hover:bg-transparent" style={{ borderBottom: `1px solid hsl(var(--admin-border))` }}>
+                  <TableRow className="hover:bg-transparent border-b border-slate-100">
                     {["Código", "Desconto", "Usos", "Status", "Expira", ""].map(h => (
-                      <TableHead key={h} className={`text-[11px] uppercase tracking-wider font-semibold ${h === "" ? "text-right" : ""}`} style={{ color: `hsl(var(--admin-text-secondary))` }}>{h}</TableHead>
+                      <TableHead key={h} className={`admin-table-th ${h === "" ? "text-right" : ""}`}>{h}</TableHead>
                     ))}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.map((c) => (
-                    <TableRow key={c.id} className="transition-colors" style={{ borderBottom: `1px solid hsl(var(--admin-border-subtle))` }}>
-                      <TableCell className="text-sm font-bold py-3.5 font-mono">{c.code}</TableCell>
-                      <TableCell className="text-sm py-3.5">
+                    <TableRow key={c.id} className="transition-colors hover:bg-slate-50 border-b border-slate-50">
+                      <TableCell className="text-sm font-bold py-3.5 font-mono text-slate-700">{c.code}</TableCell>
+                      <TableCell className="text-sm py-3.5 text-slate-600">
                         {c.discount_type === "percentage" ? `${c.discount_value}%` : formatBRL(Number(c.discount_value))}
                       </TableCell>
-                      <TableCell className="text-sm py-3.5" style={{ color: `hsl(var(--admin-text-secondary))` }}>
+                      <TableCell className="text-sm py-3.5 text-slate-500">
                         {c.used_count}{c.max_uses ? ` / ${c.max_uses}` : ""}
                       </TableCell>
                       <TableCell className="py-3.5">
-                        <span className={`admin-status-pill text-[10px] ${c.is_active ? "admin-status-success" : "admin-status-danger"}`}>
+                        <span className={`admin-status-pill ${c.is_active ? "admin-status-success" : "admin-status-danger"}`}>
                           {c.is_active ? "Ativo" : "Inativo"}
                         </span>
                       </TableCell>
-                      <TableCell className="text-sm py-3.5" style={{ color: `hsl(var(--admin-text-secondary))` }}>
+                      <TableCell className="text-sm py-3.5 text-slate-500">
                         {c.expires_at ? new Date(c.expires_at).toLocaleDateString("pt-BR") : "—"}
                       </TableCell>
                       <TableCell className="text-right py-3.5">
                         <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleEdit(c)}><Pencil className="w-3.5 h-3.5" /></Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100" onClick={() => handleEdit(c)}><Pencil className="w-3.5 h-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(c.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -230,22 +230,22 @@ export default function AdminCoupons() {
             </div>
 
             {/* Mobile */}
-            <div className="sm:hidden divide-y" style={{ borderColor: `hsl(var(--admin-border-subtle))` }}>
+            <div className="sm:hidden divide-y divide-slate-100">
               {filtered.map((c) => (
-                <div key={c.id} className="p-4 space-y-2">
+                <div key={c.id} className="p-4 space-y-2 hover:bg-slate-50 transition-colors">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold font-mono">{c.code}</span>
-                    <span className={`admin-status-pill text-[10px] ${c.is_active ? "admin-status-success" : "admin-status-danger"}`}>
+                    <span className="text-sm font-bold font-mono text-slate-800">{c.code}</span>
+                    <span className={`admin-status-pill ${c.is_active ? "admin-status-success" : "admin-status-danger"}`}>
                       {c.is_active ? "Ativo" : "Inativo"}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-xs" style={{ color: `hsl(var(--admin-text-secondary))` }}>
+                  <div className="flex items-center justify-between text-xs text-slate-500">
                     <span>{c.discount_type === "percentage" ? `${c.discount_value}%` : formatBRL(Number(c.discount_value))}</span>
                     <span>{c.used_count} usos</span>
                   </div>
-                  <div className="flex items-center justify-end gap-1">
-                    <Button variant="ghost" size="sm" className="h-7 gap-1 text-[11px] rounded-lg" onClick={() => handleEdit(c)}><Pencil className="w-3 h-3" /> Editar</Button>
-                    <Button variant="ghost" size="sm" className="h-7 text-[11px] rounded-lg text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="w-3 h-3" /></Button>
+                  <div className="flex items-center justify-end gap-1 pt-1">
+                    <Button variant="ghost" size="sm" className="h-7 gap-1 text-[11px] rounded-lg text-slate-500 hover:bg-slate-100" onClick={() => handleEdit(c)}><Pencil className="w-3 h-3" /> Editar</Button>
+                    <Button variant="ghost" size="sm" className="h-7 text-[11px] rounded-lg text-red-500 hover:bg-red-50" onClick={() => handleDelete(c.id)}><Trash2 className="w-3 h-3" /></Button>
                   </div>
                 </div>
               ))}

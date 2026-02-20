@@ -160,15 +160,15 @@ export default function Products() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Produtos</h1>
-          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800 font-display">Produtos</h1>
+          <p className="text-sm mt-1 text-slate-400">
             {filteredProducts.length} produto(s) no catálogo
           </p>
         </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="admin-card flex items-center gap-2 px-3 py-2.5 text-sm font-medium cursor-pointer hover:shadow-md transition-shadow">
+              <button className="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl flex items-center gap-2 px-3 py-2.5 text-sm font-medium cursor-pointer shadow-sm transition-all">
                 <MoreVertical className="w-4 h-4" /> Ações
               </button>
             </DropdownMenuTrigger>
@@ -183,7 +183,7 @@ export default function Products() {
           </DropdownMenu>
           <button
             onClick={() => navigate("/admin/produtos/novo")}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
+            className="admin-btn-primary"
           >
             <Plus className="w-4 h-4" /> Novo Produto
           </button>
@@ -194,18 +194,18 @@ export default function Products() {
       <div className="admin-card p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: `hsl(var(--admin-text-secondary))` }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Buscar produto..."
-              className="pl-9 h-10 rounded-xl border-0 bg-muted/30 focus:bg-muted/50 text-sm"
+              className="admin-input pl-9"
             />
           </div>
           {suppliers.length > 0 && (
             <Select value={filterSupplier} onValueChange={setFilterSupplier}>
-              <SelectTrigger className="h-10 w-full sm:w-48 rounded-xl border-0 bg-muted/30 text-sm">
-                <Filter className="w-3.5 h-3.5 mr-2" style={{ color: `hsl(var(--admin-text-secondary))` }} />
+              <SelectTrigger className="h-10 w-full sm:w-48 admin-input">
+                <Filter className="w-3.5 h-3.5 mr-2 text-slate-400" />
                 <SelectValue placeholder="Fornecedor" />
               </SelectTrigger>
               <SelectContent>
@@ -231,9 +231,9 @@ export default function Products() {
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <Package className="w-12 h-12 mb-4" style={{ color: `hsl(var(--admin-text-secondary) / 0.3)` }} />
-            <p className="text-base font-medium" style={{ color: `hsl(var(--admin-text-secondary))` }}>Nenhum produto encontrado</p>
-            <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary) / 0.6)` }}>Clique em "Novo Produto" para começar</p>
+            <Package className="w-12 h-12 mb-4 text-slate-200" />
+            <p className="text-base font-medium text-slate-600">Nenhum produto encontrado</p>
+            <p className="text-sm mt-1 text-slate-400">Clique em "Novo Produto" para começar</p>
           </div>
         ) : (
           <>
@@ -241,60 +241,59 @@ export default function Products() {
             <div className="hidden md:block overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="hover:bg-transparent" style={{ borderBottom: `1px solid hsl(var(--admin-border))` }}>
-                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold w-14" style={{ color: `hsl(var(--admin-text-secondary))` }}>Foto</TableHead>
-                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: `hsl(var(--admin-text-secondary))` }}>Nome</TableHead>
-                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: `hsl(var(--admin-text-secondary))` }}>Preço</TableHead>
-                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-right" style={{ color: `hsl(var(--admin-text-secondary))` }}>Estoque</TableHead>
-                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: `hsl(var(--admin-text-secondary))` }}>Status</TableHead>
-                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-right" style={{ color: `hsl(var(--admin-text-secondary))` }}>Ações</TableHead>
+                  <TableRow className="hover:bg-transparent border-b border-slate-100">
+                    <TableHead className="admin-table-th w-14">Foto</TableHead>
+                    <TableHead className="admin-table-th">Nome</TableHead>
+                    <TableHead className="admin-table-th">Preço</TableHead>
+                    <TableHead className="admin-table-th text-right">Estoque</TableHead>
+                    <TableHead className="admin-table-th">Status</TableHead>
+                    <TableHead className="admin-table-th text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredProducts.map((product, i) => (
                     <TableRow
                       key={product.id}
-                      className="cursor-pointer transition-colors"
-                      style={{ borderBottom: `1px solid hsl(var(--admin-border-subtle))` }}
+                      className="cursor-pointer transition-colors hover:bg-slate-50 border-b border-slate-50"
                       onClick={() => navigate(`/admin/produtos/${product.id}/editar`)}
                     >
                       <TableCell className="py-3">
                         {productThumbnails[product.id] ? (
-                          <img src={productThumbnails[product.id]} alt={product.name} className="w-10 h-10 rounded-lg object-cover" style={{ border: `1px solid hsl(var(--admin-border))` }} />
+                          <img src={productThumbnails[product.id]} alt={product.name} className="w-10 h-10 rounded-lg object-cover border border-slate-100" />
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-muted/40 flex items-center justify-center">
-                            <Package className="w-4 h-4 text-muted-foreground/40" />
+                          <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100">
+                            <Package className="w-4 h-4 text-slate-300" />
                           </div>
                         )}
                       </TableCell>
                       <TableCell className="py-3">
-                        <p className="text-sm font-medium">{product.name}</p>
-                        <p className="text-[11px]" style={{ color: `hsl(var(--admin-text-secondary))` }}>{product.sku || "—"}</p>
+                        <p className="text-sm font-medium text-slate-700">{product.name}</p>
+                        <p className="text-[11px] text-slate-400">{product.sku || "—"}</p>
                       </TableCell>
                       <TableCell className="py-3">
-                        <p className="text-sm font-semibold">{formatBRL(Number(product.price))}</p>
+                        <p className="text-sm font-semibold text-slate-700">{formatBRL(Number(product.price))}</p>
                         {product.compare_at_price && (
-                          <p className="text-[11px] line-through" style={{ color: `hsl(var(--admin-text-secondary))` }}>{formatBRL(Number(product.compare_at_price))}</p>
+                          <p className="text-[11px] line-through text-slate-400">{formatBRL(Number(product.compare_at_price))}</p>
                         )}
                       </TableCell>
                       <TableCell className="py-3 text-right">
-                        <span className={`text-sm font-medium ${product.stock < 5 ? "text-destructive" : ""}`}>{product.stock}</span>
+                        <span className={`text-sm font-medium ${product.stock < 5 ? "text-red-500" : "text-slate-600"}`}>{product.stock}</span>
                       </TableCell>
                       <TableCell className="py-3">
                         <div className="flex gap-1.5 flex-wrap">
-                          <span className={`admin-status-pill text-[10px] ${product.is_active ? "admin-status-success" : "admin-status-danger"}`}>
+                          <span className={`admin-status-pill ${product.is_active ? "admin-status-success" : "admin-status-danger"}`}>
                             {product.is_active ? "Ativo" : "Inativo"}
                           </span>
-                          {product.is_featured && <span className="admin-status-pill admin-status-info text-[10px]">Destaque</span>}
-                          {product.is_new && <span className="admin-status-pill admin-status-success text-[10px]">Novo</span>}
+                          {product.is_featured && <span className="admin-status-pill admin-status-info">Destaque</span>}
+                          {product.is_new && <span className="admin-status-pill admin-status-success">Novo</span>}
                         </div>
                       </TableCell>
                       <TableCell className="py-3 text-right">
                         <div className="flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => navigate(`/admin/produtos/${product.id}/editar`)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100" onClick={() => navigate(`/admin/produtos/${product.id}/editar`)}>
                             <Pencil className="w-3.5 h-3.5" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive" onClick={() => handleDelete(product.id)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(product.id)}>
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
                         </div>
@@ -306,28 +305,28 @@ export default function Products() {
             </div>
 
             {/* Mobile Cards */}
-            <div className="md:hidden divide-y" style={{ borderColor: `hsl(var(--admin-border-subtle))` }}>
+            <div className="md:hidden divide-y divide-slate-100">
               {filteredProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="p-4 flex items-center gap-3 cursor-pointer hover:bg-muted/20 transition-colors"
+                  className="p-4 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors"
                   onClick={() => navigate(`/admin/produtos/${product.id}/editar`)}
                 >
                   {productThumbnails[product.id] ? (
-                    <img src={productThumbnails[product.id]} alt={product.name} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" style={{ border: `1px solid hsl(var(--admin-border))` }} />
+                    <img src={productThumbnails[product.id]} alt={product.name} className="w-12 h-12 rounded-xl object-cover flex-shrink-0 border border-slate-100" />
                   ) : (
-                    <div className="w-12 h-12 rounded-xl bg-muted/40 flex items-center justify-center flex-shrink-0">
-                      <Package className="w-5 h-5 text-muted-foreground/40" />
+                    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0 border border-slate-100">
+                      <Package className="w-5 h-5 text-slate-300" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{product.name}</p>
+                    <p className="text-sm font-medium truncate text-slate-800">{product.name}</p>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-sm font-semibold">{formatBRL(Number(product.price))}</span>
-                      <span className="text-[11px]" style={{ color: `hsl(var(--admin-text-secondary))` }}>· {product.stock} un.</span>
+                      <span className="text-sm font-semibold text-slate-700">{formatBRL(Number(product.price))}</span>
+                      <span className="text-[11px] text-slate-400">· {product.stock} un.</span>
                     </div>
                   </div>
-                  <span className={`admin-status-pill text-[10px] flex-shrink-0 ${product.is_active ? "admin-status-success" : "admin-status-danger"}`}>
+                  <span className={`admin-status-pill flex-shrink-0 ${product.is_active ? "admin-status-success" : "admin-status-danger"}`}>
                     {product.is_active ? "Ativo" : "Inativo"}
                   </span>
                 </div>
@@ -337,67 +336,72 @@ export default function Products() {
         )}
       </motion.div>
 
-      {/* Import Dialog */}
-      <Dialog open={importOpen} onOpenChange={(open) => { setImportOpen(open); if (!open) { setImportFile(null); setImportResults(null); } }}>
-        <DialogContent className="sm:max-w-lg">
+      {/* Import Modal */}
+      <Dialog open={importOpen} onOpenChange={setImportOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="text-lg flex items-center gap-2">
-              <Upload className="w-5 h-5 text-primary" /> Importar Produtos via CSV
-            </DialogTitle>
-            <DialogDescription className="text-sm">
-              Importe produtos a partir de um CSV exportado do Shopify
+            <DialogTitle className="font-display text-slate-800">Importar Produtos (CSV)</DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Faça upload de um arquivo CSV (Shopify) para importar produtos em massa.
             </DialogDescription>
           </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="p-4 border-2 border-dashed rounded-xl" style={{ borderColor: `hsl(var(--admin-border))`, background: `hsl(var(--admin-surface-hover))` }}>
-              <Input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv"
-                onChange={(e) => setImportFile(e.target.files?.[0] || null)}
-                className="border-0 bg-transparent"
+          <div className="space-y-4 py-4">
+            <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-50 transition-colors"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="w-10 h-10 text-slate-300 mb-3" />
+              <p className="text-sm font-medium text-slate-600">
+                {importFile ? importFile.name : "Clique para selecionar o arquivo"}
+              </p>
+              <p className="text-xs text-slate-400 mt-1">Suporta CSV padrão Shopify</p>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                className="hidden" 
+                accept=".csv" 
+                onChange={(e) => setImportFile(e.target.files?.[0] || null)} 
               />
-              {importFile && (
-                <p className="text-sm mt-2" style={{ color: `hsl(var(--admin-text-secondary))` }}>
-                  Arquivo: {importFile.name} ({(importFile.size / 1024).toFixed(1)} KB)
-                </p>
-              )}
             </div>
 
-            <div className="admin-status-danger rounded-xl p-3 text-sm">
-              <strong>⚠️ Atenção:</strong> Esta ação irá deletar todos os produtos existentes e substituí-los pelos produtos do CSV.
-            </div>
-
-            <Button onClick={handleImport} disabled={!importFile || importing} className="gap-2 rounded-xl w-full">
-              {importing ? <><Loader2 className="w-4 h-4 animate-spin" /> Importando...</> : <><Upload className="w-4 h-4" /> Importar Produtos</>}
-            </Button>
-
-            {importResults && (
-              <div className="space-y-3">
-                <div className="flex gap-4">
-                  <div className="flex items-center gap-2 text-success">
-                    <CheckCircle className="w-5 h-5" />
-                    <span className="font-bold">{importResults.imported}</span> <span className="text-sm">importados</span>
-                  </div>
-                  {importResults.errors > 0 && (
-                    <div className="flex items-center gap-2 text-destructive">
-                      <AlertCircle className="w-5 h-5" />
-                      <span className="font-bold">{importResults.errors}</span> <span className="text-sm">erros</span>
-                    </div>
-                  )}
-                </div>
-                <div className="max-h-48 overflow-y-auto space-y-1">
-                  {importResults.details.map((r, i) => (
-                    <div key={i} className={`flex items-center gap-2 text-sm py-1 px-2 rounded ${r.status === "ok" ? "" : "text-destructive bg-destructive/10"}`}>
-                      {r.status === "ok" ? <CheckCircle className="w-3 h-3 text-success shrink-0" /> : <AlertCircle className="w-3 h-3 shrink-0" />}
-                      <span>{r.name}</span>
-                      {r.error && <span className="text-xs ml-auto">{r.error}</span>}
-                    </div>
-                  ))}
-                </div>
+            {importing && (
+              <div className="flex items-center justify-center gap-2 text-sm text-emerald-600">
+                <Loader2 className="w-4 h-4 animate-spin" /> Processando importação...
               </div>
             )}
+
+            {importResults && (
+              <div className="bg-slate-50 rounded-xl p-4 text-sm space-y-2">
+                <div className="flex items-center gap-2 font-medium text-slate-700">
+                  <CheckCircle className="w-4 h-4 text-emerald-500" />
+                  Resultado da Importação
+                </div>
+                <p className="text-slate-500">
+                  <span className="font-bold text-emerald-600">{importResults.imported}</span> importados com sucesso.
+                </p>
+                {importResults.errors > 0 && (
+                  <p className="text-slate-500">
+                    <span className="font-bold text-red-500">{importResults.errors}</span> erros encontrados.
+                  </p>
+                )}
+                {importResults.details.length > 0 && (
+                  <div className="mt-2 max-h-32 overflow-y-auto text-xs space-y-1 border-t border-slate-200 pt-2">
+                    {importResults.details.map((d, i) => (
+                      <div key={i} className={`flex justify-between ${d.status === 'error' ? 'text-red-500' : 'text-emerald-600'}`}>
+                        <span className="truncate max-w-[200px]">{d.name}</span>
+                        <span>{d.status === 'error' ? 'Erro' : 'OK'}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setImportOpen(false)} className="rounded-xl border-slate-200">Cancelar</Button>
+              <Button onClick={handleImport} disabled={!importFile || importing} className="admin-btn-primary">
+                Importar Agora
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
