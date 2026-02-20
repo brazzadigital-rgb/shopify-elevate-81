@@ -17,6 +17,7 @@ import {
   Copy, Check, Printer, Save, ShoppingCart, Link2
 } from "lucide-react";
 import { formatBRL } from "@/lib/exportCsv";
+import { getMetalColor } from "@/lib/metalColors";
 
 const ORDER_STATUSES = [
   { value: "pending", label: "Pendente" },
@@ -311,12 +312,22 @@ export default function AdminOrderDetail() {
                 <p className="font-medium truncate">{item.product_name}</p>
                 {item.variants_detail_json && Array.isArray(item.variants_detail_json) ? (
                   <div className="space-y-0.5 mt-1">
-                    {(item.variants_detail_json as any[]).map((vd: any, idx: number) => (
-                      <p key={idx} className="text-xs text-muted-foreground">
-                        {vd.group}: <span className="text-foreground">{vd.name}</span>
-                        {vd.price != null && <span className="ml-1 text-accent">{formatBRL(Number(vd.price))}</span>}
-                      </p>
-                    ))}
+                     {(item.variants_detail_json as any[]).map((vd: any, idx: number) => {
+                      const metalColor = getMetalColor(vd.name);
+                      return (
+                        <p key={idx} className="text-xs text-muted-foreground flex items-center gap-1.5">
+                          {vd.group}:
+                          {metalColor && (
+                            <span
+                              className="inline-block w-3 h-3 rounded-full border border-border shrink-0"
+                              style={{ backgroundColor: metalColor }}
+                            />
+                          )}
+                          <span className="text-foreground">{vd.name}</span>
+                          {vd.price != null && <span className="ml-1 text-accent">{formatBRL(Number(vd.price))}</span>}
+                        </p>
+                      );
+                    })}
                   </div>
                 ) : (
                   item.variant_name && <p className="text-xs text-muted-foreground">{item.variant_name}</p>

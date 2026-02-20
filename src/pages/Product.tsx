@@ -14,6 +14,7 @@ import {
   Loader2, Truck, ShieldCheck, CreditCard, Package,
 } from "lucide-react";
 import paymentFlagsImg from "@/assets/pagamento-pix.webp";
+import { getMetalColor } from "@/lib/metalColors";
 
 /* ── Types ────────────────────────────────────── */
 interface ProductData {
@@ -574,21 +575,30 @@ export default function ProductPage() {
                       {selectedAttributes[g] && <span className="ml-1.5 text-foreground normal-case tracking-normal">— {selectedAttributes[g]}</span>}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {group.variants.map((v) => (
-                        <motion.button
-                          key={v.id}
-                          onClick={() => setSelectedAttributes(prev => ({ ...prev, [g]: v.name }))}
-                          whileHover={{ scale: 1.04 }}
-                          whileTap={{ scale: 0.96 }}
-                          className={`px-4 py-2 rounded-full font-sans text-sm border-2 transition-all duration-200 ${
-                            selectedAttributes[g] === v.name
-                              ? "border-accent bg-accent/10 text-accent font-semibold shadow-[0_0_0_1px_hsl(var(--accent)/0.2)]"
-                              : "border-border hover:border-muted-foreground/30"
-                          }`}
-                        >
-                          {v.name}
-                        </motion.button>
-                      ))}
+                      {group.variants.map((v) => {
+                        const metalColor = getMetalColor(v.name);
+                        return (
+                          <motion.button
+                            key={v.id}
+                            onClick={() => setSelectedAttributes(prev => ({ ...prev, [g]: v.name }))}
+                            whileHover={{ scale: 1.04 }}
+                            whileTap={{ scale: 0.96 }}
+                            className={`px-4 py-2 rounded-full font-sans text-sm border-2 transition-all duration-200 flex items-center gap-2 ${
+                              selectedAttributes[g] === v.name
+                                ? "border-accent bg-accent/10 text-accent font-semibold shadow-[0_0_0_1px_hsl(var(--accent)/0.2)]"
+                                : "border-border hover:border-muted-foreground/30"
+                            }`}
+                          >
+                            {metalColor && (
+                              <span
+                                className="inline-block w-3.5 h-3.5 rounded-full border border-border shrink-0"
+                                style={{ backgroundColor: metalColor }}
+                              />
+                            )}
+                            {v.name}
+                          </motion.button>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}

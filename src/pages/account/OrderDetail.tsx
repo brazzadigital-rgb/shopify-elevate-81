@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Truck, MapPin, Copy, Check, Clock, CheckCircle2, Package, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { getMetalColor } from "@/lib/metalColors";
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   pending: { label: "Pendente", color: "bg-muted text-muted-foreground" },
@@ -198,12 +199,22 @@ export default function OrderDetail() {
                   <p className="font-sans text-sm font-medium">{item.product_name}</p>
                   {item.variants_detail_json && Array.isArray(item.variants_detail_json) ? (
                     <div className="space-y-0.5 mt-1">
-                      {(item.variants_detail_json as any[]).map((vd: any, idx: number) => (
-                        <p key={idx} className="font-sans text-xs text-muted-foreground">
-                          {vd.group}: <span className="text-foreground">{vd.name}</span>
-                          {vd.price != null && <span className="ml-1 text-accent">R$ {Number(vd.price).toFixed(2).replace('.', ',')}</span>}
-                        </p>
-                      ))}
+                      {(item.variants_detail_json as any[]).map((vd: any, idx: number) => {
+                        const metalColor = getMetalColor(vd.name);
+                        return (
+                          <p key={idx} className="font-sans text-xs text-muted-foreground flex items-center gap-1.5">
+                            {vd.group}:
+                            {metalColor && (
+                              <span
+                                className="inline-block w-3 h-3 rounded-full border border-border shrink-0"
+                                style={{ backgroundColor: metalColor }}
+                              />
+                            )}
+                            <span className="text-foreground">{vd.name}</span>
+                            {vd.price != null && <span className="ml-1 text-accent">R$ {Number(vd.price).toFixed(2).replace('.', ',')}</span>}
+                          </p>
+                        );
+                      })}
                     </div>
                   ) : (
                     item.variant_name && <p className="font-sans text-xs text-muted-foreground">{item.variant_name}</p>
