@@ -2,17 +2,16 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Package, Filter, Upload, Download, Loader2, CheckCircle, AlertCircle, MoreVertical, Search } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { formatBRL } from "@/lib/exportCsv";
+import { motion } from "framer-motion";
 
 interface Supplier { id: string; trade_name: string; }
 
@@ -78,9 +77,7 @@ export default function Products() {
     setImportResults(null);
     try {
       const csvText = await importFile.text();
-      const { data, error } = await supabase.functions.invoke("import-products", {
-        body: { csv: csvText },
-      });
+      const { data, error } = await supabase.functions.invoke("import-products", { body: { csv: csvText } });
       if (error) throw error;
       setImportResults({ imported: data.imported, errors: data.errors, details: data.details || [] });
       toast({ title: "Importação concluída!", description: `${data.imported} produtos importados, ${data.errors} erros.` });
@@ -159,160 +156,201 @@ export default function Products() {
   });
 
   return (
-    <div className="space-y-4 md:space-y-6 overflow-x-hidden">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-display font-bold">Produtos</h1>
-          <p className="text-muted-foreground font-sans text-sm mt-1">Gerencie o catálogo da loja</p>
+          <h1 className="text-2xl font-bold tracking-tight">Produtos</h1>
+          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>
+            {filteredProducts.length} produto(s) no catálogo
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2 rounded-xl h-11 font-sans">
+              <button className="admin-card flex items-center gap-2 px-3 py-2.5 text-sm font-medium cursor-pointer hover:shadow-md transition-shadow">
                 <MoreVertical className="w-4 h-4" /> Ações
-              </Button>
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => setImportOpen(true)} className="gap-2 font-sans cursor-pointer">
+              <DropdownMenuItem onClick={() => setImportOpen(true)} className="gap-2 cursor-pointer">
                 <Upload className="w-4 h-4" /> Importar CSV
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExport} className="gap-2 font-sans cursor-pointer">
+              <DropdownMenuItem onClick={handleExport} className="gap-2 cursor-pointer">
                 <Download className="w-4 h-4" /> Exportar CSV
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={() => navigate("/admin/produtos/novo")} className="gap-2 rounded-xl shine h-11 font-sans">
+          <button
+            onClick={() => navigate("/admin/produtos/novo")}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
+          >
             <Plus className="w-4 h-4" /> Novo Produto
-          </Button>
+          </button>
         </div>
       </div>
 
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          placeholder="Buscar produto pelo nome..."
-          className="pl-9 h-11 rounded-2xl font-sans text-sm"
-        />
-      </div>
-
-      {suppliers.length > 0 && (
-        <div className="flex items-center gap-3">
-          <Filter className="w-4 h-4 text-muted-foreground" />
-          <Select value={filterSupplier} onValueChange={setFilterSupplier}>
-            <SelectTrigger className="h-9 w-48 rounded-lg text-sm font-sans">
-              <SelectValue placeholder="Filtrar por fornecedor" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all" className="font-sans text-sm">Todos os fornecedores</SelectItem>
-              <SelectItem value="none" className="font-sans text-sm">Sem fornecedor</SelectItem>
-              {suppliers.map((s) => (
-                <SelectItem key={s.id} value={s.id} className="font-sans text-sm">{s.trade_name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
-      <Card className="shadow-premium border-0 overflow-hidden">
-        <CardContent className="p-0 overflow-x-auto">
-          {loading ? (
-            <div className="p-6 space-y-4">
-              {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
-            </div>
-          ) : filteredProducts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-              <Package className="w-12 h-12 mb-4 opacity-40" />
-              <p className="font-sans text-lg">Nenhum produto encontrado</p>
-              <p className="font-sans text-sm mt-1">Clique em "Novo Produto" para começar</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="font-sans w-16">Foto</TableHead>
-                  <TableHead className="font-sans">Nome</TableHead>
-                  <TableHead className="font-sans">Fornecedor</TableHead>
-                  <TableHead className="font-sans">Preço</TableHead>
-                  <TableHead className="font-sans">Estoque</TableHead>
-                  <TableHead className="font-sans">Status</TableHead>
-                  <TableHead className="font-sans text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredProducts.map((product) => (
-                  <TableRow key={product.id} className="hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => navigate(`/admin/produtos/${product.id}/editar`)}>
-                    <TableCell>
-                      {productThumbnails[product.id] ? (
-                        <img src={productThumbnails[product.id]} alt={product.name} className="w-10 h-10 rounded-lg object-cover border border-border" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                          <Package className="w-4 h-4 text-muted-foreground" />
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-sans">
-                        <p className="font-medium">{product.name}</p>
-                        <p className="text-xs text-muted-foreground">{product.sku || "—"}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-sans text-sm">
-                      {product.supplier_id ? (
-                        <Badge variant="outline" className="text-xs font-sans">{supplierMap[product.supplier_id] || "—"}</Badge>
-                      ) : (
-                        <span className="text-muted-foreground text-xs">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="font-sans">
-                      <p className="font-semibold">{formatBRL(Number(product.price))}</p>
-                      {product.compare_at_price && (
-                        <p className="text-xs text-muted-foreground line-through">{formatBRL(Number(product.compare_at_price))}</p>
-                      )}
-                    </TableCell>
-                    <TableCell className="font-sans">{product.stock}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-1.5 flex-wrap">
-                        <Badge variant={product.is_active ? "default" : "secondary"} className="text-xs font-sans">
-                          {product.is_active ? "Ativo" : "Inativo"}
-                        </Badge>
-                        {product.is_featured && <Badge variant="outline" className="text-xs font-sans border-accent text-accent">Destaque</Badge>}
-                        {product.is_new && <Badge variant="outline" className="text-xs font-sans border-green-500 text-green-600">Novo</Badge>}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => navigate(`/admin/produtos/${product.id}/editar`)}>
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive" onClick={() => handleDelete(product.id)}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+      {/* Filters Bar */}
+      <div className="admin-card p-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: `hsl(var(--admin-text-secondary))` }} />
+            <Input
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Buscar produto..."
+              className="pl-9 h-10 rounded-xl border-0 bg-muted/30 focus:bg-muted/50 text-sm"
+            />
+          </div>
+          {suppliers.length > 0 && (
+            <Select value={filterSupplier} onValueChange={setFilterSupplier}>
+              <SelectTrigger className="h-10 w-full sm:w-48 rounded-xl border-0 bg-muted/30 text-sm">
+                <Filter className="w-3.5 h-3.5 mr-2" style={{ color: `hsl(var(--admin-text-secondary))` }} />
+                <SelectValue placeholder="Fornecedor" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="none">Sem fornecedor</SelectItem>
+                {suppliers.map((s) => <SelectItem key={s.id} value={s.id}>{s.trade_name}</SelectItem>)}
+              </SelectContent>
+            </Select>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      {/* Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="admin-card overflow-hidden"
+      >
+        {loading ? (
+          <div className="p-6 space-y-3">
+            {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Package className="w-12 h-12 mb-4" style={{ color: `hsl(var(--admin-text-secondary) / 0.3)` }} />
+            <p className="text-base font-medium" style={{ color: `hsl(var(--admin-text-secondary))` }}>Nenhum produto encontrado</p>
+            <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary) / 0.6)` }}>Clique em "Novo Produto" para começar</p>
+          </div>
+        ) : (
+          <>
+            {/* Desktop */}
+            <div className="hidden md:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent" style={{ borderBottom: `1px solid hsl(var(--admin-border))` }}>
+                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold w-14" style={{ color: `hsl(var(--admin-text-secondary))` }}>Foto</TableHead>
+                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: `hsl(var(--admin-text-secondary))` }}>Nome</TableHead>
+                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: `hsl(var(--admin-text-secondary))` }}>Preço</TableHead>
+                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-right" style={{ color: `hsl(var(--admin-text-secondary))` }}>Estoque</TableHead>
+                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: `hsl(var(--admin-text-secondary))` }}>Status</TableHead>
+                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-right" style={{ color: `hsl(var(--admin-text-secondary))` }}>Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredProducts.map((product, i) => (
+                    <TableRow
+                      key={product.id}
+                      className="cursor-pointer transition-colors"
+                      style={{ borderBottom: `1px solid hsl(var(--admin-border-subtle))` }}
+                      onClick={() => navigate(`/admin/produtos/${product.id}/editar`)}
+                    >
+                      <TableCell className="py-3">
+                        {productThumbnails[product.id] ? (
+                          <img src={productThumbnails[product.id]} alt={product.name} className="w-10 h-10 rounded-lg object-cover" style={{ border: `1px solid hsl(var(--admin-border))` }} />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-muted/40 flex items-center justify-center">
+                            <Package className="w-4 h-4 text-muted-foreground/40" />
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <p className="text-sm font-medium">{product.name}</p>
+                        <p className="text-[11px]" style={{ color: `hsl(var(--admin-text-secondary))` }}>{product.sku || "—"}</p>
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <p className="text-sm font-semibold">{formatBRL(Number(product.price))}</p>
+                        {product.compare_at_price && (
+                          <p className="text-[11px] line-through" style={{ color: `hsl(var(--admin-text-secondary))` }}>{formatBRL(Number(product.compare_at_price))}</p>
+                        )}
+                      </TableCell>
+                      <TableCell className="py-3 text-right">
+                        <span className={`text-sm font-medium ${product.stock < 5 ? "text-destructive" : ""}`}>{product.stock}</span>
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <div className="flex gap-1.5 flex-wrap">
+                          <span className={`admin-status-pill text-[10px] ${product.is_active ? "admin-status-success" : "admin-status-danger"}`}>
+                            {product.is_active ? "Ativo" : "Inativo"}
+                          </span>
+                          {product.is_featured && <span className="admin-status-pill admin-status-info text-[10px]">Destaque</span>}
+                          {product.is_new && <span className="admin-status-pill admin-status-success text-[10px]">Novo</span>}
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-3 text-right">
+                        <div className="flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => navigate(`/admin/produtos/${product.id}/editar`)}>
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive" onClick={() => handleDelete(product.id)}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile Cards */}
+            <div className="md:hidden divide-y" style={{ borderColor: `hsl(var(--admin-border-subtle))` }}>
+              {filteredProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="p-4 flex items-center gap-3 cursor-pointer hover:bg-muted/20 transition-colors"
+                  onClick={() => navigate(`/admin/produtos/${product.id}/editar`)}
+                >
+                  {productThumbnails[product.id] ? (
+                    <img src={productThumbnails[product.id]} alt={product.name} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" style={{ border: `1px solid hsl(var(--admin-border))` }} />
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl bg-muted/40 flex items-center justify-center flex-shrink-0">
+                      <Package className="w-5 h-5 text-muted-foreground/40" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{product.name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-sm font-semibold">{formatBRL(Number(product.price))}</span>
+                      <span className="text-[11px]" style={{ color: `hsl(var(--admin-text-secondary))` }}>· {product.stock} un.</span>
+                    </div>
+                  </div>
+                  <span className={`admin-status-pill text-[10px] flex-shrink-0 ${product.is_active ? "admin-status-success" : "admin-status-danger"}`}>
+                    {product.is_active ? "Ativo" : "Inativo"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </motion.div>
 
       {/* Import Dialog */}
       <Dialog open={importOpen} onOpenChange={(open) => { setImportOpen(open); if (!open) { setImportFile(null); setImportResults(null); } }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="font-display text-lg flex items-center gap-2">
-              <Upload className="w-5 h-5 text-accent" /> Importar Produtos via CSV
+            <DialogTitle className="text-lg flex items-center gap-2">
+              <Upload className="w-5 h-5 text-primary" /> Importar Produtos via CSV
             </DialogTitle>
-            <DialogDescription className="font-sans text-sm">
+            <DialogDescription className="text-sm">
               Importe produtos a partir de um CSV exportado do Shopify
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="p-4 border-2 border-dashed border-border rounded-xl bg-muted/30">
+            <div className="p-4 border-2 border-dashed rounded-xl" style={{ borderColor: `hsl(var(--admin-border))`, background: `hsl(var(--admin-surface-hover))` }}>
               <Input
                 ref={fileInputRef}
                 type="file"
@@ -321,55 +359,38 @@ export default function Products() {
                 className="border-0 bg-transparent"
               />
               {importFile && (
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-sm mt-2" style={{ color: `hsl(var(--admin-text-secondary))` }}>
                   Arquivo: {importFile.name} ({(importFile.size / 1024).toFixed(1)} KB)
                 </p>
               )}
             </div>
 
-            <div className="bg-destructive/10 text-destructive rounded-xl p-3 text-sm font-sans">
+            <div className="admin-status-danger rounded-xl p-3 text-sm">
               <strong>⚠️ Atenção:</strong> Esta ação irá deletar todos os produtos existentes e substituí-los pelos produtos do CSV.
             </div>
 
-            <Button
-              onClick={handleImport}
-              disabled={!importFile || importing}
-              className="gap-2 rounded-xl shine w-full"
-            >
-              {importing ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Importando...</>
-              ) : (
-                <><Upload className="w-4 h-4" /> Importar Produtos</>
-              )}
+            <Button onClick={handleImport} disabled={!importFile || importing} className="gap-2 rounded-xl w-full">
+              {importing ? <><Loader2 className="w-4 h-4 animate-spin" /> Importando...</> : <><Upload className="w-4 h-4" /> Importar Produtos</>}
             </Button>
 
             {importResults && (
               <div className="space-y-3">
                 <div className="flex gap-4">
-                  <div className="flex items-center gap-2 text-emerald-600">
+                  <div className="flex items-center gap-2 text-success">
                     <CheckCircle className="w-5 h-5" />
-                    <span className="font-bold font-sans">{importResults.imported}</span> <span className="font-sans text-sm">importados</span>
+                    <span className="font-bold">{importResults.imported}</span> <span className="text-sm">importados</span>
                   </div>
                   {importResults.errors > 0 && (
                     <div className="flex items-center gap-2 text-destructive">
                       <AlertCircle className="w-5 h-5" />
-                      <span className="font-bold font-sans">{importResults.errors}</span> <span className="font-sans text-sm">erros</span>
+                      <span className="font-bold">{importResults.errors}</span> <span className="text-sm">erros</span>
                     </div>
                   )}
                 </div>
                 <div className="max-h-48 overflow-y-auto space-y-1">
                   {importResults.details.map((r, i) => (
-                    <div
-                      key={i}
-                      className={`flex items-center gap-2 text-sm py-1 px-2 rounded font-sans ${
-                        r.status === "ok" ? "text-foreground" : "text-destructive bg-destructive/10"
-                      }`}
-                    >
-                      {r.status === "ok" ? (
-                        <CheckCircle className="w-3 h-3 text-emerald-600 shrink-0" />
-                      ) : (
-                        <AlertCircle className="w-3 h-3 shrink-0" />
-                      )}
+                    <div key={i} className={`flex items-center gap-2 text-sm py-1 px-2 rounded ${r.status === "ok" ? "" : "text-destructive bg-destructive/10"}`}>
+                      {r.status === "ok" ? <CheckCircle className="w-3 h-3 text-success shrink-0" /> : <AlertCircle className="w-3 h-3 shrink-0" />}
                       <span>{r.name}</span>
                       {r.error && <span className="text-xs ml-auto">{r.error}</span>}
                     </div>
