@@ -7,8 +7,10 @@ import { KpiCard } from "@/components/admin/financial/KpiCard";
 import { formatBRL, formatPercent } from "@/lib/exportCsv";
 import {
   DollarSign, ShoppingCart, TrendingUp, Package, Tag, Truck, ReceiptText,
-  ArrowDownCircle, Percent, CreditCard, BarChart3
+  ArrowDownCircle, Percent, CreditCard, BarChart3, Eye, EyeOff
 } from "lucide-react";
+import { useHideValues, BLUR_CLASS } from "@/hooks/useHideValues";
+import { Button } from "@/components/ui/button";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
   BarChart, Bar, PieChart, Pie, Cell
@@ -21,6 +23,7 @@ interface DailyStat { date: string; revenue: number; orders: number; }
 const PIE_COLORS = ["hsl(var(--accent))", "hsl(var(--primary))", "hsl(var(--muted-foreground))", "hsl(var(--admin-success))"];
 
 export default function FinancialDashboard() {
+  const { hidden, toggle } = useHideValues();
   const filters = useFinancialFilters("30d");
   const [loading, setLoading] = useState(true);
   const [kpis, setKpis] = useState({
@@ -102,9 +105,9 @@ export default function FinancialDashboard() {
   const cards = [
     { title: "Receita Bruta", value: formatBRL(kpis.grossRevenue), icon: DollarSign, color: "text-emerald-600" },
     { title: "Receita Líquida", value: formatBRL(kpis.netRevenue), icon: TrendingUp, color: "text-accent" },
-    { title: "Nº Pedidos", value: kpis.orderCount, icon: ShoppingCart, color: "text-primary" },
+    { title: "Nº Pedidos", value: kpis.orderCount, icon: ShoppingCart, color: "text-primary", isMoney: false },
     { title: "Ticket Médio", value: formatBRL(kpis.avgTicket), icon: ReceiptText, color: "text-accent" },
-    { title: "Itens Vendidos", value: kpis.itemsSold, icon: Package, color: "text-primary" },
+    { title: "Itens Vendidos", value: kpis.itemsSold, icon: Package, color: "text-primary", isMoney: false },
     { title: "Descontos", value: formatBRL(kpis.discountsGiven), icon: Tag, color: "text-amber-600" },
     { title: "Frete Cobrado", value: formatBRL(kpis.shippingCharged), icon: Truck, color: "text-primary" },
     { title: "COGS", value: formatBRL(kpis.cogs), icon: BarChart3, color: "text-muted-foreground" },
@@ -118,9 +121,14 @@ export default function FinancialDashboard() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-display font-bold">Visão Geral Financeira</h1>
-          <p className="text-muted-foreground text-sm">Indicadores e métricas do período</p>
+        <div className="flex items-center gap-2">
+          <div>
+            <h1 className="text-2xl font-display font-bold">Visão Geral Financeira</h1>
+            <p className="text-muted-foreground text-sm">Indicadores e métricas do período</p>
+          </div>
+          <Button variant="ghost" size="icon" onClick={toggle} className="shrink-0">
+            {hidden ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+          </Button>
         </div>
         <PeriodFilter {...filters} />
       </div>

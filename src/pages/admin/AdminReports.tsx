@@ -1,12 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp, Users, Truck, DollarSign, ShoppingCart, Target } from "lucide-react";
+import { TrendingUp, Users, Truck, DollarSign, ShoppingCart, Target, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
+import { useHideValues, BLUR_CLASS } from "@/hooks/useHideValues";
+import { Button } from "@/components/ui/button";
 import { KpiCard } from "@/components/admin/financial/KpiCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminReports() {
+  const { hidden, toggle } = useHideValues();
   const { data: sellers = [], isLoading: ls } = useQuery({
     queryKey: ["report-sellers"],
     queryFn: async () => {
@@ -73,17 +76,22 @@ export default function AdminReports() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Relatórios de Performance</h1>
-        <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>Visão geral da equipe e fornecedores</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Relatórios de Performance</h1>
+          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>Visão geral da equipe e fornecedores</p>
+        </div>
+        <Button variant="ghost" size="icon" onClick={toggle} className="shrink-0">
+          {hidden ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+        </Button>
       </div>
 
       {/* Global KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard title="Vendedores Ativos" value={sellers.length} icon={Users} color="text-accent" index={0} />
-        <KpiCard title="Fornecedores Ativos" value={suppliers.length} icon={Truck} color="text-primary" index={1} />
+        <KpiCard title="Vendedores Ativos" value={sellers.length} icon={Users} color="text-accent" index={0} isMoney={false} />
+        <KpiCard title="Fornecedores Ativos" value={suppliers.length} icon={Truck} color="text-primary" index={1} isMoney={false} />
         <KpiCard title="Comissões Pagas" value={formatCurrency(totalCommPaid)} icon={DollarSign} color="text-emerald-600" index={2} />
-        <KpiCard title="Total Pedidos" value={orders.length} icon={ShoppingCart} color="text-amber-600" index={3} />
+        <KpiCard title="Total Pedidos" value={orders.length} icon={ShoppingCart} color="text-amber-600" index={3} isMoney={false} />
       </div>
 
       {/* Seller performance */}
@@ -119,10 +127,10 @@ export default function AdminReports() {
                       ) : sellerStats.map(s => (
                         <tr key={s.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                           <td className="px-4 py-3 font-medium">{s.name}</td>
-                          <td className="px-4 py-3 text-right">{formatCurrency(s.totalSold)}</td>
+                          <td className={`px-4 py-3 text-right ${hidden ? BLUR_CLASS : ""}`}>{formatCurrency(s.totalSold)}</td>
                           <td className="px-4 py-3 text-right hidden md:table-cell">{s.orderCount}</td>
-                          <td className="px-4 py-3 text-right hidden md:table-cell">{formatCurrency(s.ticket)}</td>
-                          <td className="px-4 py-3 text-right font-semibold text-accent">{formatCurrency(s.totalComm)}</td>
+                          <td className={`px-4 py-3 text-right hidden md:table-cell ${hidden ? BLUR_CLASS : ""}`}>{formatCurrency(s.ticket)}</td>
+                          <td className={`px-4 py-3 text-right font-semibold text-accent ${hidden ? BLUR_CLASS : ""}`}>{formatCurrency(s.totalComm)}</td>
                         </tr>
                       ))}
                     </tbody>

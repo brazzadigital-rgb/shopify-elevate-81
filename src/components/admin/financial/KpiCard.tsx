@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
+import { useHideValues, BLUR_CLASS } from "@/hooks/useHideValues";
 
 interface KpiCardProps {
   title: string;
@@ -9,9 +10,11 @@ interface KpiCardProps {
   color?: string;
   subtitle?: string;
   index?: number;
+  isMoney?: boolean;
 }
 
-export function KpiCard({ title, value, icon: Icon, color = "text-accent", subtitle, index = 0 }: KpiCardProps) {
+export function KpiCard({ title, value, icon: Icon, color = "text-accent", subtitle, index = 0, isMoney = true }: KpiCardProps) {
+  const { hidden } = useHideValues();
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -23,7 +26,7 @@ export function KpiCard({ title, value, icon: Icon, color = "text-accent", subti
           <div className="flex items-center justify-between">
             <div className="min-w-0">
               <p className="text-xs font-sans text-muted-foreground uppercase tracking-wide truncate">{title}</p>
-              <p className="text-xl font-bold font-sans mt-1 truncate">{value}</p>
+              <p className={`text-xl font-bold font-sans mt-1 truncate ${isMoney && hidden ? BLUR_CLASS : ""}`}>{value}</p>
               {subtitle && <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>}
             </div>
             <div className={`w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0 ${color}`}>
