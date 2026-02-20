@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, CreditCard, FileText, Receipt, Shield, Settings, LogOut,
-  Activity, Lock
+  Activity, Lock, Users
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useOwnerAuth } from "@/hooks/useOwnerAuth";
@@ -15,6 +15,7 @@ const financialMenu = [
   { title: "Assinatura", url: "/owner/subscription", icon: CreditCard },
   { title: "Planos", url: "/owner/plans", icon: FileText },
   { title: "Faturas", url: "/owner/invoices", icon: Receipt },
+  { title: "Administradores", url: "/owner/admins", icon: Users },
 ];
 
 const systemMenu = [

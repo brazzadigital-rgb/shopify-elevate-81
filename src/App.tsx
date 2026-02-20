@@ -82,6 +82,7 @@ import OwnerPlans from "./pages/owner/OwnerPlans";
 import OwnerInvoices from "./pages/owner/OwnerInvoices";
 import OwnerAudit from "./pages/owner/OwnerAudit";
 import OwnerSettings from "./pages/owner/OwnerSettings";
+import OwnerAdmins from "./pages/owner/OwnerAdmins";
 
 const queryClient = new QueryClient();
 
@@ -171,6 +172,7 @@ function AppContent() {
             <Route path="subscription" element={<OwnerSubscription />} />
             <Route path="plans" element={<OwnerPlans />} />
             <Route path="invoices" element={<OwnerInvoices />} />
+            <Route path="admins" element={<OwnerAdmins />} />
             <Route path="audit" element={<OwnerAudit />} />
             <Route path="settings" element={<OwnerSettings />} />
           </Route>
