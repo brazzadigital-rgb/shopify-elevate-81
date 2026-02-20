@@ -362,8 +362,8 @@ export default function CheckoutPage() {
         // Order still created successfully
       }
 
-      await clearCart();
       setStep("confirmation");
+      await clearCart();
       toast({ title: "Pedido realizado com sucesso! 🎉" });
     } catch (err) {
       console.error(err);
