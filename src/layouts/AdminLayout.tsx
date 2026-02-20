@@ -155,7 +155,7 @@ export default function AdminLayout() {
                     transition={{ duration: 0.2 }}
                     className="max-w-[1600px] mx-auto"
                   >
-                    {showSuspendedContent ? <SystemSuspendedFullPage /> : <Outlet />}
+                    {showSuspendedContent ? <Navigate to="/auth?redirect=/admin/planos" replace /> : <Outlet />}
                   </motion.div>
                 </AnimatePresence>
               </main>
