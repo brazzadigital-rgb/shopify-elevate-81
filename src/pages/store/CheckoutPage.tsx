@@ -373,64 +373,141 @@ export default function CheckoutPage() {
 
   if (step === "confirmation") {
     return (
-      <div className="container max-w-2xl py-16 text-center">
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-6">
-          <Check className="w-10 h-10 text-success" />
+      <div className="container max-w-2xl py-16 text-center relative overflow-hidden">
+        {/* Confetti particles */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {Array.from({ length: 24 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 rounded-full"
+              style={{
+                left: `${10 + Math.random() * 80}%`,
+                top: `-5%`,
+                backgroundColor: [
+                  'hsl(var(--accent))',
+                  'hsl(var(--primary))',
+                  'hsl(var(--success))',
+                  '#FFD700',
+                  '#FF6B6B',
+                  '#4ECDC4',
+                ][i % 6],
+              }}
+              initial={{ y: 0, opacity: 1, scale: 0 }}
+              animate={{
+                y: [0, 400 + Math.random() * 300],
+                x: [0, (Math.random() - 0.5) * 200],
+                opacity: [0, 1, 1, 0],
+                scale: [0, 1, 1, 0.5],
+                rotate: [0, Math.random() * 720],
+              }}
+              transition={{
+                duration: 2 + Math.random() * 1.5,
+                delay: 0.2 + Math.random() * 0.8,
+                ease: "easeOut",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Success ring animation */}
+        <div className="relative w-28 h-28 mx-auto mb-8">
+          <motion.div
+            className="absolute inset-0 rounded-full border-4 border-success/30"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: [0, 1.4, 1], opacity: [0, 0.5, 0] }}
+            transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+          />
+          <motion.div
+            className="absolute inset-0 rounded-full border-4 border-success/20"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: [0, 1.8, 1.2], opacity: [0, 0.3, 0] }}
+            transition={{ duration: 1.2, delay: 0.5, ease: "easeOut" }}
+          />
+          <motion.div
+            className="absolute inset-0 rounded-full bg-success/10 flex items-center justify-center"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 12, delay: 0.1 }}
+          >
+            <motion.div
+              initial={{ scale: 0, rotate: -45 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 250, damping: 15, delay: 0.4 }}
+            >
+              <Check className="w-12 h-12 text-success" strokeWidth={3} />
+            </motion.div>
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+        >
+          <h1 className="font-display text-3xl font-bold mb-2">Pedido confirmado! 🎉</h1>
+          <p className="text-muted-foreground font-sans mb-8">Você receberá atualizações por e-mail sobre o status do seu pedido.</p>
         </motion.div>
-        <h1 className="font-display text-3xl font-bold mb-2">Pedido confirmado!</h1>
-        <p className="text-muted-foreground font-sans mb-8">Você receberá atualizações por e-mail sobre o status do seu pedido.</p>
 
         {/* Payment details */}
         {paymentData && paymentData.method === "pix" && paymentData.qr_code && (
-          <Card className="border-0 shadow-premium mb-8 text-left">
-            <CardContent className="p-6 space-y-4">
-              <h3 className="font-display text-lg font-bold flex items-center gap-2">
-                💳 Pague via PIX
-              </h3>
-              {paymentData.qr_code_image_url && (
-                <div className="flex justify-center">
-                  <img src={paymentData.qr_code_image_url} alt="QR Code PIX" className="w-48 h-48 rounded-xl" />
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
+            <Card className="border-0 shadow-premium mb-8 text-left">
+              <CardContent className="p-6 space-y-4">
+                <h3 className="font-display text-lg font-bold flex items-center gap-2">
+                  💳 Pague via PIX
+                </h3>
+                {paymentData.qr_code_image_url && (
+                  <div className="flex justify-center">
+                    <img src={paymentData.qr_code_image_url} alt="QR Code PIX" className="w-48 h-48 rounded-xl" />
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label className="font-sans text-sm text-muted-foreground">Código PIX (copia e cola)</Label>
+                  <div className="flex gap-2">
+                    <Input value={paymentData.qr_code} readOnly className="rounded-xl h-10 font-sans text-xs" />
+                    <Button variant="outline" size="sm" className="rounded-xl shrink-0" onClick={() => copyToClipboard(paymentData.qr_code)}>
+                      Copiar
+                    </Button>
+                  </div>
                 </div>
-              )}
-              <div className="space-y-2">
-                <Label className="font-sans text-sm text-muted-foreground">Código PIX (copia e cola)</Label>
-                <div className="flex gap-2">
-                  <Input value={paymentData.qr_code} readOnly className="rounded-xl h-10 font-sans text-xs" />
-                  <Button variant="outline" size="sm" className="rounded-xl shrink-0" onClick={() => copyToClipboard(paymentData.qr_code)}>
-                    Copiar
-                  </Button>
-                </div>
-              </div>
-              {paymentData.expires_at && (
-                <p className="font-sans text-xs text-muted-foreground">
-                  ⏰ Expira em: {new Date(paymentData.expires_at).toLocaleString("pt-BR")}
-                </p>
-              )}
-            </CardContent>
-          </Card>
+                {paymentData.expires_at && (
+                  <p className="font-sans text-xs text-muted-foreground">
+                    ⏰ Expira em: {new Date(paymentData.expires_at).toLocaleString("pt-BR")}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
         )}
 
         {paymentData && paymentData.method === "boleto" && paymentData.boleto_url && (
-          <Card className="border-0 shadow-premium mb-8 text-left">
-            <CardContent className="p-6 space-y-4">
-              <h3 className="font-display text-lg font-bold">📄 Boleto Bancário</h3>
-              <Button asChild className="rounded-xl shine font-sans w-full h-12">
-                <a href={paymentData.boleto_url} target="_blank" rel="noopener noreferrer">
-                  Abrir Boleto
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
+            <Card className="border-0 shadow-premium mb-8 text-left">
+              <CardContent className="p-6 space-y-4">
+                <h3 className="font-display text-lg font-bold">📄 Boleto Bancário</h3>
+                <Button asChild className="rounded-xl shine font-sans w-full h-12">
+                  <a href={paymentData.boleto_url} target="_blank" rel="noopener noreferrer">
+                    Abrir Boleto
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
         )}
 
-        <div className="flex gap-4 justify-center">
+        <motion.div
+          className="flex gap-4 justify-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+        >
           <Button asChild variant="outline" className="rounded-xl font-sans h-12">
             <a href="/conta/pedidos">Ver meus pedidos</a>
           </Button>
           <Button asChild className="rounded-xl font-sans h-12 shine">
             <a href="/">Continuar comprando</a>
           </Button>
-        </div>
+        </motion.div>
       </div>
     );
   }
