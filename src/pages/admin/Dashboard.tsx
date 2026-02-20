@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Package, ShoppingCart, Users, DollarSign, TrendingUp, AlertTriangle, Clock, ArrowUpRight, ArrowDownRight, Plus, Upload, Megaphone } from "lucide-react";
+import { Package, ShoppingCart, Users, DollarSign, TrendingUp, AlertTriangle, Clock, ArrowUpRight, Plus, Receipt, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { formatBRL } from "@/lib/exportCsv";
@@ -10,6 +10,7 @@ import {
   PieChart, Pie, Cell,
 } from "recharts";
 import { format, subDays, eachDayOfInterval } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface Stats {
   totalProducts: number;
@@ -23,52 +24,39 @@ interface Stats {
   ordersByStatus: { name: string; value: number }[];
 }
 
-const STATUS_COLORS = [
-  "hsl(var(--primary))",
-  "hsl(var(--admin-success))",
-  "hsl(var(--admin-warning))",
-  "hsl(var(--admin-danger))",
-  "hsl(var(--muted-foreground))",
+const STATUS_COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#94a3b8"];
+
+const periods = [
+  { key: "7d", label: "7 dias" },
+  { key: "30d", label: "30 dias" },
+  { key: "90d", label: "90 dias" },
 ];
 
-function KpiCard({ title, value, icon: Icon, trend, trendLabel, loading, delay }: {
-  title: string; value: string | number; icon: any; trend?: number; trendLabel?: string; loading: boolean; delay: number;
-}) {
-  const isPositive = (trend ?? 0) >= 0;
+const statusLabel: Record<string, string> = {
+  pending: "Pendente", processing: "Processando", completed: "Concluído",
+  shipped: "Enviado", cancelled: "Cancelado", delivered: "Entregue",
+};
+
+const statusPillClass: Record<string, string> = {
+  completed: "bg-emerald-50 text-emerald-700",
+  delivered: "bg-emerald-50 text-emerald-700",
+  pending: "bg-amber-50 text-amber-700",
+  processing: "bg-blue-50 text-blue-700",
+  shipped: "bg-blue-50 text-blue-700",
+  cancelled: "bg-red-50 text-red-700",
+};
+
+function ChartTooltipCustom({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: delay * 0.08, duration: 0.35 }}
-      className="admin-card p-5 flex flex-col gap-3"
-    >
-      {loading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-7 w-28" />
-          <Skeleton className="h-3 w-16" />
-        </div>
-      ) : (
-        <>
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-medium" style={{ color: `hsl(var(--admin-text-secondary))` }}>{title}</span>
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `hsl(var(--primary) / 0.08)` }}>
-              <Icon className="w-4 h-4 text-primary" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold tracking-tight">{value}</p>
-          {trend !== undefined && (
-            <div className="flex items-center gap-1.5">
-              <span className={`flex items-center gap-0.5 text-xs font-semibold ${isPositive ? "text-success" : "text-destructive"}`}>
-                {isPositive ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                {Math.abs(trend).toFixed(1)}%
-              </span>
-              {trendLabel && <span className="text-[11px]" style={{ color: `hsl(var(--admin-text-secondary))` }}>{trendLabel}</span>}
-            </div>
-          )}
-        </>
-      )}
-    </motion.div>
+    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-lg">
+      <p className="text-[11px] text-slate-400 mb-1">{label}</p>
+      {payload.map((p: any, i: number) => (
+        <p key={i} className="text-sm font-semibold text-slate-800">
+          {p.name}: {formatBRL(p.value)}
+        </p>
+      ))}
+    </div>
   );
 }
 
@@ -78,6 +66,7 @@ export default function Dashboard() {
     pendingOrders: 0, lowStockProducts: 0, recentOrders: [], dailyRevenue: [], ordersByStatus: [],
   });
   const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState("30d");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -98,7 +87,6 @@ export default function Dashboard() {
       const ordersData = orders.data || [];
       const totalRevenue = ordersData.reduce((s, o) => s + Number(o.total), 0);
 
-      // Daily revenue
       const days = eachDayOfInterval({ start: thirtyDaysAgo, end: now });
       const dailyRevenue = days.map(d => {
         const key = format(d, "yyyy-MM-dd");
@@ -106,7 +94,6 @@ export default function Dashboard() {
         return { date: format(d, "dd/MM"), revenue: dayOrders.reduce((s, o) => s + Number(o.total), 0) };
       });
 
-      // Orders by status
       const statusMap: Record<string, number> = {};
       ordersData.forEach(o => { statusMap[o.status] = (statusMap[o.status] || 0) + 1; });
       const ordersByStatus = Object.entries(statusMap).map(([name, value]) => ({ name, value }));
@@ -127,246 +114,287 @@ export default function Dashboard() {
     fetchStats();
   }, []);
 
+  const ticketMedio = stats.totalOrders > 0 ? stats.totalRevenue / stats.totalOrders : 0;
+
   const kpis = [
-    { title: "Receita (30d)", value: formatBRL(stats.totalRevenue), icon: DollarSign, trend: 8.5, trendLabel: "vs mês anterior" },
-    { title: "Pedidos", value: stats.totalOrders, icon: ShoppingCart, trend: 12.3, trendLabel: "vs mês anterior" },
-    { title: "Ticket Médio", value: formatBRL(stats.totalOrders > 0 ? stats.totalRevenue / stats.totalOrders : 0), icon: TrendingUp },
-    { title: "Produtos", value: stats.totalProducts, icon: Package },
-    { title: "Clientes", value: stats.totalCustomers, icon: Users },
-    { title: "Pendentes", value: stats.pendingOrders, icon: Clock },
+    { label: "Receita (30d)", value: formatBRL(stats.totalRevenue), icon: DollarSign, trend: "+8.5%", trendUp: true, sub: "vs mês anterior" },
+    { label: "Pedidos", value: String(stats.totalOrders), icon: ShoppingCart, trend: "+12.3%", trendUp: true, sub: "vs mês anterior" },
+    { label: "Ticket Médio", value: formatBRL(ticketMedio), icon: TrendingUp, sub: "últimos 30 dias" },
+    { label: "Produtos", value: String(stats.totalProducts), icon: Package, sub: `${stats.lowStockProducts} com estoque baixo` },
+    { label: "Clientes", value: String(stats.totalCustomers), icon: Users, sub: "cadastrados" },
+    { label: "Pendentes", value: String(stats.pendingOrders), icon: Clock, sub: stats.pendingOrders > 0 ? "Aguardando ação" : "Nenhum pendente" },
   ];
 
-  const statusLabel: Record<string, string> = {
-    pending: "Pendente", processing: "Processando", completed: "Concluído",
-    shipped: "Enviado", cancelled: "Cancelado", delivered: "Entregue",
-  };
+  const fadeUp = (i: number) => ({
+    initial: { opacity: 0, y: 12 },
+    animate: { opacity: 1, y: 0, transition: { delay: i * 0.05, duration: 0.35 } },
+  });
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>Visão geral da sua loja nos últimos 30 dias</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => navigate("/admin/produtos/novo")} className="admin-card flex items-center gap-2 px-4 py-2.5 text-sm font-medium hover:shadow-md transition-shadow" style={{ cursor: "pointer" }}>
-            <Plus className="w-4 h-4 text-primary" />
-            <span>Novo Produto</span>
-          </button>
-        </div>
-      </div>
-
-      {/* KPIs */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      {/* ═══ KPIs ═══ */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {kpis.map((kpi, i) => (
-          <KpiCard key={kpi.title} {...kpi} loading={loading} delay={i} />
+          <motion.div key={kpi.label} {...fadeUp(i)}>
+            <div className="group bg-white rounded-2xl border border-slate-100 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-slate-200 cursor-default h-full">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">{kpi.label}</span>
+                <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
+                  <kpi.icon className="w-4 h-4" />
+                </div>
+              </div>
+
+              {loading ? (
+                <Skeleton className="h-7 w-24 rounded-lg" />
+              ) : (
+                <p className="text-xl font-bold text-slate-800 tracking-tight">{kpi.value}</p>
+              )}
+
+              {kpi.trend && (
+                <div className="flex items-center gap-1 mt-2">
+                  <TrendingUp className="w-3 h-3 text-emerald-500" />
+                  <span className="text-xs font-semibold text-emerald-600">{kpi.trend}</span>
+                  <span className="text-[10px] text-slate-400 ml-0.5">{kpi.sub}</span>
+                </div>
+              )}
+              {!kpi.trend && kpi.sub && (
+                <p className="text-[11px] text-slate-400 mt-2">{kpi.sub}</p>
+              )}
+            </div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Charts Row */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Revenue Chart */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.4 }}
-          className="admin-card p-6 lg:col-span-2"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="font-semibold text-base">Receita Diária</h3>
-              <p className="text-xs mt-0.5" style={{ color: `hsl(var(--admin-text-secondary))` }}>Últimos 30 dias</p>
-            </div>
-          </div>
-          <div className="h-[260px]">
-            {loading ? (
-              <div className="h-full flex items-center justify-center"><Skeleton className="h-full w-full rounded-xl" /></div>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={stats.dailyRevenue}>
-                  <defs>
-                    <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--admin-border))" vertical={false} />
-                  <XAxis dataKey="date" fontSize={11} stroke="hsl(var(--admin-text-secondary))" tickLine={false} axisLine={false} />
-                  <YAxis fontSize={11} stroke="hsl(var(--admin-text-secondary))" tickLine={false} axisLine={false} tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(v: number) => formatBRL(v)} contentStyle={{ borderRadius: 12, border: "1px solid hsl(var(--admin-border))", boxShadow: "var(--admin-shadow-md)" }} />
-                  <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#revenueGradient)" name="Receita" />
-                </AreaChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Orders by Status */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.4 }}
-          className="admin-card p-6"
-        >
-          <h3 className="font-semibold text-base mb-4">Pedidos por Status</h3>
-          {loading ? (
-            <Skeleton className="h-[200px] w-full rounded-xl" />
-          ) : stats.ordersByStatus.length > 0 ? (
-            <div className="h-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={stats.ordersByStatus}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={4}
-                    strokeWidth={0}
-                  >
-                    {stats.ordersByStatus.map((_, i) => (
-                      <Cell key={i} fill={STATUS_COLORS[i % STATUS_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <div className="h-[200px] flex items-center justify-center">
-              <p className="text-sm" style={{ color: `hsl(var(--admin-text-secondary))` }}>Sem dados</p>
-            </div>
-          )}
-          {stats.ordersByStatus.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3">
-              {stats.ordersByStatus.map((s, i) => (
-                <span key={s.name} className="flex items-center gap-1.5 text-[11px]" style={{ color: `hsl(var(--admin-text-secondary))` }}>
-                  <span className="w-2 h-2 rounded-full" style={{ background: STATUS_COLORS[i % STATUS_COLORS.length] }} />
-                  {statusLabel[s.name] || s.name} ({s.value})
-                </span>
-              ))}
-            </div>
-          )}
-        </motion.div>
-      </div>
-
-      {/* Bottom Row */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Recent Orders */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.4 }}
-          className="admin-card p-6"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-base">Últimos Pedidos</h3>
-            <button onClick={() => navigate("/admin/pedidos")} className="text-xs font-medium text-primary hover:underline">Ver todos</button>
-          </div>
-          {loading ? (
-            <div className="space-y-3">{[...Array(4)].map((_, i) => <Skeleton key={i} className="h-12 w-full rounded-lg" />)}</div>
-          ) : stats.recentOrders.length > 0 ? (
-            <div className="space-y-2">
-              {stats.recentOrders.map((order) => (
-                <div
-                  key={order.id}
-                  onClick={() => navigate(`/admin/pedidos/${order.id}`)}
-                  className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/30 transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                      <ShoppingCart className="w-3.5 h-3.5 text-muted-foreground" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{order.customer_name || `#${order.order_number}`}</p>
-                      <p className="text-[11px]" style={{ color: `hsl(var(--admin-text-secondary))` }}>#{order.order_number}</p>
-                    </div>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-sm font-semibold">{formatBRL(Number(order.total))}</p>
-                    <span className={`admin-status-pill text-[10px] mt-1 ${
-                      order.status === "completed" || order.status === "delivered" ? "admin-status-success" :
-                      order.status === "pending" ? "admin-status-warning" :
-                      order.status === "cancelled" ? "admin-status-danger" : "admin-status-info"
-                    }`}>
-                      {statusLabel[order.status] || order.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="py-8 text-center">
-              <ShoppingCart className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
-              <p className="text-sm" style={{ color: `hsl(var(--admin-text-secondary))` }}>Nenhum pedido recente</p>
-            </div>
-          )}
-        </motion.div>
-
-        {/* Alerts */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.4 }}
-          className="admin-card p-6"
-        >
-          <h3 className="font-semibold text-base mb-4">Alertas & Atalhos</h3>
-          <div className="space-y-3">
-            {stats.pendingOrders > 0 && (
-              <div
-                onClick={() => navigate("/admin/pedidos")}
-                className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors"
-                style={{ background: `hsl(var(--admin-warning) / 0.08)` }}
-              >
-                <Clock className="w-5 h-5" style={{ color: `hsl(var(--admin-warning))` }} />
-                <div>
-                  <p className="text-sm font-medium">{stats.pendingOrders} pedido(s) pendente(s)</p>
-                  <p className="text-[11px]" style={{ color: `hsl(var(--admin-text-secondary))` }}>Aguardando processamento</p>
-                </div>
+      {/* ═══ CENTER — Chart + Orders by Status ═══ */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Revenue chart */}
+        <motion.div className="lg:col-span-2" {...fadeUp(6)}>
+          <div className="bg-white rounded-2xl border border-slate-100 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-base font-semibold text-slate-800">Receita Diária</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Vendas realizadas no período</p>
               </div>
-            )}
-            {stats.lowStockProducts > 0 && (
-              <div
-                onClick={() => navigate("/admin/produtos")}
-                className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors"
-                style={{ background: `hsl(var(--admin-danger) / 0.08)` }}
-              >
-                <AlertTriangle className="w-5 h-5" style={{ color: `hsl(var(--admin-danger))` }} />
-                <div>
-                  <p className="text-sm font-medium">{stats.lowStockProducts} produto(s) com estoque baixo</p>
-                  <p className="text-[11px]" style={{ color: `hsl(var(--admin-text-secondary))` }}>Menos de 5 unidades</p>
-                </div>
-              </div>
-            )}
-            {stats.pendingOrders === 0 && stats.lowStockProducts === 0 && (
-              <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: `hsl(var(--admin-success) / 0.08)` }}>
-                <TrendingUp className="w-5 h-5" style={{ color: `hsl(var(--admin-success))` }} />
-                <p className="text-sm font-medium" style={{ color: `hsl(var(--admin-success))` }}>Tudo em dia! Nenhum alerta ativo.</p>
-              </div>
-            )}
-            
-            <div className="pt-2 border-t" style={{ borderColor: `hsl(var(--admin-border-subtle))` }}>
-              <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: `hsl(var(--admin-text-secondary))` }}>Atalhos Rápidos</p>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { label: "Novo Produto", icon: Plus, path: "/admin/produtos/novo" },
-                  { label: "Ver Pedidos", icon: ShoppingCart, path: "/admin/pedidos" },
-                ].map(shortcut => (
+              <div className="flex gap-1 bg-slate-50 rounded-xl p-1 border border-slate-100">
+                {periods.map(p => (
                   <button
-                    key={shortcut.label}
-                    onClick={() => navigate(shortcut.path)}
-                    className="flex items-center gap-2 p-2.5 rounded-xl text-[12px] font-medium hover:bg-muted/40 transition-colors text-left"
-                    style={{ border: `1px solid hsl(var(--admin-border-subtle))` }}
+                    key={p.key}
+                    onClick={() => setPeriod(p.key)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                      period === p.key
+                        ? "bg-white text-slate-800 shadow-sm border border-slate-200"
+                        : "text-slate-400 hover:text-slate-600"
+                    }`}
                   >
-                    <shortcut.icon className="w-3.5 h-3.5 text-primary" />
-                    {shortcut.label}
+                    {p.label}
                   </button>
                 ))}
               </div>
             </div>
+            <div className="h-72">
+              {loading ? (
+                <Skeleton className="h-full w-full rounded-xl" />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={stats.dailyRevenue}>
+                    <defs>
+                      <linearGradient id="adminRevenueGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity={0.15} />
+                        <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${v}`} />
+                    <Tooltip content={<ChartTooltipCustom />} />
+                    <Area
+                      type="monotone"
+                      dataKey="revenue"
+                      name="Receita"
+                      stroke="#10b981"
+                      strokeWidth={2.5}
+                      fill="url(#adminRevenueGrad)"
+                      dot={false}
+                      activeDot={{ r: 5, fill: "#10b981", stroke: "#fff", strokeWidth: 2 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Orders by Status */}
+        <motion.div {...fadeUp(7)}>
+          <div className="bg-white rounded-2xl border border-slate-100 p-6 h-full flex flex-col">
+            <h3 className="text-base font-semibold text-slate-800 mb-1">Pedidos por Status</h3>
+            <p className="text-xs text-slate-400 mb-5">Distribuição dos últimos 30 dias</p>
+
+            {loading ? (
+              <Skeleton className="h-[200px] w-full rounded-xl" />
+            ) : stats.ordersByStatus.length > 0 ? (
+              <div className="flex-1 flex flex-col">
+                <div className="h-[200px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={stats.ordersByStatus}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={80}
+                        paddingAngle={4}
+                        strokeWidth={0}
+                      >
+                        {stats.ordersByStatus.map((_, i) => (
+                          <Cell key={i} fill={STATUS_COLORS[i % STATUS_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {stats.ordersByStatus.map((s, i) => (
+                    <span key={s.name} className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                      <span className="w-2 h-2 rounded-full" style={{ background: STATUS_COLORS[i % STATUS_COLORS.length] }} />
+                      {statusLabel[s.name] || s.name} ({s.value})
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-sm text-slate-400">Sem dados no período</p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ═══ BOTTOM — Recent Orders + Quick Actions ═══ */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        {/* Recent Orders */}
+        <motion.div className="lg:col-span-3" {...fadeUp(8)}>
+          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+            <div className="px-6 pt-6 pb-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-slate-800">Últimos Pedidos</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Pedidos mais recentes da loja</p>
+              </div>
+              <button
+                onClick={() => navigate("/admin/pedidos")}
+                className="flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-emerald-600 transition-colors"
+              >
+                Ver todos <ArrowUpRight className="w-3 h-3" />
+              </button>
+            </div>
+
+            {loading ? (
+              <div className="px-6 pb-6 space-y-3">
+                {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-12 rounded-xl" />)}
+              </div>
+            ) : stats.recentOrders.length > 0 ? (
+              <div className="px-4 pb-4">
+                <div className="grid grid-cols-12 gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-300">
+                  <span className="col-span-1">Nº</span>
+                  <span className="col-span-3">Cliente</span>
+                  <span className="col-span-2">Pedido</span>
+                  <span className="col-span-2">Valor</span>
+                  <span className="col-span-2">Status</span>
+                  <span className="col-span-2 text-right">Data</span>
+                </div>
+                <div className="space-y-1">
+                  {stats.recentOrders.map((order, idx) => (
+                    <div
+                      key={order.id}
+                      onClick={() => navigate(`/admin/pedidos/${order.id}`)}
+                      className="grid grid-cols-12 gap-2 items-center px-3 py-3 rounded-xl transition-colors duration-150 hover:bg-slate-50 cursor-pointer"
+                    >
+                      <span className="col-span-1 text-xs text-slate-400 font-mono">{idx + 1}.</span>
+                      <span className="col-span-3 text-xs text-slate-600 font-medium truncate">
+                        {order.customer_name || "—"}
+                      </span>
+                      <span className="col-span-2 text-xs text-slate-400 font-mono">#{order.order_number}</span>
+                      <span className="col-span-2 text-sm font-semibold text-slate-800">{formatBRL(Number(order.total))}</span>
+                      <span className="col-span-2">
+                        <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${statusPillClass[order.status] || "bg-slate-50 text-slate-600"}`}>
+                          {statusLabel[order.status] || order.status}
+                        </span>
+                      </span>
+                      <span className="col-span-2 text-[11px] text-slate-400 text-right">
+                        {format(new Date(order.created_at), "dd MMM", { locale: ptBR })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="px-6 pb-8 text-center">
+                <ShoppingCart className="w-10 h-10 text-slate-200 mx-auto mb-2" />
+                <p className="text-sm text-slate-400">Nenhum pedido recente</p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Quick Actions */}
+        <motion.div className="lg:col-span-2" {...fadeUp(9)}>
+          <div className="bg-white rounded-2xl border border-slate-100 p-6 h-full flex flex-col">
+            <h3 className="text-base font-semibold text-slate-800 mb-1">Ações Rápidas</h3>
+            <p className="text-xs text-slate-400 mb-5">Gerencie sua loja</p>
+
+            <div className="space-y-1 flex-1">
+              {[
+                { label: "Novo Produto", icon: Plus, path: "/admin/produtos/novo" },
+                { label: "Ver Pedidos", icon: ShoppingCart, path: "/admin/pedidos" },
+                { label: "Clientes", icon: Users, path: "/admin/clientes" },
+                { label: "Cupons", icon: Receipt, path: "/admin/cupons" },
+              ].map((action) => (
+                <button
+                  key={action.label}
+                  onClick={() => navigate(action.path)}
+                  className="w-full flex items-center justify-between p-3.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <action.icon className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
+                    {action.label}
+                  </div>
+                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-emerald-500 transition-colors" />
+                </button>
+              ))}
+            </div>
+
+            {/* Alerts section */}
+            {(stats.pendingOrders > 0 || stats.lowStockProducts > 0) && (
+              <div className="mt-4 pt-4 border-t border-slate-100 space-y-2">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-2">Alertas</p>
+                {stats.pendingOrders > 0 && (
+                  <div
+                    onClick={() => navigate("/admin/pedidos")}
+                    className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50 border border-amber-100 cursor-pointer"
+                  >
+                    <Clock className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-[11px] text-amber-700 leading-relaxed">
+                      {stats.pendingOrders} pedido(s) aguardando processamento
+                    </p>
+                  </div>
+                )}
+                {stats.lowStockProducts > 0 && (
+                  <div
+                    onClick={() => navigate("/admin/produtos")}
+                    className="flex items-start gap-2.5 p-3 rounded-xl bg-red-50 border border-red-100 cursor-pointer"
+                  >
+                    <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-[11px] text-red-700 leading-relaxed">
+                      {stats.lowStockProducts} produto(s) com estoque baixo
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </motion.div>
       </div>
