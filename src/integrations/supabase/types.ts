@@ -2137,6 +2137,112 @@ export type Database = {
         }
         Relationships: []
       }
+      variation_template_attributes: {
+        Row: {
+          attribute_name: string
+          created_at: string
+          id: string
+          input_type: string
+          sort_order: number
+          template_id: string
+        }
+        Insert: {
+          attribute_name: string
+          created_at?: string
+          id?: string
+          input_type?: string
+          sort_order?: number
+          template_id: string
+        }
+        Update: {
+          attribute_name?: string
+          created_at?: string
+          id?: string
+          input_type?: string
+          sort_order?: number
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "variation_template_attributes_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "variation_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      variation_template_values: {
+        Row: {
+          color_hex: string | null
+          created_at: string
+          id: string
+          price_delta: number | null
+          sku_suffix: string | null
+          sort_order: number
+          template_attribute_id: string
+          value_code: string | null
+          value_label: string
+        }
+        Insert: {
+          color_hex?: string | null
+          created_at?: string
+          id?: string
+          price_delta?: number | null
+          sku_suffix?: string | null
+          sort_order?: number
+          template_attribute_id: string
+          value_code?: string | null
+          value_label: string
+        }
+        Update: {
+          color_hex?: string | null
+          created_at?: string
+          id?: string
+          price_delta?: number | null
+          sku_suffix?: string | null
+          sort_order?: number
+          template_attribute_id?: string
+          value_code?: string | null
+          value_label?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "variation_template_values_template_attribute_id_fkey"
+            columns: ["template_attribute_id"]
+            isOneToOne: false
+            referencedRelation: "variation_template_attributes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      variation_templates: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_default: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       webhook_events: {
         Row: {
           created_at: string

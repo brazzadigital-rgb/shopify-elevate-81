@@ -17,6 +17,7 @@ import {
 import { ProductImageGallery } from "@/components/admin/ProductImageGallery";
 import { ImageUpload } from "@/components/store/ImageUpload";
 import { motion, AnimatePresence } from "framer-motion";
+import { VariationTemplateApplier } from "@/components/admin/VariationTemplateApplier";
 
 interface ProductImage {
   id?: string;
@@ -668,6 +669,14 @@ export default function ProductEditor() {
           {activeTab === "variacoes" && (
             <Card className="border border-border/40 shadow-premium rounded-3xl overflow-hidden">
               <CardContent className="p-6 md:p-8 space-y-6">
+                {/* Template Applier */}
+                <VariationTemplateApplier
+                  productSku={form.sku}
+                  productPrice={form.price}
+                  variants={variants}
+                  onApply={setVariants}
+                />
+
                 <div className="flex items-center justify-between">
                   <div>
                     <Label className={labelClass}>Variações do produto</Label>

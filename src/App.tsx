@@ -59,6 +59,7 @@ import AdminHomeTemplates from "./pages/admin/AdminHomeTemplates";
 import AdminShowcases from "./pages/admin/AdminShowcases";
 import AdminHeaderStyles from "./pages/admin/AdminHeaderStyles";
 import AdminTracking from "./pages/admin/AdminTracking";
+import AdminVariationTemplates from "./pages/admin/AdminVariationTemplates";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import CustomerNotifications from "./pages/account/Notifications";
 import FinancialDashboard from "./pages/admin/financial/FinancialDashboard";
@@ -136,6 +137,7 @@ function AppContent() {
             <Route path="vitrines" element={<AdminShowcases />} />
             <Route path="header-styles" element={<AdminHeaderStyles />} />
             <Route path="rastreamento" element={<AdminTracking />} />
+            <Route path="templates-variacoes" element={<AdminVariationTemplates />} />
             <Route path="notificacoes" element={<AdminNotifications />} />
             <Route path="financeiro" element={<FinancialDashboard />} />
             <Route path="financeiro/vendas" element={<FinancialSales />} />
