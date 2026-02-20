@@ -7,6 +7,7 @@ import { useDynamicTheme } from "@/hooks/useDynamicTheme";
 import { TrackingProvider } from "@/hooks/useTracking";
 import { CookieConsentBanner } from "@/components/store/CookieConsentBanner";
 import { useTrackingSettings } from "@/hooks/useTrackingSettings";
+import { NotificationProvider } from "@/hooks/useNotifications";
 
 function StoreInner() {
   const { config } = useTrackingSettings();
@@ -37,7 +38,9 @@ export default function StoreLayout() {
 
   return (
     <TrackingProvider>
-      <StoreInner />
+      <NotificationProvider>
+        <StoreInner />
+      </NotificationProvider>
     </TrackingProvider>
   );
 }

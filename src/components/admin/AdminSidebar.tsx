@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, LogOut, ShoppingBag,
   Truck, UserCheck, Shield, Percent, TrendingUp, Columns3, Layout, CalendarRange,
-  DollarSign, BarChart3, ArrowDownCircle, CreditCard, Wallet, FileSpreadsheet, Wrench, Activity
+  DollarSign, BarChart3, ArrowDownCircle, CreditCard, Wallet, FileSpreadsheet, Wrench, Activity, Bell
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,6 +19,7 @@ const mainMenu = [
   { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
   { title: "Clientes", url: "/admin/clientes", icon: Users },
   { title: "Cupons", url: "/admin/cupons", icon: Tag },
+  { title: "Notificações", url: "/admin/notificacoes", icon: Bell },
   { title: "Seções da Home", url: "/admin/secoes", icon: Image },
   { title: "Pagamentos", url: "/admin/pagamentos", icon: CreditCard },
   { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
