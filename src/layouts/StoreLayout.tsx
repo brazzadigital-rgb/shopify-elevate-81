@@ -8,6 +8,8 @@ import { TrackingProvider } from "@/hooks/useTracking";
 import { CookieConsentBanner } from "@/components/store/CookieConsentBanner";
 import { useTrackingSettings } from "@/hooks/useTrackingSettings";
 import { NotificationProvider } from "@/hooks/useNotifications";
+import { useSystemSuspension } from "@/hooks/useSystemSuspension";
+import { SystemSuspendedBanner } from "@/components/owner/SystemSuspendedBanner";
 
 function StoreInner() {
   const { config } = useTrackingSettings();
@@ -31,9 +33,14 @@ function StoreInner() {
 
 export default function StoreLayout() {
   const themeReady = useDynamicTheme();
+  const { isSuspended } = useSystemSuspension();
 
   if (!themeReady) {
     return <div className="min-h-screen bg-background" />;
+  }
+
+  if (isSuspended) {
+    return <SystemSuspendedBanner />;
   }
 
   return (

@@ -1,15 +1,20 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOwnerSubscription, useOwnerInvoices } from "@/hooks/useOwnerSubscription";
 import { usePlans } from "@/hooks/useSubscription";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   CreditCard, CalendarClock, AlertTriangle, CheckCircle2, Clock, XCircle,
-  Receipt, RefreshCw, Ban, Play
+  Receipt, RefreshCw, Ban, Play, Loader2
 } from "lucide-react";
-import { format, differenceInDays, isPast } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
   active: { label: "Ativa", color: "text-emerald-400 bg-emerald-500/10", icon: CheckCircle2 },
@@ -26,6 +31,9 @@ export default function OwnerDashboard() {
   const { data: sub, isLoading: subLoading } = useOwnerSubscription();
   const { data: invoices, isLoading: invLoading } = useOwnerInvoices();
   const { data: plans } = usePlans();
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const status = sub?.status || "active";
   const sc = statusConfig[status] || statusConfig.active;
@@ -46,8 +54,31 @@ export default function OwnerDashboard() {
   const isLoading = subLoading || invLoading;
 
   const receivedLast30 = paidInvoices
-    .filter((i: any) => differenceInDays(new Date(), new Date(i.paid_at)) <= 30)
+    .filter((i: any) => i.paid_at && differenceInDays(new Date(), new Date(i.paid_at)) <= 30)
     .reduce((sum: number, i: any) => sum + Number(i.amount), 0);
+
+  const invokeAction = async (action: string, extra?: any) => {
+    setActionLoading(action);
+    try {
+      const { data, error } = await supabase.functions.invoke("owner-efi-charge", {
+        body: { action, ...extra },
+      });
+      if (error) throw error;
+      if (data?.success) {
+        toast({ title: "Ação executada com sucesso" });
+        qc.invalidateQueries({ queryKey: ["owner-subscription"] });
+        qc.invalidateQueries({ queryKey: ["owner-invoices"] });
+        qc.invalidateQueries({ queryKey: ["owner-audit-logs"] });
+        qc.invalidateQueries({ queryKey: ["system-suspended"] });
+      } else {
+        toast({ title: "Erro", description: data?.error, variant: "destructive" });
+      }
+    } catch (e: any) {
+      toast({ title: "Erro", description: e.message, variant: "destructive" });
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -120,7 +151,6 @@ export default function OwnerDashboard() {
 
       {/* Recent Invoices + Alerts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent invoices */}
         <Card className="border-0 bg-slate-900/60 backdrop-blur shadow-lg">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-semibold text-white">Últimas Faturas</CardTitle>
@@ -156,7 +186,6 @@ export default function OwnerDashboard() {
           </CardContent>
         </Card>
 
-        {/* Alerts & Quick Actions */}
         <Card className="border-0 bg-slate-900/60 backdrop-blur shadow-lg">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-semibold text-white">Ações Rápidas</CardTitle>
@@ -175,26 +204,49 @@ export default function OwnerDashboard() {
               </div>
             )}
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" className="h-11 rounded-xl border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white">
-                <Receipt className="w-4 h-4 mr-2" />
+              <Button
+                variant="outline"
+                className="h-11 rounded-xl border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
+                disabled={actionLoading === "generate_invoice"}
+                onClick={() => invokeAction("generate_invoice", { amount: sub?.plan?.monthly_price || 0 })}
+              >
+                {actionLoading === "generate_invoice" ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Receipt className="w-4 h-4 mr-2" />}
                 Nova Fatura
               </Button>
-              <Button variant="outline" className="h-11 rounded-xl border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white">
+              <Button
+                variant="outline"
+                className="h-11 rounded-xl border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
+                onClick={() => navigate("/owner/plans")}
+              >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Trocar Plano
               </Button>
               {status !== "suspended" ? (
-                <Button variant="outline" className="h-11 rounded-xl border-red-900/30 text-red-400 hover:bg-red-500/5">
-                  <Ban className="w-4 h-4 mr-2" />
+                <Button
+                  variant="outline"
+                  className="h-11 rounded-xl border-red-900/30 text-red-400 hover:bg-red-500/5"
+                  disabled={actionLoading === "suspend_system"}
+                  onClick={() => invokeAction("suspend_system")}
+                >
+                  {actionLoading === "suspend_system" ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Ban className="w-4 h-4 mr-2" />}
                   Suspender
                 </Button>
               ) : (
-                <Button variant="outline" className="h-11 rounded-xl border-emerald-900/30 text-emerald-400 hover:bg-emerald-500/5">
-                  <Play className="w-4 h-4 mr-2" />
+                <Button
+                  variant="outline"
+                  className="h-11 rounded-xl border-emerald-900/30 text-emerald-400 hover:bg-emerald-500/5"
+                  disabled={actionLoading === "reactivate_system"}
+                  onClick={() => invokeAction("reactivate_system")}
+                >
+                  {actionLoading === "reactivate_system" ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Play className="w-4 h-4 mr-2" />}
                   Reativar
                 </Button>
               )}
-              <Button variant="outline" className="h-11 rounded-xl border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white">
+              <Button
+                variant="outline"
+                className="h-11 rounded-xl border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
+                onClick={() => navigate("/owner/invoices")}
+              >
                 <CreditCard className="w-4 h-4 mr-2" />
                 Pagamentos
               </Button>

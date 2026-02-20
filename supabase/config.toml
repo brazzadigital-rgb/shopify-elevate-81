@@ -8,3 +8,9 @@ verify_jwt = false
 
 [functions.track-order]
 verify_jwt = false
+
+[functions.owner-efi-charge]
+verify_jwt = false
+
+[functions.webhook-efi]
+verify_jwt = false

@@ -1,17 +1,59 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Settings, CreditCard, Globe, Shield } from "lucide-react";
+import { CreditCard, Shield, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useOwnerSettings } from "@/hooks/useOwnerSettings";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function OwnerSettings() {
+  const { getValue, saveMultiple, isLoading } = useOwnerSettings();
   const [efiClientId, setEfiClientId] = useState("");
   const [efiClientSecret, setEfiClientSecret] = useState("");
   const [efiEnvironment, setEfiEnvironment] = useState("sandbox");
+  const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setEfiClientId(getValue("efi_client_id"));
+      setEfiClientSecret(getValue("efi_client_secret"));
+      setEfiEnvironment(getValue("efi_environment") || "sandbox");
+    }
+  }, [isLoading, getValue]);
 
   const webhookUrl = `${window.location.origin}/api/webhooks/efi`;
+
+  const handleSave = async () => {
+    setSaving(true);
+    await saveMultiple([
+      { key: "efi_client_id", value: efiClientId },
+      { key: "efi_client_secret", value: efiClientSecret },
+      { key: "efi_environment", value: efiEnvironment },
+    ]);
+    setSaving(false);
+  };
+
+  const handleTest = async () => {
+    setTesting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("owner-efi-charge", {
+        body: { action: "test_connection" },
+      });
+      if (error) throw error;
+      if (data?.success) {
+        toast({ title: "Conexão testada", description: "Conexão com a Efí validada com sucesso." });
+      } else {
+        toast({ title: "Falha na conexão", description: data?.error || "Verifique as credenciais.", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Erro ao testar", description: "Não foi possível conectar com a Efí.", variant: "destructive" });
+    } finally {
+      setTesting(false);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -20,7 +62,6 @@ export default function OwnerSettings() {
         <p className="text-slate-400 text-sm mt-1">Configurações do sistema e integrações</p>
       </div>
 
-      {/* Efi Bank Settings */}
       <Card className="border-0 bg-slate-900/60 backdrop-blur shadow-lg">
         <CardHeader>
           <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
@@ -99,22 +140,25 @@ export default function OwnerSettings() {
           <div className="flex gap-3 pt-2">
             <Button
               className="h-11 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold"
-              onClick={() => toast({ title: "Configurações salvas", description: "Credenciais atualizadas com sucesso" })}
+              onClick={handleSave}
+              disabled={saving}
             >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Salvar Configurações
             </Button>
             <Button
               variant="outline"
               className="h-11 rounded-xl border-slate-700 text-slate-300 hover:bg-slate-800"
-              onClick={() => toast({ title: "Conexão testada", description: "Conexão com a Efí validada com sucesso" })}
+              onClick={handleTest}
+              disabled={testing}
             >
+              {testing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Testar Conexão
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Security Settings */}
       <Card className="border-0 bg-slate-900/60 backdrop-blur shadow-lg">
         <CardHeader>
           <CardTitle className="text-base font-semibold text-white flex items-center gap-2">

@@ -9,6 +9,8 @@ import { Moon, Sun, Search, ChevronRight } from "lucide-react";
 import { NotificationProvider } from "@/hooks/useNotifications";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSystemSuspension } from "@/hooks/useSystemSuspension";
+import { SystemSuspendedBanner } from "@/components/owner/SystemSuspendedBanner";
 
 const routeTitles: Record<string, string> = {
   "/admin": "Dashboard",
@@ -67,6 +69,7 @@ export default function AdminLayout() {
   const { user, isAdmin, isLoading } = useAuth();
   const [isDark, setIsDark] = useState(() => localStorage.getItem("admin-theme") === "dark");
   const location = useLocation();
+  const { isSuspended } = useSystemSuspension();
 
   useEffect(() => {
     localStorage.setItem("admin-theme", isDark ? "dark" : "light");
@@ -86,6 +89,7 @@ export default function AdminLayout() {
 
   if (!user) return <Navigate to="/auth" replace />;
   if (!isAdmin) return <Navigate to="/" replace />;
+  if (isSuspended) return <SystemSuspendedBanner />;
 
   const breadcrumbs = getBreadcrumbs(location.pathname);
   const pageTitle = routeTitles[location.pathname] || "Admin";
