@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
 import { PremiumToggle3D } from "@/components/ui/premium-toggle-3d";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Save, Settings, Flame, CreditCard, Package, MessageCircle, Phone, Truck, Store } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface SettingsMap {
   [key: string]: string;
@@ -158,7 +157,7 @@ export default function StoreSettings() {
     return (
       <div className="space-y-6">
         <Skeleton className="h-10 w-64" />
-        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
+        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-48 w-full rounded-xl" />)}
       </div>
     );
   }
@@ -168,12 +167,16 @@ export default function StoreSettings() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold">Configurações da Loja</h1>
-          <p className="text-muted-foreground font-sans mt-1 text-sm">Controle todos os recursos da loja</p>
+          <h1 className="text-2xl font-bold tracking-tight">Configurações da Loja</h1>
+          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>Controle todos os recursos da loja</p>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2 rounded-xl shine h-11 font-sans w-full sm:w-auto">
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+        >
           <Save className="w-4 h-4" /> {saving ? "Salvando..." : "Salvar"}
-        </Button>
+        </button>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
@@ -188,11 +191,12 @@ export default function StoreSettings() {
                   key={group.id}
                   onClick={() => setActiveTab(group.id)}
                   className={cn(
-                    "flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-sans whitespace-nowrap transition-all text-left",
+                    "flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all text-left",
                     isActive
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      ? "bg-primary text-primary-foreground shadow-md font-medium"
+                      : "hover:bg-muted/50 font-normal"
                   )}
+                  style={!isActive ? { color: `hsl(var(--admin-text-secondary))` } : {}}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
                   <span>{group.title}</span>
@@ -203,39 +207,43 @@ export default function StoreSettings() {
         </nav>
 
         {/* Content area */}
-        <Card className="shadow-premium border-0 flex-1 min-w-0">
-          <CardContent className="p-5 sm:p-6">
-            <div className="mb-5">
-              <h2 className="text-lg font-display font-semibold flex items-center gap-2">
-                <activeGroup.icon className="w-5 h-5 text-primary" />
-                {activeGroup.title}
-              </h2>
-              <p className="text-muted-foreground text-sm mt-0.5">{activeGroup.description}</p>
-            </div>
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, x: 8 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.2 }}
+          className="admin-card flex-1 min-w-0 p-5 sm:p-6"
+        >
+          <div className="mb-5">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <activeGroup.icon className="w-5 h-5 text-primary" />
+              {activeGroup.title}
+            </h2>
+            <p className="text-sm mt-0.5" style={{ color: `hsl(var(--admin-text-secondary))` }}>{activeGroup.description}</p>
+          </div>
 
-            <div className="divide-y divide-border/50">
-              {activeGroup.settings.map((s) => (
-                <div key={s.key} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 py-4 first:pt-0 last:pb-0">
-                  <Label className="font-sans text-sm">{s.label}</Label>
-                  {s.type === "toggle" ? (
-                    <PremiumToggle3D
-                      size="sm"
-                      checked={settings[s.key] === "true"}
-                      onCheckedChange={(v) => updateSetting(s.key, v ? "true" : "false")}
-                    />
-                  ) : (
-                    <Input
-                      type={s.type === "number" ? "number" : "text"}
-                      value={settings[s.key] || ""}
-                      onChange={(e) => updateSetting(s.key, e.target.value)}
-                      className="h-10 rounded-xl w-full sm:max-w-xs"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+          <div className="divide-y" style={{ borderColor: `hsl(var(--admin-border-subtle))` }}>
+            {activeGroup.settings.map((s) => (
+              <div key={s.key} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 py-4 first:pt-0 last:pb-0">
+                <Label className="text-sm">{s.label}</Label>
+                {s.type === "toggle" ? (
+                  <PremiumToggle3D
+                    size="sm"
+                    checked={settings[s.key] === "true"}
+                    onCheckedChange={(v) => updateSetting(s.key, v ? "true" : "false")}
+                  />
+                ) : (
+                  <Input
+                    type={s.type === "number" ? "number" : "text"}
+                    value={settings[s.key] || ""}
+                    onChange={(e) => updateSetting(s.key, e.target.value)}
+                    className="h-10 rounded-xl w-full sm:max-w-xs border-0 bg-muted/30"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </div>
   );
