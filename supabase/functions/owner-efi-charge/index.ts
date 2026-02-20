@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import forge from "npm:node-forge@1.3.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,29 +7,75 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-async function getOwnerSetting(supabase: any, key: string): Promise<string> {
-  const { data } = await supabase
-    .from("owner_settings")
-    .select("value")
-    .eq("key", key)
-    .maybeSingle();
-  return data?.value || "";
-}
-
-async function getEfiToken(clientId: string, clientSecret: string, isSandbox: boolean): Promise<string> {
-  const baseUrl = isSandbox
+function getEfiBaseUrl(isSandbox: boolean): string {
+  return isSandbox
     ? "https://pix-h.api.efipay.com.br"
     : "https://pix.api.efipay.com.br";
+}
 
+function extractPemFromCertB64(certB64: string): { certPem: string; keyPem: string } {
+  const cleanB64 = certB64.replace(/[\s\r\n]+/g, "").trim();
+  const pemContent = atob(cleanB64);
+  
+  // Extract ALL certificate PEM blocks (full chain)
+  const certMatches = pemContent.match(/(-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----)/g);
+  // Extract private key PEM block
+  const keyMatch = pemContent.match(/(-----BEGIN (?:RSA |EC )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC )?PRIVATE KEY-----)/);
+
+  if (!certMatches || certMatches.length === 0) {
+    throw new Error("Certificado PEM não encontrado no conteúdo decodificado");
+  }
+  if (!keyMatch) {
+    throw new Error("Chave privada PEM não encontrada no conteúdo decodificado");
+  }
+
+  // Join all certs for the full chain
+  const fullCertChain = certMatches.join("\n");
+  
+  console.log(`[EFI] Found ${certMatches.length} cert(s) and key in PEM`);
+
+  return { certPem: fullCertChain, keyPem: keyMatch[1] };
+}
+
+function createMtlsClient(certPem: string, keyPem: string): Deno.HttpClient {
+  // Try both Deno API variants for client cert support
+  try {
+    return Deno.createHttpClient({
+      certChain: certPem,
+      privateKey: keyPem,
+    });
+  } catch {
+    // Fallback for older Deno API
+    return Deno.createHttpClient({
+      cert: certPem,
+      key: keyPem,
+    } as any);
+  }
+}
+
+async function getEfiToken(
+  clientId: string,
+  clientSecret: string,
+  isSandbox: boolean,
+  httpClient?: Deno.HttpClient
+): Promise<string> {
+  const baseUrl = getEfiBaseUrl(isSandbox);
   const credentials = btoa(`${clientId}:${clientSecret}`);
-  const res = await fetch(`${baseUrl}/oauth/token`, {
+
+  const fetchOptions: RequestInit & { client?: Deno.HttpClient } = {
     method: "POST",
     headers: {
       Authorization: `Basic ${credentials}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ grant_type: "client_credentials" }),
-  });
+  };
+
+  if (httpClient) {
+    (fetchOptions as any).client = httpClient;
+  }
+
+  const res = await fetch(`${baseUrl}/oauth/token`, fetchOptions);
 
   if (!res.ok) {
     const body = await res.text();
@@ -37,6 +84,26 @@ async function getEfiToken(clientId: string, clientSecret: string, isSandbox: bo
 
   const data = await res.json();
   return data.access_token;
+}
+
+async function efiFetch(
+  url: string,
+  options: RequestInit,
+  httpClient?: Deno.HttpClient
+): Promise<Response> {
+  if (httpClient) {
+    (options as any).client = httpClient;
+  }
+  return fetch(url, options);
+}
+
+async function getOwnerSetting(supabase: any, key: string): Promise<string> {
+  const { data } = await supabase
+    .from("owner_settings")
+    .select("value")
+    .eq("key", key)
+    .maybeSingle();
+  return data?.value || "";
 }
 
 Deno.serve(async (req) => {
@@ -84,9 +151,11 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { action } = body;
 
-    // Load Efí credentials from secrets (env vars)
+    // Load Efí credentials
     const clientId = Deno.env.get("EFI_CLIENT_ID") || "";
     const clientSecret = Deno.env.get("EFI_CLIENT_SECRET") || "";
+    const pixKey = Deno.env.get("EFI_PIX_KEY") || "";
+    const certP12B64 = Deno.env.get("EFI_CERT_P12_B64") || "";
     const environment = await getOwnerSetting(supabase, "efi_environment");
     const isSandbox = environment !== "production";
 
@@ -97,10 +166,26 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Setup mTLS client if cert is available and in production
+    let httpClient: Deno.HttpClient | undefined;
+    if (certP12B64 && !isSandbox) {
+      try {
+        const { certPem, keyPem } = extractPemFromCertB64(certP12B64);
+        httpClient = createMtlsClient(certPem, keyPem);
+      } catch (e: any) {
+        return new Response(
+          JSON.stringify({ error: `Erro ao processar certificado: ${e.message}`, success: false }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    const baseUrl = getEfiBaseUrl(isSandbox);
+
     // Test connection
     if (action === "test_connection") {
       try {
-        await getEfiToken(clientId, clientSecret, isSandbox);
+        await getEfiToken(clientId, clientSecret, isSandbox, httpClient);
         return new Response(JSON.stringify({ success: true }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -114,15 +199,10 @@ Deno.serve(async (req) => {
     // Create PIX charge
     if (action === "create_charge") {
       const { amount, description, invoice_id } = body;
-      const token = await getEfiToken(clientId, clientSecret, isSandbox);
+      const token = await getEfiToken(clientId, clientSecret, isSandbox, httpClient);
 
-      const baseUrl = isSandbox
-        ? "https://pix-h.api.efipay.com.br"
-        : "https://pix.api.efipay.com.br";
-
-      // Create immediate charge (cob)
-      const expSeconds = 3600; // 1 hour
-      const chargeRes = await fetch(`${baseUrl}/v2/cob`, {
+      const expSeconds = 3600;
+      const chargeRes = await efiFetch(`${baseUrl}/v2/cob`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -131,10 +211,10 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           calendario: { expiracao: expSeconds },
           valor: { original: Number(amount).toFixed(2) },
-          chave: Deno.env.get("EFI_PIX_KEY") || "",
+          chave: pixKey,
           infoAdicionais: [{ nome: "Fatura", valor: description || "Assinatura" }],
         }),
-      });
+      }, httpClient);
 
       if (!chargeRes.ok) {
         const errBody = await chargeRes.text();
@@ -148,9 +228,9 @@ Deno.serve(async (req) => {
       let qrCode = null;
       let qrImage = null;
       if (locId) {
-        const qrRes = await fetch(`${baseUrl}/v2/loc/${locId}/qrcode`, {
+        const qrRes = await efiFetch(`${baseUrl}/v2/loc/${locId}/qrcode`, {
           headers: { Authorization: `Bearer ${token}` },
-        });
+        }, httpClient);
         if (qrRes.ok) {
           const qrData = await qrRes.json();
           qrCode = qrData.qrcode;
@@ -231,9 +311,8 @@ Deno.serve(async (req) => {
 
     // Generate invoice
     if (action === "generate_invoice") {
-      const { amount: invAmount, description: invDesc } = body;
+      const { amount: invAmount } = body;
 
-      // Get active subscription
       const { data: subData } = await supabase
         .from("owner_subscription")
         .select("id")
