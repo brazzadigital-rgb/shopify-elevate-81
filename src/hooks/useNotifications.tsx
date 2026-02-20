@@ -53,6 +53,7 @@ interface NotificationContextType {
   updatePreferences: (prefs: Partial<NotificationPreferences>) => Promise<void>;
   fetchMore: (cursor?: string, type?: string) => Promise<Notification[]>;
   playSound: () => void;
+  playCustomerSound: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | null>(null);
@@ -155,7 +156,13 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         setNotifications(prev => [newNotif, ...prev].slice(0, 20));
         setUnreadCount(prev => {
           const next = prev + 1;
-          if (preferences.enable_sound && hasInteractedRef.current) playSound();
+          if (preferences.enable_sound && hasInteractedRef.current) {
+            if (newNotif.recipient_type === "admin") {
+              playSound();
+            } else {
+              playCustomerSound();
+            }
+          }
           return next;
         });
       })
@@ -182,6 +189,31 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       audioRef.current.volume = (preferences.sound_volume || 70) / 100;
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(() => {});
+    } catch {}
+  }, [preferences.sound_volume]);
+
+  const playCustomerSound = useCallback(() => {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const now = audioCtx.currentTime;
+      const vol = (preferences.sound_volume || 70) / 100;
+
+      const playTone = (freq: number, start: number, dur: number) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, now + start);
+        gain.gain.linearRampToValueAtTime(vol * 0.3, now + start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + start);
+        osc.stop(now + start + dur);
+      };
+
+      playTone(880, 0, 0.15);
+      playTone(1100, 0.12, 0.2);
     } catch {}
   }, [preferences.sound_volume]);
 
@@ -242,7 +274,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   return (
     <NotificationContext.Provider value={{
       notifications, unreadCount, preferences, isLoading,
-      markAsRead, markAllAsRead, deleteNotification, updatePreferences, fetchMore, playSound,
+      markAsRead, markAllAsRead, deleteNotification, updatePreferences, fetchMore, playSound, playCustomerSound,
     }}>
       {children}
     </NotificationContext.Provider>
