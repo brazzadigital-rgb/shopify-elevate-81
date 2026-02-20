@@ -331,6 +331,62 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Change billing cycle
+    if (action === "change_cycle") {
+      const { plan_id, billing_cycle } = body;
+
+      if (!plan_id || !billing_cycle) {
+        return new Response(JSON.stringify({ error: "plan_id e billing_cycle são obrigatórios" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const cycleDays: Record<string, number> = { monthly: 30, semiannual: 180, annual: 365 };
+      const days = cycleDays[billing_cycle] || 30;
+      const now = new Date();
+      const periodEnd = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+
+      // Upsert: update existing or insert new
+      const { data: existingSub } = await supabase
+        .from("owner_subscription")
+        .select("id")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existingSub) {
+        await supabase
+          .from("owner_subscription")
+          .update({
+            plan_id,
+            billing_cycle,
+            current_period_start: now.toISOString(),
+            current_period_end: periodEnd.toISOString(),
+            updated_at: now.toISOString(),
+          })
+          .eq("id", existingSub.id);
+      } else {
+        await supabase.from("owner_subscription").insert({
+          plan_id,
+          billing_cycle,
+          status: "active",
+          current_period_start: now.toISOString(),
+          current_period_end: periodEnd.toISOString(),
+        });
+      }
+
+      await supabase.from("owner_audit_logs").insert({
+        action: "CHANGE_BILLING_CYCLE",
+        actor_type: "owner",
+        meta_json: { plan_id, billing_cycle },
+      });
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     return new Response(JSON.stringify({ error: "Unknown action" }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
