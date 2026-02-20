@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useSearchParams, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -93,14 +94,31 @@ export default function Auth() {
     setLoading(true);
 
     if (mode === "login") {
-      const { error } = await signIn(email, password);
+      const { error, data } = await signIn(email, password);
       if (error) {
         const msg = error.message.includes("Invalid login") 
           ? "Email ou senha incorretos. Verifique e tente novamente."
           : error.message;
         toast({ title: "Não foi possível entrar", description: msg, variant: "destructive" });
       } else {
-        navigate(redirectTo);
+        // Check roles to decide redirect destination
+        const userId = data?.user?.id;
+        if (userId && (redirectTo === "/" || !redirectTo)) {
+          const { data: roles } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", userId);
+          const roleList = roles?.map((r: any) => r.role) || [];
+          if (roleList.includes("admin")) {
+            navigate("/admin");
+          } else if (roleList.includes("seller")) {
+            navigate("/vendedor");
+          } else {
+            navigate("/");
+          }
+        } else {
+          navigate(redirectTo);
+        }
       }
     } else if (mode === "register") {
       if (registerStep === 1) {
