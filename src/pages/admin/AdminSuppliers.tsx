@@ -151,37 +151,65 @@ export default function AdminSuppliers() {
       </motion.div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl">
-          <DialogHeader>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl p-0">
+          <DialogHeader className="px-6 pt-6 pb-2">
             <DialogTitle className="text-lg font-bold">{editing ? "Editar Fornecedor" : "Novo Fornecedor"}</DialogTitle>
+            <p className="text-xs text-muted-foreground">Preencha os dados do fornecedor abaixo</p>
           </DialogHeader>
-          <div className="grid gap-4 py-2">
-            <div><Label>Nome Fantasia *</Label><Input value={form.trade_name} onChange={e => setForm(f => ({ ...f, trade_name: e.target.value }))} className="rounded-xl border-0 bg-muted/30" /></div>
-            <div><Label>Razão Social</Label><Input value={form.legal_name} onChange={e => setForm(f => ({ ...f, legal_name: e.target.value }))} className="rounded-xl border-0 bg-muted/30" /></div>
-            <div className="grid grid-cols-2 gap-4">
-              <div><Label>CNPJ/CPF</Label><Input value={form.document} onChange={e => setForm(f => ({ ...f, document: e.target.value }))} className="rounded-xl border-0 bg-muted/30" /></div>
-              <div><Label>Email</Label><Input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} className="rounded-xl border-0 bg-muted/30" /></div>
+          <div className="grid gap-5 px-6 pb-6 pt-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nome Fantasia *</Label>
+              <Input value={form.trade_name} onChange={e => setForm(f => ({ ...f, trade_name: e.target.value }))} placeholder="Ex: Joias Premium Ltda" className="rounded-xl border border-border bg-background h-11" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Razão Social</Label>
+              <Input value={form.legal_name} onChange={e => setForm(f => ({ ...f, legal_name: e.target.value }))} placeholder="Razão social completa" className="rounded-xl border border-border bg-background h-11" />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div><Label>Telefone</Label><Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className="rounded-xl border-0 bg-muted/30" /></div>
-              <div><Label>WhatsApp</Label><Input value={form.whatsapp} onChange={e => setForm(f => ({ ...f, whatsapp: e.target.value }))} className="rounded-xl border-0 bg-muted/30" /></div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">CNPJ/CPF</Label>
+                <Input value={form.document} onChange={e => setForm(f => ({ ...f, document: e.target.value }))} placeholder="00.000.000/0001-00" className="rounded-xl border border-border bg-background h-11" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</Label>
+                <Input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="contato@empresa.com" className="rounded-xl border border-border bg-background h-11" />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div><Label>Contato Responsável</Label><Input value={form.contact_person} onChange={e => setForm(f => ({ ...f, contact_person: e.target.value }))} className="rounded-xl border-0 bg-muted/30" /></div>
-              <div><Label>Prazo Envio (dias)</Label><Input type="number" value={form.shipping_days} onChange={e => setForm(f => ({ ...f, shipping_days: Number(e.target.value) }))} className="rounded-xl border-0 bg-muted/30" /></div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Telefone</Label>
+                <Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="(00) 0000-0000" className="rounded-xl border border-border bg-background h-11" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">WhatsApp</Label>
+                <Input value={form.whatsapp} onChange={e => setForm(f => ({ ...f, whatsapp: e.target.value }))} placeholder="(00) 90000-0000" className="rounded-xl border border-border bg-background h-11" />
+              </div>
             </div>
-            <div>
-              <Label>Status</Label>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Contato Responsável</Label>
+                <Input value={form.contact_person} onChange={e => setForm(f => ({ ...f, contact_person: e.target.value }))} placeholder="Nome do responsável" className="rounded-xl border border-border bg-background h-11" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Prazo Envio (dias)</Label>
+                <Input type="number" value={form.shipping_days} onChange={e => setForm(f => ({ ...f, shipping_days: Number(e.target.value) }))} placeholder="0" className="rounded-xl border border-border bg-background h-11" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</Label>
               <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v }))}>
-                <SelectTrigger className="rounded-xl border-0 bg-muted/30"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="rounded-xl border border-border bg-background h-11"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="active">Ativo</SelectItem>
                   <SelectItem value="inactive">Inativo</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div><Label>Observações</Label><Textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3} className="rounded-xl border-0 bg-muted/30" /></div>
-            <Button onClick={() => saveMutation.mutate()} disabled={!form.trade_name || saveMutation.isPending} className="rounded-xl">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Observações</Label>
+              <Textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3} placeholder="Notas internas sobre o fornecedor..." className="rounded-xl border border-border bg-background" />
+            </div>
+            <Button onClick={() => saveMutation.mutate()} disabled={!form.trade_name || saveMutation.isPending} className="rounded-xl h-11 mt-1 font-semibold">
               {saveMutation.isPending ? "Salvando..." : "Salvar"}
             </Button>
           </div>
