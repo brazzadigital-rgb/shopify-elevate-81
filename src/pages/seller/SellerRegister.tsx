@@ -49,7 +49,7 @@ export default function SellerRegister() {
     );
   }
 
-  if (user) {
+  if (user && !success) {
     return <Navigate to="/" replace />;
   }
 
