@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Package, ShoppingCart, Users, DollarSign, TrendingUp, AlertTriangle, Clock, ArrowUpRight, Plus, Receipt, Zap } from "lucide-react";
+import { Package, ShoppingCart, Users, DollarSign, TrendingUp, AlertTriangle, Clock, ArrowUpRight, Plus, Receipt, Zap, Eye, EyeOff } from "lucide-react";
+import { useHideValues, BLUR_CLASS } from "@/hooks/useHideValues";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { formatBRL } from "@/lib/exportCsv";
@@ -68,6 +69,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("30d");
   const navigate = useNavigate();
+  const { hidden, toggle } = useHideValues();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -117,12 +119,12 @@ export default function Dashboard() {
   const ticketMedio = stats.totalOrders > 0 ? stats.totalRevenue / stats.totalOrders : 0;
 
   const kpis = [
-    { label: "Receita (30d)", value: formatBRL(stats.totalRevenue), icon: DollarSign, trend: "+8.5%", trendUp: true, sub: "vs mês anterior" },
-    { label: "Pedidos", value: String(stats.totalOrders), icon: ShoppingCart, trend: "+12.3%", trendUp: true, sub: "vs mês anterior" },
-    { label: "Ticket Médio", value: formatBRL(ticketMedio), icon: TrendingUp, sub: "últimos 30 dias" },
-    { label: "Produtos", value: String(stats.totalProducts), icon: Package, sub: `${stats.lowStockProducts} com estoque baixo` },
-    { label: "Clientes", value: String(stats.totalCustomers), icon: Users, sub: "cadastrados" },
-    { label: "Pendentes", value: String(stats.pendingOrders), icon: Clock, sub: stats.pendingOrders > 0 ? "Aguardando ação" : "Nenhum pendente" },
+    { label: "Receita (30d)", value: formatBRL(stats.totalRevenue), icon: DollarSign, trend: "+8.5%", trendUp: true, sub: "vs mês anterior", isMoney: true },
+    { label: "Pedidos", value: String(stats.totalOrders), icon: ShoppingCart, trend: "+12.3%", trendUp: true, sub: "vs mês anterior", isMoney: false },
+    { label: "Ticket Médio", value: formatBRL(ticketMedio), icon: TrendingUp, sub: "últimos 30 dias", isMoney: true },
+    { label: "Produtos", value: String(stats.totalProducts), icon: Package, sub: `${stats.lowStockProducts} com estoque baixo`, isMoney: false },
+    { label: "Clientes", value: String(stats.totalCustomers), icon: Users, sub: "cadastrados", isMoney: false },
+    { label: "Pendentes", value: String(stats.pendingOrders), icon: Clock, sub: stats.pendingOrders > 0 ? "Aguardando ação" : "Nenhum pendente", isMoney: false },
   ];
 
   const fadeUp = (i: number) => ({
@@ -132,6 +134,19 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {/* ═══ Header + Toggle ═══ */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-slate-800">Dashboard</h2>
+        <button
+          onClick={toggle}
+          className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-100"
+          title={hidden ? "Mostrar valores" : "Ocultar valores"}
+        >
+          {hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          {hidden ? "Mostrar" : "Ocultar"}
+        </button>
+      </div>
+
       {/* ═══ KPIs ═══ */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {kpis.map((kpi, i) => (
@@ -147,7 +162,7 @@ export default function Dashboard() {
               {loading ? (
                 <Skeleton className="h-7 w-24 rounded-lg" />
               ) : (
-                <p className="text-xl font-bold text-slate-800 tracking-tight">{kpi.value}</p>
+                <p className={`text-xl font-bold text-slate-800 tracking-tight ${kpi.isMoney && hidden ? BLUR_CLASS : ""}`}>{kpi.value}</p>
               )}
 
               {kpi.trend && (
@@ -318,7 +333,7 @@ export default function Dashboard() {
                         {order.customer_name || "—"}
                       </span>
                       <span className="col-span-2 text-xs text-slate-400 font-mono">#{order.order_number}</span>
-                      <span className="col-span-2 text-sm font-semibold text-slate-800">{formatBRL(Number(order.total))}</span>
+                      <span className={`col-span-2 text-sm font-semibold text-slate-800 ${hidden ? BLUR_CLASS : ""}`}>{formatBRL(Number(order.total))}</span>
                       <span className="col-span-2">
                         <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${statusPillClass[order.status] || "bg-slate-50 text-slate-600"}`}>
                           {statusLabel[order.status] || order.status}
