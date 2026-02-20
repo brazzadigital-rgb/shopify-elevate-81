@@ -68,9 +68,12 @@ export default function SellerRegister() {
     return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
   };
 
+  const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+
   const validateStep1 = () => {
     if (!fullName.trim()) { toast({ title: "Nome obrigatório", variant: "destructive" }); return false; }
     if (!email.trim()) { toast({ title: "Email obrigatório", variant: "destructive" }); return false; }
+    if (!isValidEmail(email)) { toast({ title: "Email inválido", description: "Verifique se o email está correto. Ex: seunome@gmail.com", variant: "destructive" }); return false; }
     if (!whatsapp.trim() || whatsapp.replace(/\D/g, "").length < 10) { toast({ title: "WhatsApp inválido", variant: "destructive" }); return false; }
     if (!cpf.trim() || cpf.replace(/\D/g, "").length !== 11) { toast({ title: "CPF inválido", variant: "destructive" }); return false; }
     if (!password || password.length < 6) { toast({ title: "Senha deve ter no mínimo 6 caracteres", variant: "destructive" }); return false; }
