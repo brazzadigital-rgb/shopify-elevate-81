@@ -412,6 +412,8 @@ export default function ProductPage() {
     }
   }
 
+  const allGroupsSelected = hasGroups ? Object.keys(selectedAttributes).length === attributeGroups.length : true;
+
   // For grouped variants, track selected variant per group
   const selectedGroupVariants = hasGroups
     ? Object.entries(selectedAttributes).map(([g, name]) => {
@@ -450,10 +452,18 @@ export default function ProductPage() {
   };
 
   const handleAddToCart = async () => {
+    if (hasGroups && !allGroupsSelected) {
+      toast({ title: "Selecione todas as opções antes de adicionar", variant: "destructive" });
+      return;
+    }
     await addItem(product.id, selectedVariant?.id || null, quantity, buildVariantsMetadata());
   };
 
   const handleBuyNow = async () => {
+    if (hasGroups && !allGroupsSelected) {
+      toast({ title: "Selecione todas as opções antes de comprar", variant: "destructive" });
+      return;
+    }
     await addItem(product.id, selectedVariant?.id || null, quantity, buildVariantsMetadata());
     navigate('/checkout');
   };
@@ -581,7 +591,14 @@ export default function ProductPage() {
                         return (
                           <motion.button
                             key={v.id}
-                            onClick={() => setSelectedAttributes(prev => ({ ...prev, [g]: v.name }))}
+                          onClick={() => setSelectedAttributes(prev => {
+                            if (prev[g] === v.name) {
+                              const next = { ...prev };
+                              delete next[g];
+                              return next;
+                            }
+                            return { ...prev, [g]: v.name };
+                          })}
                             whileHover={{ scale: 1.04 }}
                             whileTap={{ scale: 0.96 }}
                             className={`px-4 py-2 rounded-full font-sans text-sm border-2 transition-all duration-200 flex items-center gap-2 ${
@@ -635,6 +652,15 @@ export default function ProductPage() {
               <ShippingInfo shippingEnabled={shippingEnabled} shippingDays={shippingDays} />
             </motion.div>
 
+            {/* Missing groups hint */}
+            {hasGroups && !allGroupsSelected && (
+              <motion.div variants={fadeUp} className="flex items-center gap-2 px-4 py-3 rounded-xl bg-destructive/5 border border-destructive/20">
+                <p className="font-sans text-xs text-destructive font-medium">
+                  Selecione {attributeGroups.length - Object.keys(selectedAttributes).length} opção(ões) restante(s): {attributeGroups.filter((_, g) => !selectedAttributes[g]).map(g => g.label).join(", ")}
+                </p>
+              </motion.div>
+            )}
+
             {/* Divider */}
             <motion.div variants={fadeUp} className="border-t border-border/40" />
 
@@ -645,7 +671,7 @@ export default function ProductPage() {
                   size="lg"
                   className="w-full h-14 rounded-2xl bg-buttons hover:brightness-110 text-white font-sans font-bold text-base uppercase tracking-wider shine transition-all duration-300 shadow-[0_4px_20px_-4px_hsl(var(--accent)/0.4)]"
                   onClick={handleBuyNow}
-                  disabled={cartLoading || !inStock}
+                  disabled={cartLoading || !inStock || (hasGroups && !allGroupsSelected)}
                 >
                   {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Zap className="w-5 h-5 mr-2" /> Comprar agora</>}
                 </Button>
@@ -677,7 +703,7 @@ export default function ProductPage() {
                   variant="outline"
                   className="w-full h-10 rounded-full font-sans font-bold text-xs sm:text-sm uppercase tracking-wider border-2 border-border hover:border-accent hover:bg-accent hover:text-accent-foreground transition-all duration-300 px-3"
                   onClick={handleAddToCart}
-                  disabled={cartLoading || !inStock}
+                  disabled={cartLoading || !inStock || (hasGroups && !allGroupsSelected)}
                 >
                   {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ShoppingCart className="w-4 h-4 mr-1.5 shrink-0" /> <span className="truncate">Adicionar ao carrinho</span></>}
                 </Button>
