@@ -1249,6 +1249,7 @@ export type Database = {
       }
       product_variants: {
         Row: {
+          attribute_group: string | null
           compare_at_price: number | null
           created_at: string
           id: string
@@ -1261,6 +1262,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          attribute_group?: string | null
           compare_at_price?: number | null
           created_at?: string
           id?: string
@@ -1273,6 +1275,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          attribute_group?: string | null
           compare_at_price?: number | null
           created_at?: string
           id?: string
