@@ -28,7 +28,7 @@ interface ProductData {
   sku: string | null;
   sold_count: number;
   product_images: { url: string; is_primary: boolean; alt_text: string | null }[];
-  product_variants: { id: string; name: string; price: number | null; stock: number; attribute_group: string | null }[];
+  product_variants: { id: string; name: string; price: number | null; stock: number; attribute_group: string | null; color_hex: string | null }[];
 }
 
 /* ── Sub-components ────────────────────────────────────── */
@@ -354,7 +354,7 @@ export default function ProductPage() {
       if (!slug) return;
       const { data } = await supabase
         .from("products")
-        .select("id, name, slug, description, price, compare_at_price, stock, sku, sold_count, product_images(url, is_primary, alt_text), product_variants(id, name, price, stock, attribute_group)")
+        .select("id, name, slug, description, price, compare_at_price, stock, sku, sold_count, product_images(url, is_primary, alt_text), product_variants(id, name, price, stock, attribute_group, color_hex)")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
