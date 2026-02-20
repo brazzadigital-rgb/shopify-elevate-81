@@ -52,15 +52,13 @@ export function SystemSuspendedFullPage() {
 
     try {
       const amount = getPrice(plan, cycle);
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token;
 
       const invoiceRes = await supabase.functions.invoke("owner-efi-charge", {
         body: { action: "generate_invoice", amount, plan_id: plan.id, billing_cycle: cycle },
-        headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (invoiceRes.error || !invoiceRes.data?.success) throw new Error(invoiceRes.data?.error || "Erro ao gerar fatura");
+      if (invoiceRes.error) throw new Error("Erro de conexão ao gerar fatura");
+      if (!invoiceRes.data?.success) throw new Error(invoiceRes.data?.error || "Erro ao gerar fatura");
 
       const chargeRes = await supabase.functions.invoke("owner-efi-charge", {
         body: {
@@ -69,10 +67,10 @@ export function SystemSuspendedFullPage() {
           description: `Plano ${plan.name} - ${cycleLabels[cycle]}`,
           invoice_id: invoiceRes.data.invoice.id,
         },
-        headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (chargeRes.error || !chargeRes.data?.success) throw new Error(chargeRes.data?.error || "Erro ao criar cobrança PIX");
+      if (chargeRes.error) throw new Error("Erro de conexão ao criar cobrança");
+      if (!chargeRes.data?.success) throw new Error(chargeRes.data?.error || "Erro ao criar cobrança PIX");
 
       setPaymentModal(prev => ({
         ...prev,
