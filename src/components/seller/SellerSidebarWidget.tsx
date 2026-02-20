@@ -7,7 +7,7 @@ import { DollarSign, TrendingUp, Clock, Sparkles, Eye, EyeOff } from "lucide-rea
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useHideValues, HIDDEN_PLACEHOLDER } from "@/hooks/useHideValues";
+import { useHideValues, BLUR_CLASS } from "@/hooks/useHideValues";
 
 export function SellerSidebarWidget() {
   const { sellerId } = useAuth();
@@ -45,7 +45,8 @@ export function SellerSidebarWidget() {
   if (isLoading) return <div className="px-3 pb-2"><Skeleton className="h-[88px] rounded-2xl" /></div>;
   if (!data) return null;
 
-  const fmt = (v: number) => hidden ? HIDDEN_PLACEHOLDER : v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const blurIf = hidden ? BLUR_CLASS : "";
 
   return (
     <div
@@ -94,20 +95,20 @@ export function SellerSidebarWidget() {
               <DollarSign className="w-4 h-4 text-primary" />
             </motion.div>
             <div>
-              <p className="font-bold text-sm text-foreground leading-tight">{fmt(data.totalCommission)}</p>
+              <p className={`font-bold text-sm text-foreground leading-tight ${blurIf}`}>{fmt(data.totalCommission)}</p>
               <p className="text-[11px] text-muted-foreground">acumulado total</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 mt-2">
             {data.available > 0 && (
-              <div className="text-[10px] font-semibold flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-lg px-2 py-1">
+              <div className={`text-[10px] font-semibold flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-lg px-2 py-1 ${blurIf}`}>
                 <TrendingUp className="w-3 h-3" />
                 {fmt(data.available)} disponível
               </div>
             )}
             {data.pending > 0 && (
-              <div className="text-[10px] font-semibold flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-lg px-2 py-1">
+              <div className={`text-[10px] font-semibold flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-lg px-2 py-1 ${blurIf}`}>
                 <Clock className="w-3 h-3" />
                 {fmt(data.pending)} pendente
               </div>
