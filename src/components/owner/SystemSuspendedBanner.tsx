@@ -57,28 +57,40 @@ export function SystemSuspendedFullPage() {
         body: { action: "generate_invoice", amount, plan_id: plan.id, billing_cycle: cycle },
       });
 
-      if (invoiceRes.error) throw new Error("Erro de conexão ao gerar fatura");
-      if (!invoiceRes.data?.success) throw new Error(invoiceRes.data?.error || "Erro ao gerar fatura");
+      console.log("[Regularizar] invoiceRes:", JSON.stringify({ error: invoiceRes.error, data: invoiceRes.data }));
+
+      // supabase.functions.invoke may return error as FunctionsHttpError even on 200
+      const invoiceData = invoiceRes.data;
+      if (!invoiceData?.success) {
+        const errMsg = invoiceRes.error?.message || invoiceData?.error || "Erro ao gerar fatura";
+        throw new Error(errMsg);
+      }
 
       const chargeRes = await supabase.functions.invoke("owner-efi-charge", {
         body: {
           action: "create_charge",
           amount,
           description: `Plano ${plan.name} - ${cycleLabels[cycle]}`,
-          invoice_id: invoiceRes.data.invoice.id,
+          invoice_id: invoiceData.invoice.id,
         },
       });
 
-      if (chargeRes.error) throw new Error("Erro de conexão ao criar cobrança");
-      if (!chargeRes.data?.success) throw new Error(chargeRes.data?.error || "Erro ao criar cobrança PIX");
+      console.log("[Regularizar] chargeRes:", JSON.stringify({ error: chargeRes.error, data: chargeRes.data }));
+
+      const chargeData = chargeRes.data;
+      if (!chargeData?.success) {
+        const errMsg = chargeRes.error?.message || chargeData?.error || "Erro ao criar cobrança PIX";
+        throw new Error(errMsg);
+      }
 
       setPaymentModal(prev => ({
         ...prev,
         loading: false,
-        qrCode: chargeRes.data.qr_code,
-        qrImage: chargeRes.data.qr_image,
+        qrCode: chargeData.qr_code,
+        qrImage: chargeData.qr_image,
       }));
     } catch (err: any) {
+      console.error("[Regularizar] Error:", err);
       toast.error(err.message || "Erro ao processar pagamento");
       setPaymentModal(prev => ({ ...prev, open: false, loading: false }));
     }
