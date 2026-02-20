@@ -444,6 +444,7 @@ export default function ProductPage() {
         name: v.name,
         price: v.price,
         variant_id: v.id || null,
+        color_hex: v.color_hex || null,
       })),
     };
   };
@@ -576,7 +577,7 @@ export default function ProductPage() {
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {group.variants.map((v) => {
-                        const metalColor = getMetalColor(v.name);
+                        const colorHex = (v as any).color_hex || getMetalColor(v.name);
                         return (
                           <motion.button
                             key={v.id}
@@ -589,10 +590,10 @@ export default function ProductPage() {
                                 : "border-border hover:border-muted-foreground/30"
                             }`}
                           >
-                            {metalColor && (
+                            {colorHex && (
                               <span
                                 className="inline-block w-3.5 h-3.5 rounded-full border border-border shrink-0"
-                                style={{ backgroundColor: metalColor }}
+                                style={{ backgroundColor: colorHex }}
                               />
                             )}
                             {v.name}

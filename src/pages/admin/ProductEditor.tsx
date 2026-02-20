@@ -38,6 +38,7 @@ interface ProductVariant {
   sku: string | null;
   sort_order: number;
   attribute_group?: string | null;
+  color_hex?: string | null;
 }
 
 interface CustomField {
@@ -223,7 +224,7 @@ export default function ProductEditor() {
       await supabase.from("product_variants").delete().eq("product_id", productId);
       if (variants.length > 0) {
         await supabase.from("product_variants").insert(
-          variants.map((v, i) => ({ product_id: productId!, name: v.name, price: v.price, compare_at_price: v.compare_at_price, stock: v.stock, sku: v.sku, sort_order: i, attribute_group: v.attribute_group || null }))
+          variants.map((v, i) => ({ product_id: productId!, name: v.name, price: v.price, compare_at_price: v.compare_at_price, stock: v.stock, sku: v.sku, sort_order: i, attribute_group: v.attribute_group || null, color_hex: v.color_hex || null }))
         );
       }
       await supabase.from("product_custom_fields").delete().eq("product_id", productId);
@@ -684,7 +685,7 @@ export default function ProductEditor() {
                     <p className="text-xs text-muted-foreground mt-1">Tamanhos, cores ou outros atributos</p>
                   </div>
                   <Button type="button" variant="outline" size="sm" className="rounded-2xl gap-1.5 font-sans text-xs h-10 px-4"
-                    onClick={() => setVariants([...variants, { name: "", price: null, compare_at_price: null, stock: 0, sku: null, sort_order: variants.length }])}>
+                    onClick={() => setVariants([...variants, { name: "", price: null, compare_at_price: null, stock: 0, sku: null, sort_order: variants.length, color_hex: null }])}>
                     <Plus className="w-3.5 h-3.5" /> Adicionar
                   </Button>
                 </div>
@@ -715,10 +716,26 @@ export default function ProductEditor() {
                           <div className="space-y-2">
                             {items.map(({ variant: v, index: i }) => (
                               <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
-                                className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-3 items-end border border-border/40 rounded-2xl p-4 bg-muted/10 hover:bg-muted/20 transition-colors">
+                                className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-3 items-end border border-border/40 rounded-2xl p-4 bg-muted/10 hover:bg-muted/20 transition-colors">
                                 <div className="grid gap-1.5">
                                   <Label className="text-xs font-sans text-muted-foreground">Nome *</Label>
                                   <Input value={v.name} onChange={e => { const u = [...variants]; u[i].name = e.target.value; setVariants(u); }} className="h-10 rounded-xl text-sm" placeholder="Ex: P / Dourado" />
+                                </div>
+                                <div className="grid gap-1.5">
+                                  <Label className="text-xs font-sans text-muted-foreground">Cor</Label>
+                                  <div className="flex items-center gap-1.5">
+                                    <input
+                                      type="color"
+                                      value={v.color_hex || "#000000"}
+                                      onChange={e => { const u = [...variants]; u[i].color_hex = e.target.value; setVariants(u); }}
+                                      className="w-10 h-10 rounded-xl border border-border cursor-pointer p-0.5"
+                                    />
+                                    {v.color_hex && (
+                                      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-muted-foreground hover:text-destructive" onClick={() => { const u = [...variants]; u[i].color_hex = null; setVariants(u); }}>
+                                        ×
+                                      </Button>
+                                    )}
+                                  </div>
                                 </div>
                                 <div className="grid gap-1.5">
                                   <Label className="text-xs font-sans text-muted-foreground">Preço</Label>
