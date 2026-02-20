@@ -5,12 +5,12 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Search, ChevronRight, Settings } from "lucide-react";
+import { Moon, Sun, Search, Settings } from "lucide-react";
 import { NotificationProvider } from "@/hooks/useNotifications";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSystemSuspension } from "@/hooks/useSystemSuspension";
-import { SystemSuspendedBanner } from "@/components/owner/SystemSuspendedBanner";
+import { SystemSuspendedFullPage, SystemSuspendedTopBanner } from "@/components/owner/SystemSuspendedBanner";
 import { useNavigate } from "react-router-dom";
 
 const routeTitles: Record<string, string> = {
@@ -50,21 +50,11 @@ const routeTitles: Record<string, string> = {
   "/admin/financeiro/relatorios": "Relatórios Financeiro",
   "/admin/financeiro/configuracoes": "Config. Financeiro",
   "/admin/planos": "Planos e Assinatura",
+  "/admin/assinatura": "Assinatura",
 };
 
-function getBreadcrumbs(pathname: string) {
-  const parts = pathname.split("/").filter(Boolean);
-  const crumbs: { label: string; path: string }[] = [];
-  let currentPath = "";
-  for (const part of parts) {
-    currentPath += `/${part}`;
-    const title = routeTitles[currentPath];
-    if (title) {
-      crumbs.push({ label: title, path: currentPath });
-    }
-  }
-  return crumbs;
-}
+// Routes that remain accessible even when suspended
+const ALLOWED_SUSPENDED_ROUTES = ["/admin/planos", "/admin/assinatura"];
 
 export default function AdminLayout() {
   const { user, isAdmin, isLoading } = useAuth();
@@ -91,9 +81,10 @@ export default function AdminLayout() {
 
   if (!user) return <Navigate to="/auth" replace />;
   if (!isAdmin) return <Navigate to="/" replace />;
-  if (isSuspended) return <SystemSuspendedBanner />;
 
-  const breadcrumbs = getBreadcrumbs(location.pathname);
+  const isOnAllowedRoute = ALLOWED_SUSPENDED_ROUTES.some(r => location.pathname.startsWith(r));
+  const showSuspendedContent = isSuspended && !isOnAllowedRoute;
+
   const pageTitle = routeTitles[location.pathname] || "Admin";
 
   return (
@@ -103,14 +94,15 @@ export default function AdminLayout() {
           <div className="min-h-screen flex w-full overflow-x-hidden bg-slate-50/70">
             <AdminSidebar />
             <SidebarInset className="flex-1 min-w-0 flex flex-col bg-transparent">
+              {/* Suspended top banner */}
+              {isSuspended && <SystemSuspendedTopBanner />}
+
               {/* Premium Topbar */}
               <header
                 className="h-16 flex items-center justify-between gap-4 px-4 md:px-8 sticky top-0 z-10 bg-white/80 backdrop-blur-xl border-b border-slate-200/60"
               >
                 <div className="flex items-center gap-3">
                   <SidebarTrigger className="text-slate-500 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors" />
-                  
-                  {/* Page title */}
                   <h1 className="font-semibold text-lg text-slate-800">{pageTitle}</h1>
                 </div>
 
@@ -122,6 +114,7 @@ export default function AdminLayout() {
                       type="text"
                       placeholder="Buscar dados, pedidos ou produtos..."
                       className="w-full h-10 pl-10 pr-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 transition-all"
+                      disabled={isSuspended}
                     />
                   </div>
                 </div>
@@ -143,7 +136,6 @@ export default function AdminLayout() {
                   >
                     <Settings className="w-[18px] h-[18px]" />
                   </button>
-                  {/* User avatar */}
                   <div className="w-9 h-9 rounded-full bg-emerald-500 flex items-center justify-center ml-1">
                     <span className="text-white text-sm font-bold">
                       {(user?.email?.charAt(0) || "A").toUpperCase()}
@@ -163,7 +155,7 @@ export default function AdminLayout() {
                     transition={{ duration: 0.2 }}
                     className="max-w-[1600px] mx-auto"
                   >
-                    <Outlet />
+                    {showSuspendedContent ? <SystemSuspendedFullPage /> : <Outlet />}
                   </motion.div>
                 </AnimatePresence>
               </main>
