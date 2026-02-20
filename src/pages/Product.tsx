@@ -41,6 +41,40 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
 }) {
   const [zoomed, setZoomed] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  const [touchDelta, setTouchDelta] = useState(0);
+  const [swiping, setSwiping] = useState(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+    setTouchDelta(0);
+    setSwiping(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart) return;
+    const dx = e.touches[0].clientX - touchStart.x;
+    const dy = e.touches[0].clientY - touchStart.y;
+    if (!swiping && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+      setSwiping(true);
+    }
+    if (swiping) {
+      setTouchDelta(dx);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (swiping && Math.abs(touchDelta) > 50) {
+      if (touchDelta < 0 && selectedImage < images.length - 1) {
+        setSelectedImage(selectedImage + 1);
+      } else if (touchDelta > 0 && selectedImage > 0) {
+        setSelectedImage(selectedImage - 1);
+      }
+    }
+    setTouchStart(null);
+    setTouchDelta(0);
+    setSwiping(false);
+  };
   const primaryImage = images[selectedImage]?.url || "/placeholder.svg";
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -105,14 +139,22 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
 
         {/* Mobile: swipeable carousel */}
         <div className="lg:hidden">
-          <div className="relative aspect-square overflow-hidden">
+          <div
+            className="relative aspect-square overflow-hidden"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             <div
-              className="flex transition-transform duration-300 ease-out h-full"
-              style={{ transform: `translateX(-${selectedImage * 100}%)` }}
+              className="flex h-full"
+              style={{
+                transform: `translateX(calc(-${selectedImage * 100}% + ${swiping ? touchDelta : 0}px))`,
+                transition: swiping ? 'none' : 'transform 300ms ease-out',
+              }}
             >
               {images.map((img, i) => (
                 <div key={i} className="h-full shrink-0 w-full">
-                  <img src={img.url} alt={title} className="w-full h-full object-cover" />
+                  <img src={img.url} alt={title} className="w-full h-full object-cover pointer-events-none" />
                 </div>
               ))}
             </div>
