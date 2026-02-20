@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PremiumToggle3D } from "@/components/ui/premium-toggle-3d";
@@ -9,10 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Tag } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Plus, Pencil, Trash2, Tag, Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatBRL } from "@/lib/exportCsv";
+import { motion } from "framer-motion";
 
 interface Coupon {
   id: string;
@@ -40,6 +39,7 @@ export default function AdminCoupons() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyCoupon);
   const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState("");
 
   const fetchCoupons = async () => {
     setLoading(true);
@@ -96,35 +96,43 @@ export default function AdminCoupons() {
     else { toast({ title: "Cupom removido" }); fetchCoupons(); }
   };
 
+  const filtered = coupons.filter(c => {
+    if (!search.trim()) return true;
+    return c.code.toLowerCase().includes(search.toLowerCase()) || c.description?.toLowerCase().includes(search.toLowerCase());
+  });
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold">Cupons</h1>
-          <p className="text-muted-foreground font-sans mt-1">Gerencie cupons de desconto</p>
+          <h1 className="text-2xl font-bold tracking-tight">Cupons</h1>
+          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>{filtered.length} cupom(ns) cadastrado(s)</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingId(null); setForm(emptyCoupon); } }}>
           <DialogTrigger asChild>
-            <Button className="gap-2 rounded-xl shine h-11 font-sans"><Plus className="w-4 h-4" /> Novo Cupom</Button>
+            <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
+              <Plus className="w-4 h-4" /> Novo Cupom
+            </button>
           </DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle className="font-display text-xl">{editingId ? "Editar Cupom" : "Novo Cupom"}</DialogTitle>
+              <DialogTitle className="text-lg">{editingId ? "Editar Cupom" : "Novo Cupom"}</DialogTitle>
             </DialogHeader>
             <div className="grid gap-5 py-4">
               <div className="grid gap-2">
-                <Label className="font-sans text-sm font-medium">Código *</Label>
-                <Input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} placeholder="PROMO10" className="h-11 rounded-xl uppercase" />
+                <Label className="text-sm font-medium">Código *</Label>
+                <Input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} placeholder="PROMO10" className="h-10 rounded-xl uppercase" />
               </div>
               <div className="grid gap-2">
-                <Label className="font-sans text-sm font-medium">Descrição</Label>
-                <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="h-11 rounded-xl" />
+                <Label className="text-sm font-medium">Descrição</Label>
+                <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="h-10 rounded-xl" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label className="font-sans text-sm font-medium">Tipo</Label>
+                  <Label className="text-sm font-medium">Tipo</Label>
                   <Select value={form.discount_type} onValueChange={(v) => setForm({ ...form, discount_type: v })}>
-                    <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-10 rounded-xl"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="percentage">Porcentagem (%)</SelectItem>
                       <SelectItem value="fixed">Valor fixo (R$)</SelectItem>
@@ -132,29 +140,29 @@ export default function AdminCoupons() {
                   </Select>
                 </div>
                 <div className="grid gap-2">
-                  <Label className="font-sans text-sm font-medium">Valor</Label>
-                  <Input type="number" step="0.01" value={form.discount_value} onChange={(e) => setForm({ ...form, discount_value: parseFloat(e.target.value) || 0 })} className="h-11 rounded-xl" />
+                  <Label className="text-sm font-medium">Valor</Label>
+                  <Input type="number" step="0.01" value={form.discount_value} onChange={(e) => setForm({ ...form, discount_value: parseFloat(e.target.value) || 0 })} className="h-10 rounded-xl" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label className="font-sans text-sm font-medium">Pedido mínimo (R$)</Label>
-                  <Input type="number" step="0.01" value={form.min_order_value || ""} onChange={(e) => setForm({ ...form, min_order_value: parseFloat(e.target.value) || null })} className="h-11 rounded-xl" />
+                  <Label className="text-sm font-medium">Pedido mínimo (R$)</Label>
+                  <Input type="number" step="0.01" value={form.min_order_value || ""} onChange={(e) => setForm({ ...form, min_order_value: parseFloat(e.target.value) || null })} className="h-10 rounded-xl" />
                 </div>
                 <div className="grid gap-2">
-                  <Label className="font-sans text-sm font-medium">Máx. usos</Label>
-                  <Input type="number" value={form.max_uses || ""} onChange={(e) => setForm({ ...form, max_uses: parseInt(e.target.value) || null })} className="h-11 rounded-xl" />
+                  <Label className="text-sm font-medium">Máx. usos</Label>
+                  <Input type="number" value={form.max_uses || ""} onChange={(e) => setForm({ ...form, max_uses: parseInt(e.target.value) || null })} className="h-10 rounded-xl" />
                 </div>
               </div>
               <div className="grid gap-2">
-                <Label className="font-sans text-sm font-medium">Expira em</Label>
-                <Input type="date" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })} className="h-11 rounded-xl" />
+                <Label className="text-sm font-medium">Expira em</Label>
+                <Input type="date" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })} className="h-10 rounded-xl" />
               </div>
               <div className="flex items-center gap-2">
                 <PremiumToggle3D size="sm" checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
-                <Label className="font-sans text-sm">Ativo</Label>
+                <Label className="text-sm">Ativo</Label>
               </div>
-              <Button onClick={handleSave} disabled={saving} className="h-11 rounded-xl shine font-sans">
+              <Button onClick={handleSave} disabled={saving} className="h-11 rounded-xl w-full">
                 {saving ? "Salvando..." : editingId ? "Salvar" : "Criar cupom"}
               </Button>
             </div>
@@ -162,54 +170,89 @@ export default function AdminCoupons() {
         </Dialog>
       </div>
 
-      <Card className="shadow-premium border-0">
-        <CardContent className="p-0">
-          {loading ? (
-            <div className="p-6 space-y-4">{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
-          ) : coupons.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-              <Tag className="w-12 h-12 mb-4 opacity-40" />
-              <p className="font-sans text-lg">Nenhum cupom cadastrado</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="font-sans">Código</TableHead>
-                  <TableHead className="font-sans">Desconto</TableHead>
-                  <TableHead className="font-sans">Usos</TableHead>
-                  <TableHead className="font-sans">Status</TableHead>
-                  <TableHead className="font-sans text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {coupons.map((c) => (
-                  <TableRow key={c.id} className="hover:bg-muted/50 transition-colors">
-                    <TableCell className="font-sans font-bold">{c.code}</TableCell>
-                    <TableCell className="font-sans">
-                      {c.discount_type === "percentage" ? `${c.discount_value}%` : formatBRL(Number(c.discount_value))}
-                    </TableCell>
-                    <TableCell className="font-sans text-sm">
-                      {c.used_count}{c.max_uses ? ` / ${c.max_uses}` : ""}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={c.is_active ? "default" : "secondary"} className="text-xs font-sans">
-                        {c.is_active ? "Ativo" : "Inativo"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleEdit(c)}><Pencil className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="w-4 h-4" /></Button>
-                      </div>
-                    </TableCell>
+      {/* Search */}
+      <div className="admin-card p-4">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: `hsl(var(--admin-text-secondary))` }} />
+          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar cupom..." className="pl-9 h-10 rounded-xl border-0 bg-muted/30 text-sm" />
+        </div>
+      </div>
+
+      {/* Table */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="admin-card overflow-hidden">
+        {loading ? (
+          <div className="p-6 space-y-3">{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}</div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Tag className="w-12 h-12 mb-4" style={{ color: `hsl(var(--admin-text-secondary) / 0.3)` }} />
+            <p className="text-base font-medium" style={{ color: `hsl(var(--admin-text-secondary))` }}>Nenhum cupom encontrado</p>
+          </div>
+        ) : (
+          <>
+            {/* Desktop */}
+            <div className="hidden sm:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent" style={{ borderBottom: `1px solid hsl(var(--admin-border))` }}>
+                    {["Código", "Desconto", "Usos", "Status", "Expira", ""].map(h => (
+                      <TableHead key={h} className={`text-[11px] uppercase tracking-wider font-semibold ${h === "" ? "text-right" : ""}`} style={{ color: `hsl(var(--admin-text-secondary))` }}>{h}</TableHead>
+                    ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((c) => (
+                    <TableRow key={c.id} className="transition-colors" style={{ borderBottom: `1px solid hsl(var(--admin-border-subtle))` }}>
+                      <TableCell className="text-sm font-bold py-3.5 font-mono">{c.code}</TableCell>
+                      <TableCell className="text-sm py-3.5">
+                        {c.discount_type === "percentage" ? `${c.discount_value}%` : formatBRL(Number(c.discount_value))}
+                      </TableCell>
+                      <TableCell className="text-sm py-3.5" style={{ color: `hsl(var(--admin-text-secondary))` }}>
+                        {c.used_count}{c.max_uses ? ` / ${c.max_uses}` : ""}
+                      </TableCell>
+                      <TableCell className="py-3.5">
+                        <span className={`admin-status-pill text-[10px] ${c.is_active ? "admin-status-success" : "admin-status-danger"}`}>
+                          {c.is_active ? "Ativo" : "Inativo"}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-sm py-3.5" style={{ color: `hsl(var(--admin-text-secondary))` }}>
+                        {c.expires_at ? new Date(c.expires_at).toLocaleDateString("pt-BR") : "—"}
+                      </TableCell>
+                      <TableCell className="text-right py-3.5">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleEdit(c)}><Pencil className="w-3.5 h-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile */}
+            <div className="sm:hidden divide-y" style={{ borderColor: `hsl(var(--admin-border-subtle))` }}>
+              {filtered.map((c) => (
+                <div key={c.id} className="p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold font-mono">{c.code}</span>
+                    <span className={`admin-status-pill text-[10px] ${c.is_active ? "admin-status-success" : "admin-status-danger"}`}>
+                      {c.is_active ? "Ativo" : "Inativo"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs" style={{ color: `hsl(var(--admin-text-secondary))` }}>
+                    <span>{c.discount_type === "percentage" ? `${c.discount_value}%` : formatBRL(Number(c.discount_value))}</span>
+                    <span>{c.used_count} usos</span>
+                  </div>
+                  <div className="flex items-center justify-end gap-1">
+                    <Button variant="ghost" size="sm" className="h-7 gap-1 text-[11px] rounded-lg" onClick={() => handleEdit(c)}><Pencil className="w-3 h-3" /> Editar</Button>
+                    <Button variant="ghost" size="sm" className="h-7 text-[11px] rounded-lg text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="w-3 h-3" /></Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </motion.div>
     </div>
   );
 }
