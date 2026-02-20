@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, LayoutDashboard, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import SellerSidebar from "@/components/seller/SellerSidebar";
+import SellerMobileNav from "@/components/seller/SellerMobileNav";
 
 export default function SellerLayout() {
-  const { user, isSeller, isLoading, signOut, sellerId } = useAuth();
+  const { user, isSeller, isLoading, sellerId } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sellerStatus, setSellerStatus] = useState<string | null>(null);
@@ -44,27 +45,14 @@ export default function SellerLayout() {
   if (!user || !isSeller) return null;
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="container flex items-center justify-between h-14 px-4">
-          <div className="flex items-center gap-3">
-            <LayoutDashboard className="w-5 h-5 text-accent" />
-            <span className="font-display font-bold text-lg">Painel do Vendedor</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="rounded-xl font-sans text-xs">
-              Ver loja
-            </Button>
-            <Button variant="ghost" size="icon" onClick={signOut} className="rounded-xl h-8 w-8">
-              <LogOut className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <main className="container px-4 py-6 max-w-6xl">
-        <Outlet />
-      </main>
+    <div className="min-h-screen bg-background flex">
+      <SellerSidebar />
+      <div className="flex-1 flex flex-col min-h-screen">
+        <SellerMobileNav />
+        <main className="flex-1 px-4 lg:px-8 py-6 max-w-6xl w-full mx-auto">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }
