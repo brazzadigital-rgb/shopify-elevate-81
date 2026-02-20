@@ -53,35 +53,39 @@ export function SystemSuspendedFullPage() {
     try {
       const amount = getPrice(plan, cycle);
 
-      const invoiceRes = await supabase.functions.invoke("owner-efi-charge", {
-        body: { action: "generate_invoice", amount, plan_id: plan.id, billing_cycle: cycle },
+      // Helper to extract data from edge function response (handles non-2xx)
+      const invokeEfi = async (body: Record<string, unknown>) => {
+        const res = await supabase.functions.invoke("owner-efi-charge", { body });
+        // On non-2xx, error is FunctionsHttpError and data may contain the error body
+        if (res.error) {
+          // Try to get error detail from response context
+          let detail = "";
+          try {
+            const ctx = (res.error as any)?.context;
+            if (ctx && typeof ctx.json === "function") {
+              const errBody = await ctx.json();
+              detail = errBody?.error || "";
+            }
+          } catch { /* ignore */ }
+          throw new Error(detail || res.error.message || "Erro de conexão");
+        }
+        return res.data;
+      };
+
+      const invoiceData = await invokeEfi({
+        action: "generate_invoice", amount, plan_id: plan.id, billing_cycle: cycle,
       });
 
-      console.log("[Regularizar] invoiceRes:", JSON.stringify({ error: invoiceRes.error, data: invoiceRes.data }));
+      if (!invoiceData?.success) throw new Error(invoiceData?.error || "Erro ao gerar fatura");
 
-      // supabase.functions.invoke may return error as FunctionsHttpError even on 200
-      const invoiceData = invoiceRes.data;
-      if (!invoiceData?.success) {
-        const errMsg = invoiceRes.error?.message || invoiceData?.error || "Erro ao gerar fatura";
-        throw new Error(errMsg);
-      }
-
-      const chargeRes = await supabase.functions.invoke("owner-efi-charge", {
-        body: {
-          action: "create_charge",
-          amount,
-          description: `Plano ${plan.name} - ${cycleLabels[cycle]}`,
-          invoice_id: invoiceData.invoice.id,
-        },
+      const chargeData = await invokeEfi({
+        action: "create_charge",
+        amount,
+        description: `Plano ${plan.name} - ${cycleLabels[cycle]}`,
+        invoice_id: invoiceData.invoice.id,
       });
 
-      console.log("[Regularizar] chargeRes:", JSON.stringify({ error: chargeRes.error, data: chargeRes.data }));
-
-      const chargeData = chargeRes.data;
-      if (!chargeData?.success) {
-        const errMsg = chargeRes.error?.message || chargeData?.error || "Erro ao criar cobrança PIX";
-        throw new Error(errMsg);
-      }
+      if (!chargeData?.success) throw new Error(chargeData?.error || "Erro ao criar cobrança PIX");
 
       setPaymentModal(prev => ({
         ...prev,
