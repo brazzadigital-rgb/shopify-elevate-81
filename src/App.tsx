@@ -74,6 +74,7 @@ import FinancialCashflow from "./pages/admin/financial/FinancialCashflow";
 import FinancialReports from "./pages/admin/financial/FinancialReports";
 import FinancialSettings from "./pages/admin/financial/FinancialSettings";
 import AdminPlans from "./pages/admin/AdminPlans";
+import AdminSubscription from "./pages/admin/AdminSubscription";
 import OwnerLogin from "./pages/owner/OwnerLogin";
 import OwnerLayout from "./layouts/OwnerLayout";
 import OwnerDashboard from "./pages/owner/OwnerDashboard";
@@ -149,6 +150,7 @@ function AppContent() {
             <Route path="vitrines" element={<AdminShowcases />} />
             <Route path="header-styles" element={<AdminHeaderStyles />} />
             <Route path="planos" element={<AdminPlans />} />
+            <Route path="assinatura" element={<AdminSubscription />} />
             <Route path="rastreamento" element={<AdminTracking />} />
             <Route path="templates-variacoes" element={<AdminVariationTemplates />} />
             <Route path="notificacoes" element={<AdminNotifications />} />
