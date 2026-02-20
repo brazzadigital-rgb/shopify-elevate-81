@@ -24,7 +24,7 @@ export default function Auth() {
   const [cpf, setCpf] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, isLoading: authLoading } = useAuth();
   const { getSetting } = useStoreSettings();
   const { lookup: lookupCep, loading: cepLoading } = useCepLookup();
   const navigate = useNavigate();
@@ -37,6 +37,15 @@ export default function Auth() {
     zip_code: "", street: "", number: "", complement: "",
     neighborhood: "", city: "", state: "",
   });
+
+  // Show loading while auth state is being resolved
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+  }
 
   // If user is already logged in, redirect
   if (user && redirectTo && redirectTo !== "/") {
