@@ -108,10 +108,10 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
           <div className="relative aspect-square overflow-hidden">
             <div
               className="flex transition-transform duration-300 ease-out h-full"
-              style={{ transform: `translateX(-${selectedImage * 100}%)`, width: `${images.length * 100}%` }}
+              style={{ transform: `translateX(-${selectedImage * 100}%)` }}
             >
               {images.map((img, i) => (
-                <div key={i} className="w-full h-full shrink-0" style={{ width: `${100 / images.length}%` }}>
+                <div key={i} className="h-full shrink-0 w-full">
                   <img src={img.url} alt={title} className="w-full h-full object-cover" />
                 </div>
               ))}
