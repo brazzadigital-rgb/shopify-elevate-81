@@ -46,15 +46,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (!user) return null;
     if (cartId) return cartId;
 
-    const { data: existing } = await supabase
+    const { data: existingList } = await supabase
       .from("carts")
       .select("id")
       .eq("user_id", user.id)
-      .maybeSingle();
+      .order("created_at", { ascending: true })
+      .limit(1);
 
-    if (existing) {
-      setCartId(existing.id);
-      return existing.id;
+    if (existingList && existingList.length > 0) {
+      setCartId(existingList[0].id);
+      return existingList[0].id;
     }
 
     const { data: created } = await supabase
