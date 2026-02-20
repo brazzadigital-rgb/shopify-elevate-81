@@ -5,12 +5,13 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Search, ChevronRight } from "lucide-react";
+import { Moon, Sun, Search, ChevronRight, Settings } from "lucide-react";
 import { NotificationProvider } from "@/hooks/useNotifications";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSystemSuspension } from "@/hooks/useSystemSuspension";
 import { SystemSuspendedBanner } from "@/components/owner/SystemSuspendedBanner";
+import { useNavigate } from "react-router-dom";
 
 const routeTitles: Record<string, string> = {
   "/admin": "Dashboard",
@@ -67,6 +68,7 @@ function getBreadcrumbs(pathname: string) {
 
 export default function AdminLayout() {
   const { user, isAdmin, isLoading } = useAuth();
+  const navigate = useNavigate();
   const [isDark, setIsDark] = useState(() => localStorage.getItem("admin-theme") === "dark");
   const location = useLocation();
   const { isSuspended } = useSystemSuspension();
@@ -98,35 +100,30 @@ export default function AdminLayout() {
     <div className={`admin-panel ${isDark ? "dark" : ""} text-foreground`}>
       <NotificationProvider>
         <SidebarProvider>
-          <div className="min-h-screen flex w-full overflow-x-hidden" style={{ background: `hsl(var(--admin-bg))` }}>
+          <div className="min-h-screen flex w-full overflow-x-hidden bg-slate-50/70">
             <AdminSidebar />
-            <SidebarInset className="flex-1 min-w-0 flex flex-col">
+            <SidebarInset className="flex-1 min-w-0 flex flex-col bg-transparent">
               {/* Premium Topbar */}
               <header
-                className="h-16 flex items-center justify-between gap-4 px-4 md:px-8 sticky top-0 z-10"
-                style={{
-                  background: `hsl(var(--admin-surface) / 0.8)`,
-                  backdropFilter: "blur(12px)",
-                  borderBottom: `1px solid hsl(var(--admin-border-subtle))`,
-                }}
+                className="h-16 flex items-center justify-between gap-4 px-4 md:px-8 sticky top-0 z-10 bg-white/80 backdrop-blur-xl border-b border-slate-200/60"
               >
                 <div className="flex items-center gap-3">
-                  <SidebarTrigger className="text-muted-foreground min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl hover:bg-muted/50 transition-colors" />
+                  <SidebarTrigger className="text-slate-500 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors" />
                   
-                  {/* Breadcrumbs */}
-                  <nav className="hidden md:flex items-center gap-1.5 text-sm">
-                    {breadcrumbs.map((crumb, i) => (
-                      <span key={crumb.path} className="flex items-center gap-1.5">
-                        {i > 0 && <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40" />}
-                        <span className={i === breadcrumbs.length - 1 ? "font-semibold text-foreground" : "text-muted-foreground"}>
-                          {crumb.label}
-                        </span>
-                      </span>
-                    ))}
-                  </nav>
-                  
-                  {/* Mobile title */}
-                  <h1 className="md:hidden font-semibold text-sm truncate">{pageTitle}</h1>
+                  {/* Page title */}
+                  <h1 className="font-semibold text-lg text-slate-800">{pageTitle}</h1>
+                </div>
+
+                {/* Center search */}
+                <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
+                  <div className="relative w-full">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Buscar dados, pedidos ou produtos..."
+                      className="w-full h-10 pl-10 pr-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 transition-all"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -135,11 +132,23 @@ export default function AdminLayout() {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsDark(d => !d)}
-                    className="text-muted-foreground rounded-xl h-10 w-10"
+                    className="text-slate-500 rounded-xl h-10 w-10 hover:bg-slate-100"
                     aria-label="Alternar tema"
                   >
                     {isDark ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
                   </Button>
+                  <button
+                    onClick={() => navigate("/admin/configuracoes")}
+                    className="h-10 w-10 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"
+                  >
+                    <Settings className="w-[18px] h-[18px]" />
+                  </button>
+                  {/* User avatar */}
+                  <div className="w-9 h-9 rounded-full bg-emerald-500 flex items-center justify-center ml-1">
+                    <span className="text-white text-sm font-bold">
+                      {(user?.email?.charAt(0) || "A").toUpperCase()}
+                    </span>
+                  </div>
                 </div>
               </header>
               
