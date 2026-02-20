@@ -435,8 +435,17 @@ export default function ProductPage() {
   const price = hasGroups ? computedPrice! : (selectedVariant?.price ?? product.price);
   const comparePrice = product.compare_at_price ?? 0;
   const discount = comparePrice > price ? Math.round(((comparePrice - price) / comparePrice) * 100) : 0;
-  const currentStock = selectedVariant ? selectedVariant.stock : product.stock;
-  const inStock = currentStock > 0;
+
+  // Stock logic: for grouped variants, check each selected variant individually
+  const groupedStockInfo = hasGroups
+    ? selectedGroupVariants.map(v => v ? v.stock : 0)
+    : [];
+  const currentStock = hasGroups
+    ? (selectedGroupVariants.length > 0 ? Math.min(...groupedStockInfo) : product.stock)
+    : (selectedVariant ? selectedVariant.stock : product.stock);
+  const inStock = hasGroups
+    ? (selectedGroupVariants.length > 0 ? selectedGroupVariants.every(v => v && v.stock > 0) : product.stock > 0)
+    : currentStock > 0;
 
   const buildVariantsMetadata = () => {
     if (!hasGroups || selectedGroupVariants.length === 0) return undefined;
@@ -560,12 +569,30 @@ export default function ProductPage() {
               />
             </motion.div>
 
-            {/* Stock indicator */}
-            <motion.div variants={fadeUp} className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${inStock ? "bg-success animate-pulse" : "bg-destructive"}`} />
-              <span className={`font-sans text-xs font-medium ${inStock ? "text-muted-foreground" : "text-destructive"}`}>
-                {inStock ? `Em estoque (${currentStock})` : "Indisponível"}
-              </span>
+            {/* Stock indicator — show per-group when groups are selected */}
+            <motion.div variants={fadeUp} className="space-y-1">
+              {hasGroups && selectedGroupVariants.length > 0 ? (
+                selectedGroupVariants.map((v, i) => {
+                  if (!v) return null;
+                  const groupLabel = attributeGroups[Number(Object.keys(selectedAttributes)[i])]?.label;
+                  const vInStock = v.stock > 0;
+                  return (
+                    <div key={v.id} className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${vInStock ? "bg-success animate-pulse" : "bg-destructive"}`} />
+                      <span className={`font-sans text-xs font-medium ${vInStock ? "text-muted-foreground" : "text-destructive"}`}>
+                        {groupLabel}: {vInStock ? `Em estoque (${v.stock})` : "Indisponível"}
+                      </span>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full ${inStock ? "bg-success animate-pulse" : "bg-destructive"}`} />
+                  <span className={`font-sans text-xs font-medium ${inStock ? "text-muted-foreground" : "text-destructive"}`}>
+                    {inStock ? `Em estoque (${currentStock})` : "Indisponível"}
+                  </span>
+                </div>
+              )}
             </motion.div>
 
             {stockWarningEnabled && inStock && currentStock <= stockWarningThreshold && (
@@ -588,28 +615,34 @@ export default function ProductPage() {
                     <div className="flex flex-wrap gap-2">
                       {group.variants.map((v) => {
                         const colorHex = (v as any).color_hex || getMetalColor(v.name);
+                        const variantOutOfStock = v.stock <= 0;
                         return (
                           <motion.button
                             key={v.id}
-                          onClick={() => setSelectedAttributes(prev => {
-                            if (prev[g] === v.name) {
-                              const next = { ...prev };
-                              delete next[g];
-                              return next;
-                            }
-                            return { ...prev, [g]: v.name };
-                          })}
-                            whileHover={{ scale: 1.04 }}
-                            whileTap={{ scale: 0.96 }}
+                          onClick={() => {
+                            if (variantOutOfStock) return;
+                            setSelectedAttributes(prev => {
+                              if (prev[g] === v.name) {
+                                const next = { ...prev };
+                                delete next[g];
+                                return next;
+                              }
+                              return { ...prev, [g]: v.name };
+                            });
+                          }}
+                            whileHover={variantOutOfStock ? {} : { scale: 1.04 }}
+                            whileTap={variantOutOfStock ? {} : { scale: 0.96 }}
                             className={`px-4 py-2 rounded-full font-sans text-sm border-2 transition-all duration-200 flex items-center gap-2 ${
-                              selectedAttributes[g] === v.name
-                                ? "border-accent bg-accent/10 text-accent font-semibold shadow-[0_0_0_1px_hsl(var(--accent)/0.2)]"
-                                : "border-border hover:border-muted-foreground/30"
+                              variantOutOfStock
+                                ? "border-border/40 text-muted-foreground/40 cursor-not-allowed opacity-50 line-through"
+                                : selectedAttributes[g] === v.name
+                                  ? "border-accent bg-accent/10 text-accent font-semibold shadow-[0_0_0_1px_hsl(var(--accent)/0.2)]"
+                                  : "border-border hover:border-muted-foreground/30"
                             }`}
                           >
                             {colorHex && (
                               <span
-                                className="inline-block w-3.5 h-3.5 rounded-full border border-border shrink-0"
+                                className={`inline-block w-3.5 h-3.5 rounded-full border border-border shrink-0 ${variantOutOfStock ? "opacity-40" : ""}`}
                                 style={{ backgroundColor: colorHex }}
                               />
                             )}
