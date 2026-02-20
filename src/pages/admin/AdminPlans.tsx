@@ -288,7 +288,7 @@ export default function AdminPlans() {
 
       {/* Payment Modal */}
       <Dialog open={paymentModal.open} onOpenChange={(open) => setPaymentModal((prev) => ({ ...prev, open }))}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-sm max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold">
               {paymentModal.plan
@@ -303,22 +303,22 @@ export default function AdminPlans() {
               <p className="text-sm text-muted-foreground">Gerando cobrança PIX…</p>
             </div>
           ) : paymentModal.qrImage || paymentModal.qrCode ? (
-            <div className="flex flex-col items-center gap-5 py-4">
+            <div className="flex flex-col items-center gap-4 py-3">
               {/* Amount */}
               <div className="text-center">
-                <p className="text-sm text-muted-foreground">Valor a pagar</p>
-                <p className="text-2xl font-black text-foreground">
+                <p className="text-xs text-muted-foreground">Valor a pagar</p>
+                <p className="text-xl font-black text-foreground">
                   {paymentModal.plan ? formatBRL(getPrice(paymentModal.plan, paymentModal.cycle)) : "—"}
                 </p>
               </div>
 
               {/* QR Code Image */}
               {paymentModal.qrImage && (
-                <div className="bg-white p-3 rounded-xl border">
+                <div className="bg-white p-2 rounded-xl border inline-flex items-center justify-center">
                   <img
                     src={paymentModal.qrImage}
                     alt="QR Code PIX"
-                    className="w-48 h-48 object-contain"
+                    className="w-40 h-40 max-w-full object-contain"
                   />
                 </div>
               )}
@@ -328,7 +328,7 @@ export default function AdminPlans() {
                 <div className="w-full space-y-2">
                   <p className="text-xs text-muted-foreground text-center font-medium">PIX Copia e Cola</p>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-muted/50 rounded-lg px-3 py-2.5 text-xs text-foreground/70 truncate font-mono">
+                    <div className="flex-1 min-w-0 bg-muted/50 rounded-lg px-3 py-2.5 text-[10px] text-foreground/70 truncate font-mono overflow-hidden">
                       {paymentModal.qrCode}
                     </div>
                     <Button
