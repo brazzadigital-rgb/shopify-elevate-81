@@ -283,7 +283,7 @@ export default function AdminPlans() {
 
       {/* Payment Modal */}
       <Dialog open={paymentModal.open} onOpenChange={(open) => setPaymentModal((prev) => ({ ...prev, open }))}>
-        <DialogContent className="sm:max-w-[420px] p-0 overflow-hidden border-2 border-emerald-100 rounded-2xl bg-white">
+        <DialogContent className="sm:max-w-[420px] p-0 overflow-hidden border-2 border-emerald-100 rounded-2xl bg-white [&>button]:h-6 [&>button]:w-6 [&>button]:top-5 [&>button]:right-5">
           {/* Header */}
           <div className="flex items-center gap-3 px-6 pt-6 pb-3">
             <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
