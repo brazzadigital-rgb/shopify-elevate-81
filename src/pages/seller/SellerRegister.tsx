@@ -90,8 +90,9 @@ export default function SellerRegister() {
 
     try {
       // 1. Create auth user
+      const trimmedEmail = email.trim().toLowerCase();
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
+        email: trimmedEmail,
         password,
         options: {
           data: { full_name: fullName, phone: whatsapp, cpf: cpf.replace(/\D/g, "") },
