@@ -3,7 +3,7 @@ import { usePlans, type Plan } from "@/hooks/useSubscription";
 import { useOwnerSubscription } from "@/hooks/useOwnerSubscription";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Check, Crown, Loader2, Copy, CheckCircle2 } from "lucide-react";
+import { Check, Crown, Loader2, Copy, CheckCircle2, QrCode, Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -283,37 +283,43 @@ export default function AdminPlans() {
 
       {/* Payment Modal */}
       <Dialog open={paymentModal.open} onOpenChange={(open) => setPaymentModal((prev) => ({ ...prev, open }))}>
-        <DialogContent className="sm:max-w-sm max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold">
-              {paymentModal.plan
-                ? `${paymentModal.plan.name} — ${cycleLabels[paymentModal.cycle]}`
-                : "Pagamento"}
-            </DialogTitle>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden border-0 rounded-2xl bg-gradient-to-b from-orange-50/80 to-card">
+          {/* Header */}
+          <div className="flex items-center gap-3 px-6 pt-6 pb-2">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center shadow-md">
+              <QrCode className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-foreground">Pagamento via PIX</h3>
+              <p className="text-xs text-muted-foreground">Escaneie o QR Code ou copie o código</p>
+            </div>
+          </div>
 
           {paymentModal.loading ? (
-            <div className="flex flex-col items-center justify-center py-12 gap-3">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
               <p className="text-sm text-muted-foreground">Gerando cobrança PIX…</p>
             </div>
           ) : paymentModal.qrImage || paymentModal.qrCode ? (
-            <div className="flex flex-col items-center gap-4 py-3">
-              {/* Amount */}
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground">Valor a pagar</p>
-                <p className="text-xl font-black text-foreground">
+            <div className="flex flex-col items-center gap-4 px-6 pb-6">
+              {/* Plan + Price badge */}
+              <div className="w-full flex items-center justify-between bg-muted/60 rounded-xl px-4 py-3">
+                <div>
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Plano</p>
+                  <p className="text-base font-bold text-foreground">{cycleLabels[paymentModal.cycle]}</p>
+                </div>
+                <span className="text-sm font-bold bg-gradient-to-r from-orange-500 to-orange-400 text-white px-4 py-1.5 rounded-full shadow-sm">
                   {paymentModal.plan ? formatBRL(getPrice(paymentModal.plan, paymentModal.cycle)) : "—"}
-                </p>
+                </span>
               </div>
 
-              {/* QR Code Image */}
+              {/* QR Code */}
               {paymentModal.qrImage && (
-                <div className="bg-white p-2 rounded-xl border inline-flex items-center justify-center">
+                <div className="bg-white p-4 rounded-2xl border-2 border-dashed border-orange-200/70 inline-flex items-center justify-center">
                   <img
                     src={paymentModal.qrImage}
                     alt="QR Code PIX"
-                    className="w-40 h-40 max-w-full object-contain"
+                    className="w-44 h-44 max-w-full object-contain"
                   />
                 </div>
               )}
@@ -321,33 +327,34 @@ export default function AdminPlans() {
               {/* Copy paste */}
               {paymentModal.qrCode && (
                 <div className="w-full space-y-2">
-                  <p className="text-xs text-muted-foreground text-center font-medium">PIX Copia e Cola</p>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 min-w-0 bg-muted/50 rounded-lg px-3 py-2.5 text-[10px] text-foreground/70 truncate font-mono overflow-hidden">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">PIX Copia e Cola</p>
+                  <div className="relative bg-muted/50 rounded-xl p-3 pr-12">
+                    <p className="text-[11px] text-foreground/70 font-mono break-all leading-relaxed line-clamp-4">
                       {paymentModal.qrCode}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="shrink-0 gap-1.5"
+                    </p>
+                    <button
                       onClick={handleCopy}
+                      className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-card border border-border/50 flex items-center justify-center hover:bg-muted transition-colors"
+                      title="Copiar código"
                     >
                       {paymentModal.copied ? (
-                        <><CheckCircle2 className="w-4 h-4 text-green-500" /> Copiado</>
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
                       ) : (
-                        <><Copy className="w-4 h-4" /> Copiar</>
+                        <Copy className="w-4 h-4 text-muted-foreground" />
                       )}
-                    </Button>
+                    </button>
                   </div>
                 </div>
               )}
 
-              <p className="text-[11px] text-muted-foreground text-center leading-relaxed max-w-xs">
-                Após o pagamento, sua assinatura será atualizada automaticamente. O ciclo passa a valer imediatamente.
-              </p>
+              {/* Awaiting confirmation */}
+              <div className="flex items-center gap-2 text-muted-foreground pt-1">
+                <Clock className="w-3.5 h-3.5 animate-pulse" />
+                <p className="text-xs">Aguardando confirmação</p>
+              </div>
             </div>
           ) : (
-            <div className="py-8 text-center">
+            <div className="py-12 px-6 text-center">
               <p className="text-sm text-muted-foreground">Não foi possível gerar o QR Code. Tente novamente.</p>
             </div>
           )}
