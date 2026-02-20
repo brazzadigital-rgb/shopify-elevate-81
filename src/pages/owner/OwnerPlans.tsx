@@ -197,22 +197,19 @@ export default function OwnerPlans() {
                     <span className="text-sm text-slate-400 ml-1">{cycleSuffix[c]}</span>
                   </div>
 
-                  {/* Savings */}
-                  {savings > 0 ? (
-                    <p className="text-xs text-emerald-600 font-semibold mb-2">
-                      {savings}% de desconto · Base: {formatBRL(getMonthlyBase(plan))}/mês
-                    </p>
+                  {/* Monthly equivalent & Savings */}
+                  {c !== "monthly" ? (
+                    <div className="space-y-1 mb-3">
+                      <p className="text-xs text-slate-500">
+                        Equivale a <span className="font-bold text-slate-700">{formatBRL(total / (c === "semiannual" ? 6 : 12))}/mês</span>
+                        <span className="text-slate-400 ml-1">(base: {formatBRL(plan.monthly_price)}/mês)</span>
+                      </p>
+                      <p className="text-xs font-bold text-emerald-600">
+                        🎉 Economia de {formatBRL(plan.monthly_price * (c === "semiannual" ? 6 : 12) - total)} ({savings}% off)
+                      </p>
+                    </div>
                   ) : (
-                    <p className="text-xs text-slate-400 mb-2">Plano mensal sem desconto</p>
-                  )}
-
-                  {/* Description */}
-                  {plan.description && (
-                    <p className="text-xs text-slate-400 mb-4">
-                      {savings > 0
-                        ? `Plano ${cycleLabels[c].toLowerCase()} com ${savings}% de desconto`
-                        : plan.description}
-                    </p>
+                    <p className="text-xs text-slate-400 mb-3">Valor base sem desconto</p>
                   )}
 
                   {/* Stats grid */}
