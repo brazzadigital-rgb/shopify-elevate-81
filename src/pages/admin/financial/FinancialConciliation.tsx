@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useFinancialFilters } from "@/hooks/useFinancialFilters";
@@ -8,11 +8,11 @@ import { KpiCard } from "@/components/admin/financial/KpiCard";
 import { formatBRL, exportToCsv } from "@/lib/exportCsv";
 import { CreditCard, CheckCircle, AlertTriangle, Download } from "lucide-react";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
 
 export default function FinancialConciliation() {
   const filters = useFinancialFilters("30d");
   const [transactions, setTransactions] = useState<any[]>([]);
-  const [gatewayFilter, setGatewayFilter] = useState("all");
 
   useEffect(() => {
     const fetch = async () => {
@@ -23,10 +23,9 @@ export default function FinancialConciliation() {
     fetch();
   }, [filters.dateRange]);
 
-  const filtered = transactions.filter(t => gatewayFilter === "all" || t.gateway === gatewayFilter);
-  const confirmed = filtered.filter(t => t.status === "confirmed");
-  const pending = filtered.filter(t => t.status === "pending");
-  const totalFees = filtered.reduce((s, t) => s + Number(t.fees), 0);
+  const confirmed = transactions.filter(t => t.status === "confirmed");
+  const pending = transactions.filter(t => t.status === "pending");
+  const totalFees = transactions.reduce((s, t) => s + Number(t.fees), 0);
   const totalNet = confirmed.reduce((s, t) => s + Number(t.net_amount), 0);
 
   return (
@@ -38,7 +37,7 @@ export default function FinancialConciliation() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <PeriodFilter {...filters} />
-          <Button variant="outline" size="sm" onClick={() => exportToCsv("conciliacao", filtered.map(t => ({
+          <Button variant="outline" size="sm" className="rounded-xl" onClick={() => exportToCsv("conciliacao", transactions.map(t => ({
             Data: t.payment_date ? format(new Date(t.payment_date), "dd/MM/yyyy") : "-",
             Pedido: (t as any).orders?.order_number || "-",
             Gateway: t.gateway,
@@ -58,47 +57,49 @@ export default function FinancialConciliation() {
         <KpiCard title="Líquido Recebido" value={formatBRL(totalNet)} icon={CreditCard} color="text-accent" index={3} />
       </div>
 
-      <Card className="shadow-premium border-0">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/30">
-                  <th className="text-left p-3 font-sans font-medium text-muted-foreground">Data</th>
-                  <th className="text-left p-3 font-sans font-medium text-muted-foreground">Pedido</th>
-                  <th className="text-left p-3 font-sans font-medium text-muted-foreground">Gateway</th>
-                  <th className="text-left p-3 font-sans font-medium text-muted-foreground">ID Transação</th>
-                  <th className="text-right p-3 font-sans font-medium text-muted-foreground">Valor</th>
-                  <th className="text-right p-3 font-sans font-medium text-muted-foreground">Taxas</th>
-                  <th className="text-right p-3 font-sans font-medium text-muted-foreground">Líquido</th>
-                  <th className="text-center p-3 font-sans font-medium text-muted-foreground">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(t => (
-                  <tr key={t.id} className="border-b hover:bg-muted/10">
-                    <td className="p-3">{t.payment_date ? format(new Date(t.payment_date), "dd/MM/yy") : "-"}</td>
-                    <td className="p-3 font-mono text-xs">#{(t as any).orders?.order_number || "-"}</td>
-                    <td className="p-3 capitalize">{t.gateway}</td>
-                    <td className="p-3 font-mono text-xs text-muted-foreground">{t.transaction_id || "-"}</td>
-                    <td className="p-3 text-right">{formatBRL(Number(t.amount))}</td>
-                    <td className="p-3 text-right text-muted-foreground">{formatBRL(Number(t.fees))}</td>
-                    <td className="p-3 text-right font-semibold">{formatBRL(Number(t.net_amount))}</td>
-                    <td className="p-3 text-center">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${t.status === "confirmed" ? "bg-emerald-100 text-emerald-700" : t.status === "failed" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
-                        {t.status}
-                      </span>
-                    </td>
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        <Card className="admin-card">
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/30">
+                    <th className="text-left p-3 font-sans font-medium text-muted-foreground">Data</th>
+                    <th className="text-left p-3 font-sans font-medium text-muted-foreground">Pedido</th>
+                    <th className="text-left p-3 font-sans font-medium text-muted-foreground">Gateway</th>
+                    <th className="text-left p-3 font-sans font-medium text-muted-foreground">ID Transação</th>
+                    <th className="text-right p-3 font-sans font-medium text-muted-foreground">Valor</th>
+                    <th className="text-right p-3 font-sans font-medium text-muted-foreground">Taxas</th>
+                    <th className="text-right p-3 font-sans font-medium text-muted-foreground">Líquido</th>
+                    <th className="text-center p-3 font-sans font-medium text-muted-foreground">Status</th>
                   </tr>
-                ))}
-                {filtered.length === 0 && (
-                  <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">Nenhuma transação no período</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+                </thead>
+                <tbody>
+                  {transactions.map(t => (
+                    <tr key={t.id} className="border-b hover:bg-muted/10">
+                      <td className="p-3">{t.payment_date ? format(new Date(t.payment_date), "dd/MM/yy") : "-"}</td>
+                      <td className="p-3 font-mono text-xs">#{(t as any).orders?.order_number || "-"}</td>
+                      <td className="p-3 capitalize">{t.gateway}</td>
+                      <td className="p-3 font-mono text-xs text-muted-foreground">{t.transaction_id || "-"}</td>
+                      <td className="p-3 text-right">{formatBRL(Number(t.amount))}</td>
+                      <td className="p-3 text-right text-muted-foreground">{formatBRL(Number(t.fees))}</td>
+                      <td className="p-3 text-right font-semibold">{formatBRL(Number(t.net_amount))}</td>
+                      <td className="p-3 text-center">
+                        <span className={`admin-status-pill ${t.status === "confirmed" ? "bg-emerald-100 text-emerald-700" : t.status === "failed" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
+                          {t.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {transactions.length === 0 && (
+                    <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">Nenhuma transação no período</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 }
