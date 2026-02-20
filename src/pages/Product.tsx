@@ -321,6 +321,7 @@ export default function ProductPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariantIdx, setSelectedVariantIdx] = useState<number | null>(null);
+  const [selectedAttributes, setSelectedAttributes] = useState<Record<number, string>>({});
 
   // Settings
   const pixEnabled = isEnabled("pix_enabled");
@@ -390,7 +391,35 @@ export default function ProductPage() {
 
   const images = product.product_images || [];
   const variants = product.product_variants || [];
-  const selectedVariant = selectedVariantIdx !== null ? variants[selectedVariantIdx] : null;
+
+  // Parse variant names to extract attribute groups (e.g., "Aro 16 / Ouro 18k" → [["Aro 16","Aro 18",...], ["Ouro 18k","Ródio Branco",...]])
+  const hasGroups = variants.length > 0 && variants.some(v => v.name.includes(" / "));
+  const attributeGroups: { label: string; options: string[] }[] = [];
+
+  if (hasGroups) {
+    const parts = variants.map(v => v.name.split(" / ").map(s => s.trim()));
+    const groupCount = parts[0]?.length || 0;
+    for (let g = 0; g < groupCount; g++) {
+      const uniqueValues = [...new Set(parts.map(p => p[g]).filter(Boolean))];
+      // Try to infer a group label from common prefix or use generic
+      const firstVal = uniqueValues[0] || "";
+      const prefixMatch = firstVal.match(/^([A-Za-zÀ-ÿ]+)\s/);
+      const label = prefixMatch ? prefixMatch[1] : `Opção ${g + 1}`;
+      attributeGroups.push({ label, options: uniqueValues });
+    }
+  }
+
+  // Find the matching variant based on selected attributes
+  const getMatchedVariantIdx = (): number | null => {
+    if (!hasGroups) return selectedVariantIdx;
+    if (Object.keys(selectedAttributes).length !== attributeGroups.length) return null;
+    const targetName = attributeGroups.map((_, g) => selectedAttributes[g]).join(" / ");
+    const idx = variants.findIndex(v => v.name === targetName);
+    return idx >= 0 ? idx : null;
+  };
+
+  const matchedVariantIdx = hasGroups ? getMatchedVariantIdx() : selectedVariantIdx;
+  const selectedVariant = matchedVariantIdx !== null ? variants[matchedVariantIdx] : null;
   const price = selectedVariant?.price ?? product.price;
   const comparePrice = product.compare_at_price ?? 0;
   const discount = comparePrice > price ? Math.round(((comparePrice - price) / comparePrice) * 100) : 0;
@@ -514,8 +543,39 @@ export default function ProductPage() {
               </motion.div>
             )}
 
-            {/* Variant selector */}
-            {variants.length > 0 && (
+            {/* Variant selector — grouped attributes */}
+            {variants.length > 0 && hasGroups && (
+              <motion.div variants={fadeUp} className="space-y-4">
+                {attributeGroups.map((group, g) => (
+                  <div key={g} className="space-y-2">
+                    <p className="font-sans text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      {group.label}
+                      {selectedAttributes[g] && <span className="ml-1.5 text-foreground normal-case tracking-normal">— {selectedAttributes[g]}</span>}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {group.options.map((opt) => (
+                        <motion.button
+                          key={opt}
+                          onClick={() => setSelectedAttributes(prev => ({ ...prev, [g]: opt }))}
+                          whileHover={{ scale: 1.04 }}
+                          whileTap={{ scale: 0.96 }}
+                          className={`px-4 py-2 rounded-full font-sans text-sm border-2 transition-all duration-200 ${
+                            selectedAttributes[g] === opt
+                              ? "border-accent bg-accent/10 text-accent font-semibold shadow-[0_0_0_1px_hsl(var(--accent)/0.2)]"
+                              : "border-border hover:border-muted-foreground/30"
+                          }`}
+                        >
+                          {opt}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+
+            {/* Variant selector — flat list (no groups) */}
+            {variants.length > 0 && !hasGroups && (
               <motion.div variants={fadeUp} className="space-y-2.5">
                 <p className="font-sans text-xs font-semibold uppercase tracking-wider text-muted-foreground">Variante</p>
                 <div className="flex flex-wrap gap-2">
