@@ -419,13 +419,17 @@ export default function ProductPage() {
       }).filter(Boolean)
     : [];
 
-  // Use the last selected variant for price display, or first selected
+  // For grouped variants, sum prices from all selected groups
+  const computedPrice = hasGroups
+    ? selectedGroupVariants.reduce((sum, v) => sum + (v && v.price ? Number(v.price) : 0), 0) || product.price
+    : null;
+
   const activeVariant = hasGroups
     ? (selectedGroupVariants.length > 0 ? selectedGroupVariants[selectedGroupVariants.length - 1] : null)
     : (selectedVariantIdx !== null ? variants[selectedVariantIdx] : null);
 
   const selectedVariant = activeVariant as typeof variants[0] | null;
-  const price = selectedVariant?.price ?? product.price;
+  const price = hasGroups ? computedPrice! : (selectedVariant?.price ?? product.price);
   const comparePrice = product.compare_at_price ?? 0;
   const discount = comparePrice > price ? Math.round(((comparePrice - price) / comparePrice) * 100) : 0;
   const currentStock = selectedVariant ? selectedVariant.stock : product.stock;
