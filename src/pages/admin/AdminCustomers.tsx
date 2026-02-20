@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Users, Search, ShoppingBag, Crown, X, Download, MessageCircle
+  Users, Search, ShoppingBag, Crown, X, Download, MessageCircle, ShieldCheck, ShieldOff, Eye
 } from "lucide-react";
 
 interface CustomerProfile {
@@ -38,6 +39,28 @@ export default function AdminCustomers() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const qc = useQueryClient();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Toggle admin role
+  const toggleAdminMutation = useMutation({
+    mutationFn: async ({ userId, isCurrentlyAdmin }: { userId: string; isCurrentlyAdmin: boolean }) => {
+      if (isCurrentlyAdmin) {
+        const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", "admin");
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: "admin" });
+        if (error) throw error;
+      }
+    },
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: ["admin-customer-roles"] });
+      toast({ title: vars.isCurrentlyAdmin ? "Admin removido" : "Promovido a admin" });
+    },
+    onError: (err: any) => {
+      toast({ title: "Erro", description: err.message, variant: "destructive" });
+    },
+  });
 
   // Fetch profiles
   const { data: profiles = [], isLoading } = useQuery({
@@ -290,6 +313,7 @@ export default function AdminCustomers() {
                     <th className="admin-table-th text-right">Pedidos</th>
                     <th className="admin-table-th text-right">Total Gasto</th>
                     <th className="admin-table-th text-center">Status</th>
+                    <th className="admin-table-th text-right">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -335,6 +359,29 @@ export default function AdminCustomers() {
                         <td className="px-4 py-3 text-right font-semibold text-slate-700">{formatCurrency(os?.total || 0)}</td>
                         <td className="px-4 py-3 text-center">
                           <StatusPill status={status} />
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="w-7 h-7"
+                              title={isAdmin(p.user_id) ? "Remover admin" : "Tornar admin"}
+                              disabled={toggleAdminMutation.isPending || p.user_id === user?.id}
+                              onClick={e => { e.stopPropagation(); toggleAdminMutation.mutate({ userId: p.user_id, isCurrentlyAdmin: !!isAdmin(p.user_id) }); }}
+                            >
+                              {isAdmin(p.user_id) ? <ShieldOff className="w-3.5 h-3.5 text-destructive" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="w-7 h-7"
+                              title="Ver detalhes"
+                              onClick={e => { e.stopPropagation(); navigate(`/admin/clientes/${p.user_id}`); }}
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     );
