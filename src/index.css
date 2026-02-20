@@ -500,3 +500,73 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ═══════ ADMIN DESIGN SYSTEM ═══════ */
+.admin-panel {
+  --admin-bg: 40 10% 96%;
+  --admin-surface: 0 0% 100%;
+  --admin-surface-hover: 40 8% 98%;
+  --admin-text: 0 0% 13%;
+  --admin-text-secondary: 0 0% 45%;
+  --admin-border: 0 0% 91%;
+  --admin-border-subtle: 0 0% 94%;
+  --admin-radius: 18px;
+  --admin-radius-sm: 12px;
+  --admin-radius-xs: 8px;
+  --admin-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+  --admin-shadow-md: 0 4px 16px -4px rgba(0,0,0,0.06), 0 2px 4px -1px rgba(0,0,0,0.03);
+  --admin-shadow-lg: 0 8px 30px -8px rgba(0,0,0,0.08), 0 4px 10px -4px rgba(0,0,0,0.04);
+  --admin-success: 152 45% 42%;
+  --admin-warning: 38 75% 52%;
+  --admin-danger: 0 55% 52%;
+  --admin-info: 210 60% 50%;
+}
+
+.admin-panel.dark {
+  --admin-bg: 0 0% 7%;
+  --admin-surface: 0 0% 11%;
+  --admin-surface-hover: 0 0% 14%;
+  --admin-text: 0 0% 92%;
+  --admin-text-secondary: 0 0% 55%;
+  --admin-border: 0 0% 16%;
+  --admin-border-subtle: 0 0% 13%;
+  --admin-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.1);
+  --admin-shadow-md: 0 4px 16px -4px rgba(0,0,0,0.3), 0 2px 4px -1px rgba(0,0,0,0.15);
+  --admin-shadow-lg: 0 8px 30px -8px rgba(0,0,0,0.4), 0 4px 10px -4px rgba(0,0,0,0.2);
+}
+
+.admin-card {
+  background: hsl(var(--admin-surface));
+  border: 1px solid hsl(var(--admin-border-subtle));
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  transition: box-shadow 200ms ease, transform 200ms ease;
+}
+
+.admin-card:hover {
+  box-shadow: var(--admin-shadow-md);
+}
+
+.admin-status-pill {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium;
+}
+
+.admin-status-success {
+  background: hsl(var(--admin-success) / 0.1);
+  color: hsl(var(--admin-success));
+}
+
+.admin-status-warning {
+  background: hsl(var(--admin-warning) / 0.1);
+  color: hsl(var(--admin-warning));
+}
+
+.admin-status-danger {
+  background: hsl(var(--admin-danger) / 0.1);
+  color: hsl(var(--admin-danger));
+}
+
+.admin-status-info {
+  background: hsl(var(--admin-info) / 0.1);
+  color: hsl(var(--admin-info));
+}

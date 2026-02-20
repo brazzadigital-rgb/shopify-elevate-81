@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, LogOut, ShoppingBag,
   Truck, UserCheck, Shield, Percent, TrendingUp, Columns3, Layout, CalendarRange,
-  DollarSign, BarChart3, ArrowDownCircle, CreditCard, Wallet, FileSpreadsheet, Wrench, Activity, Bell, Layers
+  DollarSign, BarChart3, ArrowDownCircle, CreditCard, Wallet, FileSpreadsheet, Wrench, Activity, Bell, Layers,
+  ChevronDown
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,6 +15,7 @@ import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 const mainMenu = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
@@ -65,44 +67,58 @@ const usersMenu = [
   { title: "Relatórios", url: "/admin/relatorios", icon: TrendingUp },
 ];
 
-const linkClass = "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 font-sans text-sm font-medium";
-const activeClass = "bg-accent/10 text-accent font-bold border border-accent/20";
-
 type MenuItem = { title: string; url: string; icon: any; badgeKey?: "orders" | "notifications" };
 
-function MenuGroup({ label, items, badges }: { label: string; items: MenuItem[]; badges?: Record<string, number> }) {
+function MenuGroup({ label, items, badges, defaultOpen = false }: { label: string; items: MenuItem[]; badges?: Record<string, number>; defaultOpen?: boolean }) {
+  const location = useLocation();
+  const hasActiveChild = items.some(item => 
+    item.url === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(item.url)
+  );
+  const [isOpen, setIsOpen] = useState(defaultOpen || hasActiveChild);
+
   return (
     <SidebarGroup>
-      <SidebarGroupLabel className="text-sidebar-foreground/40 uppercase text-[10px] tracking-widest font-sans font-bold mb-2">
-        {label}
-      </SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {items.map((item) => {
-            const count = item.badgeKey && badges ? badges[item.badgeKey] || 0 : 0;
-            return (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild>
-                  <NavLink
-                    to={item.url}
-                    end={item.url === "/admin"}
-                    className={linkClass}
-                    activeClassName={activeClass}
-                  >
-                    <item.icon className="w-[18px] h-[18px]" />
-                    <span className="flex-1">{item.title}</span>
-                    {count > 0 && (
-                      <span className="ml-auto min-w-[20px] h-5 px-1.5 flex items-center justify-center rounded-full bg-accent text-white text-[10px] font-bold leading-none">
-                        {count > 99 ? "99+" : count}
-                      </span>
-                    )}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            );
-          })}
-        </SidebarMenu>
-      </SidebarGroupContent>
+      <button
+        onClick={() => setIsOpen(o => !o)}
+        className="flex items-center justify-between w-full px-3 py-1.5 mb-1 group"
+      >
+        <SidebarGroupLabel className="text-muted-foreground/50 uppercase text-[10px] tracking-[0.12em] font-semibold pointer-events-none">
+          {label}
+        </SidebarGroupLabel>
+        <ChevronDown className={cn(
+          "w-3.5 h-3.5 text-muted-foreground/30 transition-transform duration-200",
+          isOpen && "rotate-180"
+        )} />
+      </button>
+      {isOpen && (
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {items.map((item) => {
+              const count = item.badgeKey && badges ? badges[item.badgeKey] || 0 : 0;
+              return (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      end={item.url === "/admin"}
+                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all duration-150 text-[13px] font-medium"
+                      activeClassName="bg-primary/8 text-primary font-semibold"
+                    >
+                      <item.icon className="w-4 h-4 flex-shrink-0" />
+                      <span className="flex-1 truncate">{item.title}</span>
+                      {count > 0 && (
+                        <span className="ml-auto min-w-[20px] h-5 px-1.5 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold leading-none">
+                          {count > 99 ? "99+" : count}
+                        </span>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      )}
     </SidebarGroup>
   );
 }
@@ -131,7 +147,6 @@ export function AdminSidebar() {
       .channel("sidebar-orders")
       .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => {
         fetchPending();
-        // Reset seen if new order arrives while not on orders page
         if (!location.pathname.startsWith("/admin/pedidos")) {
           setSeenOrders(false);
         }
@@ -140,7 +155,6 @@ export function AdminSidebar() {
     return () => { supabase.removeChannel(channel); };
   }, [location.pathname]);
 
-  // Mark as seen when visiting orders page
   useEffect(() => {
     if (location.pathname.startsWith("/admin/pedidos")) {
       setSeenOrders(true);
@@ -148,7 +162,6 @@ export function AdminSidebar() {
   }, [location.pathname]);
 
   const badges = { orders: seenOrders ? 0 : pendingOrders, notifications: unreadCount };
-
   const logoUrl = getSetting("logo_url");
 
   const handleSignOut = async () => {
@@ -157,44 +170,50 @@ export function AdminSidebar() {
   };
 
   return (
-    <Sidebar className="border-r-0 shadow-premium">
-      <SidebarHeader className="p-5 border-b border-sidebar-border">
+    <Sidebar
+      className="border-r-0"
+      style={{
+        background: `hsl(var(--admin-surface))`,
+        borderRight: `1px solid hsl(var(--admin-border-subtle))`,
+      }}
+    >
+      <SidebarHeader className="p-5 pb-4">
         <div className="flex items-center gap-3">
           {logoUrl ? (
-            <img src={logoUrl} alt="Logo" className="h-9 max-w-[140px] object-contain" />
+            <img src={logoUrl} alt="Logo" className="h-8 max-w-[120px] object-contain" />
           ) : (
-            <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center glow-orange">
-              <span className="text-lg">🐆</span>
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground text-sm font-bold">A</span>
             </div>
           )}
           <div className="flex flex-col">
-            <span className="font-display text-base font-bold text-sidebar-foreground uppercase">Admin</span>
-            <span className="text-[10px] text-accent font-sans font-bold uppercase tracking-wider">Painel de Gestão</span>
+            <span className="font-semibold text-sm text-foreground">Admin</span>
+            <span className="text-[10px] text-muted-foreground font-medium">Painel de Gestão</span>
           </div>
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-3 py-4 space-y-4">
-        <MenuGroup label="Menu" items={mainMenu} badges={badges} />
+      <SidebarContent className="px-2 py-2 space-y-1 overflow-y-auto">
+        <MenuGroup label="Menu" items={mainMenu} badges={badges} defaultOpen />
         <MenuGroup label="Marketing" items={marketingMenu} />
         <MenuGroup label="Financeiro" items={financialMenu} />
         <MenuGroup label="Aparência" items={appearanceMenu} />
         <MenuGroup label="Usuários e Operações" items={usersMenu} />
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-sidebar-border">
+      <SidebarFooter className="p-3 space-y-1" style={{ borderTop: `1px solid hsl(var(--admin-border-subtle))` }}>
         <button
           onClick={() => navigate("/")}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/40 hover:text-accent hover:bg-sidebar-accent transition-all duration-200 w-full font-sans text-sm mb-1"
+          className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all duration-150 w-full text-[13px] font-medium"
         >
-          <ShoppingBag className="w-[18px] h-[18px]" />
+          <ShoppingBag className="w-4 h-4" />
           <span>Ver Loja</span>
         </button>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sidebar-foreground/40 hover:text-destructive hover:bg-sidebar-accent transition-all duration-200 w-full font-sans text-sm"
+          className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all duration-150 w-full text-[13px] font-medium"
         >
-          <LogOut className="w-[18px] h-[18px]" />
+          <LogOut className="w-4 h-4" />
           <span>Sair</span>
         </button>
       </SidebarFooter>
