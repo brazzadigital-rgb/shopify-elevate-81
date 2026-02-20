@@ -53,6 +53,8 @@ import CheckoutPage from "./pages/store/CheckoutPage";
 import TrackOrderPage from "./pages/store/TrackOrderPage";
 import SellerLayout from "./layouts/SellerLayout";
 import SellerDashboard from "./pages/seller/SellerDashboard";
+import SellerRegister from "./pages/seller/SellerRegister";
+import SellerPending from "./pages/seller/SellerPending";
 import AdminLogistics from "./pages/admin/AdminLogistics";
 import AdminPaymentSettings from "./pages/admin/AdminPaymentSettings";
 import AdminPromoPanels from "./pages/admin/AdminPromoPanels";
@@ -165,8 +167,10 @@ function AppContent() {
             <Route path="financeiro/relatorios" element={<FinancialReports />} />
             <Route path="financeiro/configuracoes" element={<FinancialSettings />} />
           </Route>
+          <Route path="/vendedor/cadastro" element={<SellerRegister />} />
           <Route path="/vendedor" element={<SellerLayout />}>
             <Route index element={<SellerDashboard />} />
+            <Route path="pendente" element={<SellerPending />} />
           </Route>
           <Route path="/owner/login" element={<OwnerLogin />} />
           <Route path="/owner" element={<OwnerLayout />}>

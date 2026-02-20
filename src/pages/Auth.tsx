@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, ArrowRight, ArrowLeft, Sparkles, Diamond, Loader2, MapPin, User } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, ArrowLeft, Sparkles, Diamond, Loader2, MapPin, User, Store } from "lucide-react";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useCepLookup } from "@/hooks/useCepLookup";
 import authHeroImg from "@/assets/auth-jewelry-hero.jpg";
@@ -390,6 +390,26 @@ export default function Auth() {
                     </button>
                   )}
                 </div>
+
+                {/* CTA Vendedor */}
+                {(mode === "login" || mode === "register") && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="mt-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-xl border border-primary/20 p-4 text-center"
+                  >
+                    <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">Seja um Vendedor da {storeName || "Lizara"}</p>
+                    <p className="text-[11px] text-muted-foreground mb-3">Cadastre-se e aguarde aprovação do administrador.</p>
+                    <button
+                      type="button"
+                      onClick={() => navigate("/vendedor/cadastro")}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors duration-200"
+                    >
+                      <Store className="w-3.5 h-3.5" /> Quero ser vendedor
+                    </button>
+                  </motion.div>
+                )}
               </div>
 
               <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-center text-[10px] text-muted-foreground mt-6 tracking-widest uppercase">
