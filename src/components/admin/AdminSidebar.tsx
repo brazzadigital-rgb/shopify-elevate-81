@@ -80,13 +80,13 @@ function MenuGroup({ label, items, badges, defaultOpen = false }: { label: strin
     <SidebarGroup>
       <button
         onClick={() => setIsOpen(o => !o)}
-        className="flex items-center justify-between w-full px-3 py-1.5 mb-1 group"
+        className="flex items-center justify-between w-full px-3 py-2.5 mb-0.5 rounded-lg hover:bg-muted/30 transition-colors group"
       >
-        <SidebarGroupLabel className="text-muted-foreground/50 uppercase text-[10px] tracking-[0.12em] font-semibold pointer-events-none">
+        <SidebarGroupLabel className="text-foreground/70 uppercase text-[11px] tracking-[0.1em] font-bold pointer-events-none">
           {label}
         </SidebarGroupLabel>
         <ChevronDown className={cn(
-          "w-3.5 h-3.5 text-muted-foreground/30 transition-transform duration-200",
+          "w-3.5 h-3.5 text-foreground/40 transition-transform duration-200",
           isOpen && "rotate-180"
         )} />
       </button>
