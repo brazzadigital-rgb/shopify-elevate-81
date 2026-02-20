@@ -153,8 +153,8 @@ export default function AdminPlans() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Plano e Assinatura</h1>
-          <p className="text-muted-foreground text-sm mt-1">Escolha o ciclo ideal para sua operação</p>
+          <h1 className="text-2xl font-bold text-slate-800">Plano e Assinatura</h1>
+          <p className="text-slate-400 text-sm mt-1">Escolha o ciclo ideal para sua operação</p>
         </div>
         {sub?.plan && (
           <Badge variant="outline" className="text-xs px-3 py-1.5 rounded-full border-primary/30 text-primary font-medium self-start">
@@ -181,8 +181,8 @@ export default function AdminPlans() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.08 }}
-                className={`relative bg-card rounded-2xl border-2 overflow-hidden flex flex-col ${
-                  isRecommended ? "border-primary shadow-md" : "border-border/50"
+                className={`relative admin-card overflow-hidden flex flex-col border-2 ${
+                  isRecommended ? "!border-emerald-500 shadow-md" : ""
                 }`}
               >
                 {isRecommended && (
@@ -276,8 +276,8 @@ export default function AdminPlans() {
           })}
         </div>
       ) : (
-        <div className="bg-card rounded-2xl border border-border/50 p-12 text-center">
-          <p className="text-sm text-muted-foreground">Nenhum plano configurado</p>
+        <div className="admin-card p-12 text-center">
+          <p className="text-sm text-slate-400">Nenhum plano configurado</p>
         </div>
       )}
 

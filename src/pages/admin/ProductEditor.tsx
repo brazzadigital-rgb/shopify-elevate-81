@@ -259,8 +259,8 @@ export default function ProductEditor() {
 
   const activeIndex = tabs.findIndex(t => t.v === activeTab);
 
-  const inputClass = "h-11 rounded-2xl font-sans text-sm border-border/60 bg-background focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all";
-  const labelClass = "font-sans text-xs font-semibold text-muted-foreground uppercase tracking-wider";
+  const inputClass = "admin-input h-11";
+  const labelClass = "text-[11px] font-bold uppercase tracking-widest text-slate-400";
 
   const contentAnimation = {
     initial: { opacity: 0, y: 12 },
@@ -270,7 +270,7 @@ export default function ProductEditor() {
   };
 
   return (
-    <div className="space-y-8 pb-12 max-w-5xl mx-auto">
+    <div className="space-y-6 pb-12 max-w-5xl mx-auto">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -279,17 +279,17 @@ export default function ProductEditor() {
         className="flex items-center justify-between"
       >
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/admin/produtos")} className="rounded-2xl h-11 w-11 hover:bg-muted/80">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/admin/produtos")} className="rounded-xl h-10 w-10 hover:bg-slate-100">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-display font-bold tracking-tight">{isEditing ? "Editar Produto" : "Novo Produto"}</h1>
-            <p className="text-sm text-muted-foreground font-sans mt-0.5">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-800">{isEditing ? "Editar Produto" : "Novo Produto"}</h1>
+            <p className="text-sm text-slate-400 mt-0.5">
               {isEditing ? form.name : "Preencha as informações do produto"}
             </p>
           </div>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2 rounded-2xl h-11 px-6 font-sans font-semibold shadow-premium">
+        <Button onClick={handleSave} disabled={saving} className="admin-btn-primary gap-2 rounded-xl h-10 px-6">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {saving ? "Salvando..." : "Salvar"}
         </Button>
@@ -325,12 +325,12 @@ export default function ProductEditor() {
                 className="flex flex-col items-center gap-1.5 min-w-[72px] md:min-w-0 md:flex-1 group relative z-10"
               >
                 <motion.div
-                  className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
                     isActive
-                      ? "bg-accent text-accent-foreground shadow-lg shadow-accent/25"
+                      ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25"
                       : isPast
-                        ? "bg-accent/15 text-accent"
-                        : "bg-muted/60 text-muted-foreground group-hover:bg-muted"
+                        ? "bg-emerald-100 text-emerald-600"
+                        : "bg-slate-100 text-slate-400 group-hover:bg-slate-200"
                   }`}
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.95 }}
@@ -338,8 +338,8 @@ export default function ProductEditor() {
                 >
                   {isPast ? <Check className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                 </motion.div>
-                <span className={`text-[10px] font-sans font-medium transition-colors text-center leading-tight ${
-                  isActive ? "text-accent font-bold" : isPast ? "text-accent/70" : "text-muted-foreground"
+                <span className={`text-[10px] font-medium transition-colors text-center leading-tight ${
+                  isActive ? "text-emerald-600 font-bold" : isPast ? "text-emerald-500/70" : "text-slate-400"
                 }`}>
                   {tab.l}
                 </span>
@@ -351,7 +351,7 @@ export default function ProductEditor() {
                 {isActive && (
                   <motion.div
                     layoutId="activeTabDot"
-                    className="w-1 h-1 rounded-full bg-accent"
+                    className="w-1 h-1 rounded-full bg-emerald-500"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
@@ -367,8 +367,8 @@ export default function ProductEditor() {
 
           {/* GERAL */}
           {activeTab === "geral" && (
-            <Card className="border border-border/40 shadow-premium rounded-3xl overflow-hidden">
-              <CardContent className="p-6 md:p-8 space-y-6">
+            <div className="admin-card overflow-hidden">
+              <div className="p-6 md:p-8 space-y-6">
                 <div className="grid gap-2">
                   <Label className={labelClass}>Nome do produto *</Label>
                   <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value, slug: form.slug || generateSlug(e.target.value) })} className={inputClass} placeholder="Ex: Anel Solitário Ouro 18k" />
@@ -479,23 +479,23 @@ export default function ProductEditor() {
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* MÍDIAS */}
           {activeTab === "midias" && (
-            <Card className="border border-border/40 shadow-premium rounded-3xl overflow-hidden">
-              <CardContent className="p-6 md:p-8">
+            <div className="admin-card overflow-hidden">
+              <div className="p-6 md:p-8">
                 <ProductImageGallery productId={id || null} images={formImages} onChange={setFormImages} />
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* PREÇOS */}
           {activeTab === "precos" && (
-            <Card className="border border-border/40 shadow-premium rounded-3xl overflow-hidden">
-              <CardContent className="p-6 md:p-8 space-y-6">
+            <div className="admin-card overflow-hidden">
+              <div className="p-6 md:p-8 space-y-6">
                 <div className="grid md:grid-cols-3 gap-5">
                   <div className="grid gap-2">
                   <Label className={labelClass}>Preço normal (R$) *</Label>
@@ -553,14 +553,14 @@ export default function ProductEditor() {
                     <Input type="number" step="0.01" value={form.reseller_price || ""} onChange={e => setForm({ ...form, reseller_price: parseFloat(e.target.value) || null })} className={inputClass} />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* ESTOQUE */}
           {activeTab === "estoque" && (
-            <Card className="border border-border/40 shadow-premium rounded-3xl overflow-hidden">
-              <CardContent className="p-6 md:p-8 space-y-6">
+            <div className="admin-card overflow-hidden">
+              <div className="p-6 md:p-8 space-y-6">
                 <div className="grid md:grid-cols-2 gap-5">
                   <div className="grid gap-2">
                     <Label className={labelClass}>SKU</Label>
@@ -611,14 +611,14 @@ export default function ProductEditor() {
                     </SelectContent>
                   </Select>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* FRETE */}
           {activeTab === "frete" && (
-            <Card className="border border-border/40 shadow-premium rounded-3xl overflow-hidden">
-              <CardContent className="p-6 md:p-8 space-y-6">
+            <div className="admin-card overflow-hidden">
+              <div className="p-6 md:p-8 space-y-6">
                 <div className="grid gap-2">
                   <Label className={labelClass}>Tipo de produto</Label>
                   <Select value={form.product_type} onValueChange={v => setForm({ ...form, product_type: v })}>
@@ -663,14 +663,14 @@ export default function ProductEditor() {
                     </div>
                   </motion.div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* VARIAÇÕES */}
           {activeTab === "variacoes" && (
-            <Card className="border border-border/40 shadow-premium rounded-3xl overflow-hidden">
-              <CardContent className="p-6 md:p-8 space-y-6">
+            <div className="admin-card overflow-hidden">
+              <div className="p-6 md:p-8 space-y-6">
                 {/* Template Applier */}
                 <VariationTemplateApplier
                   productSku={form.sku}
@@ -760,14 +760,14 @@ export default function ProductEditor() {
                     })()}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* SEO */}
           {activeTab === "seo" && (
-            <Card className="border border-border/40 shadow-premium rounded-3xl overflow-hidden">
-              <CardContent className="p-6 md:p-8 space-y-6">
+            <div className="admin-card overflow-hidden">
+              <div className="p-6 md:p-8 space-y-6">
                 <div className="grid gap-2">
                   <Label className={labelClass}>Slug (URL)</Label>
                   <Input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} className={inputClass} placeholder="slug-do-produto" />
@@ -803,14 +803,14 @@ export default function ProductEditor() {
                   <p className="text-xs text-accent font-sans">sualoja.com.br/produto/{form.slug || "slug"}</p>
                   <p className="text-xs text-muted-foreground font-sans leading-relaxed">{form.meta_description || form.short_description || "Descrição do produto..."}</p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* PERSONALIZAÇÃO */}
           {activeTab === "personalizacao" && (
-            <Card className="border border-border/40 shadow-premium rounded-3xl overflow-hidden">
-              <CardContent className="p-6 md:p-8 space-y-6">
+            <div className="admin-card overflow-hidden">
+              <div className="p-6 md:p-8 space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <Label className={labelClass}>Campos extras para o cliente</Label>
@@ -862,14 +862,14 @@ export default function ProductEditor() {
                     ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* AVANÇADO */}
           {activeTab === "avancado" && (
-            <Card className="border border-border/40 shadow-premium rounded-3xl overflow-hidden">
-              <CardContent className="p-6 md:p-8 space-y-6">
+            <div className="admin-card overflow-hidden">
+              <div className="p-6 md:p-8 space-y-6">
                 <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-4 bg-muted/30 rounded-2xl p-5">
                   <div className="flex items-center gap-2.5">
                     <PremiumToggle3D size="sm" checked={form.hide_price} onCheckedChange={v => setForm({ ...form, hide_price: v })} />
@@ -885,8 +885,8 @@ export default function ProductEditor() {
                     Produtos relacionados, upsell e cross-sell podem ser configurados após salvar o produto, vinculando outros itens do catálogo.
                   </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
         </motion.div>

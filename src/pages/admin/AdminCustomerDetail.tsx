@@ -191,14 +191,14 @@ export default function AdminCustomerDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Card - Left */}
         <motion.div initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}>
-          <Card className="admin-card">
+          <Card className="admin-card border-0">
             <CardContent className="p-6 space-y-5">
               {/* Avatar */}
               <div className="flex flex-col items-center text-center">
-                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl font-bold mb-3">
+                <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 text-2xl font-bold mb-3">
                   {profile.avatar_url ? <img src={profile.avatar_url} className="w-20 h-20 rounded-full object-cover" alt="" /> : getInitials(profile.full_name)}
                 </div>
-                <h2 className="text-lg font-display font-bold">{profile.full_name || "Sem nome"}</h2>
+                <h2 className="text-lg font-bold text-slate-800">{profile.full_name || "Sem nome"}</h2>
                 {isVip && (
                   <span className="inline-flex items-center gap-1 mt-1 px-3 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
                     <Crown className="w-3 h-3" /> VIP

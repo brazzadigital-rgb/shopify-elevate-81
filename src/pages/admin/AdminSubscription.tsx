@@ -76,12 +76,12 @@ export default function AdminSubscription() {
     <div className="space-y-6 max-w-4xl">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Crown className="w-5 h-5 text-primary" />
+        <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+          <Crown className="w-5 h-5 text-emerald-600" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Assinatura</h1>
-          <p className="text-sm text-muted-foreground">Gerencie seu plano e pagamentos</p>
+          <h1 className="text-2xl font-bold text-slate-800">Assinatura</h1>
+          <p className="text-sm text-slate-400">Gerencie seu plano e pagamentos</p>
         </div>
       </div>
 
@@ -94,7 +94,7 @@ export default function AdminSubscription() {
       ) : (
         <>
           {/* Subscription Status Card */}
-          <div className="bg-card rounded-2xl border border-border/50 p-6">
+          <div className="admin-card p-6">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
@@ -143,7 +143,7 @@ export default function AdminSubscription() {
 
           {/* Features Grid */}
           {plan && (plan.features_json as string[] || []).length > 0 && (
-            <div className="bg-card rounded-2xl border border-border/50 p-6">
+            <div className="admin-card p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Zap className="w-4 h-4 text-primary" />
                 <h3 className="font-bold text-foreground">Seu Plano Inclui</h3>
@@ -183,8 +183,8 @@ export default function AdminSubscription() {
                       initial={{ opacity: 0, y: 16 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.06 }}
-                      className={`relative bg-card rounded-2xl border-2 p-5 flex flex-col ${
-                        isCurrent ? "border-primary shadow-md" : isPopular ? "border-primary/40" : "border-border/50"
+                      className={`relative admin-card p-5 flex flex-col border-2 ${
+                        isCurrent ? "!border-emerald-500 shadow-md" : isPopular ? "!border-emerald-300" : ""
                       }`}
                     >
                       {isPopular && !isCurrent && (
@@ -248,7 +248,7 @@ export default function AdminSubscription() {
           )}
 
           {/* Payment History */}
-          <div className="bg-card rounded-2xl border border-border/50 p-6">
+          <div className="admin-card p-6">
             <div className="flex items-center gap-2 mb-4">
               <Receipt className="w-4 h-4 text-primary" />
               <h3 className="font-bold text-foreground">Histórico de Pagamentos</h3>
