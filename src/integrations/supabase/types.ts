@@ -82,6 +82,7 @@ export type Database = {
           cart_id: string
           created_at: string
           id: string
+          metadata_json: Json | null
           product_id: string
           quantity: number
           variant_id: string | null
@@ -90,6 +91,7 @@ export type Database = {
           cart_id: string
           created_at?: string
           id?: string
+          metadata_json?: Json | null
           product_id: string
           quantity?: number
           variant_id?: string | null
@@ -98,6 +100,7 @@ export type Database = {
           cart_id?: string
           created_at?: string
           id?: string
+          metadata_json?: Json | null
           product_id?: string
           quantity?: number
           variant_id?: string | null
@@ -719,6 +722,7 @@ export type Database = {
           unit_price: number
           variant_id: string | null
           variant_name: string | null
+          variants_detail_json: Json | null
         }
         Insert: {
           created_at?: string
@@ -731,6 +735,7 @@ export type Database = {
           unit_price: number
           variant_id?: string | null
           variant_name?: string | null
+          variants_detail_json?: Json | null
         }
         Update: {
           created_at?: string
@@ -743,6 +748,7 @@ export type Database = {
           unit_price?: number
           variant_id?: string | null
           variant_name?: string | null
+          variants_detail_json?: Json | null
         }
         Relationships: [
           {

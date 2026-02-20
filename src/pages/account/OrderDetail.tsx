@@ -196,8 +196,19 @@ export default function OrderDetail() {
               <div key={item.id} className="flex items-center justify-between py-2 border-b last:border-0">
                 <div>
                   <p className="font-sans text-sm font-medium">{item.product_name}</p>
-                  {item.variant_name && <p className="font-sans text-xs text-muted-foreground">{item.variant_name}</p>}
-                  <p className="font-sans text-xs text-muted-foreground">Qtd: {item.quantity} × R$ {Number(item.unit_price).toFixed(2)}</p>
+                  {item.variants_detail_json && Array.isArray(item.variants_detail_json) ? (
+                    <div className="space-y-0.5 mt-1">
+                      {(item.variants_detail_json as any[]).map((vd: any, idx: number) => (
+                        <p key={idx} className="font-sans text-xs text-muted-foreground">
+                          {vd.group}: <span className="text-foreground">{vd.name}</span>
+                          {vd.price != null && <span className="ml-1 text-accent">R$ {Number(vd.price).toFixed(2).replace('.', ',')}</span>}
+                        </p>
+                      ))}
+                    </div>
+                  ) : (
+                    item.variant_name && <p className="font-sans text-xs text-muted-foreground">{item.variant_name}</p>
+                  )}
+                  <p className="font-sans text-xs text-muted-foreground mt-0.5">Qtd: {item.quantity} × R$ {Number(item.unit_price).toFixed(2)}</p>
                 </div>
                 <span className="font-sans text-sm font-bold">R$ {Number(item.total_price).toFixed(2)}</span>
               </div>

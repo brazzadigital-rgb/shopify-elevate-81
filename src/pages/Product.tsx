@@ -435,12 +435,24 @@ export default function ProductPage() {
   const currentStock = selectedVariant ? selectedVariant.stock : product.stock;
   const inStock = currentStock > 0;
 
+  const buildVariantsMetadata = () => {
+    if (!hasGroups || selectedGroupVariants.length === 0) return undefined;
+    return {
+      variants_detail: selectedGroupVariants.filter(Boolean).map((v: any) => ({
+        group: attributeGroups.find(g => g.variants.some(gv => gv.id === v.id))?.label || "",
+        name: v.name,
+        price: v.price,
+        variant_id: v.id || null,
+      })),
+    };
+  };
+
   const handleAddToCart = async () => {
-    await addItem(product.id, selectedVariant?.id || null, quantity);
+    await addItem(product.id, selectedVariant?.id || null, quantity, buildVariantsMetadata());
   };
 
   const handleBuyNow = async () => {
-    await addItem(product.id, selectedVariant?.id || null, quantity);
+    await addItem(product.id, selectedVariant?.id || null, quantity, buildVariantsMetadata());
     navigate('/checkout');
   };
 
