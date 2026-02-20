@@ -313,14 +313,14 @@ export default function AdminOrderDetail() {
                 {item.variants_detail_json && Array.isArray(item.variants_detail_json) ? (
                   <div className="space-y-0.5 mt-1">
                      {(item.variants_detail_json as any[]).map((vd: any, idx: number) => {
-                      const metalColor = getMetalColor(vd.name);
+                      const colorHex = vd.color_hex || getMetalColor(vd.name);
                       return (
                         <p key={idx} className="text-xs text-muted-foreground flex items-center gap-1.5">
                           {vd.group}:
-                          {metalColor && (
+                          {colorHex && (
                             <span
                               className="inline-block w-3 h-3 rounded-full border border-border shrink-0"
-                              style={{ backgroundColor: metalColor }}
+                              style={{ backgroundColor: colorHex }}
                             />
                           )}
                           <span className="text-foreground">{vd.name}</span>

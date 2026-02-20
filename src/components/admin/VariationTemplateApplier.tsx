@@ -18,6 +18,7 @@ interface ProductVariant {
   sku: string | null;
   sort_order: number;
   attribute_group?: string | null;
+  color_hex?: string | null;
 }
 
 interface Props {
@@ -95,6 +96,7 @@ export function VariationTemplateApplier({ productSku, productPrice, variants, o
           sku: productSku ? `${productSku}${skuSuffix}` : skuSuffix.replace(/^-/, "") || null,
           sort_order: newVariants.length,
           attribute_group: attr.attrName,
+          color_hex: val.color_hex || null,
         });
       }
     }
