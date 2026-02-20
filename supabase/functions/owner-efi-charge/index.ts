@@ -13,44 +13,39 @@ function getEfiBaseUrl(isSandbox: boolean): string {
     : "https://pix.api.efipay.com.br";
 }
 
-function extractPemFromCertB64(certB64: string): { certPem: string; keyPem: string } {
-  const cleanB64 = certB64.replace(/[\s\r\n]+/g, "").trim();
-  const pemContent = atob(cleanB64);
-  
-  // Extract ALL certificate PEM blocks (full chain)
-  const certMatches = pemContent.match(/(-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----)/g);
-  // Extract private key PEM block
-  const keyMatch = pemContent.match(/(-----BEGIN (?:RSA |EC )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC )?PRIVATE KEY-----)/);
+function convertP12ToPem(p12Base64: string, passphrase = ""): { certPem: string; keyPem: string } {
+  // Decode the P12 from base64
+  const p12Der = forge.util.decode64(p12Base64);
+  const p12Asn1 = forge.asn1.fromDer(p12Der);
+  const p12 = forge.pkcs12.pkcs12FromAsn1(p12Asn1, passphrase);
 
-  if (!certMatches || certMatches.length === 0) {
-    throw new Error("Certificado PEM não encontrado no conteúdo decodificado");
+  // Extract certificates
+  const certBags = p12.getBags({ bagType: forge.pki.oids.certBag });
+  const certs = certBags[forge.pki.oids.certBag] || [];
+  if (certs.length === 0) {
+    throw new Error("Nenhum certificado encontrado no P12");
   }
-  if (!keyMatch) {
-    throw new Error("Chave privada PEM não encontrada no conteúdo decodificado");
+  const certPem = certs
+    .map((bag: any) => forge.pki.certificateToPem(bag.cert))
+    .join("\n");
+
+  // Extract private key
+  const keyBags = p12.getBags({ bagType: forge.pki.oids.pkcs8ShroudedKeyBag });
+  const keys = keyBags[forge.pki.oids.pkcs8ShroudedKeyBag] || [];
+  if (keys.length === 0) {
+    throw new Error("Nenhuma chave privada encontrada no P12");
   }
+  const keyPem = forge.pki.privateKeyToPem(keys[0].key);
 
-  // Join all certs for the full chain
-  const fullCertChain = certMatches.join("\n");
-  
-  console.log(`[EFI] Found ${certMatches.length} cert(s) and key in PEM`);
-
-  return { certPem: fullCertChain, keyPem: keyMatch[1] };
+  console.log(`[EFI] Extracted ${certs.length} cert(s) and key from P12`);
+  return { certPem, keyPem };
 }
 
 function createMtlsClient(certPem: string, keyPem: string): Deno.HttpClient {
-  // Try both Deno API variants for client cert support
-  try {
-    return Deno.createHttpClient({
-      certChain: certPem,
-      privateKey: keyPem,
-    });
-  } catch {
-    // Fallback for older Deno API
-    return Deno.createHttpClient({
-      cert: certPem,
-      key: keyPem,
-    } as any);
-  }
+  return Deno.createHttpClient({
+    cert: certPem,
+    key: keyPem,
+  } as any);
 }
 
 async function getEfiToken(
@@ -170,7 +165,7 @@ Deno.serve(async (req) => {
     let httpClient: Deno.HttpClient | undefined;
     if (certP12B64 && !isSandbox) {
       try {
-        const { certPem, keyPem } = extractPemFromCertB64(certP12B64);
+        const { certPem, keyPem } = convertP12ToPem(certP12B64);
         httpClient = createMtlsClient(certPem, keyPem);
       } catch (e: any) {
         return new Response(
