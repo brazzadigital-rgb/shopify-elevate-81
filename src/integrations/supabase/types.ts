@@ -2198,55 +2198,88 @@ export type Database = {
       }
       sellers: {
         Row: {
+          approved_at: string | null
+          approved_by_admin_id: string | null
           avatar_url: string | null
+          city: string | null
           commission_rate: number | null
           created_at: string
           document: string | null
           email: string
+          experience_level: string | null
           id: string
+          instagram: string | null
           monthly_goal: number | null
           name: string
+          notes: string | null
           phone: string | null
           pix_key: string | null
           referral_code: string | null
+          rejection_reason: string | null
+          seller_status: string
           social_links: Json | null
+          source: string | null
+          state: string | null
           status: string
           updated_at: string
           user_id: string | null
+          whatsapp: string | null
         }
         Insert: {
+          approved_at?: string | null
+          approved_by_admin_id?: string | null
           avatar_url?: string | null
+          city?: string | null
           commission_rate?: number | null
           created_at?: string
           document?: string | null
           email: string
+          experience_level?: string | null
           id?: string
+          instagram?: string | null
           monthly_goal?: number | null
           name: string
+          notes?: string | null
           phone?: string | null
           pix_key?: string | null
           referral_code?: string | null
+          rejection_reason?: string | null
+          seller_status?: string
           social_links?: Json | null
+          source?: string | null
+          state?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
+          whatsapp?: string | null
         }
         Update: {
+          approved_at?: string | null
+          approved_by_admin_id?: string | null
           avatar_url?: string | null
+          city?: string | null
           commission_rate?: number | null
           created_at?: string
           document?: string | null
           email?: string
+          experience_level?: string | null
           id?: string
+          instagram?: string | null
           monthly_goal?: number | null
           name?: string
+          notes?: string | null
           phone?: string | null
           pix_key?: string | null
           referral_code?: string | null
+          rejection_reason?: string | null
+          seller_status?: string
           social_links?: Json | null
+          source?: string | null
+          state?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
+          whatsapp?: string | null
         }
         Relationships: []
       }
