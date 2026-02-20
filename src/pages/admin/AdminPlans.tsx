@@ -283,11 +283,14 @@ export default function AdminPlans() {
 
       {/* Payment Modal */}
       <Dialog open={paymentModal.open} onOpenChange={(open) => setPaymentModal((prev) => ({ ...prev, open }))}>
-        <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden border-0 rounded-2xl bg-gradient-to-b from-orange-50/80 to-card">
+        <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden border-0 rounded-2xl bg-white">
+          {/* Gradient top accent */}
+          <div className="h-1.5 w-full bg-gradient-to-r from-primary via-primary/80 to-primary/50" />
+
           {/* Header */}
-          <div className="flex items-center gap-3 px-6 pt-6 pb-2">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center shadow-md">
-              <QrCode className="w-5 h-5 text-white" />
+          <div className="flex items-center gap-3 px-6 pt-5 pb-2">
+            <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
+              <QrCode className="w-5 h-5 text-primary" />
             </div>
             <div>
               <h3 className="text-lg font-bold text-foreground">Pagamento via PIX</h3>
@@ -297,25 +300,25 @@ export default function AdminPlans() {
 
           {paymentModal.loading ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">Gerando cobrança PIX…</p>
             </div>
           ) : paymentModal.qrImage || paymentModal.qrCode ? (
             <div className="flex flex-col items-center gap-4 px-6 pb-6">
               {/* Plan + Price badge */}
-              <div className="w-full flex items-center justify-between bg-muted/60 rounded-xl px-4 py-3">
+              <div className="w-full flex items-center justify-between bg-muted/50 rounded-xl px-4 py-3 border border-border/30">
                 <div>
                   <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Plano</p>
                   <p className="text-base font-bold text-foreground">{cycleLabels[paymentModal.cycle]}</p>
                 </div>
-                <span className="text-sm font-bold bg-gradient-to-r from-orange-500 to-orange-400 text-white px-4 py-1.5 rounded-full shadow-sm">
+                <span className="text-sm font-bold bg-primary text-primary-foreground px-4 py-1.5 rounded-full">
                   {paymentModal.plan ? formatBRL(getPrice(paymentModal.plan, paymentModal.cycle)) : "—"}
                 </span>
               </div>
 
               {/* QR Code */}
               {paymentModal.qrImage && (
-                <div className="bg-white p-4 rounded-2xl border-2 border-dashed border-orange-200/70 inline-flex items-center justify-center">
+                <div className="bg-white p-4 rounded-2xl border-2 border-dashed border-primary/20 inline-flex items-center justify-center">
                   <img
                     src={paymentModal.qrImage}
                     alt="QR Code PIX"
@@ -328,7 +331,7 @@ export default function AdminPlans() {
               {paymentModal.qrCode && (
                 <div className="w-full space-y-2">
                   <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">PIX Copia e Cola</p>
-                  <div className="relative bg-muted/50 rounded-xl p-3 pr-12">
+                  <div className="relative bg-muted/40 rounded-xl p-3 pr-12 border border-border/30">
                     <p className="text-[11px] text-foreground/70 font-mono break-all leading-relaxed line-clamp-4">
                       {paymentModal.qrCode}
                     </p>
@@ -338,7 +341,7 @@ export default function AdminPlans() {
                       title="Copiar código"
                     >
                       {paymentModal.copied ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        <CheckCircle2 className="w-4 h-4 text-primary" />
                       ) : (
                         <Copy className="w-4 h-4 text-muted-foreground" />
                       )}
@@ -349,7 +352,7 @@ export default function AdminPlans() {
 
               {/* Awaiting confirmation */}
               <div className="flex items-center gap-2 text-muted-foreground pt-1">
-                <Clock className="w-3.5 h-3.5 animate-pulse" />
+                <Clock className="w-3.5 h-3.5 animate-pulse text-primary/60" />
                 <p className="text-xs">Aguardando confirmação</p>
               </div>
             </div>
