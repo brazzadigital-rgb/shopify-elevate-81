@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Package, FolderOpen, ShoppingCart, Users, Tag, Image, Settings, LogOut, ShoppingBag,
   Truck, UserCheck, Shield, Percent, TrendingUp, Columns3, Layout, CalendarRange,
-  DollarSign, BarChart3, ArrowDownCircle, CreditCard, Wallet, FileSpreadsheet, Wrench, Activity, Bell
+  DollarSign, BarChart3, ArrowDownCircle, CreditCard, Wallet, FileSpreadsheet, Wrench, Activity, Bell, Layers
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,6 +18,7 @@ import {
 const mainMenu = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Produtos", url: "/admin/produtos", icon: Package },
+  { title: "Templates Variações", url: "/admin/templates-variacoes", icon: Layers },
   { title: "Coleções", url: "/admin/colecoes", icon: FolderOpen },
   { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart, badgeKey: "orders" as const },
   { title: "Clientes", url: "/admin/clientes", icon: Users },
