@@ -561,7 +561,7 @@ export default function ProductPage() {
             </motion.div>
 
             {/* Quantity + Add to Cart */}
-            <motion.div variants={fadeUp} className="flex gap-3">
+            <motion.div variants={fadeUp} className="flex gap-3 w-full min-w-0">
               <div className="flex items-center border border-border/60 rounded-full overflow-hidden shrink-0 bg-card">
                 <motion.button
                   whileTap={{ scale: 0.85 }}
@@ -579,15 +579,15 @@ export default function ProductPage() {
                   <Plus className="w-3.5 h-3.5" />
                 </motion.button>
               </div>
-              <motion.div whileTap={{ scale: 0.98 }} className="flex-1">
+              <motion.div whileTap={{ scale: 0.98 }} className="flex-1 min-w-0">
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full h-10 rounded-full font-sans font-bold text-sm uppercase tracking-wider border-2 border-border hover:border-accent hover:bg-accent hover:text-accent-foreground transition-all duration-300"
+                  className="w-full h-10 rounded-full font-sans font-bold text-xs sm:text-sm uppercase tracking-wider border-2 border-border hover:border-accent hover:bg-accent hover:text-accent-foreground transition-all duration-300 px-3"
                   onClick={handleAddToCart}
                   disabled={cartLoading || !inStock}
                 >
-                  {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ShoppingCart className="w-4 h-4 mr-2" /> Adicionar ao carrinho</>}
+                  {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ShoppingCart className="w-4 h-4 mr-1.5 shrink-0" /> <span className="truncate">Adicionar ao carrinho</span></>}
                 </Button>
               </motion.div>
             </motion.div>
