@@ -1008,6 +1008,7 @@ export type Database = {
           gateway_charge_id: string | null
           id: string
           invoice_url: string | null
+          meta_json: Json | null
           paid_at: string | null
           payment_method: string | null
           pix_copy_paste: string | null
@@ -1023,6 +1024,7 @@ export type Database = {
           gateway_charge_id?: string | null
           id?: string
           invoice_url?: string | null
+          meta_json?: Json | null
           paid_at?: string | null
           payment_method?: string | null
           pix_copy_paste?: string | null
@@ -1038,6 +1040,7 @@ export type Database = {
           gateway_charge_id?: string | null
           id?: string
           invoice_url?: string | null
+          meta_json?: Json | null
           paid_at?: string | null
           payment_method?: string | null
           pix_copy_paste?: string | null
