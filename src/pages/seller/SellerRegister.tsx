@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,7 @@ export default function SellerRegister() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
+  const submittingRef = useRef(false);
 
   // Step 1 fields
   const [fullName, setFullName] = useState("");
@@ -49,7 +50,7 @@ export default function SellerRegister() {
     );
   }
 
-  if (user && !success) {
+  if (user && !success && !loading && !submittingRef.current) {
     return <Navigate to="/" replace />;
   }
 
@@ -90,7 +91,7 @@ export default function SellerRegister() {
   const handleSubmit = async () => {
     if (!validateStep2()) return;
     setLoading(true);
-
+    submittingRef.current = true;
     try {
       // 1. Create auth user
       const trimmedEmail = email.trim().toLowerCase();
