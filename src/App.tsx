@@ -74,6 +74,14 @@ import FinancialCashflow from "./pages/admin/financial/FinancialCashflow";
 import FinancialReports from "./pages/admin/financial/FinancialReports";
 import FinancialSettings from "./pages/admin/financial/FinancialSettings";
 import AdminPlans from "./pages/admin/AdminPlans";
+import OwnerLogin from "./pages/owner/OwnerLogin";
+import OwnerLayout from "./layouts/OwnerLayout";
+import OwnerDashboard from "./pages/owner/OwnerDashboard";
+import OwnerSubscription from "./pages/owner/OwnerSubscription";
+import OwnerPlans from "./pages/owner/OwnerPlans";
+import OwnerInvoices from "./pages/owner/OwnerInvoices";
+import OwnerAudit from "./pages/owner/OwnerAudit";
+import OwnerSettings from "./pages/owner/OwnerSettings";
 
 const queryClient = new QueryClient();
 
@@ -156,6 +164,15 @@ function AppContent() {
           </Route>
           <Route path="/vendedor" element={<SellerLayout />}>
             <Route index element={<SellerDashboard />} />
+          </Route>
+          <Route path="/owner/login" element={<OwnerLogin />} />
+          <Route path="/owner" element={<OwnerLayout />}>
+            <Route index element={<OwnerDashboard />} />
+            <Route path="subscription" element={<OwnerSubscription />} />
+            <Route path="plans" element={<OwnerPlans />} />
+            <Route path="invoices" element={<OwnerInvoices />} />
+            <Route path="audit" element={<OwnerAudit />} />
+            <Route path="settings" element={<OwnerSettings />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

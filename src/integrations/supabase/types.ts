@@ -972,6 +972,160 @@ export type Database = {
           },
         ]
       }
+      owner_audit_logs: {
+        Row: {
+          action: string
+          actor_type: string
+          created_at: string
+          id: string
+          ip: string | null
+          meta_json: Json | null
+        }
+        Insert: {
+          action: string
+          actor_type?: string
+          created_at?: string
+          id?: string
+          ip?: string | null
+          meta_json?: Json | null
+        }
+        Update: {
+          action?: string
+          actor_type?: string
+          created_at?: string
+          id?: string
+          ip?: string | null
+          meta_json?: Json | null
+        }
+        Relationships: []
+      }
+      owner_invoices: {
+        Row: {
+          amount: number
+          created_at: string
+          due_at: string
+          gateway: string
+          gateway_charge_id: string | null
+          id: string
+          invoice_url: string | null
+          paid_at: string | null
+          payment_method: string | null
+          pix_copy_paste: string | null
+          pix_qrcode: string | null
+          status: string
+          subscription_id: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          due_at?: string
+          gateway?: string
+          gateway_charge_id?: string | null
+          id?: string
+          invoice_url?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          pix_copy_paste?: string | null
+          pix_qrcode?: string | null
+          status?: string
+          subscription_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          due_at?: string
+          gateway?: string
+          gateway_charge_id?: string | null
+          id?: string
+          invoice_url?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          pix_copy_paste?: string | null
+          pix_qrcode?: string | null
+          status?: string
+          subscription_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "owner_invoices_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "owner_subscription"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      owner_settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
+      owner_subscription: {
+        Row: {
+          auto_renew: boolean
+          billing_cycle: string
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string
+          current_period_start: string
+          gateway: string
+          id: string
+          plan_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          auto_renew?: boolean
+          billing_cycle?: string
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          gateway?: string
+          id?: string
+          plan_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          auto_renew?: boolean
+          billing_cycle?: string
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          gateway?: string
+          id?: string
+          plan_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "owner_subscription_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_gateway_configs: {
         Row: {
           config: Json
@@ -2489,6 +2643,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_system_suspended: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user" | "seller" | "owner"
