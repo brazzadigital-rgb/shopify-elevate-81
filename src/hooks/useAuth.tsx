@@ -55,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
+          setIsLoading(true);
           checkRoles(session.user.id).finally(() => {
             if (mounted) setIsLoading(false);
           });
