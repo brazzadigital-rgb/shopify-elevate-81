@@ -694,31 +694,53 @@ export default function ProductEditor() {
                     <p className="text-sm text-muted-foreground font-sans">Nenhuma variação. Produto simples.</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    {variants.map((v, i) => (
-                      <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                        className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-3 items-end border border-border/40 rounded-2xl p-4 bg-muted/10 hover:bg-muted/20 transition-colors">
-                        <div className="grid gap-1.5">
-                          <Label className="text-xs font-sans text-muted-foreground">Nome *</Label>
-                          <Input value={v.name} onChange={e => { const u = [...variants]; u[i].name = e.target.value; setVariants(u); }} className="h-10 rounded-xl text-sm" placeholder="Ex: P / Dourado" />
+                  <div className="space-y-5">
+                    {(() => {
+                      const groups = new Map<string, { variant: typeof variants[0]; index: number }[]>();
+                      variants.forEach((v, i) => {
+                        const key = v.attribute_group || "__sem_grupo__";
+                        if (!groups.has(key)) groups.set(key, []);
+                        groups.get(key)!.push({ variant: v, index: i });
+                      });
+                      return Array.from(groups.entries()).map(([groupName, items]) => (
+                        <div key={groupName} className="space-y-2">
+                          {groupName !== "__sem_grupo__" && (
+                            <div className="flex items-center gap-2 px-1">
+                              <Layers className="w-3.5 h-3.5 text-accent" />
+                              <span className="text-xs font-semibold font-sans text-accent uppercase tracking-wider">{groupName}</span>
+                              <span className="text-[10px] text-muted-foreground">({items.length})</span>
+                              <div className="flex-1 h-px bg-border/40" />
+                            </div>
+                          )}
+                          <div className="space-y-2">
+                            {items.map(({ variant: v, index: i }) => (
+                              <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                                className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-3 items-end border border-border/40 rounded-2xl p-4 bg-muted/10 hover:bg-muted/20 transition-colors">
+                                <div className="grid gap-1.5">
+                                  <Label className="text-xs font-sans text-muted-foreground">Nome *</Label>
+                                  <Input value={v.name} onChange={e => { const u = [...variants]; u[i].name = e.target.value; setVariants(u); }} className="h-10 rounded-xl text-sm" placeholder="Ex: P / Dourado" />
+                                </div>
+                                <div className="grid gap-1.5">
+                                  <Label className="text-xs font-sans text-muted-foreground">Preço</Label>
+                                  <Input type="number" step="0.01" value={v.price || ""} onChange={e => { const u = [...variants]; u[i].price = parseFloat(e.target.value) || null; setVariants(u); }} className="h-10 rounded-xl text-sm w-24" />
+                                </div>
+                                <div className="grid gap-1.5">
+                                  <Label className="text-xs font-sans text-muted-foreground">Estoque</Label>
+                                  <Input type="number" value={v.stock} onChange={e => { const u = [...variants]; u[i].stock = parseInt(e.target.value) || 0; setVariants(u); }} className="h-10 rounded-xl text-sm w-20" />
+                                </div>
+                                <div className="grid gap-1.5">
+                                  <Label className="text-xs font-sans text-muted-foreground">SKU</Label>
+                                  <Input value={v.sku || ""} onChange={e => { const u = [...variants]; u[i].sku = e.target.value || null; setVariants(u); }} className="h-10 rounded-xl text-sm w-28" />
+                                </div>
+                                <Button type="button" variant="ghost" size="icon" className="h-10 w-10 text-destructive/60 hover:text-destructive hover:bg-destructive/10 rounded-xl" onClick={() => setVariants(variants.filter((_, j) => j !== i))}>
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </motion.div>
+                            ))}
+                          </div>
                         </div>
-                        <div className="grid gap-1.5">
-                          <Label className="text-xs font-sans text-muted-foreground">Preço</Label>
-                          <Input type="number" step="0.01" value={v.price || ""} onChange={e => { const u = [...variants]; u[i].price = parseFloat(e.target.value) || null; setVariants(u); }} className="h-10 rounded-xl text-sm w-24" />
-                        </div>
-                        <div className="grid gap-1.5">
-                          <Label className="text-xs font-sans text-muted-foreground">Estoque</Label>
-                          <Input type="number" value={v.stock} onChange={e => { const u = [...variants]; u[i].stock = parseInt(e.target.value) || 0; setVariants(u); }} className="h-10 rounded-xl text-sm w-20" />
-                        </div>
-                        <div className="grid gap-1.5">
-                          <Label className="text-xs font-sans text-muted-foreground">SKU</Label>
-                          <Input value={v.sku || ""} onChange={e => { const u = [...variants]; u[i].sku = e.target.value || null; setVariants(u); }} className="h-10 rounded-xl text-sm w-28" />
-                        </div>
-                        <Button type="button" variant="ghost" size="icon" className="h-10 w-10 text-destructive/60 hover:text-destructive hover:bg-destructive/10 rounded-xl" onClick={() => setVariants(variants.filter((_, j) => j !== i))}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </motion.div>
-                    ))}
+                      ));
+                    })()}
                   </div>
                 )}
               </CardContent>
