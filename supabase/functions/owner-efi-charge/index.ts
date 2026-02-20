@@ -17,7 +17,7 @@ function convertP12ToPem(p12Base64: string, passphrase = ""): { certPem: string;
   // Clean base64: remove whitespace, newlines, and any non-base64 chars
   const cleanB64 = p12Base64.replace(/[\s\r\n]+/g, "").trim();
   const p12Der = forge.util.decode64(cleanB64);
-  const p12Asn1 = forge.asn1.fromDer(p12Der);
+  const p12Asn1 = forge.asn1.fromDer(p12Der, { strict: false } as any);
   const p12 = forge.pkcs12.pkcs12FromAsn1(p12Asn1, passphrase);
 
   // Extract certificates
