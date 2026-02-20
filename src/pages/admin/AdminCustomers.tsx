@@ -45,7 +45,7 @@ export default function AdminCustomers() {
     queryFn: async () => {
       const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
       if (error) throw error;
-      return data as CustomerProfile[];
+      return (data || []) as (CustomerProfile & { email?: string | null })[];
     },
   });
 
@@ -82,18 +82,14 @@ export default function AdminCustomers() {
     },
   });
 
-  // Fetch emails from auth (via user_roles relation fallback or orders)
-  const { data: userEmails = {} } = useQuery({
-    queryKey: ["admin-customer-emails"],
-    queryFn: async () => {
-      const { data } = await supabase.from("orders").select("user_id, customer_email").not("customer_email", "is", null);
-      const map: Record<string, string> = {};
-      data?.forEach((o: any) => {
-        if (o.user_id && o.customer_email) map[o.user_id] = o.customer_email;
-      });
-      return map;
-    },
-  });
+  // Build email map from profiles
+  const userEmails: Record<string, string> = useMemo(() => {
+    const map: Record<string, string> = {};
+    profiles.forEach(p => {
+      if (p.email) map[p.user_id] = p.email;
+    });
+    return map;
+  }, [profiles]);
 
   const isAdmin = (userId: string) => userRoles[userId]?.includes("admin");
   const isVip = (userId: string) => {
