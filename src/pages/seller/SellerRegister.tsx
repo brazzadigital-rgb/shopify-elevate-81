@@ -119,8 +119,7 @@ export default function SellerRegister() {
         return;
       }
 
-      // 2. Add seller role
-      await supabase.from("user_roles").insert({ user_id: userId, role: "seller" as any });
+      // 2. Seller role is auto-added via database trigger (trg_auto_add_seller_role)
 
       // 3. Create seller record
       const { error: sellerError } = await supabase.from("sellers").insert({
@@ -162,9 +161,11 @@ export default function SellerRegister() {
         await supabase.from("notifications").insert(notifications);
       }
 
-      // 5. Sign out (user needs email confirmation)
+      // 5. Sign out first, then show success
       await supabase.auth.signOut();
       setSuccess(true);
+      setLoading(false);
+      return;
     } catch (err) {
       console.error(err);
       toast({ title: "Erro inesperado", variant: "destructive" });
