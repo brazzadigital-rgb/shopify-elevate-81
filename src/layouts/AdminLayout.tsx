@@ -46,6 +46,7 @@ const routeTitles: Record<string, string> = {
   "/admin/financeiro/fluxo-caixa": "Fluxo de Caixa",
   "/admin/financeiro/relatorios": "Relatórios Financeiro",
   "/admin/financeiro/configuracoes": "Config. Financeiro",
+  "/admin/planos": "Planos e Assinatura",
 };
 
 function getBreadcrumbs(pathname: string) {

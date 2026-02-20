@@ -73,6 +73,7 @@ import FinancialConciliation from "./pages/admin/financial/FinancialConciliation
 import FinancialCashflow from "./pages/admin/financial/FinancialCashflow";
 import FinancialReports from "./pages/admin/financial/FinancialReports";
 import FinancialSettings from "./pages/admin/financial/FinancialSettings";
+import AdminPlans from "./pages/admin/AdminPlans";
 
 const queryClient = new QueryClient();
 
@@ -138,6 +139,7 @@ function AppContent() {
             <Route path="home-templates" element={<AdminHomeTemplates />} />
             <Route path="vitrines" element={<AdminShowcases />} />
             <Route path="header-styles" element={<AdminHeaderStyles />} />
+            <Route path="planos" element={<AdminPlans />} />
             <Route path="rastreamento" element={<AdminTracking />} />
             <Route path="templates-variacoes" element={<AdminVariationTemplates />} />
             <Route path="notificacoes" element={<AdminNotifications />} />
