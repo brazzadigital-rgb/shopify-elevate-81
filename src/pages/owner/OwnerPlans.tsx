@@ -9,12 +9,15 @@ import { usePlans, type Plan } from "@/hooks/useSubscription";
 import { useOwnerSubscription } from "@/hooks/useOwnerSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { Check, Crown, Pencil, Save, X } from "lucide-react";
+import { Check, Crown, Pencil, Save, Trash2, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 type Cycle = "monthly" | "semiannual" | "annual";
+
 const cycleLabels: Record<Cycle, string> = { monthly: "Mensal", semiannual: "Semestral", annual: "Anual" };
+const cycleSuffix: Record<Cycle, string> = { monthly: "/mês", semiannual: "/6 meses", annual: "/12 meses" };
+const cycleKey: Record<Cycle, string> = { monthly: "monthly", semiannual: "semiannual", annual: "annual" };
 
 const formatBRL = (v: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
@@ -25,9 +28,7 @@ function getPrice(plan: Plan, cycle: Cycle) {
   return plan.monthly_price;
 }
 
-function getMonthlyEquivalent(plan: Plan, cycle: Cycle) {
-  if (cycle === "semiannual") return plan.semiannual_price / 6;
-  if (cycle === "annual") return plan.annual_price / 12;
+function getMonthlyBase(plan: Plan) {
   return plan.monthly_price;
 }
 
@@ -39,8 +40,16 @@ function getSavings(plan: Plan, cycle: Cycle) {
   return Math.round(((monthlyTotal - cyclePrice) / monthlyTotal) * 100);
 }
 
+const statsItems = [
+  { label: "Pedidos/mês", value: "∞" },
+  { label: "Produtos", value: "∞" },
+  { label: "Categorias", value: "∞" },
+  { label: "Usuários", value: "∞" },
+];
+
+const extraBadges = ["Analytics", "Domínio", "Suporte VIP", "API"];
+
 export default function OwnerPlans() {
-  const [cycle, setCycle] = useState<Cycle>("monthly");
   const { data: plans, isLoading } = usePlans();
   const { data: sub } = useOwnerSubscription();
   const qc = useQueryClient();
@@ -92,13 +101,14 @@ export default function OwnerPlans() {
   };
 
   const plan = plans?.[0];
+  const cycles: Cycle[] = ["monthly", "semiannual", "annual"];
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Plano</h1>
-          <p className="text-slate-400 text-sm mt-1">Gerencie o plano e valores do sistema</p>
+          <h1 className="text-2xl font-bold text-slate-800">Planos</h1>
+          <p className="text-slate-400 text-sm mt-1">Gerencie os ciclos e valores do plano</p>
         </div>
         {sub?.plan && (
           <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100 text-xs px-3 py-1.5 rounded-full font-medium self-start">
@@ -108,95 +118,116 @@ export default function OwnerPlans() {
       </div>
 
       {isLoading ? (
-        <Skeleton className="h-[500px] rounded-2xl" />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-[520px] rounded-2xl" />)}
+        </div>
       ) : plan ? (
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden max-w-2xl mx-auto">
-            {/* Top gradient bar */}
-            <div className="h-1.5 bg-gradient-to-r from-emerald-400 to-emerald-600" />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {cycles.map((c, idx) => {
+            const savings = getSavings(plan, c);
+            const total = getPrice(plan, c);
+            const isDefault = c === "semiannual";
 
-            <div className="p-8">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                    <Crown className="w-6 h-6" />
+            return (
+              <motion.div
+                key={c}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.08 }}
+                className={`relative bg-white rounded-2xl border-2 overflow-hidden flex flex-col ${
+                  isDefault ? "border-emerald-400 shadow-md" : "border-slate-100"
+                }`}
+              >
+                {/* Default badge */}
+                {isDefault && (
+                  <div className="absolute top-3 right-3 z-10">
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500 text-white">
+                      Padrão
+                    </span>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-800">{plan.name}</h2>
-                    {plan.highlight_badge && (
-                      <span className="text-[10px] font-bold uppercase text-emerald-600">{plan.highlight_badge}</span>
-                    )}
-                  </div>
-                </div>
-                <button
-                  onClick={() => openEdit(plan)}
-                  className="w-9 h-9 rounded-xl bg-slate-50 hover:bg-emerald-50 flex items-center justify-center text-slate-400 hover:text-emerald-600 transition-colors"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-              </div>
+                )}
 
-              {plan.description && (
-                <p className="text-sm text-slate-400 mb-8">{plan.description}</p>
-              )}
-
-              {/* Cycle pricing cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-                {(["monthly", "semiannual", "annual"] as Cycle[]).map(c => {
-                  const active = cycle === c;
-                  const savings = getSavings(plan, c);
-                  const total = getPrice(plan, c);
-                  const monthly = getMonthlyEquivalent(plan, c);
-
-                  return (
-                    <button
-                      key={c}
-                      onClick={() => setCycle(c)}
-                      className={`relative p-5 rounded-2xl border-2 text-left transition-all duration-300 ${
-                        active
-                          ? "border-emerald-400 bg-emerald-50/50 shadow-sm"
-                          : "border-slate-100 hover:border-slate-200 bg-white"
-                      }`}
-                    >
-                      {savings > 0 && (
-                        <span className="absolute -top-2.5 right-3 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500 text-white shadow-sm">
-                          -{savings}%
-                        </span>
-                      )}
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-                        {cycleLabels[c]}
-                      </p>
-                      <p className="text-2xl font-black text-slate-800">{formatBRL(total)}</p>
-                      {c !== "monthly" && (
-                        <p className="text-[11px] text-slate-400 mt-1">
-                          ≈ {formatBRL(monthly)}/mês
-                        </p>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Features */}
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">
-                  Funcionalidades incluídas
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {((plan.features_json || []) as string[]).map((f, i) => (
-                    <div key={i} className="flex items-start gap-2.5">
-                      <div className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="w-3 h-3 text-emerald-600" />
-                      </div>
-                      <span className="text-sm text-slate-600">{f}</span>
+                <div className="p-6 flex-1 flex flex-col">
+                  {/* Header */}
+                  <div className="flex items-center gap-3 mb-1">
+                    <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center">
+                      <Crown className="w-4.5 h-4.5 text-amber-500" />
                     </div>
-                  ))}
+                    <div>
+                      <h3 className="font-bold text-slate-800 text-base">{cycleLabels[c]}</h3>
+                      <p className="text-[11px] text-slate-400">{cycleKey[c]}</p>
+                    </div>
+                  </div>
+
+                  {/* Price */}
+                  <div className="mt-4 mb-1">
+                    <span className="text-3xl font-black text-slate-800">{formatBRL(total)}</span>
+                    <span className="text-sm text-slate-400 ml-1">{cycleSuffix[c]}</span>
+                  </div>
+
+                  {/* Savings */}
+                  {savings > 0 ? (
+                    <p className="text-xs text-emerald-600 font-semibold mb-2">
+                      {savings}% de desconto · Base: {formatBRL(getMonthlyBase(plan))}/mês
+                    </p>
+                  ) : (
+                    <p className="text-xs text-slate-400 mb-2">Plano mensal sem desconto</p>
+                  )}
+
+                  {/* Description */}
+                  {plan.description && (
+                    <p className="text-xs text-slate-400 mb-4">
+                      {savings > 0
+                        ? `Plano ${cycleLabels[c].toLowerCase()} com ${savings}% de desconto`
+                        : plan.description}
+                    </p>
+                  )}
+
+                  {/* Stats grid */}
+                  <div className="grid grid-cols-2 gap-2 mb-5">
+                    {statsItems.map(s => (
+                      <div key={s.label} className="bg-slate-50 rounded-xl px-3 py-2">
+                        <p className="text-[10px] text-slate-400 font-medium">{s.label}</p>
+                        <p className="text-sm font-bold text-slate-700">{s.value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Features */}
+                  <div className="space-y-2 mb-5 flex-1">
+                    {((plan.features_json || []) as string[]).map((f, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-slate-600">{f}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Extra badges */}
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    {extraBadges.map(b => (
+                      <span key={b} className="text-[11px] font-medium text-slate-500 bg-slate-50 px-2.5 py-1 rounded-full">
+                        {b}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2 mt-auto">
+                    <Button
+                      variant="outline"
+                      className="flex-1 rounded-xl h-10 text-sm"
+                      onClick={() => openEdit(plan)}
+                    >
+                      <Pencil className="w-3.5 h-3.5 mr-1.5" />
+                      Editar
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
+              </motion.div>
+            );
+          })}
+        </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center">
           <p className="text-sm text-slate-400">Nenhum plano configurado</p>
