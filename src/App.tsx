@@ -55,6 +55,15 @@ import SellerLayout from "./layouts/SellerLayout";
 import SellerDashboard from "./pages/seller/SellerDashboard";
 import SellerRegister from "./pages/seller/SellerRegister";
 import SellerPending from "./pages/seller/SellerPending";
+import SellerLinks from "./pages/seller/SellerLinks";
+import SellerSales from "./pages/seller/SellerSales";
+import SellerCustomers from "./pages/seller/SellerCustomers";
+import SellerCommissions from "./pages/seller/SellerCommissions";
+import SellerWithdrawals from "./pages/seller/SellerWithdrawals";
+import SellerCoupons from "./pages/seller/SellerCoupons";
+import SellerMaterials from "./pages/seller/SellerMaterials";
+import SellerProfile from "./pages/seller/SellerProfile";
+import SellerSupport from "./pages/seller/SellerSupport";
 import AdminLogistics from "./pages/admin/AdminLogistics";
 import AdminPaymentSettings from "./pages/admin/AdminPaymentSettings";
 import AdminPromoPanels from "./pages/admin/AdminPromoPanels";
@@ -171,6 +180,15 @@ function AppContent() {
           <Route path="/vendedor" element={<SellerLayout />}>
             <Route index element={<SellerDashboard />} />
             <Route path="pendente" element={<SellerPending />} />
+            <Route path="links" element={<SellerLinks />} />
+            <Route path="vendas" element={<SellerSales />} />
+            <Route path="clientes" element={<SellerCustomers />} />
+            <Route path="comissoes" element={<SellerCommissions />} />
+            <Route path="saques" element={<SellerWithdrawals />} />
+            <Route path="cupons" element={<SellerCoupons />} />
+            <Route path="materiais" element={<SellerMaterials />} />
+            <Route path="perfil" element={<SellerProfile />} />
+            <Route path="suporte" element={<SellerSupport />} />
           </Route>
           <Route path="/owner/login" element={<OwnerLogin />} />
           <Route path="/owner" element={<OwnerLayout />}>

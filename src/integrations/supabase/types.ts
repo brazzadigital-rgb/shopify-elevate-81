@@ -2044,6 +2044,158 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_link_clicks: {
+        Row: {
+          converted: boolean
+          created_at: string
+          device: string | null
+          id: string
+          ip_hash: string | null
+          order_id: string | null
+          product_slug: string | null
+          referral_code: string
+          seller_id: string
+          source: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          converted?: boolean
+          created_at?: string
+          device?: string | null
+          id?: string
+          ip_hash?: string | null
+          order_id?: string | null
+          product_slug?: string | null
+          referral_code: string
+          seller_id: string
+          source?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          converted?: boolean
+          created_at?: string
+          device?: string | null
+          id?: string
+          ip_hash?: string | null
+          order_id?: string | null
+          product_slug?: string | null
+          referral_code?: string
+          seller_id?: string
+          source?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_link_clicks_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_link_clicks_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_materials: {
+        Row: {
+          caption: string | null
+          created_at: string
+          description: string | null
+          file_url: string
+          id: string
+          is_active: boolean
+          material_type: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          description?: string | null
+          file_url: string
+          id?: string
+          is_active?: boolean
+          material_type?: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          description?: string | null
+          file_url?: string
+          id?: string
+          is_active?: boolean
+          material_type?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seller_withdrawals: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          pix_key: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          pix_key?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          pix_key?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_withdrawals_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sellers: {
         Row: {
           avatar_url: string | null
@@ -2055,7 +2207,9 @@ export type Database = {
           monthly_goal: number | null
           name: string
           phone: string | null
+          pix_key: string | null
           referral_code: string | null
+          social_links: Json | null
           status: string
           updated_at: string
           user_id: string | null
@@ -2070,7 +2224,9 @@ export type Database = {
           monthly_goal?: number | null
           name: string
           phone?: string | null
+          pix_key?: string | null
           referral_code?: string | null
+          social_links?: Json | null
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -2085,7 +2241,9 @@ export type Database = {
           monthly_goal?: number | null
           name?: string
           phone?: string | null
+          pix_key?: string | null
           referral_code?: string | null
+          social_links?: Json | null
           status?: string
           updated_at?: string
           user_id?: string | null
