@@ -41,13 +41,13 @@ function getSavings(plan: Plan, cycle: Cycle) {
 }
 
 const statsItems = [
-  { label: "Pedidos/mês", value: "∞" },
-  { label: "Produtos", value: "∞" },
-  { label: "Categorias", value: "∞" },
-  { label: "Usuários", value: "∞" },
+  { label: "Pedidos/mês", value: "Ilimitados" },
+  { label: "Produtos", value: "Ilimitados" },
+  { label: "Gateways", value: "5+" },
+  { label: "Admins", value: "Ilimitados" },
 ];
 
-const extraBadges = ["Analytics", "Domínio", "Suporte VIP", "API"];
+const extraBadges = ["Analytics", "RBAC", "Multi-gateway", "UTM"];
 
 export default function OwnerPlans() {
   const { data: plans, isLoading } = usePlans();
