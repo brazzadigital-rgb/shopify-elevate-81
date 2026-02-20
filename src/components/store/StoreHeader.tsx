@@ -4,7 +4,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useCart } from "@/hooks/useCart";
-import { ShoppingBag, Search, User, Menu, X, ChevronRight, Package, MapPin, Heart } from "lucide-react";
+import { ShoppingBag, Search, User, Menu, X, ChevronRight, Package, MapPin, Heart, Bell } from "lucide-react";
+import { useNotifications } from "@/hooks/useNotifications";
 import { useWishlist } from "@/hooks/useWishlist";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -77,6 +78,7 @@ export function StoreHeader() {
   const { getSetting, isEnabled } = useStoreSettings();
   const { isOpen, setIsOpen, itemCount } = useCart();
   const { count: wishlistCount } = useWishlist();
+  const { unreadCount } = useNotifications();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -228,6 +230,25 @@ export function StoreHeader() {
                   </motion.span>
                 )}
               </Link>
+              {user && (
+                <Link
+                  to="/conta/notificacoes"
+                  className="relative flex items-center justify-center w-10 h-10 rounded-full transition-colors min-h-[unset] min-w-[unset] hover:bg-white/10"
+                >
+                  <Bell className="w-5 h-5" style={{ color: txtColor }} />
+                  {unreadCount > 0 && (
+                    <motion.span
+                      key={unreadCount}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                      className="absolute -top-0.5 -right-0.5 rounded-full bg-accent text-accent-foreground text-[9px] font-bold min-w-[16px] h-[16px] flex items-center justify-center px-0.5 font-sans min-h-[unset]"
+                    >
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </motion.span>
+                  )}
+                </Link>
+              )}
               {cartEnabled && (
                 <motion.button
                   whileTap={{ scale: 0.9 }}
@@ -379,6 +400,32 @@ export function StoreHeader() {
                 Favoritos
               </span>
             </Link>
+
+            {/* Notifications bell (desktop, logged in only) */}
+            {user && (
+              <>
+                <div className="w-px h-9 mx-1 rounded-full" style={{ background: separatorBg }} />
+                <Link
+                  to="/conta/notificacoes"
+                  className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.97]"
+                >
+                  <div className="relative w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white/10" style={{ border: iconBorder }}>
+                    <Bell className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ color: txtColor }} />
+                    {unreadCount > 0 && (
+                      <motion.span
+                        key={unreadCount}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                        className="absolute -top-1.5 -right-1.5 rounded-full bg-accent text-accent-foreground text-[9px] font-bold min-w-[18px] h-[18px] flex items-center justify-center px-1 font-sans shadow-lg min-h-[unset]"
+                      >
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </motion.span>
+                    )}
+                  </div>
+                </Link>
+              </>
+            )}
 
             {cartEnabled && (
               <div className="w-px h-9 mx-1 rounded-full" style={{ background: separatorBg }} />
