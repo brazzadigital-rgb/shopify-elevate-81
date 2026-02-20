@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, CreditCard, FileText, Receipt, Shield, Settings, LogOut,
-  Lock, Activity
+  Activity, Lock
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useOwnerAuth } from "@/hooks/useOwnerAuth";
@@ -10,7 +10,7 @@ import {
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter,
 } from "@/components/ui/sidebar";
 
-const mainMenu = [
+const financialMenu = [
   { title: "Dashboard", url: "/owner", icon: LayoutDashboard },
   { title: "Assinatura", url: "/owner/subscription", icon: CreditCard },
   { title: "Planos", url: "/owner/plans", icon: FileText },
@@ -23,7 +23,7 @@ const systemMenu = [
 ];
 
 export function OwnerSidebar() {
-  const { signOut } = useOwnerAuth();
+  const { signOut, user } = useOwnerAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -35,7 +35,7 @@ export function OwnerSidebar() {
   const isActive = (url: string) =>
     url === "/owner" ? location.pathname === "/owner" : location.pathname.startsWith(url);
 
-  const renderItem = (item: typeof mainMenu[0]) => (
+  const renderItem = (item: typeof financialMenu[0]) => (
     <SidebarMenuItem key={item.title}>
       <SidebarMenuButton asChild>
         <NavLink
@@ -43,11 +43,10 @@ export function OwnerSidebar() {
           end={item.url === "/owner"}
           className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 ${
             isActive(item.url)
-              ? "text-white"
-              : "text-slate-500 hover:text-slate-300 hover:bg-white/[0.03]"
+              ? "bg-emerald-50 text-emerald-700 font-semibold"
+              : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
           }`}
-          activeClassName="bg-gradient-to-r from-amber-500/10 to-amber-500/5 text-amber-300 font-semibold shadow-sm"
-          style={isActive(item.url) ? { border: "1px solid rgba(251,191,36,0.08)" } : undefined}
+          activeClassName="bg-emerald-50 text-emerald-700 font-semibold"
         >
           <item.icon className="w-[18px] h-[18px] flex-shrink-0" strokeWidth={1.8} />
           <span className="truncate">{item.title}</span>
@@ -58,44 +57,35 @@ export function OwnerSidebar() {
 
   return (
     <Sidebar
-      className="border-r-0"
-      style={{
-        background: "linear-gradient(180deg, hsl(220 14% 11%) 0%, hsl(220 15% 8%) 100%)",
-        borderRight: "1px solid hsl(220 10% 15%)",
-      }}
+      className="border-r-0 bg-white"
+      style={{ borderRight: "1px solid #eef0f3" }}
     >
       <SidebarHeader className="p-5 pb-6">
         <div className="flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg"
-            style={{
-              background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-              boxShadow: "0 4px 14px rgba(245,158,11,0.25)",
-            }}
-          >
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-md">
             <Activity className="w-5 h-5 text-white" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-sm text-white tracking-wide">Owner</span>
-            <span className="text-[10px] text-slate-500 font-medium">Painel de Controle</span>
+            <span className="font-bold text-sm text-slate-800 tracking-wide">Owner</span>
+            <span className="text-[10px] text-slate-400 font-medium">Painel de Controle</span>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent className="px-3 py-1 space-y-5 overflow-y-auto">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-600 uppercase text-[10px] tracking-[0.15em] font-bold px-3 mb-1">
+          <SidebarGroupLabel className="text-slate-400 uppercase text-[10px] tracking-[0.15em] font-bold px-3 mb-1">
             Financeiro
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-0.5">
-              {mainMenu.map(renderItem)}
+              {financialMenu.map(renderItem)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-600 uppercase text-[10px] tracking-[0.15em] font-bold px-3 mb-1">
+          <SidebarGroupLabel className="text-slate-400 uppercase text-[10px] tracking-[0.15em] font-bold px-3 mb-1">
             Sistema
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -106,10 +96,20 @@ export function OwnerSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-3" style={{ borderTop: "1px solid hsl(220 10% 15%)" }}>
+      <SidebarFooter className="p-3 space-y-2" style={{ borderTop: "1px solid #eef0f3" }}>
+        {/* User info */}
+        <div className="flex items-center gap-2.5 px-3 py-2">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-[11px] font-bold shadow-sm">
+            {user?.email?.charAt(0).toUpperCase() || "O"}
+          </div>
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs font-semibold text-slate-700 truncate">{user?.email?.split("@")[0] || "Owner"}</span>
+            <span className="text-[10px] text-slate-400 truncate">{user?.email || ""}</span>
+          </div>
+        </div>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/[0.04] transition-all duration-200 w-full text-[13px] font-medium"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200 w-full text-[13px] font-medium"
         >
           <LogOut className="w-[18px] h-[18px]" strokeWidth={1.8} />
           <span>Sair</span>
