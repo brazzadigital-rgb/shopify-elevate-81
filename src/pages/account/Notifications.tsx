@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNotifications, Notification } from "@/hooks/useNotifications";
+import { usePushSubscription } from "@/hooks/usePushSubscription";
 import { useNavigate } from "react-router-dom";
-import { Bell, CheckCheck, Trash2, Search, Package, CreditCard, Truck } from "lucide-react";
+import { Bell, CheckCheck, Trash2, Search, Package, CreditCard, Truck, BellRing } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PremiumToggle3D } from "@/components/ui/premium-toggle-3d";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -25,7 +27,8 @@ const FILTER_TYPES: Record<string, string[]> = {
 };
 
 export default function CustomerNotifications() {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, fetchMore } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, fetchMore, updatePreferences } = useNotifications();
+  const push = usePushSubscription();
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [allNotifs, setAllNotifs] = useState<Notification[]>([]);
@@ -59,11 +62,33 @@ export default function CustomerNotifications() {
         </h2>
         {unreadCount > 0 && (
           <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs gap-1">
-            <CheckCheck className="w-3.5 h-3.5" />
-            Marcar todas
+            <CheckCheck className="w-3.5 h-3.5" /> Marcar todas
           </Button>
         )}
       </div>
+
+      {/* Push subscription card */}
+      {push.isSupported && push.permission !== "denied" && !push.isSubscribed && (
+        <Card className="border-primary/20 bg-primary/[0.02]">
+          <CardContent className="p-4 flex items-center gap-4">
+            <BellRing className="w-8 h-8 text-primary shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-medium">Ative as notificações push</p>
+              <p className="text-xs text-muted-foreground">Receba alertas sobre seus pedidos mesmo com o navegador fechado.</p>
+            </div>
+            <Button
+              size="sm"
+              disabled={push.loading}
+              onClick={async () => {
+                const ok = await push.subscribe();
+                if (ok) updatePreferences({ enable_push: true });
+              }}
+            >
+              Ativar
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
         {FILTERS.map(f => (
@@ -101,24 +126,15 @@ export default function CustomerNotifications() {
             >
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-base shrink-0">
-                  {n.type === "order_created" ? "✅" :
-                   n.type === "payment_paid" ? "💰" :
-                   n.type === "order_shipped" ? "📦" :
-                   n.type === "order_delivered" ? "🎉" : "🔔"}
+                  {n.type === "order_created" ? "✅" : n.type === "payment_paid" ? "💰" : n.type === "order_shipped" ? "📦" : n.type === "order_delivered" ? "🎉" : "🔔"}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className={cn("text-sm", !n.is_read ? "font-bold" : "text-muted-foreground")}>{n.title}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">{n.body}</p>
-                  <p className="text-[10px] text-muted-foreground/60 mt-1">
-                    {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: ptBR })}
-                  </p>
+                  <p className="text-[10px] text-muted-foreground/60 mt-1">{formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: ptBR })}</p>
                 </div>
                 {!n.is_read && <div className="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5" />}
-                <Button
-                  variant="ghost" size="icon"
-                  className="opacity-0 group-hover:opacity-100 shrink-0 h-8 w-8"
-                  onClick={e => { e.stopPropagation(); deleteNotification(n.id); }}
-                >
+                <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 shrink-0 h-8 w-8" onClick={e => { e.stopPropagation(); deleteNotification(n.id); }}>
                   <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
                 </Button>
               </div>
