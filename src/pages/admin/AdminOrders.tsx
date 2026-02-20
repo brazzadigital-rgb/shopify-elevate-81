@@ -50,10 +50,6 @@ const PAYMENT_LABELS: Record<string, { label: string; cls: string }> = {
   refunded: { label: "Reembolsado", cls: "admin-status-info" },
 };
 
-const SHIPMENT_LABELS: Record<string, string> = {
-  pending: "Aguardando", created: "Criado", posted: "Postado", in_transit: "Em Trânsito", delivered: "Entregue",
-};
-
 export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -116,10 +112,10 @@ export default function AdminOrders() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Pedidos</h1>
-          <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>{filteredOrders.length} pedido(s)</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800 font-display">Pedidos</h1>
+          <p className="text-sm mt-1 text-slate-400">{filteredOrders.length} pedido(s) encontrados</p>
         </div>
-        <button onClick={handleExportCsv} className="admin-card flex items-center gap-2 px-4 py-2.5 text-sm font-medium cursor-pointer hover:shadow-md transition-shadow">
+        <button onClick={handleExportCsv} className="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all shadow-sm">
           <Download className="w-4 h-4" /> Exportar CSV
         </button>
       </div>
@@ -128,12 +124,17 @@ export default function AdminOrders() {
       <div className="admin-card p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: `hsl(var(--admin-text-secondary))` }} />
-            <Input className="pl-9 h-10 rounded-xl border-0 bg-muted/30 focus:bg-muted/50 text-sm" placeholder="Buscar pedido, cliente, email, rastreio..." value={search} onChange={e => setSearch(e.target.value)} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input 
+              className="admin-input pl-9" 
+              placeholder="Buscar pedido, cliente, email, rastreio..." 
+              value={search} 
+              onChange={e => setSearch(e.target.value)} 
+            />
           </div>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="h-10 w-full sm:w-[160px] rounded-xl border-0 bg-muted/30 text-sm">
-              <Filter className="w-3.5 h-3.5 mr-1.5" style={{ color: `hsl(var(--admin-text-secondary))` }} /><SelectValue />
+            <SelectTrigger className="h-10 w-full sm:w-[160px] rounded-xl border-0 bg-slate-50 text-slate-600 text-sm focus:ring-2 focus:ring-emerald-500/20">
+              <Filter className="w-3.5 h-3.5 mr-1.5 text-slate-400" /><SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos status</SelectItem>
@@ -141,8 +142,8 @@ export default function AdminOrders() {
             </SelectContent>
           </Select>
           <Select value={filterPayment} onValueChange={setFilterPayment}>
-            <SelectTrigger className="h-10 w-full sm:w-[150px] rounded-xl border-0 bg-muted/30 text-sm">
-              <CreditCard className="w-3.5 h-3.5 mr-1.5" style={{ color: `hsl(var(--admin-text-secondary))` }} /><SelectValue />
+            <SelectTrigger className="h-10 w-full sm:w-[150px] rounded-xl border-0 bg-slate-50 text-slate-600 text-sm focus:ring-2 focus:ring-emerald-500/20">
+              <CreditCard className="w-3.5 h-3.5 mr-1.5 text-slate-400" /><SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Pagamento</SelectItem>
@@ -158,8 +159,8 @@ export default function AdminOrders() {
           <div className="p-6 space-y-3">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}</div>
         ) : filteredOrders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <ShoppingCart className="w-12 h-12 mb-4" style={{ color: `hsl(var(--admin-text-secondary) / 0.3)` }} />
-            <p className="text-base font-medium" style={{ color: `hsl(var(--admin-text-secondary))` }}>Nenhum pedido encontrado</p>
+            <ShoppingCart className="w-12 h-12 mb-4 text-slate-200" />
+            <p className="text-base font-medium text-slate-600">Nenhum pedido encontrado</p>
           </div>
         ) : (
           <>
@@ -167,9 +168,9 @@ export default function AdminOrders() {
             <div className="hidden md:block overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="hover:bg-transparent" style={{ borderBottom: `1px solid hsl(var(--admin-border))` }}>
+                  <TableRow className="hover:bg-transparent border-b border-slate-100">
                     {["Pedido", "Data", "Cliente", "Total", "Pagamento", "Rastreio", "Status", ""].map(h => (
-                      <TableHead key={h} className={`text-[11px] uppercase tracking-wider font-semibold ${h === "Total" || h === "" ? "text-right" : ""}`} style={{ color: `hsl(var(--admin-text-secondary))` }}>{h}</TableHead>
+                      <TableHead key={h} className={`admin-table-th ${h === "Total" || h === "" ? "text-right" : ""}`}>{h}</TableHead>
                     ))}
                   </TableRow>
                 </TableHeader>
@@ -178,26 +179,26 @@ export default function AdminOrders() {
                     const st = STATUS_LABELS[order.status] || STATUS_LABELS.pending;
                     const pt = PAYMENT_LABELS[order.payment_status] || PAYMENT_LABELS.pending;
                     return (
-                      <TableRow key={order.id} className="transition-colors" style={{ borderBottom: `1px solid hsl(var(--admin-border-subtle))` }}>
-                        <TableCell className="text-sm font-semibold py-3.5">#{order.order_number}</TableCell>
+                      <TableRow key={order.id} className="transition-colors hover:bg-slate-50 border-b border-slate-50">
+                        <TableCell className="text-sm font-semibold py-3.5 text-slate-700">#{order.order_number}</TableCell>
                         <TableCell className="py-3.5">
-                          <p className="text-sm" style={{ color: `hsl(var(--admin-text-secondary))` }}>
+                          <p className="text-sm text-slate-600">
                             {new Date(order.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
                           </p>
-                          <p className="text-[10px]" style={{ color: `hsl(var(--admin-text-secondary) / 0.6)` }}>
+                          <p className="text-[10px] text-slate-400">
                             {new Date(order.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                           </p>
                         </TableCell>
                         <TableCell className="py-3.5">
-                          <p className="text-sm font-medium truncate max-w-[160px]">{order.customer_name || "—"}</p>
-                          <p className="text-[11px] truncate max-w-[160px]" style={{ color: `hsl(var(--admin-text-secondary))` }}>{order.customer_email || ""}</p>
+                          <p className="text-sm font-medium text-slate-700 truncate max-w-[160px]">{order.customer_name || "—"}</p>
+                          <p className="text-[11px] truncate max-w-[160px] text-slate-400">{order.customer_email || ""}</p>
                         </TableCell>
-                        <TableCell className="text-sm font-semibold text-right py-3.5">{formatBRL(Number(order.total))}</TableCell>
+                        <TableCell className="text-sm font-semibold text-right py-3.5 text-slate-700">{formatBRL(Number(order.total))}</TableCell>
                         <TableCell className="py-3.5">
                           <div className="flex flex-col items-start gap-1">
-                            <span className={`admin-status-pill text-[10px] ${pt.cls}`}>{pt.label}</span>
+                            <span className={`admin-status-pill ${pt.cls}`}>{pt.label}</span>
                             {order.payment_method && (
-                              <span className="flex items-center gap-1 text-[10px]" style={{ color: `hsl(var(--admin-text-secondary))` }}>
+                              <span className="flex items-center gap-1 text-[10px] text-slate-400">
                                 <PaymentIcon method={order.payment_method} /> {order.payment_method}
                               </span>
                             )}
@@ -205,20 +206,20 @@ export default function AdminOrders() {
                         </TableCell>
                         <TableCell className="py-3.5">
                           {order.tracking_code ? (
-                            <button onClick={() => copyTracking(order.tracking_code!, order.id)} className="inline-flex items-center gap-1.5 text-xs font-mono hover:text-foreground transition-colors" style={{ color: `hsl(var(--admin-text-secondary))` }}>
-                              {copiedId === order.id ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
+                            <button onClick={() => copyTracking(order.tracking_code!, order.id)} className="inline-flex items-center gap-1.5 text-xs font-mono hover:text-emerald-600 transition-colors text-slate-500">
+                              {copiedId === order.id ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                               {order.tracking_code.slice(0, 13)}
                             </button>
                           ) : (
-                            <span className="text-[11px]" style={{ color: `hsl(var(--admin-text-secondary) / 0.4)` }}>—</span>
+                            <span className="text-[11px] text-slate-300">—</span>
                           )}
                         </TableCell>
                         <TableCell className="py-3.5">
-                          <span className={`admin-status-pill text-[10px] ${st.cls}`}>{st.label}</span>
+                          <span className={`admin-status-pill ${st.cls}`}>{st.label}</span>
                         </TableCell>
                         <TableCell className="text-right py-3.5">
-                          <Link to={`/admin/pedidos/${order.id}`} className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-muted/30 transition-colors">
-                            <Eye className="w-4 h-4" style={{ color: `hsl(var(--admin-text-secondary))` }} />
+                          <Link to={`/admin/pedidos/${order.id}`} className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600">
+                            <Eye className="w-4 h-4" />
                           </Link>
                         </TableCell>
                       </TableRow>
@@ -229,25 +230,25 @@ export default function AdminOrders() {
             </div>
 
             {/* Mobile */}
-            <div className="md:hidden divide-y" style={{ borderColor: `hsl(var(--admin-border-subtle))` }}>
+            <div className="md:hidden divide-y divide-slate-100">
               {filteredOrders.map(order => {
                 const st = STATUS_LABELS[order.status] || STATUS_LABELS.pending;
                 const pt = PAYMENT_LABELS[order.payment_status] || PAYMENT_LABELS.pending;
                 return (
-                  <Link key={order.id} to={`/admin/pedidos/${order.id}`} className="block p-4 hover:bg-muted/20 transition-colors">
+                  <Link key={order.id} to={`/admin/pedidos/${order.id}`} className="block p-4 hover:bg-slate-50 transition-colors">
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-sm font-semibold">#{order.order_number}</span>
-                      <span className="text-[11px]" style={{ color: `hsl(var(--admin-text-secondary))` }}>{new Date(order.created_at).toLocaleDateString("pt-BR")}</span>
+                      <span className="text-sm font-semibold text-slate-700">#{order.order_number}</span>
+                      <span className="text-[11px] text-slate-400">{new Date(order.created_at).toLocaleDateString("pt-BR")}</span>
                     </div>
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-sm truncate max-w-[180px]">{order.customer_name || "—"}</p>
-                      <span className="text-sm font-semibold">{formatBRL(Number(order.total))}</span>
+                      <p className="text-sm truncate max-w-[180px] text-slate-600">{order.customer_name || "—"}</p>
+                      <span className="text-sm font-semibold text-slate-800">{formatBRL(Number(order.total))}</span>
                     </div>
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className={`admin-status-pill text-[10px] ${st.cls}`}>{st.label}</span>
-                      <span className={`admin-status-pill text-[10px] ${pt.cls}`}>{pt.label}</span>
+                      <span className={`admin-status-pill ${st.cls}`}>{st.label}</span>
+                      <span className={`admin-status-pill ${pt.cls}`}>{pt.label}</span>
                       {order.tracking_code && (
-                        <span className="admin-status-pill admin-status-info text-[10px]">
+                        <span className="admin-status-pill admin-status-info">
                           <Truck className="w-3 h-3 mr-1" /> Rastreio
                         </span>
                       )}

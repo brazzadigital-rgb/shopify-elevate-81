@@ -5,18 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Users, Search, Mail, Phone, ShoppingBag, Eye, Edit3, MessageCircle,
-  Crown, UserX, Download, Bell, ChevronDown, Filter, X, ShieldCheck, ShieldOff
+  Users, Search, ShoppingBag, Crown, X, Download
 } from "lucide-react";
-import { PremiumToggle3D } from "@/components/ui/premium-toggle-3d";
 
 interface CustomerProfile {
   id: string;
@@ -41,10 +36,7 @@ export default function AdminCustomers() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [editDrawer, setEditDrawer] = useState<CustomerProfile | null>(null);
-  const [editForm, setEditForm] = useState({ full_name: "", phone: "", cpf: "", is_vip: false });
   const { toast } = useToast();
-  const navigate = useNavigate();
   const qc = useQueryClient();
 
   // Fetch profiles
@@ -90,11 +82,10 @@ export default function AdminCustomers() {
     },
   });
 
-  // Fetch emails from auth (via user_roles relation)
+  // Fetch emails from auth (via user_roles relation fallback or orders)
   const { data: userEmails = {} } = useQuery({
     queryKey: ["admin-customer-emails"],
     queryFn: async () => {
-      // We can't read auth.users directly, so we'll use order emails as fallback
       const { data } = await supabase.from("orders").select("user_id, customer_email").not("customer_email", "is", null);
       const map: Record<string, string> = {};
       data?.forEach((o: any) => {
@@ -165,48 +156,6 @@ export default function AdminCustomers() {
     else setSelected(new Set(filtered.map(p => p.user_id)));
   };
 
-  // Edit drawer
-  const openEdit = (p: CustomerProfile) => {
-    setEditForm({ full_name: p.full_name || "", phone: p.phone || "", cpf: p.cpf || "", is_vip: isVip(p.user_id) });
-    setEditDrawer(p);
-  };
-
-  const saveEditMutation = useMutation({
-    mutationFn: async () => {
-      if (!editDrawer) return;
-      const { error } = await supabase.from("profiles").update({
-        full_name: editForm.full_name,
-        phone: editForm.phone,
-        cpf: editForm.cpf,
-      }).eq("user_id", editDrawer.user_id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin-customers"] });
-      toast({ title: "Cliente atualizado com sucesso" });
-      setEditDrawer(null);
-    },
-    onError: (e: any) => toast({ title: "Erro", description: e.message, variant: "destructive" }),
-  });
-
-  // Toggle admin
-  const toggleAdminMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      if (isAdmin(userId)) {
-        const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", "admin");
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: "admin" } as any);
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin-customer-roles"] });
-      toast({ title: "Papel atualizado" });
-    },
-  });
-
-  // Bulk export CSV
   const exportCSV = () => {
     const rows = filtered.filter(p => selected.has(p.user_id));
     if (rows.length === 0) return;
@@ -223,24 +172,16 @@ export default function AdminCustomers() {
     toast({ title: `${rows.length} clientes exportados` });
   };
 
-  const whatsappUrl = (phone: string | null, name: string | null) => {
-    if (!phone) return "#";
-    const clean = phone.replace(/\D/g, "");
-    const number = clean.startsWith("55") ? clean : `55${clean}`;
-    const msg = encodeURIComponent(`Olá ${name || ""}! 😊 Posso te ajudar com algo?`);
-    return `https://wa.me/${number}?text=${msg}`;
-  };
-
   const StatusPill = ({ status }: { status: string }) => {
     const styles: Record<string, string> = {
-      vip: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-      admin: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-      ativo: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-      novo: "bg-muted text-muted-foreground",
+      vip: "bg-amber-50 text-amber-700 border-amber-100",
+      admin: "bg-blue-50 text-blue-700 border-blue-100",
+      ativo: "bg-emerald-50 text-emerald-700 border-emerald-100",
+      novo: "bg-slate-50 text-slate-500 border-slate-100",
     };
     const labels: Record<string, string> = { vip: "VIP", admin: "Admin", ativo: "Ativo", novo: "Novo" };
     return (
-      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase ${styles[status] || styles.novo}`}>
+      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${styles[status] || styles.novo}`}>
         {status === "vip" && <Crown className="w-3 h-3" />}
         {labels[status] || status}
       </span>
@@ -254,45 +195,45 @@ export default function AdminCustomers() {
   const avgTicket = totalWithOrders > 0 ? totalRevenue / Object.values(orderSummaries).reduce((s, o) => s + o.count, 0) : 0;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-display font-bold">Clientes</h1>
-          <p className="text-sm text-muted-foreground">{totalCustomers} clientes cadastrados</p>
+          <h1 className="text-2xl font-display font-bold text-slate-800">Clientes</h1>
+          <p className="text-sm text-slate-400 mt-1">{totalCustomers} clientes cadastrados</p>
         </div>
       </div>
 
       {/* KPI row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total Clientes", value: totalCustomers, icon: Users },
-          { label: "Com Pedidos", value: totalWithOrders, icon: ShoppingBag },
-          { label: "Receita Total", value: formatCurrency(totalRevenue), icon: Crown },
-          { label: "Ticket Médio", value: formatCurrency(avgTicket), icon: ShoppingBag },
+          { label: "Total Clientes", value: totalCustomers, icon: Users, color: "bg-slate-50 text-slate-500" },
+          { label: "Com Pedidos", value: totalWithOrders, icon: ShoppingBag, color: "bg-emerald-50 text-emerald-600" },
+          { label: "Receita Total", value: formatCurrency(totalRevenue), icon: Crown, color: "bg-amber-50 text-amber-600" },
+          { label: "Ticket Médio", value: formatCurrency(avgTicket), icon: ShoppingBag, color: "bg-blue-50 text-blue-600" },
         ].map((kpi, i) => (
           <motion.div key={kpi.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-            className="admin-card p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <kpi.icon className="w-5 h-5 text-primary" />
+            className="admin-card p-5 flex items-center gap-4">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${kpi.color}`}>
+              <kpi.icon className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wide truncate">{kpi.label}</p>
-              <p className="text-lg font-bold truncate">{kpi.value}</p>
+              <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest truncate">{kpi.label}</p>
+              <p className="text-lg font-bold text-slate-800 truncate mt-0.5">{kpi.value}</p>
             </div>
           </motion.div>
         ))}
       </div>
 
       {/* Filters */}
-      <div className="admin-card p-3 sm:p-4">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="admin-card p-4">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar nome, email, telefone..." className="pl-10 rounded-xl border-0 bg-muted/30 h-10" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar nome, email, telefone..." className="admin-input pl-10" />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-32 rounded-xl border-0 bg-muted/30 h-10"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-36 admin-input"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
               <SelectItem value="ativo">Ativos</SelectItem>
@@ -302,7 +243,7 @@ export default function AdminCustomers() {
             </SelectContent>
           </Select>
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-36 rounded-xl border-0 bg-muted/30 h-10"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-40 admin-input"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="recent">Mais recente</SelectItem>
               <SelectItem value="spent">Maior gasto</SelectItem>
@@ -316,12 +257,12 @@ export default function AdminCustomers() {
       <AnimatePresence>
         {selected.size > 0 && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
-            className="admin-card p-3 flex items-center gap-3 flex-wrap">
-            <span className="text-sm font-medium">{selected.size} selecionado(s)</span>
-            <Button variant="outline" size="sm" className="rounded-lg gap-1.5 text-xs" onClick={exportCSV}>
+            className="admin-card p-3 flex items-center gap-3 flex-wrap bg-emerald-50 border-emerald-100">
+            <span className="text-sm font-medium text-emerald-800">{selected.size} selecionado(s)</span>
+            <Button variant="outline" size="sm" className="rounded-lg gap-1.5 text-xs bg-white border-emerald-200 text-emerald-700 hover:bg-emerald-100" onClick={exportCSV}>
               <Download className="w-3.5 h-3.5" /> Exportar CSV
             </Button>
-            <Button variant="ghost" size="sm" className="rounded-lg text-xs ml-auto" onClick={() => setSelected(new Set())}>
+            <Button variant="ghost" size="sm" className="rounded-lg text-xs ml-auto text-emerald-700 hover:bg-emerald-100" onClick={() => setSelected(new Set())}>
               <X className="w-3.5 h-3.5" /> Limpar
             </Button>
           </motion.div>
@@ -334,8 +275,8 @@ export default function AdminCustomers() {
           <div className="p-6 space-y-3">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}</div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <Users className="w-12 h-12 mb-3 text-muted-foreground/30" />
-            <p className="text-muted-foreground font-medium">Nenhum cliente encontrado</p>
+            <Users className="w-12 h-12 mb-3 text-slate-200" />
+            <p className="text-slate-500 font-medium">Nenhum cliente encontrado</p>
           </div>
         ) : (
           <>
@@ -343,17 +284,16 @@ export default function AdminCustomers() {
             <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-muted/30">
+                  <tr className="border-b border-slate-100 bg-white">
                     <th className="text-left px-4 py-3 w-10">
-                      <Checkbox checked={selected.size === filtered.length && filtered.length > 0} onCheckedChange={toggleAll} className="min-h-0 min-w-0" />
+                      <Checkbox checked={selected.size === filtered.length && filtered.length > 0} onCheckedChange={toggleAll} className="rounded border-slate-300" />
                     </th>
-                    <th className="text-left px-3 py-3 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Cliente</th>
-                    <th className="text-left px-3 py-3 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground hidden xl:table-cell">Email</th>
-                    <th className="text-left px-3 py-3 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Telefone</th>
-                    <th className="text-right px-3 py-3 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Pedidos</th>
-                    <th className="text-right px-3 py-3 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Total Gasto</th>
-                    <th className="text-center px-3 py-3 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Status</th>
-                    <th className="text-right px-3 py-3 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Ações</th>
+                    <th className="admin-table-th text-left">Cliente</th>
+                    <th className="admin-table-th text-left hidden xl:table-cell">Email</th>
+                    <th className="admin-table-th text-left">Telefone</th>
+                    <th className="admin-table-th text-right">Pedidos</th>
+                    <th className="admin-table-th text-right">Total Gasto</th>
+                    <th className="admin-table-th text-center">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -362,73 +302,27 @@ export default function AdminCustomers() {
                     const status = getStatus(p.user_id);
                     const email = userEmails[p.user_id] || "";
                     return (
-                      <tr key={p.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors group">
+                      <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors group">
                         <td className="px-4 py-3">
-                          <Checkbox checked={selected.has(p.user_id)} onCheckedChange={() => toggleSelect(p.user_id)} className="min-h-0 min-w-0" />
+                          <Checkbox checked={selected.has(p.user_id)} onCheckedChange={() => toggleSelect(p.user_id)} className="rounded border-slate-300" />
                         </td>
-                        <td className="px-3 py-3">
+                        <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
+                            <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xs font-bold flex-shrink-0 border border-slate-200">
                               {p.avatar_url ? <img src={p.avatar_url} className="w-9 h-9 rounded-full object-cover" alt="" /> : getInitials(p.full_name)}
                             </div>
                             <div className="min-w-0">
-                              <p className="font-medium text-sm truncate">{p.full_name || "Sem nome"}</p>
-                              <p className="text-[11px] text-muted-foreground truncate xl:hidden">{email || "—"}</p>
+                              <p className="font-medium text-sm text-slate-700 truncate">{p.full_name || "Sem nome"}</p>
+                              <p className="text-[11px] text-slate-400 truncate xl:hidden">{email || "—"}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-3 py-3 text-muted-foreground text-sm hidden xl:table-cell truncate max-w-[200px]">{email || "—"}</td>
-                        <td className="px-3 py-3 text-sm text-muted-foreground">{formatPhone(p.phone)}</td>
-                        <td className="px-3 py-3 text-right font-medium">{os?.count || 0}</td>
-                        <td className="px-3 py-3 text-right font-semibold">{formatCurrency(os?.total || 0)}</td>
-                        <td className="px-3 py-3 text-center"><StatusPill status={status} /></td>
-                        <td className="px-3 py-3">
-                          <div className="flex items-center justify-end gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
-                            {p.phone && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <a href={whatsappUrl(p.phone, p.full_name)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors min-h-0 min-w-0">
-                                    <MessageCircle className="w-4 h-4 text-emerald-600" />
-                                  </a>
-                                </TooltipTrigger>
-                                <TooltipContent>WhatsApp</TooltipContent>
-                              </Tooltip>
-                            )}
-                            {email && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <a href={`mailto:${email}`} className="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors min-h-0 min-w-0">
-                                    <Mail className="w-4 h-4 text-blue-600" />
-                                  </a>
-                                </TooltipTrigger>
-                                <TooltipContent>Email</TooltipContent>
-                              </Tooltip>
-                            )}
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button onClick={() => navigate(`/admin/pedidos?cliente=${p.user_id}`)} className="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-muted/50 transition-colors min-h-0 min-w-0">
-                                  <ShoppingBag className="w-4 h-4 text-muted-foreground" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent>Pedidos</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button onClick={() => openEdit(p)} className="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-muted/50 transition-colors min-h-0 min-w-0">
-                                  <Edit3 className="w-4 h-4 text-muted-foreground" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent>Editar</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button onClick={() => navigate(`/admin/clientes/${p.user_id}`)} className="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-primary/10 transition-colors min-h-0 min-w-0">
-                                  <Eye className="w-4 h-4 text-primary" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent>Ver perfil</TooltipContent>
-                            </Tooltip>
-                          </div>
+                        <td className="px-4 py-3 text-slate-500 text-sm hidden xl:table-cell truncate max-w-[200px]">{email || "—"}</td>
+                        <td className="px-4 py-3 text-sm text-slate-500">{formatPhone(p.phone)}</td>
+                        <td className="px-4 py-3 text-right font-medium text-slate-700">{os?.count || 0}</td>
+                        <td className="px-4 py-3 text-right font-semibold text-slate-700">{formatCurrency(os?.total || 0)}</td>
+                        <td className="px-4 py-3 text-center">
+                          <StatusPill status={status} />
                         </td>
                       </tr>
                     );
@@ -438,48 +332,31 @@ export default function AdminCustomers() {
             </div>
 
             {/* Mobile Cards */}
-            <div className="lg:hidden divide-y divide-border/50">
-              {filtered.map((p) => {
+            <div className="lg:hidden divide-y divide-slate-100">
+              {filtered.map(p => {
                 const os = orderSummaries[p.user_id];
                 const status = getStatus(p.user_id);
-                const email = userEmails[p.user_id] || "";
                 return (
-                  <div key={p.id} className="p-4 space-y-3">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
+                  <div key={p.id} className="p-4 hover:bg-slate-50 transition-colors">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xs font-bold flex-shrink-0 border border-slate-200">
                         {p.avatar_url ? <img src={p.avatar_url} className="w-10 h-10 rounded-full object-cover" alt="" /> : getInitials(p.full_name)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-sm truncate">{p.full_name || "Sem nome"}</p>
+                        <div className="flex items-center justify-between">
+                          <p className="font-bold text-slate-800 truncate">{p.full_name || "Sem nome"}</p>
                           <StatusPill status={status} />
                         </div>
-                        {email && <p className="text-xs text-muted-foreground truncate">{email}</p>}
-                        <p className="text-xs text-muted-foreground">{formatPhone(p.phone)}</p>
+                        <p className="text-xs text-slate-400 truncate">{userEmails[p.user_id] || "—"}</p>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>Pedidos: <strong className="text-foreground">{os?.count || 0}</strong></span>
-                      <span>Total: <strong className="text-foreground">{formatCurrency(os?.total || 0)}</strong></span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {p.phone && (
-                        <a href={whatsappUrl(p.phone, p.full_name)} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-xs font-medium min-h-0">
-                          <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
-                        </a>
-                      )}
-                      {email && (
-                        <a href={`mailto:${email}`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-xs font-medium min-h-0">
-                          <Mail className="w-3.5 h-3.5" /> Email
-                        </a>
-                      )}
-                      <button onClick={() => openEdit(p)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/50 text-xs font-medium min-h-0">
-                        <Edit3 className="w-3.5 h-3.5" /> Editar
-                      </button>
-                      <button onClick={() => navigate(`/admin/clientes/${p.user_id}`)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium min-h-0 ml-auto">
-                        <Eye className="w-3.5 h-3.5" /> Ver
-                      </button>
+                    <div className="flex items-center justify-between text-sm border-t border-slate-50 pt-3">
+                      <div>
+                        <span className="text-slate-400 text-xs">Pedidos:</span> <span className="font-medium text-slate-700">{os?.count || 0}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 text-xs">Total:</span> <span className="font-bold text-slate-800">{formatCurrency(os?.total || 0)}</span>
+                      </div>
                     </div>
                   </div>
                 );
@@ -488,55 +365,6 @@ export default function AdminCustomers() {
           </>
         )}
       </motion.div>
-
-      {/* Edit Drawer */}
-      <Sheet open={!!editDrawer} onOpenChange={open => !open && setEditDrawer(null)}>
-        <SheetContent className="w-full sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle className="font-display">Editar Cliente</SheetTitle>
-          </SheetHeader>
-          <div className="space-y-5 mt-6">
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/30">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                {getInitials(editDrawer?.full_name || null)}
-              </div>
-              <div>
-                <p className="font-medium">{editDrawer?.full_name || "Sem nome"}</p>
-                <p className="text-xs text-muted-foreground">Desde {editDrawer ? new Date(editDrawer.created_at).toLocaleDateString("pt-BR") : ""}</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Nome completo</Label>
-                <Input value={editForm.full_name} onChange={e => setEditForm(p => ({ ...p, full_name: e.target.value }))} className="mt-1.5 rounded-xl border-0 bg-muted/30" />
-              </div>
-              <div>
-                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Telefone</Label>
-                <Input value={editForm.phone} onChange={e => setEditForm(p => ({ ...p, phone: e.target.value }))} className="mt-1.5 rounded-xl border-0 bg-muted/30" placeholder="(00) 00000-0000" />
-              </div>
-              <div>
-                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">CPF</Label>
-                <Input value={editForm.cpf} onChange={e => setEditForm(p => ({ ...p, cpf: e.target.value }))} className="mt-1.5 rounded-xl border-0 bg-muted/30" placeholder="000.000.000-00" />
-              </div>
-              {editDrawer && (
-                <div className="flex items-center justify-between p-3 rounded-xl bg-muted/20">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-medium">Administrador</span>
-                  </div>
-                  <PremiumToggle3D checked={isAdmin(editDrawer.user_id)} onCheckedChange={() => toggleAdminMutation.mutate(editDrawer.user_id)} size="sm" />
-                </div>
-              )}
-            </div>
-            <div className="flex gap-3 pt-4">
-              <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setEditDrawer(null)}>Cancelar</Button>
-              <Button className="flex-1 rounded-xl" onClick={() => saveEditMutation.mutate()} disabled={saveEditMutation.isPending}>
-                {saveEditMutation.isPending ? "Salvando..." : "Salvar"}
-              </Button>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }

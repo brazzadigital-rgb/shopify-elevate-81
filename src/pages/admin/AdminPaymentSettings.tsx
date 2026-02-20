@@ -152,8 +152,8 @@ export default function AdminPaymentSettings() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-10 w-64" />
-        {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
+        <Skeleton className="h-10 w-64 rounded-2xl" />
+        {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 w-full rounded-2xl" />)}
       </div>
     );
   }
@@ -179,12 +179,12 @@ export default function AdminPaymentSettings() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold flex items-center gap-2">
-            <CreditCard className="w-7 h-7" /> Pagamentos
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800 font-display flex items-center gap-2">
+            <CreditCard className="w-7 h-7 text-emerald-600" /> Pagamentos
           </h1>
-          <p className="text-muted-foreground font-sans mt-1 text-sm">Configure os gateways de pagamento da loja</p>
+          <p className="text-slate-400 font-sans mt-1 text-sm">Configure os gateways de pagamento da loja</p>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2 rounded-xl shine h-11 font-sans w-full sm:w-auto">
+        <Button onClick={handleSave} disabled={saving} className="admin-btn-primary w-full sm:w-auto">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {saving ? "Salvando..." : "Salvar"}
         </Button>
@@ -192,7 +192,7 @@ export default function AdminPaymentSettings() {
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar */}
-        <nav className="lg:w-56 shrink-0">
+        <nav className="lg:w-60 shrink-0">
           <div className="flex lg:flex-col gap-1.5 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
             {navItems.map((item) => {
               const isSelected = activeTab === item.id;
@@ -201,22 +201,22 @@ export default function AdminPaymentSettings() {
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
                   className={cn(
-                    "flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-sans whitespace-nowrap transition-all text-left w-full",
+                    "flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-sm font-sans whitespace-nowrap transition-all text-left w-full border",
                     isSelected
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      ? "bg-white border-emerald-200 text-slate-800 shadow-sm font-semibold"
+                      : "bg-transparent border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700"
                   )}
                 >
                   {"emoji" in item ? (
                     <span className="text-base shrink-0">{item.emoji}</span>
                   ) : (
-                    <item.icon className="w-4 h-4 shrink-0" />
+                    <item.icon className="w-4 h-4 shrink-0 text-slate-400" />
                   )}
                   <span className="flex-1">{item.label}</span>
                   {"isActive" in item && (
                     <span className={cn(
                       "w-2 h-2 rounded-full shrink-0",
-                      item.isActive ? "bg-primary/70" : "bg-muted-foreground/30"
+                      item.isActive ? "bg-emerald-500" : "bg-slate-300"
                     )} />
                   )}
                 </button>
@@ -229,226 +229,170 @@ export default function AdminPaymentSettings() {
         <div className="flex-1 min-w-0 space-y-6">
           {/* General tab */}
           {activeTab === "geral" && (
-            <Card className="shadow-premium border-0">
-              <CardContent className="p-5 sm:p-6">
-                <div className="mb-5">
-                  <h2 className="text-lg font-display font-semibold flex items-center gap-2">
-                    <Settings className="w-5 h-5 text-primary" /> Visão Geral
-                  </h2>
-                  <p className="text-muted-foreground text-sm mt-0.5">Gateway padrão e status dos provedores</p>
+            <div className="admin-card p-6">
+              <div className="mb-6 border-b border-slate-100 pb-4">
+                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-emerald-600" /> Visão Geral
+                </h2>
+                <p className="text-slate-400 text-sm mt-0.5">Gateway padrão e status dos provedores</p>
+              </div>
+
+              <div className="divide-y divide-slate-50">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-4 first:pt-0">
+                  <Label className="text-slate-700 font-medium">Gateway padrão</Label>
+                  <Select value={defaultGateway} onValueChange={setDefaultGateway}>
+                    <SelectTrigger className="w-full sm:max-w-xs admin-input">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {gateways.filter(g => g.is_active).map(g => (
+                        <SelectItem key={g.provider} value={g.provider}>
+                          {PROVIDER_LABELS[g.provider]}
+                        </SelectItem>
+                      ))}
+                      {gateways.filter(g => g.is_active).length === 0 && (
+                        <SelectItem value="none" disabled>Nenhum gateway ativo</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                <div className="divide-y divide-border/50">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-4 first:pt-0">
-                    <Label className="font-sans text-sm">Gateway padrão</Label>
-                    <Select value={defaultGateway} onValueChange={setDefaultGateway}>
-                      <SelectTrigger className="w-full sm:max-w-xs rounded-xl h-10">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {gateways.filter(g => g.is_active).map(g => (
-                          <SelectItem key={g.provider} value={g.provider}>
-                            {PROVIDER_LABELS[g.provider]}
-                          </SelectItem>
-                        ))}
-                        {gateways.filter(g => g.is_active).length === 0 && (
-                          <SelectItem value="none" disabled>Nenhum gateway ativo</SelectItem>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-4">
+                  <Label className="text-slate-700 font-medium">Moeda</Label>
+                  <Input value="BRL" disabled className="admin-input w-full sm:max-w-xs" />
+                </div>
+              </div>
+
+              <div className="border-t border-slate-100 pt-6 mt-2">
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">Status dos Gateways</h3>
+                <div className="grid gap-3">
+                  {gateways.map(g => (
+                    <div key={g.provider} className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">{PROVIDER_ICONS[g.provider]}</span>
+                        <span className="font-semibold text-slate-700 text-sm">{PROVIDER_LABELS[g.provider]}</span>
+                        <Badge variant={g.is_active ? "default" : "secondary"} className={g.is_active ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200" : "bg-slate-200 text-slate-600 hover:bg-slate-300"}>
+                          {g.is_active ? "Ativo" : "Inativo"}
+                        </Badge>
+                        {g.is_default && (
+                          <Badge variant="outline" className="border-emerald-200 text-emerald-700 bg-emerald-50">Padrão</Badge>
                         )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-4">
-                    <Label className="font-sans text-sm">Moeda</Label>
-                    <Input value="BRL" disabled className="h-10 rounded-xl w-full sm:max-w-xs" />
-                  </div>
-                </div>
-
-                <div className="border-t pt-5 mt-5">
-                  <h3 className="font-sans text-sm font-semibold mb-3">Status dos Gateways</h3>
-                  <div className="grid gap-3">
-                    {gateways.map(g => (
-                      <div key={g.provider} className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
-                        <div className="flex items-center gap-3">
-                          <span className="text-base">{PROVIDER_ICONS[g.provider]}</span>
-                          <span className="font-sans text-sm font-medium">{PROVIDER_LABELS[g.provider]}</span>
-                          <Badge variant={g.is_active ? "default" : "secondary"} className="text-xs font-sans">
-                            {g.is_active ? "Ativo" : "Inativo"}
-                          </Badge>
-                          {g.is_default && (
-                            <Badge variant="outline" className="text-xs font-sans border-accent text-accent">Padrão</Badge>
-                          )}
-                        </div>
-                        <span className="text-xs font-sans text-muted-foreground capitalize">{g.environment}</span>
                       </div>
-                    ))}
-                  </div>
+                      <span className="text-xs text-slate-400 font-medium capitalize">{g.environment}</span>
+                    </div>
+                  ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* Provider tabs */}
           {activeGateway && (
             <>
               {/* Activation & Environment */}
-              <Card className="shadow-premium border-0">
-                <CardContent className="p-5 sm:p-6">
-                  <div className="mb-5">
-                    <h2 className="text-lg font-display font-semibold flex items-center gap-2">
-                      <span className="text-xl">{PROVIDER_ICONS[activeGateway.provider]}</span>
-                      {PROVIDER_LABELS[activeGateway.provider]}
-                      {activeGateway.is_active && <Badge className="text-xs font-sans">Ativo</Badge>}
-                    </h2>
-                    <p className="text-muted-foreground text-sm mt-0.5">Ativação e ambiente</p>
-                  </div>
+              <div className="admin-card p-6">
+                <div className="mb-6 border-b border-slate-100 pb-4">
+                  <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <span className="text-xl">{PROVIDER_ICONS[activeGateway.provider]}</span>
+                    {PROVIDER_LABELS[activeGateway.provider]}
+                    {activeGateway.is_active && <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 ml-2">Ativo</Badge>}
+                  </h2>
+                  <p className="text-slate-400 text-sm mt-0.5">Ativação e ambiente</p>
+                </div>
 
-                  <div className="divide-y divide-border/50">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-4 first:pt-0">
-                      <Label className="font-sans text-sm">Ativar gateway</Label>
-                      <PremiumToggle3D
-                        size="sm"
-                        checked={activeGateway.is_active}
-                        onCheckedChange={v => updateGateway(activeGateway.provider, { is_active: v })}
-                      />
-                    </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-4">
-                      <Label className="font-sans text-sm">Ambiente</Label>
-                      <Select
-                        value={activeGateway.environment}
-                        onValueChange={v => updateGateway(activeGateway.provider, { environment: v })}
-                      >
-                        <SelectTrigger className="w-full sm:max-w-xs rounded-xl h-10">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="sandbox">🧪 Sandbox (testes)</SelectItem>
-                          <SelectItem value="production">🚀 Produção</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                <div className="divide-y divide-slate-50">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-4 first:pt-0">
+                    <Label className="text-slate-700 font-medium">Ativar gateway</Label>
+                    <PremiumToggle3D
+                      size="sm"
+                      checked={activeGateway.is_active}
+                      onCheckedChange={v => updateGateway(activeGateway.provider, { is_active: v })}
+                    />
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-4">
+                    <Label className="text-slate-700 font-medium">Ambiente</Label>
+                    <Select
+                      value={activeGateway.environment}
+                      onValueChange={v => updateGateway(activeGateway.provider, { environment: v })}
+                    >
+                      <SelectTrigger className="w-full sm:max-w-xs admin-input">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="sandbox">🧪 Sandbox (testes)</SelectItem>
+                        <SelectItem value="production">🚀 Produção</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
 
               {/* Credentials */}
-              <Card className="shadow-premium border-0">
-                <CardContent className="p-5 sm:p-6">
-                  <div className="mb-5">
-                    <h2 className="text-lg font-display font-semibold flex items-center gap-2">
-                      <Shield className="w-5 h-5 text-primary" /> Credenciais
-                    </h2>
-                    <p className="text-muted-foreground text-sm mt-0.5">Chaves de API e tokens de autenticação</p>
-                  </div>
+              <div className="admin-card p-6">
+                <div className="mb-6 border-b border-slate-100 pb-4">
+                  <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-emerald-600" /> Credenciais
+                  </h2>
+                  <p className="text-slate-400 text-sm mt-0.5">Chaves de API e tokens de autenticação</p>
+                </div>
 
-                  <div className="space-y-4">
-                    {PROVIDER_SECRET_FIELDS[activeGateway.provider]?.map(field => {
-                      const secretKey = `${activeGateway.provider}_${field.key}`;
-                      const isVisible = visibleSecrets[secretKey];
-                      return (
-                        <div key={field.key} className="space-y-1.5">
-                          <Label className="font-sans text-sm">{field.label}</Label>
-                          <div className="relative">
-                            <Input
-                              type={isVisible ? "text" : "password"}
-                              value={secrets[activeGateway.provider]?.[field.key] || ""}
-                              onChange={e => updateSecret(activeGateway.provider, field.key, e.target.value)}
-                              placeholder={field.placeholder}
-                              className="h-10 rounded-xl pr-10"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => toggleSecretVisibility(secretKey)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                            >
-                              {isVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                            </button>
-                          </div>
+                <div className="space-y-5">
+                  {PROVIDER_SECRET_FIELDS[activeGateway.provider]?.map(field => {
+                    const secretKey = `${activeGateway.provider}_${field.key}`;
+                    const isVisible = visibleSecrets[secretKey];
+                    return (
+                      <div key={field.key} className="space-y-1.5">
+                        <Label className="text-slate-700 text-sm font-medium">{field.label}</Label>
+                        <div className="relative">
+                          <Input
+                            type={isVisible ? "text" : "password"}
+                            value={secrets[activeGateway.provider]?.[field.key] || ""}
+                            onChange={e => updateSecret(activeGateway.provider, field.key, e.target.value)}
+                            placeholder={field.placeholder}
+                            className="admin-input pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => toggleSecretVisibility(secretKey)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                          >
+                            {isVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
                         </div>
-                      );
-                    })}
-                    <p className="text-xs text-muted-foreground font-sans flex items-center gap-1 pt-2">
-                      <Shield className="w-3 h-3" /> Credenciais armazenadas com segurança no backend
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+                      </div>
+                    );
+                  })}
+                  <p className="text-xs text-slate-400 font-medium flex items-center gap-1.5 pt-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                    Credenciais criptografadas e armazenadas com segurança no backend
+                  </p>
+                </div>
+              </div>
 
               {/* Payment Methods */}
-              <Card className="shadow-premium border-0">
-                <CardContent className="p-5 sm:p-6">
-                  <div className="mb-5">
-                    <h2 className="text-lg font-display font-semibold flex items-center gap-2">
-                      <CreditCard className="w-5 h-5 text-primary" /> Métodos de Pagamento
-                    </h2>
-                    <p className="text-muted-foreground text-sm mt-0.5">PIX, Cartão e Boleto</p>
-                  </div>
+              <div className="admin-card p-6">
+                <div className="mb-6 border-b border-slate-100 pb-4">
+                  <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-emerald-600" /> Métodos de Pagamento
+                  </h2>
+                  <p className="text-slate-400 text-sm mt-0.5">Selecione quais métodos este gateway processará</p>
+                </div>
 
-                  <div className="divide-y divide-border/50">
-                    {["pix", "card", "boleto"].map(method => (
-                      <div key={method} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-4 first:pt-0 last:pb-0">
-                        <Label className="font-sans text-sm">
-                          {method === "card" ? "Cartão de Crédito" : method === "pix" ? "PIX" : "Boleto"}
-                        </Label>
-                        <PremiumToggle3D
-                          size="sm"
-                          checked={activeGateway.config?.methods?.[method] ?? false}
-                          onCheckedChange={v => updateGatewayMethod(activeGateway.provider, method, v)}
-                        />
-                      </div>
-                    ))}
-
-                    {activeGateway.config?.methods?.card && (
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-4">
-                        <Label className="font-sans text-sm">Máximo de parcelas</Label>
-                        <Select
-                          value={String(activeGateway.config.max_installments || 12)}
-                          onValueChange={v => updateGatewayConfig(activeGateway.provider, "max_installments", Number(v))}
-                        >
-                          <SelectTrigger className="w-full sm:max-w-xs rounded-xl h-10">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {[1, 2, 3, 4, 6, 8, 10, 12].map(n => (
-                              <SelectItem key={n} value={String(n)}>{n}x</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-
-                    {activeGateway.provider === "stripe" && (
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-4">
-                        <Label className="font-sans text-sm">Captura de cartão</Label>
-                        <Select
-                          value={activeGateway.config.capture_method || "automatic"}
-                          onValueChange={v => updateGatewayConfig(activeGateway.provider, "capture_method", v)}
-                        >
-                          <SelectTrigger className="w-full sm:max-w-xs rounded-xl h-10">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="automatic">Automática</SelectItem>
-                            <SelectItem value="manual">Manual</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-
-                    {activeGateway.config?.methods?.pix && activeGateway.provider === "asaas" && (
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-4">
-                        <Label className="font-sans text-sm">Expiração PIX (minutos)</Label>
-                        <Input
-                          type="number"
-                          value={activeGateway.config.pix_expiration_minutes || 30}
-                          onChange={e => updateGatewayConfig(activeGateway.provider, "pix_expiration_minutes", Number(e.target.value))}
-                          className="h-10 rounded-xl w-full sm:max-w-xs"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                <div className="divide-y divide-slate-50">
+                  {["pix", "card", "boleto"].map(method => (
+                    <div key={method} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-4 first:pt-0 last:pb-0">
+                      <Label className="text-slate-700 font-medium">
+                        {method === "card" ? "Cartão de Crédito" : method === "pix" ? "PIX" : "Boleto"}
+                      </Label>
+                      <PremiumToggle3D
+                        size="sm"
+                        checked={activeGateway.config?.methods?.[method] ?? false}
+                        onCheckedChange={v => updateGatewayMethod(activeGateway.provider, method, v)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </>
           )}
         </div>
