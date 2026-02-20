@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ export default function Auth() {
   const [cpf, setCpf] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const { getSetting } = useStoreSettings();
   const { lookup: lookupCep, loading: cepLoading } = useCepLookup();
   const navigate = useNavigate();
@@ -37,6 +37,14 @@ export default function Auth() {
     zip_code: "", street: "", number: "", complement: "",
     neighborhood: "", city: "", state: "",
   });
+
+  // If user is already logged in, redirect
+  if (user && redirectTo && redirectTo !== "/") {
+    return <Navigate to={redirectTo} replace />;
+  }
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleCepBlur = async () => {
     const result = await lookupCep(addr.zip_code);

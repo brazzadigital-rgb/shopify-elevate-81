@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 import { StoreHeaderRouter } from "@/components/store/StoreHeaderRouter";
 import { StoreFooter } from "@/components/store/StoreFooter";
 import { CartDrawer } from "@/components/store/CartDrawer";
@@ -8,6 +8,7 @@ import { TrackingProvider } from "@/hooks/useTracking";
 import { CookieConsentBanner } from "@/components/store/CookieConsentBanner";
 import { useTrackingSettings } from "@/hooks/useTrackingSettings";
 import { NotificationProvider } from "@/hooks/useNotifications";
+import { useSystemSuspension } from "@/hooks/useSystemSuspension";
 
 function StoreInner() {
   const { config } = useTrackingSettings();
@@ -31,9 +32,14 @@ function StoreInner() {
 
 export default function StoreLayout() {
   const themeReady = useDynamicTheme();
+  const { isSuspended } = useSystemSuspension();
 
   if (!themeReady) {
     return <div className="min-h-screen bg-background" />;
+  }
+
+  if (isSuspended) {
+    return <Navigate to="/auth?redirect=/admin/planos" replace />;
   }
 
   return (
