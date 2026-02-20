@@ -1,4 +1,4 @@
-import { useSubscription } from "@/hooks/useSubscription";
+import { useOwnerSubscription } from "@/hooks/useOwnerSubscription";
 import { useNavigate } from "react-router-dom";
 import { Crown, AlertCircle, Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,7 +20,7 @@ function daysLeft(dateStr: string) {
 }
 
 export function SidebarPlanWidget() {
-  const { data: sub, isLoading } = useSubscription();
+  const { data: sub, isLoading } = useOwnerSubscription();
   const navigate = useNavigate();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
