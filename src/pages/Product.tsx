@@ -99,19 +99,19 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
                   onClick={() => setSelectedImage(i)}
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 min-h-[unset] min-w-[unset] ${
+                  className={`shrink-0 product-thumb-mini w-16 h-16 border-2 transition-all duration-200 min-h-[unset] min-w-[unset] ${
                     i === selectedImage
                       ? "border-accent shadow-[0_0_0_1px_hsl(var(--accent)/0.3)]"
                       : "border-transparent hover:border-border"
                   }`}
                 >
-                  <img src={img.url} alt="" className="w-full h-full object-cover" />
+                  <img src={img.url} alt="" />
                 </motion.button>
               ))}
             </div>
           )}
           <div
-            className="relative flex-1 aspect-square cursor-zoom-in overflow-hidden"
+            className="relative flex-1 product-thumb !rounded-2xl cursor-zoom-in"
             onMouseEnter={() => setZoomed(true)}
             onMouseLeave={() => setZoomed(false)}
             onMouseMove={handleMouseMove}
@@ -125,7 +125,7 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
-                className="w-full h-full object-cover transition-transform duration-300"
+                className="w-full h-full object-contain transition-transform duration-300"
                 style={zoomed ? {
                   transform: "scale(2)",
                   transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
@@ -155,7 +155,7 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
             >
               {images.map((img, i) => (
                 <div key={i} className="h-full shrink-0 w-full">
-                  <img src={img.url} alt={title} className="w-full h-full object-cover pointer-events-none" />
+                  <img src={img.url} alt={title} className="w-full h-full object-contain pointer-events-none" />
                 </div>
               ))}
             </div>
@@ -182,11 +182,11 @@ function ProductGallery({ images, title, discount, selectedImage, setSelectedIma
                 <button
                   key={i}
                   onClick={() => setSelectedImage(i)}
-                  className={`shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 transition-all duration-200 min-h-[unset] min-w-[unset] ${
+                  className={`shrink-0 product-thumb-mini w-14 h-14 border-2 transition-all duration-200 min-h-[unset] min-w-[unset] ${
                     i === selectedImage ? "border-accent" : "border-transparent"
                   }`}
                 >
-                  <img src={img.url} alt="" className="w-full h-full object-cover" />
+                  <img src={img.url} alt="" />
                 </button>
               ))}
             </div>

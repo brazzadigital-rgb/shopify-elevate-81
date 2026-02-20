@@ -97,11 +97,10 @@ export function MascotPromoPanel() {
                 >
                   <div className="relative flex flex-col h-full bg-card rounded-2xl border border-border/40 overflow-hidden transition-all duration-300 md:hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)] group cursor-pointer">
                     {/* Image */}
-                    <div className="relative aspect-square bg-muted/20 overflow-hidden cursor-pointer" onClick={() => navigate(`/produto/${product.slug}`)}>
+                    <div className="product-thumb !rounded-t-2xl !rounded-b-none cursor-pointer" onClick={() => navigate(`/produto/${product.slug}`)}>
                       <img
                         src={getImage(product)}
                         alt={product.name}
-                        className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out will-change-[opacity,transform] group-hover:scale-[1.03]"
                         loading="lazy"
                       />
                       {disc > 0 && (
