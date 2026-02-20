@@ -177,7 +177,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const playSound = useCallback(() => {
     try {
       if (!audioRef.current) {
-        audioRef.current = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdHKFiIV7cXR1eH17d3N1dXh9gH15dnR2eX6Bf3t3dXZ5fYCAf3x4d3l7f4GAfnx6eXp8foCAf357enp7fX+AgH9+fHt7fH5/gH9/fnx8fH1+f4B/f359fX1+fn+Af39+fX19fn5/f39/fn5+fn5+f39/f35+fn5+fn9/f39+fn5+fn5/f39/fn5+fn5+f39/f35+fn5+fn9/f39+fn5+fn5/f39/fn5+fn5+f39/f35+");
+        audioRef.current = new Audio("/sounds/new-order.mp3");
       }
       audioRef.current.volume = (preferences.sound_volume || 70) / 100;
       audioRef.current.currentTime = 0;
