@@ -27,7 +27,7 @@ interface ProductData {
   sku: string | null;
   sold_count: number;
   product_images: { url: string; is_primary: boolean; alt_text: string | null }[];
-  product_variants: { id: string; name: string; price: number | null; stock: number }[];
+  product_variants: { id: string; name: string; price: number | null; stock: number; attribute_group: string | null }[];
 }
 
 /* ── Sub-components ────────────────────────────────────── */
@@ -353,7 +353,7 @@ export default function ProductPage() {
       if (!slug) return;
       const { data } = await supabase
         .from("products")
-        .select("id, name, slug, description, price, compare_at_price, stock, sku, sold_count, product_images(url, is_primary, alt_text), product_variants(id, name, price, stock)")
+        .select("id, name, slug, description, price, compare_at_price, stock, sku, sold_count, product_images(url, is_primary, alt_text), product_variants(id, name, price, stock, attribute_group)")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
@@ -392,34 +392,39 @@ export default function ProductPage() {
   const images = product.product_images || [];
   const variants = product.product_variants || [];
 
-  // Parse variant names to extract attribute groups (e.g., "Aro 16 / Ouro 18k" → [["Aro 16","Aro 18",...], ["Ouro 18k","Ródio Branco",...]])
-  const hasGroups = variants.length > 0 && variants.some(v => v.name.includes(" / "));
-  const attributeGroups: { label: string; options: string[] }[] = [];
+  // Group variants by attribute_group
+  const hasGroups = variants.length > 0 && variants.some(v => !!v.attribute_group);
+  const attributeGroups: { label: string; variants: typeof variants }[] = [];
 
   if (hasGroups) {
-    const parts = variants.map(v => v.name.split(" / ").map(s => s.trim()));
-    const groupCount = parts[0]?.length || 0;
-    for (let g = 0; g < groupCount; g++) {
-      const uniqueValues = [...new Set(parts.map(p => p[g]).filter(Boolean))];
-      // Try to infer a group label from common prefix or use generic
-      const firstVal = uniqueValues[0] || "";
-      const prefixMatch = firstVal.match(/^([A-Za-zÀ-ÿ]+)\s/);
-      const label = prefixMatch ? prefixMatch[1] : `Opção ${g + 1}`;
-      attributeGroups.push({ label, options: uniqueValues });
+    const groupNames = [...new Set(variants.filter(v => v.attribute_group).map(v => v.attribute_group!))];
+    for (const gName of groupNames) {
+      attributeGroups.push({
+        label: gName,
+        variants: variants.filter(v => v.attribute_group === gName),
+      });
+    }
+    // Also add ungrouped variants if any
+    const ungrouped = variants.filter(v => !v.attribute_group);
+    if (ungrouped.length > 0) {
+      attributeGroups.push({ label: "Variante", variants: ungrouped });
     }
   }
 
-  // Find the matching variant based on selected attributes
-  const getMatchedVariantIdx = (): number | null => {
-    if (!hasGroups) return selectedVariantIdx;
-    if (Object.keys(selectedAttributes).length !== attributeGroups.length) return null;
-    const targetName = attributeGroups.map((_, g) => selectedAttributes[g]).join(" / ");
-    const idx = variants.findIndex(v => v.name === targetName);
-    return idx >= 0 ? idx : null;
-  };
+  // For grouped variants, track selected variant per group
+  const selectedGroupVariants = hasGroups
+    ? Object.entries(selectedAttributes).map(([g, name]) => {
+        const group = attributeGroups[Number(g)];
+        return group?.variants.find(v => v.name === name) || null;
+      }).filter(Boolean)
+    : [];
 
-  const matchedVariantIdx = hasGroups ? getMatchedVariantIdx() : selectedVariantIdx;
-  const selectedVariant = matchedVariantIdx !== null ? variants[matchedVariantIdx] : null;
+  // Use the last selected variant for price display, or first selected
+  const activeVariant = hasGroups
+    ? (selectedGroupVariants.length > 0 ? selectedGroupVariants[selectedGroupVariants.length - 1] : null)
+    : (selectedVariantIdx !== null ? variants[selectedVariantIdx] : null);
+
+  const selectedVariant = activeVariant as typeof variants[0] | null;
   const price = selectedVariant?.price ?? product.price;
   const comparePrice = product.compare_at_price ?? 0;
   const discount = comparePrice > price ? Math.round(((comparePrice - price) / comparePrice) * 100) : 0;
@@ -553,19 +558,19 @@ export default function ProductPage() {
                       {selectedAttributes[g] && <span className="ml-1.5 text-foreground normal-case tracking-normal">— {selectedAttributes[g]}</span>}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {group.options.map((opt) => (
+                      {group.variants.map((v) => (
                         <motion.button
-                          key={opt}
-                          onClick={() => setSelectedAttributes(prev => ({ ...prev, [g]: opt }))}
+                          key={v.id}
+                          onClick={() => setSelectedAttributes(prev => ({ ...prev, [g]: v.name }))}
                           whileHover={{ scale: 1.04 }}
                           whileTap={{ scale: 0.96 }}
                           className={`px-4 py-2 rounded-full font-sans text-sm border-2 transition-all duration-200 ${
-                            selectedAttributes[g] === opt
+                            selectedAttributes[g] === v.name
                               ? "border-accent bg-accent/10 text-accent font-semibold shadow-[0_0_0_1px_hsl(var(--accent)/0.2)]"
                               : "border-border hover:border-muted-foreground/30"
                           }`}
                         >
-                          {opt}
+                          {v.name}
                         </motion.button>
                       ))}
                     </div>

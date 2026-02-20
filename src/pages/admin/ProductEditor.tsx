@@ -37,6 +37,7 @@ interface ProductVariant {
   stock: number;
   sku: string | null;
   sort_order: number;
+  attribute_group?: string | null;
 }
 
 interface CustomField {
@@ -222,7 +223,7 @@ export default function ProductEditor() {
       await supabase.from("product_variants").delete().eq("product_id", productId);
       if (variants.length > 0) {
         await supabase.from("product_variants").insert(
-          variants.map((v, i) => ({ product_id: productId!, name: v.name, price: v.price, compare_at_price: v.compare_at_price, stock: v.stock, sku: v.sku, sort_order: i }))
+          variants.map((v, i) => ({ product_id: productId!, name: v.name, price: v.price, compare_at_price: v.compare_at_price, stock: v.stock, sku: v.sku, sort_order: i, attribute_group: v.attribute_group || null }))
         );
       }
       await supabase.from("product_custom_fields").delete().eq("product_id", productId);

@@ -17,6 +17,7 @@ interface ProductVariant {
   stock: number;
   sku: string | null;
   sort_order: number;
+  attribute_group?: string | null;
 }
 
 interface Props {
@@ -79,33 +80,24 @@ export function VariationTemplateApplier({ productSku, productPrice, variants, o
       values: a.values,
     })));
 
-    // Generate combinations (cartesian product)
-    let combinations: any[][] = [[]];
+    // Create variants — one per value, preserving attribute group
+    const newVariants: ProductVariant[] = [];
     for (const attr of allAttrValues) {
-      const newCombinations: any[][] = [];
-      for (const combo of combinations) {
-        for (const val of attr.values) {
-          newCombinations.push([...combo, { attrName: attr.attrName, ...val }]);
-        }
+      for (let i = 0; i < attr.values.length; i++) {
+        const val = attr.values[i];
+        const skuSuffix = val.sku_suffix || "";
+        const priceDelta = val.price_delta || 0;
+        newVariants.push({
+          name: val.value_label,
+          price: priceDelta > 0 ? productPrice + priceDelta : null,
+          compare_at_price: null,
+          stock: 0,
+          sku: productSku ? `${productSku}${skuSuffix}` : skuSuffix.replace(/^-/, "") || null,
+          sort_order: newVariants.length,
+          attribute_group: attr.attrName,
+        });
       }
-      combinations = newCombinations;
     }
-
-    // Create variants from combinations
-    const newVariants: ProductVariant[] = combinations.map((combo, i) => {
-      const name = combo.map((c: any) => c.value_label).join(" / ");
-      const skuSuffix = combo.map((c: any) => c.sku_suffix || "").join("");
-      const priceDelta = combo.reduce((sum: number, c: any) => sum + (c.price_delta || 0), 0);
-
-      return {
-        name,
-        price: priceDelta > 0 ? productPrice + priceDelta : null,
-        compare_at_price: null,
-        stock: 0,
-        sku: productSku ? `${productSku}${skuSuffix}` : skuSuffix.replace(/^-/, "") || null,
-        sort_order: i,
-      };
-    });
 
     if (overwrite) {
       onApply(newVariants);
