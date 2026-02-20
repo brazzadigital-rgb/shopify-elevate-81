@@ -1,16 +1,17 @@
 import { useOwnerSubscription } from "@/hooks/useOwnerSubscription";
 import { useNavigate } from "react-router-dom";
-import { Crown, AlertCircle, Clock } from "lucide-react";
+import { Crown, AlertCircle, Clock, Sparkles } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSidebar } from "@/components/ui/sidebar";
+import { motion } from "framer-motion";
 
-const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
-  active: { label: "Ativo", color: "bg-emerald-500/15 text-emerald-600", icon: null },
-  trialing: { label: "Teste", color: "bg-amber-500/15 text-amber-600", icon: Clock },
-  past_due: { label: "Atraso", color: "bg-red-500/15 text-red-600", icon: AlertCircle },
-  canceled: { label: "Cancelado", color: "bg-muted text-muted-foreground", icon: null },
+const statusConfig: Record<string, { label: string; color: string; icon: any; dotColor: string }> = {
+  active: { label: "Ativo", color: "bg-emerald-500/15 text-emerald-600", icon: null, dotColor: "bg-emerald-400" },
+  trialing: { label: "Teste", color: "bg-amber-500/15 text-amber-600", icon: Clock, dotColor: "bg-amber-400" },
+  past_due: { label: "Atraso", color: "bg-red-500/15 text-red-600", icon: AlertCircle, dotColor: "bg-red-400" },
+  canceled: { label: "Cancelado", color: "bg-muted text-muted-foreground", icon: null, dotColor: "bg-slate-400" },
 };
 
 const cycleLabel: Record<string, string> = { monthly: "mês", semiannual: "semestre", annual: "ano" };
@@ -28,7 +29,7 @@ export function SidebarPlanWidget() {
   if (isLoading) {
     return collapsed ? null : (
       <div className="px-3 pb-2">
-        <Skeleton className="h-[72px] rounded-xl" />
+        <Skeleton className="h-[88px] rounded-2xl" />
       </div>
     );
   }
@@ -37,18 +38,20 @@ export function SidebarPlanWidget() {
   const status = sub?.status || "active";
   const cfg = statusConfig[status] || statusConfig.active;
 
-  // Collapsed: show icon only
   if (collapsed) {
     return (
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => navigate("/admin/planos")}
-              className="flex items-center justify-center w-full py-2 text-primary hover:bg-muted/40 rounded-xl transition-colors"
+              className="relative flex items-center justify-center w-full py-2 text-primary hover:bg-muted/40 rounded-xl transition-colors"
             >
               <Crown className="w-5 h-5" />
-            </button>
+              <span className={cn("absolute top-1 right-2 w-2 h-2 rounded-full animate-pulse", cfg.dotColor)} />
+            </motion.button>
           </TooltipTrigger>
           <TooltipContent side="right">
             <p>{plan ? `${plan.name} — ${cfg.label}` : "Ver planos"}</p>
@@ -67,44 +70,110 @@ export function SidebarPlanWidget() {
     : null;
 
   return (
-    <button
+    <motion.button
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.02, y: -1 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       onClick={() => navigate("/admin/planos")}
-      className="mx-3 mb-2 p-3.5 rounded-xl transition-all duration-200 hover:shadow-md group text-left w-[calc(100%-1.5rem)]"
+      className="relative mx-3 mb-2 p-4 rounded-2xl text-left w-[calc(100%-1.5rem)] overflow-hidden group"
       style={{
-        background: "linear-gradient(135deg, hsl(var(--primary) / 0.06), hsl(var(--primary) / 0.02))",
-        border: "1px solid hsl(var(--primary) / 0.12)",
+        background: "linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--primary) / 0.03), hsl(var(--primary) / 0.06))",
+        border: "1px solid hsl(var(--primary) / 0.15)",
+        boxShadow: "0 2px 12px hsl(var(--primary) / 0.06)",
       }}
     >
-      <div className="flex items-center justify-between mb-1.5">
-        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Seu plano</span>
-        <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full", cfg.color)}>{cfg.label}</span>
+      {/* Animated shine sweep */}
+      <div
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        style={{
+          background: "linear-gradient(105deg, transparent 40%, hsl(var(--primary) / 0.08) 45%, hsl(var(--primary) / 0.12) 50%, hsl(var(--primary) / 0.08) 55%, transparent 60%)",
+          backgroundSize: "200% 100%",
+          animation: "shine-sweep 1.5s ease-in-out infinite",
+        }}
+      />
+
+      {/* Floating sparkle */}
+      <motion.div
+        className="absolute top-2 right-2 text-primary/20"
+        animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.1, 0.9, 1] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <Sparkles className="w-4 h-4" />
+      </motion.div>
+
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-2 relative z-10">
+        <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-bold">Seu plano</span>
+        <span className={cn("inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full", cfg.color)}>
+          <span className={cn("w-1.5 h-1.5 rounded-full animate-pulse", cfg.dotColor)} />
+          {cfg.label}
+        </span>
       </div>
 
       {plan ? (
-        <>
-          <div className="flex items-center gap-2 mb-1">
-            <Crown className="w-4 h-4 text-primary" />
-            <span className="font-semibold text-sm text-foreground">{plan.name}</span>
+        <div className="relative z-10">
+          <div className="flex items-center gap-2.5 mb-1.5">
+            <motion.div
+              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{
+                background: "linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--primary) / 0.08))",
+              }}
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Crown className="w-4 h-4 text-primary" />
+            </motion.div>
+            <div>
+              <p className="font-bold text-sm text-foreground leading-tight">{plan.name}</p>
+              <p className="text-[11px] text-muted-foreground">
+                R$ {price?.toFixed(2).replace(".", ",")}
+                <span className="text-muted-foreground/60"> / {cycleLabel[sub.billing_cycle] || "mês"}</span>
+              </p>
+            </div>
           </div>
-          <div className="text-xs text-muted-foreground">
-            R$ {price?.toFixed(2).replace(".", ",")} / {cycleLabel[sub.billing_cycle] || "mês"}
-          </div>
+
           {status === "trialing" && (
-            <div className="text-[10px] text-amber-600 mt-1 font-medium">{daysLeft(sub.current_period_end)} dias restantes</div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-[10px] text-amber-600 mt-2 font-semibold flex items-center gap-1 bg-amber-50 rounded-lg px-2 py-1"
+            >
+              <Clock className="w-3 h-3" />
+              {daysLeft(sub.current_period_end)} dias restantes
+            </motion.div>
           )}
           {status === "past_due" && (
-            <div className="text-[10px] text-red-500 mt-1 font-medium">Regularize seu plano →</div>
+            <motion.div
+              animate={{ x: [0, 2, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="text-[10px] text-red-500 mt-2 font-semibold flex items-center gap-1 bg-red-50 rounded-lg px-2 py-1"
+            >
+              <AlertCircle className="w-3 h-3" />
+              Regularize seu plano →
+            </motion.div>
           )}
           {status === "active" && sub.current_period_end && (
-            <div className="text-[10px] text-muted-foreground mt-1">Renova em {new Date(sub.current_period_end).toLocaleDateString("pt-BR")}</div>
+            <div className="text-[10px] text-muted-foreground mt-2 flex items-center gap-1">
+              Renova em {new Date(sub.current_period_end).toLocaleDateString("pt-BR")}
+            </div>
           )}
-        </>
+        </div>
       ) : (
-        <div className="flex items-center gap-2">
-          <Crown className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium text-foreground">Escolher um plano</span>
+        <div className="flex items-center gap-2.5 relative z-10">
+          <div
+            className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: "linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--primary) / 0.08))" }}
+          >
+            <Crown className="w-4 h-4 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-foreground">Escolher plano</p>
+            <p className="text-[10px] text-muted-foreground">Desbloqueie recursos</p>
+          </div>
         </div>
       )}
-    </button>
+    </motion.button>
   );
 }
