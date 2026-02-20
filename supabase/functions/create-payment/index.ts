@@ -137,6 +137,11 @@ Deno.serve(async (req) => {
           order, method, customer, gatewayConfig, secrets
         );
         break;
+      case "sicredi":
+        paymentResult = await createSicrediPayment(
+          order, method, customer, gatewayConfig, secrets
+        );
+        break;
       default:
         return new Response(
           JSON.stringify({ error: `Unknown provider: ${providerName}` }),
@@ -471,5 +476,169 @@ async function createPagSeguroPayment(
     checkout_url: data.links?.find((l: any) => l.rel === "PAY")?.href || null,
     expires_at: null,
     raw_payload: data,
+  };
+}
+
+// ========== SICREDI PROVIDER ==========
+async function getSicrediAccessToken(
+  config: any,
+  secrets: Record<string, string>
+): Promise<string> {
+  const clientId = secrets.client_id;
+  const clientSecret = secrets.client_secret;
+  if (!clientId || !clientSecret) throw new Error("Sicredi client_id/client_secret not configured");
+
+  const baseUrl = config.environment === "production"
+    ? "https://api-pix.sicredi.com.br"
+    : "https://api-pix-h.sicredi.com.br";
+
+  const httpClientOpts: any = {};
+
+  // mTLS with PEM certificate + key
+  const certPem = secrets.certificado_pem;
+  const keyPem = secrets.chave_privada_pem;
+  if (certPem && keyPem) {
+    httpClientOpts.certChain = certPem;
+    httpClientOpts.privateKey = keyPem;
+  }
+
+  const httpClient = Object.keys(httpClientOpts).length > 0
+    ? Deno.createHttpClient(httpClientOpts)
+    : undefined;
+
+  const params = new URLSearchParams();
+  params.append("grant_type", "client_credentials");
+  params.append("scope", "cob.write cob.read cobv.write cobv.read pix.read pix.write webhook.read webhook.write");
+
+  const authHeader = btoa(`${clientId}:${clientSecret}`);
+
+  const fetchOpts: any = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${authHeader}`,
+    },
+    body: params.toString(),
+  };
+  if (httpClient) fetchOpts.client = httpClient;
+
+  const res = await fetch(`${baseUrl}/oauth/token`, fetchOpts);
+  const data = await res.json();
+
+  if (!data.access_token) {
+    console.error("Sicredi OAuth error:", data);
+    throw new Error("Failed to get Sicredi access token");
+  }
+
+  return data.access_token;
+}
+
+async function createSicrediPayment(
+  order: any,
+  method: string,
+  customer: any,
+  config: any,
+  secrets: Record<string, string>
+) {
+  if (method !== "pix" && method !== "boleto") {
+    throw new Error("Sicredi only supports PIX and Boleto");
+  }
+
+  const accessToken = await getSicrediAccessToken(config, secrets);
+
+  const baseUrl = config.environment === "production"
+    ? "https://api-pix.sicredi.com.br/api/v2"
+    : "https://api-pix-h.sicredi.com.br/api/v2";
+
+  const pixExpMinutes = config.config?.pix_expiration_minutes || 30;
+  const txid = order.id.replace(/-/g, "").substring(0, 35);
+
+  const httpClientOpts: any = {};
+  const certPem = secrets.certificado_pem;
+  const keyPem = secrets.chave_privada_pem;
+  if (certPem && keyPem) {
+    httpClientOpts.certChain = certPem;
+    httpClientOpts.privateKey = keyPem;
+  }
+  const httpClient = Object.keys(httpClientOpts).length > 0
+    ? Deno.createHttpClient(httpClientOpts)
+    : undefined;
+
+  const chavePix = secrets.chave_pix;
+  if (!chavePix) throw new Error("Sicredi chave_pix not configured");
+
+  // Create cobrança (charge)
+  const cobBody: any = {
+    calendario: {
+      expiracao: pixExpMinutes * 60,
+    },
+    valor: {
+      original: order.total.toFixed(2),
+    },
+    chave: chavePix,
+    solicitacaoPagador: `Pedido ${order.order_number}`,
+    infoAdicionais: [
+      { nome: "Pedido", valor: order.order_number },
+    ],
+  };
+
+  // Add debtor info if CPF available
+  if (customer.cpf) {
+    cobBody.devedor = {
+      cpf: customer.cpf.replace(/\D/g, ""),
+      nome: customer.name,
+    };
+  }
+
+  const fetchOpts: any = {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(cobBody),
+  };
+  if (httpClient) fetchOpts.client = httpClient;
+
+  const cobRes = await fetch(`${baseUrl}/cob/${txid}`, fetchOpts);
+  const cobData = await cobRes.json();
+
+  if (!cobData.txid) {
+    console.error("Sicredi cob error:", cobData);
+    throw new Error("Failed to create Sicredi charge");
+  }
+
+  // Get QR Code
+  const qrFetchOpts: any = {
+    method: "GET",
+    headers: { Authorization: `Bearer ${accessToken}` },
+  };
+  if (httpClient) qrFetchOpts.client = httpClient;
+
+  let qrCode = null;
+  let qrCodeImage = null;
+
+  try {
+    const qrRes = await fetch(`${baseUrl}/cob/${txid}/qrcode`, qrFetchOpts);
+    const qrData = await qrRes.json();
+    qrCode = qrData.qrcode || qrData.brcode || null;
+    qrCodeImage = qrData.imagemQrcode
+      ? (qrData.imagemQrcode.startsWith("data:") ? qrData.imagemQrcode : `data:image/png;base64,${qrData.imagemQrcode}`)
+      : null;
+  } catch (qrErr) {
+    console.error("Sicredi QR Code error:", qrErr);
+  }
+
+  const expiresAt = new Date(Date.now() + pixExpMinutes * 60 * 1000).toISOString();
+
+  return {
+    provider_payment_id: cobData.txid,
+    provider_reference: cobData.loc?.id?.toString() || null,
+    qr_code: qrCode,
+    qr_code_image_url: qrCodeImage,
+    boleto_url: null,
+    checkout_url: null,
+    expires_at: expiresAt,
+    raw_payload: cobData,
   };
 }

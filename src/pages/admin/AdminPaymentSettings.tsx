@@ -27,6 +27,7 @@ const PROVIDER_LABELS: Record<string, string> = {
   mercadopago: "Mercado Pago",
   pagseguro: "PagSeguro",
   stripe: "Stripe",
+  sicredi: "Sicredi",
 };
 
 const PROVIDER_ICONS: Record<string, string> = {
@@ -34,6 +35,7 @@ const PROVIDER_ICONS: Record<string, string> = {
   mercadopago: "🟡",
   pagseguro: "🟢",
   stripe: "🟣",
+  sicredi: "🏦",
 };
 
 const PROVIDER_SECRET_FIELDS: Record<string, { key: string; label: string; placeholder: string }[]> = {
@@ -56,6 +58,17 @@ const PROVIDER_SECRET_FIELDS: Record<string, { key: string; label: string; place
     { key: "publishable_key", label: "Publishable Key", placeholder: "pk_..." },
     { key: "secret_key", label: "Secret Key", placeholder: "sk_..." },
     { key: "webhook_signing_secret", label: "Webhook Signing Secret", placeholder: "whsec_..." },
+  ],
+  sicredi: [
+    { key: "client_id", label: "Client ID", placeholder: "Client ID do Sicredi" },
+    { key: "client_secret", label: "Client Secret", placeholder: "Client Secret" },
+    { key: "chave_pix", label: "Chave PIX", placeholder: "CPF/CNPJ/email/celular/aleatória" },
+    { key: "cooperativa", label: "Cooperativa", placeholder: "Ex: 0100" },
+    { key: "agencia", label: "Agência", placeholder: "Ex: 0001" },
+    { key: "conta", label: "Conta", placeholder: "Ex: 12345-6" },
+    { key: "certificado_pem", label: "Certificado (.crt / PEM)", placeholder: "Cole o conteúdo do certificado" },
+    { key: "chave_privada_pem", label: "Chave Privada (.key / PEM)", placeholder: "Cole o conteúdo da chave privada" },
+    { key: "webhook_token", label: "Token de Webhook", placeholder: "Token para validação do webhook" },
   ],
 };
 
@@ -368,6 +381,40 @@ export default function AdminPaymentSettings() {
                   </p>
                 </div>
               </div>
+
+              {/* Webhook URL for Sicredi */}
+              {activeGateway.provider === "sicredi" && (
+                <div className="admin-card p-6">
+                  <div className="mb-6 border-b border-slate-100 pb-4">
+                    <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                      🔗 Webhook
+                    </h2>
+                    <p className="text-slate-400 text-sm mt-0.5">Cadastre esta URL no painel do Sicredi para receber notificações de pagamento</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-slate-700 text-sm font-medium">Webhook URL (somente leitura)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/webhook-sicredi`}
+                        readOnly
+                        className="admin-input text-xs font-mono"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="shrink-0 rounded-xl"
+                        onClick={() => {
+                          navigator.clipboard.writeText(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/webhook-sicredi`);
+                          toast({ title: "URL copiada! 📋" });
+                        }}
+                      >
+                        Copiar
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Payment Methods */}
               <div className="admin-card p-6">
