@@ -1,14 +1,8 @@
-import { useState } from "react";
-import { usePlans, useSubscription, type Plan } from "@/hooks/useSubscription";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { useQueryClient } from "@tanstack/react-query";
+import { usePlans, type Plan } from "@/hooks/useSubscription";
+import { useOwnerSubscription } from "@/hooks/useOwnerSubscription";
 import { Check, Crown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 type Cycle = "monthly" | "semiannual" | "annual";
@@ -29,26 +23,12 @@ function getMonthlyBase(plan: Plan) {
   return plan.monthly_price;
 }
 
-function getMonthlyEquivalent(plan: Plan, cycle: Cycle) {
-  if (cycle === "semiannual") return plan.semiannual_price / 6;
-  if (cycle === "annual") return plan.annual_price / 12;
-  return plan.monthly_price;
-}
-
 function getSavings(plan: Plan, cycle: Cycle) {
   if (cycle === "monthly") return 0;
   const months = cycle === "semiannual" ? 6 : 12;
   const monthlyTotal = plan.monthly_price * months;
   const cyclePrice = getPrice(plan, cycle);
   return Math.round(((monthlyTotal - cyclePrice) / monthlyTotal) * 100);
-}
-
-function periodEnd(cycle: Cycle) {
-  const d = new Date();
-  if (cycle === "monthly") d.setMonth(d.getMonth() + 1);
-  else if (cycle === "semiannual") d.setMonth(d.getMonth() + 6);
-  else d.setFullYear(d.getFullYear() + 1);
-  return d.toISOString();
 }
 
 const statsItems = [
@@ -62,46 +42,7 @@ const extraBadges = ["Analytics", "RBAC", "Multi-gateway", "UTM"];
 
 export default function AdminPlans() {
   const { data: plans, isLoading: plansLoading } = usePlans();
-  const { data: sub, isLoading: subLoading } = useSubscription();
-  const { user } = useAuth();
-  const qc = useQueryClient();
-  const [confirmPlan, setConfirmPlan] = useState<{ plan: Plan; cycle: Cycle } | null>(null);
-  const [saving, setSaving] = useState(false);
-
-  const handleConfirm = async () => {
-    if (!confirmPlan || !user) return;
-    setSaving(true);
-    const { plan, cycle } = confirmPlan;
-    try {
-      if (sub) {
-        const { error } = await supabase.from("subscriptions").update({
-          plan_id: plan.id,
-          billing_cycle: cycle,
-          status: "active",
-          current_period_start: new Date().toISOString(),
-          current_period_end: periodEnd(cycle),
-        }).eq("id", sub.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("subscriptions").insert({
-          user_id: user.id,
-          plan_id: plan.id,
-          billing_cycle: cycle,
-          status: "active",
-          current_period_start: new Date().toISOString(),
-          current_period_end: periodEnd(cycle),
-        });
-        if (error) throw error;
-      }
-      qc.invalidateQueries({ queryKey: ["subscription"] });
-      toast.success("Plano atualizado com sucesso!");
-      setConfirmPlan(null);
-    } catch (e: any) {
-      toast.error(e.message || "Erro ao atualizar plano");
-    } finally {
-      setSaving(false);
-    }
-  };
+  const { data: sub, isLoading: subLoading } = useOwnerSubscription();
 
   const isLoading = plansLoading || subLoading;
   const plan = plans?.[0];
@@ -224,17 +165,12 @@ export default function AdminPlans() {
                     ))}
                   </div>
 
-                  {/* Action */}
-                  <Button
-                    className="w-full rounded-xl h-10 font-semibold mt-auto"
-                    variant={isCurrent ? "outline" : "default"}
-                    disabled={isCurrent}
-                    onClick={() => setConfirmPlan({ plan, cycle: c })}
-                  >
-                    {isCurrent
-                      ? "Ciclo atual"
-                      : `Assinar ${cycleLabels[c].toLowerCase()} — ${formatBRL(total)}`}
-                  </Button>
+                  {/* Current indicator */}
+                  {isCurrent && (
+                    <div className="w-full rounded-xl h-10 font-semibold mt-auto flex items-center justify-center bg-primary/10 text-primary text-sm">
+                      ✓ Ciclo ativo
+                    </div>
+                  )}
                 </div>
               </motion.div>
             );
@@ -245,37 +181,6 @@ export default function AdminPlans() {
           <p className="text-sm text-muted-foreground">Nenhum plano configurado</p>
         </div>
       )}
-
-      {/* Confirm Dialog */}
-      <Dialog open={!!confirmPlan} onOpenChange={() => setConfirmPlan(null)}>
-        <DialogContent className="rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>Confirmar assinatura</DialogTitle>
-            <DialogDescription>Revise os detalhes antes de confirmar.</DialogDescription>
-          </DialogHeader>
-          {confirmPlan && (
-            <div className="space-y-3 py-2">
-              {[
-                { label: "Plano", value: confirmPlan.plan.name },
-                { label: "Ciclo", value: cycleLabels[confirmPlan.cycle] },
-                { label: "Valor", value: formatBRL(getPrice(confirmPlan.plan, confirmPlan.cycle)) },
-                { label: "Equivalente/mês", value: formatBRL(getMonthlyEquivalent(confirmPlan.plan, confirmPlan.cycle)) },
-                { label: "Economia", value: getSavings(confirmPlan.plan, confirmPlan.cycle) > 0 ? `${getSavings(confirmPlan.plan, confirmPlan.cycle)}%` : "—" },
-                { label: "Próxima renovação", value: new Date(periodEnd(confirmPlan.cycle)).toLocaleDateString("pt-BR") },
-              ].map(row => (
-                <div key={row.label} className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{row.label}</span>
-                  <span className="font-semibold">{row.value}</span>
-                </div>
-              ))}
-            </div>
-          )}
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setConfirmPlan(null)} className="rounded-xl">Cancelar</Button>
-            <Button onClick={handleConfirm} disabled={saving} className="rounded-xl">{saving ? "Salvando..." : "Confirmar"}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
