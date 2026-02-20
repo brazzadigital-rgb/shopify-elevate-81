@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Users, Search, ShoppingBag, Crown, X, Download
+  Users, Search, ShoppingBag, Crown, X, Download, MessageCircle
 } from "lucide-react";
 
 interface CustomerProfile {
@@ -318,7 +318,23 @@ export default function AdminCustomers() {
                           </div>
                         </td>
                         <td className="px-4 py-3 text-slate-500 text-sm hidden xl:table-cell truncate max-w-[200px]">{email || "—"}</td>
-                        <td className="px-4 py-3 text-sm text-slate-500">{formatPhone(p.phone)}</td>
+                        <td className="px-4 py-3 text-sm text-slate-500">
+                          <div className="flex items-center gap-2">
+                            <span>{formatPhone(p.phone)}</span>
+                            {p.phone && (
+                              <a
+                                href={`https://wa.me/55${p.phone.replace(/\D/g, "")}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-emerald-500 hover:text-emerald-600 transition-colors"
+                                title="Conversar no WhatsApp"
+                                onClick={e => e.stopPropagation()}
+                              >
+                                <MessageCircle className="w-4 h-4" />
+                              </a>
+                            )}
+                          </div>
+                        </td>
                         <td className="px-4 py-3 text-right font-medium text-slate-700">{os?.count || 0}</td>
                         <td className="px-4 py-3 text-right font-semibold text-slate-700">{formatCurrency(os?.total || 0)}</td>
                         <td className="px-4 py-3 text-center">
@@ -349,6 +365,17 @@ export default function AdminCustomers() {
                         </div>
                         <p className="text-xs text-slate-400 truncate">{userEmails[p.user_id] || "—"}</p>
                       </div>
+                      {p.phone && (
+                        <a
+                          href={`https://wa.me/55${p.phone.replace(/\D/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500 hover:bg-emerald-100 transition-colors"
+                          title="WhatsApp"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                        </a>
+                      )}
                     </div>
                     <div className="flex items-center justify-between text-sm border-t border-slate-50 pt-3">
                       <div>
