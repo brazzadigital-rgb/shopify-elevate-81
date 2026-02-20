@@ -11,6 +11,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: any; do
   active: { label: "Ativo", color: "bg-emerald-500/15 text-emerald-600", icon: null, dotColor: "bg-emerald-400" },
   trialing: { label: "Teste", color: "bg-amber-500/15 text-amber-600", icon: Clock, dotColor: "bg-amber-400" },
   past_due: { label: "Atraso", color: "bg-red-500/15 text-red-600", icon: AlertCircle, dotColor: "bg-red-400" },
+  suspended: { label: "Suspenso", color: "bg-red-500/15 text-red-600", icon: AlertCircle, dotColor: "bg-red-400" },
   canceled: { label: "Cancelado", color: "bg-muted text-muted-foreground", icon: null, dotColor: "bg-slate-400" },
 };
 
@@ -152,6 +153,16 @@ export function SidebarPlanWidget() {
             >
               <AlertCircle className="w-3 h-3" />
               Regularize seu plano →
+            </motion.div>
+          )}
+          {status === "suspended" && (
+            <motion.div
+              animate={{ x: [0, 2, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="text-[10px] text-red-500 mt-2 font-semibold flex items-center gap-1 bg-red-50 rounded-lg px-2 py-1"
+            >
+              <AlertCircle className="w-3 h-3" />
+              Assinatura suspensa →
             </motion.div>
           )}
           {status === "active" && sub.current_period_end && (

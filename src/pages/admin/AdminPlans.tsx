@@ -50,6 +50,7 @@ export default function AdminPlans() {
   const { data: plans, isLoading: plansLoading } = usePlans();
   const { data: sub, isLoading: subLoading } = useOwnerSubscription();
   const queryClient = useQueryClient();
+  const isSuspended = sub?.status === "suspended" || sub?.status === "past_due";
 
   const [paymentModal, setPaymentModal] = useState<{
     open: boolean;
@@ -257,10 +258,18 @@ export default function AdminPlans() {
                     ))}
                   </div>
 
-                  {isCurrent ? (
+                  {isCurrent && !isSuspended ? (
                     <div className="w-full rounded-xl h-10 font-semibold mt-auto flex items-center justify-center bg-primary/10 text-primary text-sm">
                       ✓ Ciclo ativo
                     </div>
+                  ) : isCurrent && isSuspended ? (
+                    <Button
+                      onClick={() => handleAcquire(plan, c)}
+                      className="w-full mt-auto rounded-xl h-10 font-semibold bg-amber-600 hover:bg-amber-500 text-white"
+                    >
+                      <Crown className="w-4 h-4 mr-2" />
+                      Renovar
+                    </Button>
                   ) : (
                     <Button
                       onClick={() => handleAcquire(plan, c)}
