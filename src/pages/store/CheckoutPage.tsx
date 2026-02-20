@@ -827,20 +827,20 @@ export default function CheckoutPage() {
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {items.map(item => (
                   <div key={item.id} className="flex gap-3">
-                    <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted shrink-0">
+                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted shrink-0">
                       <img src={getItemImage(item)} alt={item.product?.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-sans text-xs font-medium line-clamp-2">{item.product?.name}</p>
+                      <p className="font-sans text-sm font-semibold line-clamp-2">{item.product?.name}</p>
                       {(() => {
                         const meta = item.metadata_json as any;
                         const vd = meta?.variants_detail;
                         if (vd?.length) {
                           return vd.map((v: any, idx: number) => (
-                            <p key={idx} className="font-sans text-[10px] text-muted-foreground">{v.group}: {v.name} {v.price != null && <span className="text-accent">R$ {Number(v.price).toFixed(2)}</span>}</p>
+                            <p key={idx} className="font-sans text-sm text-muted-foreground">{v.group}: {v.name} {v.price != null && <span className="text-accent font-medium">R$ {Number(v.price).toFixed(2)}</span>}</p>
                           ));
                         }
-                        return item.variant ? <p className="font-sans text-xs text-muted-foreground">{item.variant.name}</p> : null;
+                        return item.variant ? <p className="font-sans text-sm text-muted-foreground">{item.variant.name}</p> : null;
                       })()}
                       {(() => {
                         const meta = item.metadata_json as any;
@@ -848,7 +848,7 @@ export default function CheckoutPage() {
                         const p = vd?.length
                           ? vd.reduce((s: number, v: any) => s + (v.price ? Number(v.price) : 0), 0) || (item.product?.price ?? 0)
                           : (item.variant?.price ?? item.product?.price ?? 0);
-                        return <p className="font-sans text-xs text-muted-foreground">{item.quantity}x R$ {Number(p).toFixed(2)}</p>;
+                        return <p className="font-sans text-sm font-medium text-foreground">{item.quantity}x R$ {Number(p).toFixed(2)}</p>;
                       })()}
                     </div>
                   </div>
