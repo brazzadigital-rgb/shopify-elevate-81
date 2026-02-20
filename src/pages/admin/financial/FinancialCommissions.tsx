@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useFinancialFilters } from "@/hooks/useFinancialFilters";
@@ -9,6 +9,7 @@ import { formatBRL, exportToCsv } from "@/lib/exportCsv";
 import { DollarSign, Users, Download, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
 export default function FinancialCommissions() {
   const filters = useFinancialFilters("30d");
@@ -49,13 +50,10 @@ export default function FinancialCommissions() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <PeriodFilter {...filters} />
-          <Button variant="outline" size="sm" onClick={() => exportToCsv("comissoes", commissions.map(c => ({
-            Vendedor: sellers[c.seller_id] || c.seller_id,
-            Venda: Number(c.sale_amount).toFixed(2),
-            "Taxa %": c.commission_rate,
-            Comissão: Number(c.commission_amount).toFixed(2),
-            Status: c.payment_status,
-            Data: format(new Date(c.created_at), "dd/MM/yyyy"),
+          <Button variant="outline" size="sm" className="rounded-xl" onClick={() => exportToCsv("comissoes", commissions.map(c => ({
+            Vendedor: sellers[c.seller_id] || c.seller_id, Venda: Number(c.sale_amount).toFixed(2),
+            "Taxa %": c.commission_rate, Comissão: Number(c.commission_amount).toFixed(2),
+            Status: c.payment_status, Data: format(new Date(c.created_at), "dd/MM/yyyy"),
           })))}><Download className="w-4 h-4 mr-1" />CSV</Button>
         </div>
       </div>
@@ -66,49 +64,51 @@ export default function FinancialCommissions() {
         <KpiCard title="Vendedores" value={uniqueSellers} icon={Users} color="text-primary" index={2} />
       </div>
 
-      <Card className="shadow-premium border-0">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/30">
-                  <th className="text-left p-3 font-sans font-medium text-muted-foreground">Data</th>
-                  <th className="text-left p-3 font-sans font-medium text-muted-foreground">Vendedor</th>
-                  <th className="text-right p-3 font-sans font-medium text-muted-foreground">Venda</th>
-                  <th className="text-right p-3 font-sans font-medium text-muted-foreground">Taxa</th>
-                  <th className="text-right p-3 font-sans font-medium text-muted-foreground">Comissão</th>
-                  <th className="text-center p-3 font-sans font-medium text-muted-foreground">Status</th>
-                  <th className="p-3"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {commissions.map(c => (
-                  <tr key={c.id} className="border-b hover:bg-muted/10">
-                    <td className="p-3">{format(new Date(c.created_at), "dd/MM/yy")}</td>
-                    <td className="p-3 font-medium">{sellers[c.seller_id] || "-"}</td>
-                    <td className="p-3 text-right">{formatBRL(Number(c.sale_amount))}</td>
-                    <td className="p-3 text-right">{c.commission_rate}%</td>
-                    <td className="p-3 text-right font-semibold">{formatBRL(Number(c.commission_amount))}</td>
-                    <td className="p-3 text-center">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${c.payment_status === "paid" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
-                        {c.payment_status === "paid" ? "Pago" : "Pendente"}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      {c.payment_status === "pending" && (
-                        <Button variant="outline" size="sm" onClick={() => markAsPaid(c.id)} className="text-xs">Pagar</Button>
-                      )}
-                    </td>
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        <Card className="admin-card">
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/30">
+                    <th className="text-left p-3 font-sans font-medium text-muted-foreground">Data</th>
+                    <th className="text-left p-3 font-sans font-medium text-muted-foreground">Vendedor</th>
+                    <th className="text-right p-3 font-sans font-medium text-muted-foreground">Venda</th>
+                    <th className="text-right p-3 font-sans font-medium text-muted-foreground">Taxa</th>
+                    <th className="text-right p-3 font-sans font-medium text-muted-foreground">Comissão</th>
+                    <th className="text-center p-3 font-sans font-medium text-muted-foreground">Status</th>
+                    <th className="p-3"></th>
                   </tr>
-                ))}
-                {commissions.length === 0 && (
-                  <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">Nenhuma comissão no período</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+                </thead>
+                <tbody>
+                  {commissions.map(c => (
+                    <tr key={c.id} className="border-b hover:bg-muted/10">
+                      <td className="p-3">{format(new Date(c.created_at), "dd/MM/yy")}</td>
+                      <td className="p-3 font-medium">{sellers[c.seller_id] || "-"}</td>
+                      <td className="p-3 text-right">{formatBRL(Number(c.sale_amount))}</td>
+                      <td className="p-3 text-right">{c.commission_rate}%</td>
+                      <td className="p-3 text-right font-semibold">{formatBRL(Number(c.commission_amount))}</td>
+                      <td className="p-3 text-center">
+                        <span className={`admin-status-pill ${c.payment_status === "paid" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+                          {c.payment_status === "paid" ? "Pago" : "Pendente"}
+                        </span>
+                      </td>
+                      <td className="p-3">
+                        {c.payment_status === "pending" && (
+                          <Button variant="outline" size="sm" onClick={() => markAsPaid(c.id)} className="text-xs rounded-xl">Pagar</Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {commissions.length === 0 && (
+                    <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">Nenhuma comissão no período</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 }

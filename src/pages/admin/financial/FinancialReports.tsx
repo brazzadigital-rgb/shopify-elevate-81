@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useFinancialFilters } from "@/hooks/useFinancialFilters";
 import { PeriodFilter } from "@/components/admin/financial/PeriodFilter";
-import { exportToCsv, formatBRL } from "@/lib/exportCsv";
+import { exportToCsv } from "@/lib/exportCsv";
 import { Download, FileSpreadsheet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format, eachDayOfInterval } from "date-fns";
+import { motion } from "framer-motion";
 
 const reports = [
   { id: "sales_daily", name: "Vendas por Dia", desc: "Receita e pedidos diários" },
@@ -26,7 +27,6 @@ export default function FinancialReports() {
   const generate = async (reportId: string) => {
     setLoading(reportId);
     const { from, to } = filters.dateRange;
-
     try {
       switch (reportId) {
         case "sales_daily": {
@@ -57,12 +57,8 @@ export default function FinancialReports() {
         case "refunds_reason": {
           const { data } = await supabase.from("refunds").select("*").gte("created_at", from).lte("created_at", to);
           exportToCsv("reembolsos", (data || []).map(r => ({
-            Data: format(new Date(r.created_at), "dd/MM/yyyy"),
-            Valor: Number(r.amount).toFixed(2),
-            Motivo: r.reason || "-",
-            Tipo: r.refund_type,
-            Chargeback: r.is_chargeback ? "Sim" : "Não",
-            Status: r.status,
+            Data: format(new Date(r.created_at), "dd/MM/yyyy"), Valor: Number(r.amount).toFixed(2),
+            Motivo: r.reason || "-", Tipo: r.refund_type, Chargeback: r.is_chargeback ? "Sim" : "Não", Status: r.status,
           })));
           break;
         }
@@ -74,28 +70,21 @@ export default function FinancialReports() {
           const sellers: Record<string, string> = {};
           (selRes.data || []).forEach(s => { sellers[s.id] = s.name; });
           exportToCsv("comissoes-vendedor", (comRes.data || []).map(c => ({
-            Vendedor: sellers[c.seller_id] || c.seller_id,
-            Venda: Number(c.sale_amount).toFixed(2),
-            "Taxa %": c.commission_rate,
-            Comissão: Number(c.commission_amount).toFixed(2),
-            Status: c.payment_status,
+            Vendedor: sellers[c.seller_id] || c.seller_id, Venda: Number(c.sale_amount).toFixed(2),
+            "Taxa %": c.commission_rate, Comissão: Number(c.commission_amount).toFixed(2), Status: c.payment_status,
           })));
           break;
         }
         case "conciliation_gw": {
           const { data } = await supabase.from("financial_transactions").select("*").gte("created_at", from).lte("created_at", to);
           exportToCsv("conciliacao-gateway", (data || []).map(t => ({
-            Gateway: t.gateway,
-            Valor: Number(t.amount).toFixed(2),
-            Taxas: Number(t.fees).toFixed(2),
-            Líquido: Number(t.net_amount).toFixed(2),
-            Status: t.status,
+            Gateway: t.gateway, Valor: Number(t.amount).toFixed(2), Taxas: Number(t.fees).toFixed(2),
+            Líquido: Number(t.net_amount).toFixed(2), Status: t.status,
           })));
           break;
         }
-        default: {
-          toast({ title: "Relatório não disponível ainda", variant: "warning" });
-        }
+        default:
+          toast({ title: "Relatório não disponível ainda" });
       }
       toast({ title: "Relatório exportado", variant: "default" });
     } catch {
@@ -115,21 +104,23 @@ export default function FinancialReports() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {reports.map(r => (
-          <Card key={r.id} className="shadow-premium border-0 hover:shadow-premium-lg transition-shadow">
-            <CardContent className="p-5">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-semibold font-sans">{r.name}</h3>
-                  <p className="text-xs text-muted-foreground mt-1">{r.desc}</p>
+        {reports.map((r, i) => (
+          <motion.div key={r.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+            <Card className="admin-card hover:shadow-premium-lg transition-shadow">
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-semibold font-sans">{r.name}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">{r.desc}</p>
+                  </div>
+                  <FileSpreadsheet className="w-5 h-5 text-accent shrink-0" />
                 </div>
-                <FileSpreadsheet className="w-5 h-5 text-accent shrink-0" />
-              </div>
-              <Button variant="outline" size="sm" className="mt-4 w-full" onClick={() => generate(r.id)} disabled={loading === r.id}>
-                <Download className="w-4 h-4 mr-1" />{loading === r.id ? "Gerando…" : "Exportar CSV"}
-              </Button>
-            </CardContent>
-          </Card>
+                <Button variant="outline" size="sm" className="mt-4 w-full rounded-xl" onClick={() => generate(r.id)} disabled={loading === r.id}>
+                  <Download className="w-4 h-4 mr-1" />{loading === r.id ? "Gerando…" : "Exportar CSV"}
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
         ))}
       </div>
     </div>
