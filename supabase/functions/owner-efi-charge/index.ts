@@ -126,9 +126,9 @@ Deno.serve(async (req) => {
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
-      .eq("role", "owner");
+      .in("role", ["owner", "admin"]);
     if (!roleData || roleData.length === 0) {
-      return new Response(JSON.stringify({ error: "Forbidden" }), {
+      return new Response(JSON.stringify({ error: "Acesso negado: você precisa ser admin ou owner" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
