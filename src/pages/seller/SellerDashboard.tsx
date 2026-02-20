@@ -3,8 +3,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  DollarSign, TrendingUp, ShoppingBag, Clock, Target, Percent, ArrowUpRight
+  DollarSign, TrendingUp, ShoppingBag, Clock, Target, Percent, ArrowUpRight, Eye, EyeOff
 } from "lucide-react";
+import { useHideValues, HIDDEN_PLACEHOLDER } from "@/hooks/useHideValues";
 import { motion } from "framer-motion";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -46,6 +47,7 @@ function ChartTooltipCustom({ active, payload, label }: any) {
 
 export default function SellerDashboard() {
   const { sellerId } = useAuth();
+  const { hidden, toggle } = useHideValues();
   const [seller, setSeller] = useState<SellerData | null>(null);
   const [stats, setStats] = useState({ totalSales: 0, totalCommission: 0, pendingCommission: 0, availableCommission: 0, orderCount: 0, conversionRate: 0 });
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
@@ -111,7 +113,7 @@ export default function SellerDashboard() {
     load();
   }, [sellerId]);
 
-  const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const fmt = (v: number) => hidden ? HIDDEN_PLACEHOLDER : v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   const fadeUp = (i: number) => ({
     initial: { opacity: 0, y: 12 },
@@ -130,10 +132,10 @@ export default function SellerDashboard() {
   if (!seller) return <p className="text-center py-20 text-slate-400">Vendedor não encontrado.</p>;
 
   const kpis = [
-    { label: "Total vendido", value: fmt(stats.totalSales), icon: ShoppingBag, sub: "suas indicações" },
-    { label: "Comissão gerada", value: fmt(stats.totalCommission), icon: DollarSign, trend: true, sub: "acumulado" },
-    { label: "Disponível", value: fmt(stats.availableCommission), icon: TrendingUp, sub: "para saque" },
-    { label: "Em análise", value: fmt(stats.pendingCommission), icon: Clock, sub: "aguardando" },
+    { label: "Total vendido", value: fmt(stats.totalSales), icon: ShoppingBag, sub: "suas indicações", isMoney: true },
+    { label: "Comissão gerada", value: fmt(stats.totalCommission), icon: DollarSign, trend: true, sub: "acumulado", isMoney: true },
+    { label: "Disponível", value: fmt(stats.availableCommission), icon: TrendingUp, sub: "para saque", isMoney: true },
+    { label: "Em análise", value: fmt(stats.pendingCommission), icon: Clock, sub: "aguardando", isMoney: true },
     { label: "Pedidos", value: stats.orderCount.toString(), icon: Target, sub: "total de vendas" },
     { label: "Conversão", value: `${stats.conversionRate.toFixed(1)}%`, icon: Percent, sub: "links → vendas" },
   ];
@@ -141,6 +143,16 @@ export default function SellerDashboard() {
   return (
     <div className="space-y-6">
       {/* ═══ KPIs ═══ */}
+      <div className="flex items-center justify-end mb-1">
+        <button
+          onClick={toggle}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-muted/40"
+          title={hidden ? "Mostrar valores" : "Ocultar valores"}
+        >
+          {hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          <span>{hidden ? "Mostrar" : "Ocultar"} valores</span>
+        </button>
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {kpis.map((kpi, i) => (
           <motion.div key={kpi.label} {...fadeUp(i)}>
@@ -223,7 +235,7 @@ export default function SellerDashboard() {
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0 ml-3">
-                      <p className="text-sm font-semibold text-slate-800">{fmt(Number(o.total))}</p>
+                      <p className="text-sm font-semibold text-slate-800">{hidden ? HIDDEN_PLACEHOLDER : fmt(Number(o.total))}</p>
                       <span className={`inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full ${statusPillClass[o.status] || "bg-slate-50 text-slate-600"}`}>
                         {statusLabel[o.status] || o.status}
                       </span>
