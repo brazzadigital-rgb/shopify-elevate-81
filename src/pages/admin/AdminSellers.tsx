@@ -432,22 +432,35 @@ export default function AdminSellers() {
 
       {/* Edit/New Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg rounded-2xl">
-          <DialogHeader>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl p-0">
+          <DialogHeader className="px-6 pt-6 pb-2">
             <DialogTitle className="text-lg font-bold">{editing ? "Editar Vendedor" : "Novo Vendedor"}</DialogTitle>
+            <p className="text-xs text-muted-foreground">Preencha os dados do vendedor abaixo</p>
           </DialogHeader>
-          <div className="grid gap-4 py-2">
-            <div><Label>Nome *</Label><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl border-0 bg-muted/30" /></div>
-            <div className="grid grid-cols-2 gap-4">
-              <div><Label>Email *</Label><Input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} className="rounded-xl border-0 bg-muted/30" /></div>
-              <div><Label>Telefone</Label><Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className="rounded-xl border-0 bg-muted/30" /></div>
+          <div className="grid gap-5 px-6 pb-6 pt-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nome *</Label>
+              <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Nome completo do vendedor" className="rounded-xl border border-border bg-background h-11" />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div><Label>Documento</Label><Input value={form.document} onChange={e => setForm(f => ({ ...f, document: e.target.value }))} className="rounded-xl border-0 bg-muted/30" /></div>
-              <div>
-                <Label>Status</Label>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email *</Label>
+                <Input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="vendedor@email.com" className="rounded-xl border border-border bg-background h-11" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Telefone</Label>
+                <Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="(00) 0000-0000" className="rounded-xl border border-border bg-background h-11" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Documento</Label>
+                <Input value={form.document} onChange={e => setForm(f => ({ ...f, document: e.target.value }))} placeholder="CPF ou CNPJ" className="rounded-xl border border-border bg-background h-11" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</Label>
                 <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v }))}>
-                  <SelectTrigger className="rounded-xl border-0 bg-muted/30"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="rounded-xl border border-border bg-background h-11"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="active">Ativo</SelectItem>
                     <SelectItem value="inactive">Inativo</SelectItem>
@@ -456,10 +469,16 @@ export default function AdminSellers() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div><Label>Meta Mensal (R$)</Label><Input type="number" value={form.monthly_goal} onChange={e => setForm(f => ({ ...f, monthly_goal: Number(e.target.value) }))} className="rounded-xl border-0 bg-muted/30" /></div>
-              <div><Label>Comissão (%)</Label><Input type="number" value={form.commission_rate} onChange={e => setForm(f => ({ ...f, commission_rate: Number(e.target.value) }))} className="rounded-xl border-0 bg-muted/30" /></div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Meta Mensal (R$)</Label>
+                <Input type="number" value={form.monthly_goal} onChange={e => setForm(f => ({ ...f, monthly_goal: Number(e.target.value) }))} placeholder="0,00" className="rounded-xl border border-border bg-background h-11" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Comissão (%)</Label>
+                <Input type="number" value={form.commission_rate} onChange={e => setForm(f => ({ ...f, commission_rate: Number(e.target.value) }))} placeholder="0" className="rounded-xl border border-border bg-background h-11" />
+              </div>
             </div>
-            <Button onClick={() => saveMutation.mutate()} disabled={!form.name || !form.email || saveMutation.isPending} className="rounded-xl">
+            <Button onClick={() => saveMutation.mutate()} disabled={!form.name || !form.email || saveMutation.isPending} className="rounded-xl h-11 mt-1 font-semibold">
               {saveMutation.isPending ? "Salvando..." : "Salvar"}
             </Button>
           </div>
