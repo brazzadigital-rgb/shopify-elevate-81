@@ -6,6 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -37,6 +41,7 @@ export default function AdminCustomers() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [adminConfirm, setAdminConfirm] = useState<{ userId: string; name: string; isAdmin: boolean } | null>(null);
   const { toast } = useToast();
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -368,7 +373,7 @@ export default function AdminCustomers() {
                               className="w-7 h-7"
                               title={isAdmin(p.user_id) ? "Remover admin" : "Tornar admin"}
                               disabled={toggleAdminMutation.isPending || p.user_id === user?.id}
-                              onClick={e => { e.stopPropagation(); toggleAdminMutation.mutate({ userId: p.user_id, isCurrentlyAdmin: !!isAdmin(p.user_id) }); }}
+                              onClick={e => { e.stopPropagation(); setAdminConfirm({ userId: p.user_id, name: p.full_name || "Sem nome", isAdmin: !!isAdmin(p.user_id) }); }}
                             >
                               {isAdmin(p.user_id) ? <ShieldOff className="w-3.5 h-3.5 text-destructive" /> : <ShieldCheck className="w-3.5 h-3.5" />}
                             </Button>
@@ -435,6 +440,36 @@ export default function AdminCustomers() {
           </>
         )}
       </motion.div>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={!!adminConfirm} onOpenChange={open => { if (!open) setAdminConfirm(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {adminConfirm?.isAdmin ? "Remover privilégios de admin?" : "Promover a administrador?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {adminConfirm?.isAdmin
+                ? `Tem certeza que deseja remover os privilégios de administrador de ${adminConfirm?.name}?`
+                : `Tem certeza que deseja promover ${adminConfirm?.name} a administrador? Essa pessoa terá acesso total ao painel administrativo.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className={adminConfirm?.isAdmin ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
+              onClick={() => {
+                if (adminConfirm) {
+                  toggleAdminMutation.mutate({ userId: adminConfirm.userId, isCurrentlyAdmin: adminConfirm.isAdmin });
+                  setAdminConfirm(null);
+                }
+              }}
+            >
+              {adminConfirm?.isAdmin ? "Sim, remover" : "Sim, promover"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
