@@ -95,7 +95,12 @@ export default function AdminPlans() {
       const token = session?.access_token;
 
       const invoiceRes = await supabase.functions.invoke("owner-efi-charge", {
-        body: { action: "generate_invoice", amount },
+        body: {
+          action: "generate_invoice",
+          amount,
+          plan_id: selectedPlan.id,
+          billing_cycle: cycle,
+        },
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -120,15 +125,7 @@ export default function AdminPlans() {
         throw new Error(chargeRes.data?.error || "Erro ao criar cobrança PIX");
       }
 
-      // 3. Update owner_subscription cycle
-      const cycleRes = await supabase.functions.invoke("owner-efi-charge", {
-        body: {
-          action: "change_cycle",
-          plan_id: selectedPlan.id,
-          billing_cycle: cycle,
-        },
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // Cycle will only change when payment is confirmed via webhook
 
       setPaymentModal((prev) => ({
         ...prev,
@@ -137,8 +134,6 @@ export default function AdminPlans() {
         qrImage: chargeRes.data.qr_image,
         txid: chargeRes.data.txid,
       }));
-
-      queryClient.invalidateQueries({ queryKey: ["owner-subscription"] });
     } catch (err: any) {
       toast.error(err.message || "Erro ao processar pagamento");
       setPaymentModal((prev) => ({ ...prev, open: false, loading: false }));
