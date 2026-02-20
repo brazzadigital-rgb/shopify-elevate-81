@@ -9,7 +9,7 @@ import { usePlans, type Plan } from "@/hooks/useSubscription";
 import { useOwnerSubscription } from "@/hooks/useOwnerSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { Check, Crown, Pencil, Save, Trash2, X } from "lucide-react";
+import { Check, Crown, Pencil, RefreshCw, Save, Trash2, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
@@ -55,6 +55,7 @@ export default function OwnerPlans() {
   const qc = useQueryClient();
   const [editPlan, setEditPlan] = useState<Plan | null>(null);
   const [saving, setSaving] = useState(false);
+  const [changingCycle, setChangingCycle] = useState(false);
 
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
@@ -100,6 +101,36 @@ export default function OwnerPlans() {
     }
   };
 
+  const handleChangeCycle = async (cycle: Cycle) => {
+    if (!sub?.id) {
+      toast.error("Nenhuma assinatura encontrada");
+      return;
+    }
+    setChangingCycle(true);
+    try {
+      const months = cycle === "monthly" ? 1 : cycle === "semiannual" ? 6 : 12;
+      const periodEnd = new Date();
+      periodEnd.setMonth(periodEnd.getMonth() + months);
+
+      const { error } = await supabase
+        .from("owner_subscription" as any)
+        .update({
+          billing_cycle: cycle,
+          current_period_start: new Date().toISOString(),
+          current_period_end: periodEnd.toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", sub.id);
+      if (error) throw error;
+      qc.invalidateQueries({ queryKey: ["owner-subscription"] });
+      toast.success(`Ciclo alterado para ${cycleLabels[cycle]}`);
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao alterar ciclo");
+    } finally {
+      setChangingCycle(false);
+    }
+  };
+
   const plan = plans?.[0];
   const cycles: Cycle[] = ["monthly", "semiannual", "annual"];
 
@@ -127,6 +158,7 @@ export default function OwnerPlans() {
             const savings = getSavings(plan, c);
             const total = getPrice(plan, c);
             const isDefault = c === "semiannual";
+            const isCurrent = sub?.billing_cycle === c;
 
             return (
               <motion.div
@@ -214,13 +246,27 @@ export default function OwnerPlans() {
 
                   {/* Actions */}
                   <div className="flex gap-2 mt-auto">
+                    {isCurrent ? (
+                      <div className="w-full rounded-xl h-10 font-semibold flex items-center justify-center bg-emerald-50 text-emerald-700 text-sm border border-emerald-100">
+                        ✓ Ciclo ativo
+                      </div>
+                    ) : (
+                      <Button
+                        className="flex-1 rounded-xl h-10 text-sm bg-emerald-600 hover:bg-emerald-500 text-white"
+                        disabled={changingCycle}
+                        onClick={() => handleChangeCycle(c)}
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${changingCycle ? 'animate-spin' : ''}`} />
+                        {changingCycle ? "Alterando..." : "Ativar este ciclo"}
+                      </Button>
+                    )}
                     <Button
                       variant="outline"
-                      className="flex-1 rounded-xl h-10 text-sm"
+                      size="icon"
+                      className="rounded-xl h-10 w-10 shrink-0"
                       onClick={() => openEdit(plan)}
                     >
-                      <Pencil className="w-3.5 h-3.5 mr-1.5" />
-                      Editar
+                      <Pencil className="w-3.5 h-3.5" />
                     </Button>
                   </div>
                 </div>
