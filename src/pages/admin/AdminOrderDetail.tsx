@@ -463,11 +463,11 @@ export default function AdminOrderDetail() {
             <ArrowLeft className="w-4 h-4" /> Voltar aos pedidos
           </Link>
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="font-display text-2xl font-bold">#{order.order_number}</h1>
-            <Badge className={`${statusColor(order.status)} border-0 font-sans text-xs`}>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-800">#{order.order_number}</h1>
+            <Badge className={`${statusColor(order.status)} border-0 text-xs`}>
               {ORDER_STATUSES.find(s => s.value === order.status)?.label || order.status}
             </Badge>
-            <Badge className={`${statusColor(order.payment_status)} border-0 font-sans text-xs`}>
+            <Badge className={`${statusColor(order.payment_status)} border-0 text-xs`}>
               {PAYMENT_STATUSES.find(s => s.value === order.payment_status)?.label || order.payment_status}
             </Badge>
           </div>
@@ -476,34 +476,34 @@ export default function AdminOrderDetail() {
           </p>
         </div>
         <div className="flex gap-2 shrink-0">
-          <Button variant="outline" size="sm" className="rounded-lg font-sans gap-1" onClick={() => window.print()}>
+          <Button variant="outline" size="sm" className="rounded-xl gap-1" onClick={() => window.print()}>
             <Printer className="w-4 h-4" /> Imprimir
           </Button>
-          <Button size="sm" className="rounded-lg font-sans gap-1" onClick={handleSave} disabled={saving}>
+          <button className="admin-btn-primary gap-1" onClick={handleSave} disabled={saving}>
             <Save className="w-4 h-4" /> {saving ? "Salvando..." : "Salvar Alterações"}
-          </Button>
+          </button>
         </div>
       </div>
 
       {/* Desktop: Cards grid / Mobile: Accordion */}
-      <div className="hidden md:grid md:grid-cols-2 gap-6">
+      <div className="hidden md:grid md:grid-cols-2 gap-4">
         {sectionContent.map(section => (
-          <Card key={section.id} className={`border-0 shadow-premium ${section.id === "items" || section.id === "summary" ? "md:col-span-2" : ""}`}>
-            <CardHeader className="pb-3">
-              <CardTitle className="font-display text-base flex items-center gap-2">
+          <div key={section.id} className={`admin-card ${section.id === "items" || section.id === "summary" ? "md:col-span-2" : ""}`}>
+            <div className="p-5 pb-3">
+              <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
                 {section.icon} {section.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>{section.content}</CardContent>
-          </Card>
+              </h3>
+            </div>
+            <div className="px-5 pb-5">{section.content}</div>
+          </div>
         ))}
       </div>
 
       <div className="md:hidden">
         <Accordion type="multiple" defaultValue={["summary", "shipping"]} className="space-y-2">
           {sectionContent.map(section => (
-            <AccordionItem key={section.id} value={section.id} className="border rounded-xl shadow-premium overflow-hidden">
-              <AccordionTrigger className="px-4 py-3 font-display text-sm hover:no-underline">
+            <AccordionItem key={section.id} value={section.id} className="admin-card overflow-hidden border-0">
+              <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
                 <span className="flex items-center gap-2">{section.icon} {section.title}</span>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">{section.content}</AccordionContent>
@@ -519,13 +519,13 @@ export default function AdminOrderDetail() {
       </div>
 
       {/* H) TIMELINE */}
-      <Card className="border-0 shadow-premium">
-        <CardHeader className="pb-3">
-          <CardTitle className="font-display text-base flex items-center gap-2">
+      <div className="admin-card">
+        <div className="p-5 pb-3">
+          <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
             <Clock className="w-4 h-4" /> Timeline do Pedido
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+          </h3>
+        </div>
+        <div className="px-5 pb-5">
           {events.length === 0 ? (
             <p className="text-sm text-muted-foreground font-sans">Nenhum evento registrado ainda.</p>
           ) : (
@@ -554,8 +554,8 @@ export default function AdminOrderDetail() {
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
