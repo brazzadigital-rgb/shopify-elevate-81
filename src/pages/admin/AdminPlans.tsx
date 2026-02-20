@@ -219,17 +219,25 @@ export default function AdminPlans() {
                   </div>
 
                   {savings > 0 ? (
-                    <p className="text-xs text-primary font-semibold mb-2">
-                      {savings}% de desconto · Base: {formatBRL(getMonthlyBase(plan))}/mês
-                    </p>
+                    <div className="space-y-1 mb-3">
+                      <p className="text-xs text-primary font-semibold">
+                        {savings}% de desconto · Base: {formatBRL(getMonthlyBase(plan))}/mês
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Equivale a <span className="font-bold text-foreground">{formatBRL(total / (c === "semiannual" ? 6 : 12))}/mês</span>
+                      </p>
+                      <p className="text-xs font-bold text-emerald-600">
+                        🎉 Economia de {formatBRL(plan.monthly_price * (c === "semiannual" ? 6 : 12) - total)} ({savings}% off)
+                      </p>
+                    </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground mb-2">Plano mensal sem desconto</p>
+                    <p className="text-xs text-muted-foreground mb-3">Plano mensal sem desconto</p>
                   )}
 
                   <p className="text-xs text-muted-foreground mb-4">
                     {savings > 0
                       ? `Plano ${cycleLabels[c].toLowerCase()} com ${savings}% de desconto`
-                      : plan.description || "Acesso completo a todas as funcionalidades"}
+                      : plan.description || "Controle total para operações profissionais."}
                   </p>
 
                   <div className="grid grid-cols-2 gap-2 mb-5">
