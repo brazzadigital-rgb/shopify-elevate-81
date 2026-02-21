@@ -13,19 +13,19 @@ const headerStyles = [
     id: "default",
     name: "Padrão Atual",
     description: "Header premium com fundo escuro, busca central em pill, ícones com separadores.",
-    colors: "bg-[hsl(345,50%,18%)]",
+    colors: "bg-primary",
   },
   {
     id: "boutique_clean",
     name: "Boutique Clean",
     description: "Fundo claro porcelana, linha fina separadora, busca central elegante.",
-    colors: "bg-[hsl(30,15%,97%)]",
+    colors: "bg-muted",
   },
   {
     id: "vinho_premium",
     name: "Vinho Premium",
     description: "Fundo bordô intenso (cor primária), ícones claros, busca em pill caramelo.",
-    colors: "bg-[hsl(345,45%,25%)]",
+    colors: "bg-primary",
   },
   {
     id: "glass_luxury",
@@ -37,13 +37,13 @@ const headerStyles = [
     id: "editorial_minimal",
     name: "Editorial Minimal",
     description: "Menu em linha fina + tipografia editorial, logo central, ícones nas laterais.",
-    colors: "bg-white",
+    colors: "bg-background",
   },
   {
     id: "compact_sticky",
     name: "Compact Sticky Pro",
     description: "Header compacto + sticky, no scroll diminui (shrink), busca abre via drawer.",
-    colors: "bg-[hsl(345,50%,18%)]",
+    colors: "bg-foreground",
   },
 ];
 
@@ -59,19 +59,12 @@ export default function AdminHeaderStyles() {
   const applyStyle = async (styleId: string) => {
     setSaving(true);
     try {
-      const { data: existing } = await supabase
+      await supabase
         .from("store_settings")
-        .select("id")
-        .eq("key", "header_style")
-        .maybeSingle();
-
-      if (existing) {
-        await supabase.from("store_settings").update({ value: styleId }).eq("key", "header_style");
-      } else {
-        await supabase.from("store_settings").insert({ key: "header_style", value: styleId });
-      }
+        .upsert({ key: "header_style", value: styleId }, { onConflict: "key" });
 
       await queryClient.invalidateQueries({ queryKey: ["store-settings"] });
+      await queryClient.refetchQueries({ queryKey: ["store-settings"] });
       toast.success("Estilo de header aplicado!");
     } catch {
       toast.error("Erro ao aplicar estilo.");
