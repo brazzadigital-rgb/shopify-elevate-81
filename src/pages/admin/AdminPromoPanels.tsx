@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImageUpload } from "@/components/store/ImageUpload";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Image, Eye, EyeOff, GripVertical } from "lucide-react";
 
@@ -19,7 +19,22 @@ interface PromoPanel {
   link: string | null;
   sort_order: number;
   is_active: boolean;
+  title: string;
+  subtitle: string;
+  cta_text: string;
+  bg_image_url: string | null;
+  gradient: string;
 }
+
+const GRADIENT_OPTIONS = [
+  { value: "from-gray-900 via-gray-800 to-gray-900", label: "Cinza Escuro" },
+  { value: "from-sport-orange/90 via-sport-orange to-red-600", label: "Laranja / Vermelho" },
+  { value: "from-gray-800 via-gray-700 to-gray-900", label: "Cinza Médio" },
+  { value: "from-blue-900 via-blue-800 to-blue-950", label: "Azul Escuro" },
+  { value: "from-emerald-800 via-emerald-700 to-emerald-900", label: "Verde Esmeralda" },
+  { value: "from-purple-900 via-purple-800 to-purple-950", label: "Roxo" },
+  { value: "from-rose-800 via-rose-700 to-rose-900", label: "Rosa" },
+];
 
 const emptyForm = {
   image_url: "",
@@ -27,6 +42,11 @@ const emptyForm = {
   link: "",
   sort_order: 0,
   is_active: true,
+  title: "",
+  subtitle: "",
+  cta_text: "",
+  bg_image_url: "",
+  gradient: "from-gray-900 via-gray-800 to-gray-900",
 };
 
 export default function AdminPromoPanels() {
@@ -50,17 +70,22 @@ export default function AdminPromoPanels() {
   useEffect(() => { fetchPanels(); }, []);
 
   const handleSave = async () => {
-    if (!form.image_url) {
-      toast({ title: "Imagem obrigatória", variant: "destructive" });
+    if (!form.title) {
+      toast({ title: "Título obrigatório", variant: "destructive" });
       return;
     }
     setSaving(true);
     const payload = {
-      image_url: form.image_url,
-      alt_text: form.alt_text || "",
+      image_url: form.image_url || "placeholder",
+      alt_text: form.alt_text || form.title,
       link: form.link || null,
       sort_order: Number(form.sort_order),
       is_active: form.is_active,
+      title: form.title,
+      subtitle: form.subtitle,
+      cta_text: form.cta_text,
+      bg_image_url: form.bg_image_url || null,
+      gradient: form.gradient,
     };
 
     if (editingId) {
@@ -82,11 +107,16 @@ export default function AdminPromoPanels() {
   const handleEdit = (p: PromoPanel) => {
     setEditingId(p.id);
     setForm({
-      image_url: p.image_url,
+      image_url: p.image_url || "",
       alt_text: p.alt_text,
       link: p.link || "",
       sort_order: p.sort_order,
       is_active: p.is_active,
+      title: p.title || "",
+      subtitle: p.subtitle || "",
+      cta_text: p.cta_text || "",
+      bg_image_url: p.bg_image_url || "",
+      gradient: p.gradient || "from-gray-900 via-gray-800 to-gray-900",
     });
     setDialogOpen(true);
   };
@@ -108,7 +138,7 @@ export default function AdminPromoPanels() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Painéis Promocionais</h1>
           <p className="text-sm mt-1" style={{ color: `hsl(var(--admin-text-secondary))` }}>
-            Gerencie os 3 painéis promocionais exibidos na home (rastreio, cartão, redes)
+            Gerencie os painéis promocionais exibidos na home (título, subtítulo, CTA e imagem de fundo)
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { setEditingId(null); setForm(emptyForm); } }}>
@@ -117,40 +147,90 @@ export default function AdminPromoPanels() {
               <Plus className="w-4 h-4" /> Novo Painel
             </button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="font-display text-xl">
                 {editingId ? "Editar Painel" : "Novo Painel"}
               </DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label className="font-sans text-sm">Título *</Label>
+                  <Input
+                    value={form.title}
+                    onChange={(e) => setForm({ ...form, title: e.target.value })}
+                    className="h-10 rounded-xl"
+                    placeholder="Ex: ACESSÓRIOS CERTOS"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label className="font-sans text-sm">Subtítulo</Label>
+                  <Input
+                    value={form.subtitle}
+                    onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
+                    className="h-10 rounded-xl"
+                    placeholder="Ex: TREINO SEM LIMITES"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label className="font-sans text-sm">Texto do Botão (CTA)</Label>
+                  <Input
+                    value={form.cta_text}
+                    onChange={(e) => setForm({ ...form, cta_text: e.target.value })}
+                    className="h-10 rounded-xl"
+                    placeholder="Ex: APROVEITE!"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label className="font-sans text-sm">Link (opcional)</Label>
+                  <Input
+                    value={form.link}
+                    onChange={(e) => setForm({ ...form, link: e.target.value })}
+                    className="h-10 rounded-xl"
+                    placeholder="/produtos ou https://..."
+                  />
+                </div>
+              </div>
+
               <div className="grid gap-2">
-                <Label className="font-sans text-sm">Imagem *</Label>
+                <Label className="font-sans text-sm">Gradiente de fundo</Label>
+                <Select value={form.gradient} onValueChange={(v) => setForm({ ...form, gradient: v })}>
+                  <SelectTrigger className="h-10 rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GRADIENT_OPTIONS.map((g) => (
+                      <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {/* Preview */}
+                <div className={`h-8 rounded-lg bg-gradient-to-br ${form.gradient} border border-border`} />
+              </div>
+
+              <div className="grid gap-2">
+                <Label className="font-sans text-sm">Imagem de Fundo (opcional, substitui gradiente)</Label>
+                <ImageUpload
+                  value={form.bg_image_url}
+                  onChange={(v) => setForm({ ...form, bg_image_url: v })}
+                  folder="promo-panels"
+                  label="Upload Imagem de Fundo"
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label className="font-sans text-sm">Imagem decorativa (mascote/ícone)</Label>
                 <ImageUpload
                   value={form.image_url}
                   onChange={(v) => setForm({ ...form, image_url: v })}
                   folder="promo-panels"
-                  label="Upload Imagem"
+                  label="Upload Imagem Decorativa"
                 />
               </div>
-              <div className="grid gap-2">
-                <Label className="font-sans text-sm">Texto alternativo</Label>
-                <Input
-                  value={form.alt_text}
-                  onChange={(e) => setForm({ ...form, alt_text: e.target.value })}
-                  className="h-10 rounded-xl"
-                  placeholder="Ex: Rastreie seu pedido"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label className="font-sans text-sm">Link (opcional)</Label>
-                <Input
-                  value={form.link}
-                  onChange={(e) => setForm({ ...form, link: e.target.value })}
-                  className="h-10 rounded-xl"
-                  placeholder="/rastreamento ou https://..."
-                />
-              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label className="font-sans text-sm">Ordem</Label>
@@ -191,22 +271,29 @@ export default function AdminPromoPanels() {
             <div key={p.id} className="admin-card overflow-hidden">
               <div className="p-0">
                 <div className="flex flex-col sm:flex-row">
-                  {p.image_url && (
-                    <div className="w-full sm:w-48 h-28 sm:h-auto shrink-0">
-                      <img src={p.image_url} alt={p.alt_text} className="w-full h-full object-cover" />
+                  <div className={`w-full sm:w-56 h-28 sm:h-auto shrink-0 relative overflow-hidden bg-gradient-to-br ${p.gradient}`}>
+                    {p.bg_image_url && (
+                      <img src={p.bg_image_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                    )}
+                    {p.image_url && p.image_url !== "placeholder" && (
+                      <img src={p.image_url} alt={p.alt_text} className="absolute right-0 bottom-0 h-[80%] opacity-30 object-contain" />
+                    )}
+                    <div className="relative z-10 p-3">
+                      <p className="font-display text-xs font-black text-white leading-tight">{p.title}</p>
+                      <p className="font-display text-xs font-black text-accent italic">{p.subtitle}</p>
                     </div>
-                  )}
+                  </div>
                   <div className="flex-1 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <GripVertical className="w-4 h-4 text-muted-foreground" />
-                        <h3 className="font-display font-bold text-sm">{p.alt_text || "Sem título"}</h3>
+                        <h3 className="font-display font-bold text-sm">{p.title || p.alt_text || "Sem título"}</h3>
                         <Badge variant={p.is_active ? "default" : "secondary"} className="text-[10px]">
                           {p.is_active ? "Ativo" : "Inativo"}
                         </Badge>
                       </div>
                       <p className="text-xs text-muted-foreground font-sans">
-                        {p.link ? `Link: ${p.link}` : "Sem link"} · Ordem: {p.sort_order}
+                        CTA: {p.cta_text || "—"} · {p.link ? `Link: ${p.link}` : "Sem link"} · Ordem: {p.sort_order}
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
