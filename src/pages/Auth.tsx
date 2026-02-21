@@ -166,8 +166,8 @@ export default function Auth() {
 
   const current = titles[mode];
 
-  const inputClass = "h-12 bg-transparent border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary placeholder:text-muted-foreground text-foreground transition-colors duration-300";
-  const labelClass = "text-xs font-semibold uppercase tracking-wider text-muted-foreground";
+  const inputClass = "h-11 bg-transparent border-0 border-b border-border/80 rounded-none px-0 text-sm focus-visible:ring-0 focus-visible:border-primary placeholder:text-muted-foreground/60 text-foreground transition-colors duration-300";
+  const labelClass = "text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/70";
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -184,9 +184,9 @@ export default function Auth() {
           />
         ))}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="relative z-10 text-center px-12">
-          <div className="inline-block bg-black/40 backdrop-blur-sm rounded-2xl px-8 py-5">
-            <h2 className="font-display text-2xl font-bold text-white tracking-wide">{storeName || "Sua Joalheria"}</h2>
-            <p className="text-white/80 text-sm mt-2 tracking-widest uppercase">Elegância & Exclusividade</p>
+          <div className="inline-block bg-black/50 backdrop-blur-md rounded-2xl px-8 py-5 border border-white/10">
+            <h2 className="font-display text-xl font-bold text-white tracking-wide">{storeName || "Zenith Sport"}</h2>
+            <p className="text-white/60 text-xs mt-1.5 tracking-[0.2em] uppercase">Performance & Estilo</p>
           </div>
         </motion.div>
       </div>
@@ -201,10 +201,10 @@ export default function Auth() {
         <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
           <AnimatePresence mode="wait">
             <motion.div key={`${mode}-${registerStep}`} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.35 }} className="w-full max-w-md">
-              <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.06)] border border-border/60 p-6 sm:p-8 md:p-10">
+              <div className="bg-card/90 backdrop-blur-sm rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.08)] border border-border/40 p-5 sm:p-7 md:p-8">
                 {logoUrl && (
-                  <div className="flex justify-center mb-5">
-                    <img src={logoUrl} alt="Logo da loja" className="w-28 h-28 sm:w-40 sm:h-40 object-contain drop-shadow-md" />
+                  <div className="flex justify-center mb-4">
+                    <img src={logoUrl} alt="Logo da loja" className="w-20 h-20 sm:w-28 sm:h-28 object-contain drop-shadow-md" />
                   </div>
                 )}
 
@@ -227,17 +227,17 @@ export default function Auth() {
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 mb-4 sm:mb-6">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">
                     {mode === "recover" ? <Diamond className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
-                    <span className="text-xs font-semibold tracking-wider uppercase">{current.badge}</span>
+                    <span className="text-[10px] font-bold tracking-[0.15em] uppercase">{current.badge}</span>
                   </div>
                 </div>
 
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-foreground tracking-wide mb-1">{current.heading}</h1>
-                <p className="text-muted-foreground text-sm mb-6 sm:mb-8">{current.sub}</p>
+                <h1 className="text-lg sm:text-xl font-display font-bold text-foreground tracking-wide mb-0.5">{current.heading}</h1>
+                <p className="text-muted-foreground text-xs mb-5">{current.sub}</p>
 
-                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-3.5">
                   {/* === REGISTER STEP 1: Personal Data === */}
                   {mode === "register" && registerStep === 1 && (
                     <>
@@ -269,10 +269,10 @@ export default function Auth() {
                         </div>
                       </div>
                       <Button type="button" onClick={handleNextStep}
-                        className="w-full h-12 rounded-xl text-sm font-semibold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 border-0 relative overflow-hidden transition-all duration-300 hover:shadow-lg active:scale-[0.98]"
+                        className="w-full h-11 rounded-xl text-xs font-bold uppercase tracking-[0.15em] bg-primary text-primary-foreground hover:bg-primary/90 border-0 transition-all duration-300 hover:shadow-lg active:scale-[0.98]"
                       >
                         <span className="relative flex items-center justify-center gap-2">
-                          Próximo: Endereço <ArrowRight className="w-4 h-4" />
+                          Próximo: Endereço <ArrowRight className="w-3.5 h-3.5" />
                         </span>
                       </Button>
                     </>
@@ -328,15 +328,15 @@ export default function Auth() {
 
                       <div className="flex gap-3">
                         <Button type="button" variant="outline" onClick={() => setRegisterStep(1)}
-                          className="flex-1 h-12 rounded-xl text-sm font-semibold uppercase tracking-widest transition-all duration-300 active:scale-[0.98]"
+                          className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-[0.15em] transition-all duration-300 active:scale-[0.98]"
                         >
-                          <ArrowLeft className="w-4 h-4 mr-2" /> Voltar
+                          <ArrowLeft className="w-3.5 h-3.5 mr-1.5" /> Voltar
                         </Button>
                         <Button type="submit" disabled={loading}
-                          className="flex-1 h-12 rounded-xl text-sm font-semibold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 border-0 relative overflow-hidden transition-all duration-300 hover:shadow-lg active:scale-[0.98]"
+                          className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-[0.15em] bg-primary text-primary-foreground hover:bg-primary/90 border-0 transition-all duration-300 hover:shadow-lg active:scale-[0.98]"
                         >
                           <span className="relative flex items-center justify-center gap-2">
-                            {loading ? "Processando..." : <>Criar Conta <Sparkles className="w-4 h-4" /></>}
+                            {loading ? "Processando..." : <>Criar Conta <Sparkles className="w-3.5 h-3.5" /></>}
                           </span>
                         </Button>
                       </div>
@@ -360,15 +360,15 @@ export default function Auth() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <button type="button" onClick={() => switchMode("recover")} className="text-xs text-primary hover:text-primary/80 transition-colors tracking-wide">
+                        <button type="button" onClick={() => switchMode("recover")} className="text-[11px] text-primary hover:text-primary/80 transition-colors tracking-wide">
                           Esqueceu sua senha?
                         </button>
                       </div>
                       <Button type="submit" disabled={loading}
-                        className="w-full h-12 rounded-xl text-sm font-semibold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 border-0 relative overflow-hidden transition-all duration-300 hover:shadow-lg active:scale-[0.98]"
+                        className="w-full h-11 rounded-xl text-xs font-bold uppercase tracking-[0.15em] bg-primary text-primary-foreground hover:bg-primary/90 border-0 transition-all duration-300 hover:shadow-lg active:scale-[0.98]"
                       >
                         <span className="relative flex items-center justify-center gap-2">
-                          {loading ? "Processando..." : <>Entrar <ArrowRight className="w-4 h-4" /></>}
+                          {loading ? "Processando..." : <>Entrar <ArrowRight className="w-3.5 h-3.5" /></>}
                         </span>
                       </Button>
                     </>
@@ -382,29 +382,29 @@ export default function Auth() {
                         <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="seu@email.com" required className={inputClass} />
                       </div>
                       <Button type="submit" disabled={loading}
-                        className="w-full h-12 rounded-xl text-sm font-semibold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 border-0 relative overflow-hidden transition-all duration-300 hover:shadow-lg active:scale-[0.98]"
+                        className="w-full h-11 rounded-xl text-xs font-bold uppercase tracking-[0.15em] bg-primary text-primary-foreground hover:bg-primary/90 border-0 transition-all duration-300 hover:shadow-lg active:scale-[0.98]"
                       >
                         <span className="relative flex items-center justify-center gap-2">
-                          {loading ? "Processando..." : <>Enviar Link <ArrowRight className="w-4 h-4" /></>}
+                          {loading ? "Processando..." : <>Enviar Link <ArrowRight className="w-3.5 h-3.5" /></>}
                         </span>
                       </Button>
                     </>
                   )}
                 </form>
 
-                <div className="mt-6 pt-6 border-t border-border/60 text-center space-y-2">
+                <div className="mt-5 pt-5 border-t border-border/40 text-center space-y-2">
                   {mode === "login" && (
-                    <button onClick={() => switchMode("register")} className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                      Não tem conta? <span className="font-semibold">Cadastre-se</span>
+                    <button onClick={() => switchMode("register")} className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                      Não tem conta? <span className="font-bold">Cadastre-se</span>
                     </button>
                   )}
                   {mode === "register" && (
-                    <button onClick={() => switchMode("login")} className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                      Já tem conta? <span className="font-semibold">Faça login</span>
+                    <button onClick={() => switchMode("login")} className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                      Já tem conta? <span className="font-bold">Faça login</span>
                     </button>
                   )}
                   {mode === "recover" && (
-                    <button onClick={() => switchMode("login")} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    <button onClick={() => switchMode("login")} className="text-xs text-muted-foreground hover:text-primary transition-colors">
                       ← Voltar para o login
                     </button>
                   )}
@@ -416,23 +416,23 @@ export default function Auth() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="mt-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-xl border border-primary/20 p-4 text-center"
+                    className="mt-3 bg-primary/5 rounded-xl border border-primary/15 p-3 text-center"
                   >
-                    <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">Seja um Vendedor da {storeName || "Lizara"}</p>
-                    <p className="text-[11px] text-muted-foreground mb-3">Cadastre-se e aguarde aprovação do administrador.</p>
+                    <p className="text-[10px] font-bold text-primary uppercase tracking-[0.15em] mb-0.5">Seja um Vendedor da {storeName || "Zenith"}</p>
+                    <p className="text-[10px] text-muted-foreground mb-2">Cadastre-se e aguarde aprovação do administrador.</p>
                     <button
                       type="button"
                       onClick={() => navigate("/vendedor/cadastro")}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors duration-200"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-[11px] font-bold hover:bg-primary/20 transition-colors duration-200"
                     >
-                      <Store className="w-3.5 h-3.5" /> Quero ser vendedor
+                      <Store className="w-3 h-3" /> Quero ser vendedor
                     </button>
                   </motion.div>
                 )}
               </div>
 
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-center text-[10px] text-muted-foreground mt-6 tracking-widest uppercase">
-                <Diamond className="w-3 h-3 inline-block mr-1 -mt-0.5" /> Ambiente seguro e criptografado
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-center text-[9px] text-muted-foreground/60 mt-5 tracking-[0.2em] uppercase">
+                <Diamond className="w-2.5 h-2.5 inline-block mr-1 -mt-0.5" /> Ambiente seguro e criptografado
               </motion.p>
             </motion.div>
           </AnimatePresence>
