@@ -1,10 +1,8 @@
 import { useState, useRef } from "react";
-import paymentFlags from "@/assets/pagamento-footer.webp";
-import footerBg from "@/assets/footer-jewelry-bg.jpg";
 import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import {
-  Instagram, Facebook, Twitter, Mail, Phone, MapPin,
+  Instagram, Facebook, Twitter, Mail, Phone,
   ChevronDown, Shield, Truck, RefreshCw, Send, Clock,
   MessageCircle,
 } from "lucide-react";
@@ -12,14 +10,12 @@ import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
 
-/* ─── Trust cards data ─── */
 const trustCards = [
   { icon: Shield, title: "Compra Segura", text: "Pagamento 100% protegido" },
   { icon: Truck, title: "Envio Rastreado", text: "Acompanhe cada etapa" },
   { icon: RefreshCw, title: "Troca & Garantia", text: "30 dias para devolução" },
 ];
 
-/* ─── Link groups ─── */
 const institutionalLinks = [
   { label: "Sobre nós", to: "/sobre" },
   { label: "Contato", to: "/contato" },
@@ -30,7 +26,7 @@ const institutionalLinks = [
 
 const serviceLinks = [
   { label: "WhatsApp", to: "#", icon: MessageCircle, external: true },
-  { label: "contato@joalheria.com", to: "mailto:contato@joalheria.com", icon: Mail, external: true },
+  { label: "contato@zenithsport.com", to: "mailto:contato@zenithsport.com", icon: Mail, external: true },
   { label: "Seg–Sex, 9h–18h", to: "#", icon: Clock, isText: true },
   { label: "Rastrear Pedido", to: "/rastreamento", icon: Truck },
 ];
@@ -41,41 +37,23 @@ const socials = [
   { Icon: Twitter, label: "Twitter" },
 ];
 
-const payments = ["Visa", "Master", "Elo", "Pix", "Boleto"];
-
-/* ─── Accordion for mobile ─── */
 function FooterAccordion({ title, children }: { title: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
-
   return (
-    <div className="border-b border-white/20">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between py-4 text-left"
-        aria-expanded={open}
-      >
-        <span className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-white/80">
-          {title}
-        </span>
-        <ChevronDown
-          className={`w-4 h-4 text-white/50 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
-        />
+    <div className="border-b border-white/10">
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-4 text-left" aria-expanded={open}>
+        <span className="font-display text-xs font-bold uppercase tracking-[0.15em] text-white/80">{title}</span>
+        <ChevronDown className={`w-4 h-4 text-white/50 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
       </button>
-      <div
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          open ? "max-h-96 pb-4" : "max-h-0"
-        }`}
-      >
+      <div className={`overflow-hidden transition-all duration-300 ease-in-out ${open ? "max-h-96 pb-4" : "max-h-0"}`}>
         {children}
       </div>
     </div>
   );
 }
 
-/* ─── Newsletter inline ─── */
 function FooterNewsletter({ isMobile }: { isMobile: boolean }) {
   const [email, setEmail] = useState("");
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
@@ -86,10 +64,8 @@ function FooterNewsletter({ isMobile }: { isMobile: boolean }) {
 
   return (
     <div>
-      <h4 className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-white/80 mb-4">
-        Receba Novidades
-      </h4>
-      <p className="font-sans text-[13px] text-white/60 mb-4 leading-relaxed">
+      <h4 className="font-display text-xs font-bold uppercase tracking-[0.15em] text-white/80 mb-4">Receba Novidades</h4>
+      <p className="font-sans text-[13px] text-white/50 mb-4 leading-relaxed">
         Cadastre-se e ganhe 10% de desconto na primeira compra.
       </p>
       <form onSubmit={handleSubmit} className={`flex gap-2 ${isMobile ? "flex-col" : ""}`}>
@@ -99,25 +75,20 @@ function FooterNewsletter({ isMobile }: { isMobile: boolean }) {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Seu melhor email"
           required
-          className="flex-1 h-11 px-4 rounded-lg bg-white/10 border border-white/20 text-white text-sm font-sans placeholder:text-white/40 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/20 shadow-sm transition-all"
+          className="flex-1 h-11 px-4 rounded-lg bg-white/5 border border-white/15 text-white text-sm font-sans placeholder:text-white/30 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition-all"
         />
-        <button
-          type="submit"
-          className="h-11 px-6 rounded-lg bg-white/15 border border-white/20 text-white text-xs font-sans font-bold uppercase tracking-wider hover:bg-white/25 active:scale-[0.98] shadow-sm transition-all"
-        >
-          <Send className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
-          Assinar
+        <button type="submit" className="btn-neon h-11 px-6 rounded-lg text-white text-xs font-display inline-flex items-center gap-1.5">
+          <Send className="w-3.5 h-3.5" /> ASSINAR
         </button>
       </form>
-      <p className="font-sans text-[10px] text-white/40 mt-2.5">Sem spam. Cancele quando quiser.</p>
+      <p className="font-sans text-[10px] text-white/30 mt-2.5">Sem spam. Cancele quando quiser.</p>
     </div>
   );
 }
 
-/* ─── Main Footer ─── */
 export function StoreFooter() {
   const { getSetting } = useStoreSettings();
-  const storeName = getSetting("store_name", "Joalheria");
+  const storeName = getSetting("store_name", "Zenith Sport");
   const logoUrl = getSetting("logo_url", "");
   const contactCnpj = getSetting("contact_cnpj", "");
   const isMobile = useIsMobile();
@@ -132,10 +103,9 @@ export function StoreFooter() {
 
   return (
     <footer ref={footerRef} className="relative">
-      {/* ═══════ LEVEL 1 — Trust Bar ═══════ */}
-      <div className="bg-secondary-soft border-y border-border/50">
+      {/* Trust bar */}
+      <div className="bg-card border-y border-border/50">
         <div className="container px-4 md:px-6">
-          {/* Desktop: 3 cards inline */}
           <div className="hidden md:grid md:grid-cols-3 divide-x divide-border/50">
             {trustCards.map((card, i) => (
               <motion.div
@@ -146,8 +116,8 @@ export function StoreFooter() {
                 transition={{ duration: 0.4, delay: i * 0.1 }}
                 className="flex items-center gap-4 py-6 px-8 group cursor-default hover:-translate-y-0.5 transition-transform duration-300"
               >
-                <div className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center shrink-0 group-hover:bg-secondary-light transition-colors shadow-sm">
-                  <card.icon className="w-5 h-5 text-primary" />
+                <div className="w-11 h-11 rounded-full bg-accent/10 flex items-center justify-center shrink-0 group-hover:bg-accent/20 transition-colors">
+                  <card.icon className="w-5 h-5 text-accent" />
                 </div>
                 <div>
                   <p className="font-sans text-sm font-bold text-foreground/80">{card.title}</p>
@@ -157,15 +127,11 @@ export function StoreFooter() {
             ))}
           </div>
 
-          {/* Mobile: horizontal scroll */}
           <div className="md:hidden flex gap-3 overflow-x-auto snap-x snap-mandatory py-4 -mx-4 px-4 no-scrollbar">
             {trustCards.map((card) => (
-              <div
-                key={card.title}
-                className="flex items-center gap-3 bg-card rounded-xl border border-border/50 px-4 py-3.5 snap-center shrink-0 min-w-[210px] shadow-sm"
-              >
-                <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                  <card.icon className="w-4 h-4 text-primary" />
+              <div key={card.title} className="flex items-center gap-3 bg-secondary rounded-xl border border-border/50 px-4 py-3.5 snap-center shrink-0 min-w-[210px]">
+                <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                  <card.icon className="w-4 h-4 text-accent" />
                 </div>
                 <div>
                   <p className="font-sans text-xs font-bold text-foreground/80">{card.title}</p>
@@ -177,157 +143,101 @@ export function StoreFooter() {
         </div>
       </div>
 
-      {/* ═══════ LEVEL 2 — Main Footer ═══════ */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-accent">
-        {/* Jewelry overlay image */}
+      {/* Main footer */}
+      <div className="relative overflow-hidden bg-black">
         <div
-          className="absolute inset-0 pointer-events-none opacity-15 mix-blend-overlay"
-          style={{
-            backgroundImage: `url(${footerBg})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
+          className="absolute inset-0 opacity-10 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at 20% 50%, hsl(17 100% 50% / 0.15), transparent 60%)" }}
         />
         <div className="container relative z-10 px-4 md:px-6 pt-10 pb-8 md:pt-14 md:pb-10">
-          {/* ── DESKTOP: 4 columns ── */}
           <div className="hidden md:grid md:grid-cols-12 gap-8 lg:gap-12">
-            {/* Col 1 — Brand */}
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
-              transition={{ duration: 0.5, delay: 0.15 }}
-              className="col-span-3"
-            >
+            {/* Brand */}
+            <motion.div variants={fadeUp} initial="hidden" animate={isInView ? "visible" : "hidden"} transition={{ duration: 0.5, delay: 0.15 }} className="col-span-3">
               <div className="flex items-center gap-2.5 mb-4">
                 {logoUrl ? (
                   <img src={logoUrl} alt={storeName} className="h-20 object-contain brightness-0 invert" />
                 ) : (
-                  <span className="font-display text-lg font-bold uppercase tracking-wide text-white">
-                    {storeName}
+                  <span className="font-display text-xl font-black uppercase tracking-wide text-white">
+                    <span className="text-accent">ZENITH</span> SPORT
                   </span>
                 )}
               </div>
-              <p className="font-sans text-[13px] text-white/70 leading-relaxed mb-6 max-w-[220px]">
-                Joias que contam histórias. Elegância e sofisticação em cada detalhe.
+              <p className="font-sans text-[13px] text-white/50 leading-relaxed mb-6 max-w-[220px]">
+                Equipamentos esportivos de alta performance. Força e determinação em cada produto.
               </p>
               <div className="flex gap-2.5">
                 {socials.map(({ Icon, label }) => (
-                  <button
-                    key={label}
-                    aria-label={label}
-                    className="w-9 h-9 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white/60 hover:bg-white/10 hover:scale-105 shadow-sm transition-all duration-300"
-                  >
+                  <button key={label} aria-label={label} className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white/50 hover:text-accent hover:border-accent/50 hover:bg-accent/5 transition-all duration-300">
                     <Icon className="w-4 h-4" />
                   </button>
                 ))}
               </div>
-              <div className="mt-6">
-                <img src={paymentFlags} alt="Bandeiras de pagamento: Visa, Master, Elo, Pix, Boleto" className="h-6 object-contain opacity-80" />
-              </div>
             </motion.div>
 
-            {/* Col 2 — Institucional */}
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
-              transition={{ duration: 0.5, delay: 0.25 }}
-              className="col-span-3"
-            >
-              <h4 className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-white/80 mb-5">
-                Institucional
-              </h4>
+            {/* Institucional */}
+            <motion.div variants={fadeUp} initial="hidden" animate={isInView ? "visible" : "hidden"} transition={{ duration: 0.5, delay: 0.25 }} className="col-span-3">
+              <h4 className="font-display text-xs font-bold uppercase tracking-[0.15em] text-white/80 mb-5">Institucional</h4>
               <ul className="space-y-3">
                 {institutionalLinks.map((link) => (
                   <li key={link.label}>
-                    <Link
-                      to={link.to}
-                      className="font-sans text-[13px] text-white/60 hover:text-white relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-px after:bottom-0 after:left-0 after:bg-white/40 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left transition-colors"
-                    >
-                      {link.label}
-                    </Link>
+                    <Link to={link.to} className="font-sans text-[13px] text-white/50 hover:text-accent transition-colors">{link.label}</Link>
                   </li>
                 ))}
               </ul>
             </motion.div>
 
-            {/* Col 3 — Atendimento */}
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
-              transition={{ duration: 0.5, delay: 0.35 }}
-              className="col-span-3"
-            >
-              <h4 className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-white/80 mb-5">
-                Atendimento
-              </h4>
+            {/* Atendimento */}
+            <motion.div variants={fadeUp} initial="hidden" animate={isInView ? "visible" : "hidden"} transition={{ duration: 0.5, delay: 0.35 }} className="col-span-3">
+              <h4 className="font-display text-xs font-bold uppercase tracking-[0.15em] text-white/80 mb-5">Atendimento</h4>
               <ul className="space-y-3">
                 {serviceLinks.map((link) => {
                   const content = (
-                    <span className="flex items-center gap-2.5 font-sans text-[13px] text-white/60 hover:text-white transition-colors">
-                      {link.icon && <link.icon className="w-4 h-4 shrink-0 text-white/50" />}
+                    <span className="flex items-center gap-2.5 font-sans text-[13px] text-white/50 hover:text-accent transition-colors">
+                      {link.icon && <link.icon className="w-4 h-4 shrink-0 text-white/40" />}
                       {link.label}
                     </span>
                   );
-                  if (link.isText) return <li key={link.label}><span className="flex items-center gap-2.5 font-sans text-[13px] text-white/60"><link.icon className="w-4 h-4 shrink-0 text-white/50" />{link.label}</span></li>;
+                  if (link.isText) return <li key={link.label}><span className="flex items-center gap-2.5 font-sans text-[13px] text-white/50"><link.icon className="w-4 h-4 shrink-0 text-white/40" />{link.label}</span></li>;
                   if (link.external) return <li key={link.label}><a href={link.to} target="_blank" rel="noopener noreferrer">{content}</a></li>;
                   return <li key={link.label}><Link to={link.to}>{content}</Link></li>;
                 })}
               </ul>
             </motion.div>
 
-            {/* Col 4 — Newsletter */}
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
-              transition={{ duration: 0.5, delay: 0.45 }}
-              className="col-span-3"
-            >
+            {/* Newsletter */}
+            <motion.div variants={fadeUp} initial="hidden" animate={isInView ? "visible" : "hidden"} transition={{ duration: 0.5, delay: 0.45 }} className="col-span-3">
               <FooterNewsletter isMobile={false} />
             </motion.div>
           </div>
 
-          {/* ── MOBILE: logo + socials + accordions ── */}
+          {/* Mobile */}
           <div className="md:hidden">
-            {/* Brand */}
             <div className="text-center mb-6">
               <div className="flex items-center justify-center gap-2 mb-3">
                 {logoUrl ? (
                   <img src={logoUrl} alt={storeName} className="h-16 object-contain brightness-0 invert" />
                 ) : (
-                  <span className="font-display text-lg font-bold uppercase tracking-wide text-white">
-                    {storeName}
+                  <span className="font-display text-xl font-black uppercase tracking-wide text-white">
+                    <span className="text-accent">ZENITH</span> SPORT
                   </span>
                 )}
               </div>
-              <p className="font-sans text-sm text-white/70 max-w-[260px] mx-auto leading-relaxed">
-                Joias que contam histórias. Elegância e sofisticação em cada detalhe.
+              <p className="font-sans text-sm text-white/50 max-w-[260px] mx-auto leading-relaxed">
+                Equipamentos esportivos de alta performance.
               </p>
               <div className="flex gap-2.5 justify-center mt-4">
                 {socials.map(({ Icon, label }) => (
-                  <button
-                    key={label}
-                    aria-label={label}
-                    className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white/60 shadow-sm transition-all"
-                  >
+                  <button key={label} aria-label={label} className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white/50 hover:text-accent transition-all">
                     <Icon className="w-4 h-4" />
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Accordions */}
             <FooterAccordion title="Institucional">
               <ul className="space-y-1">
                 {institutionalLinks.map((link) => (
-                  <li key={link.label}>
-                    <Link to={link.to} className="block py-2 font-sans text-sm text-white/60 hover:text-white transition-colors">
-                      {link.label}
-                    </Link>
-                  </li>
+                  <li key={link.label}><Link to={link.to} className="block py-2 font-sans text-sm text-white/50 hover:text-accent transition-colors">{link.label}</Link></li>
                 ))}
               </ul>
             </FooterAccordion>
@@ -337,20 +247,11 @@ export function StoreFooter() {
                 {serviceLinks.map((link) => (
                   <li key={link.label}>
                     {link.isText ? (
-                      <span className="flex items-center gap-2 py-2 font-sans text-sm text-white/60">
-                        {link.icon && <link.icon className="w-4 h-4 text-white/50" />}
-                        {link.label}
-                      </span>
+                      <span className="flex items-center gap-2 py-2 font-sans text-sm text-white/50"><link.icon className="w-4 h-4 text-white/40" />{link.label}</span>
                     ) : link.external ? (
-                      <a href={link.to} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 py-2 font-sans text-sm text-white/60 hover:text-white transition-colors">
-                        {link.icon && <link.icon className="w-4 h-4 text-white/50" />}
-                        {link.label}
-                      </a>
+                      <a href={link.to} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 py-2 font-sans text-sm text-white/50 hover:text-accent transition-colors"><link.icon className="w-4 h-4 text-white/40" />{link.label}</a>
                     ) : (
-                      <Link to={link.to} className="flex items-center gap-2 py-2 font-sans text-sm text-white/60 hover:text-white transition-colors">
-                        {link.icon && <link.icon className="w-4 h-4 text-white/50" />}
-                        {link.label}
-                      </Link>
+                      <Link to={link.to} className="flex items-center gap-2 py-2 font-sans text-sm text-white/50 hover:text-accent transition-colors"><link.icon className="w-4 h-4 text-white/40" />{link.label}</Link>
                     )}
                   </li>
                 ))}
@@ -360,26 +261,21 @@ export function StoreFooter() {
             <FooterAccordion title="Newsletter">
               <FooterNewsletter isMobile={true} />
             </FooterAccordion>
-
-            {/* Mobile payment badges */}
-            <div className="flex items-center justify-center mt-6">
-              <img src={paymentFlags} alt="Bandeiras de pagamento: Visa, Master, Elo, Pix, Boleto" className="h-6 object-contain opacity-80" />
-            </div>
           </div>
         </div>
       </div>
 
-      {/* ═══════ BOTTOM BAR ═══════ */}
-      <div className="bg-primary border-t border-white/10">
+      {/* Bottom bar */}
+      <div className="bg-black border-t border-white/5">
         <div className="container px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="font-sans text-[11px] text-white/60 text-center sm:text-left">
+          <p className="font-sans text-[11px] text-white/40 text-center sm:text-left">
             © {new Date().getFullYear()} {storeName}. Todos os direitos reservados.
             {contactCnpj && <span className="ml-2">CNPJ: {contactCnpj}</span>}
           </p>
-          <div className="flex items-center gap-3 text-[11px] font-sans text-white/60">
-            <Link to="/politicas" className="hover:text-white transition-colors">Privacidade</Link>
-            <span className="text-white/20">|</span>
-            <Link to="/politicas" className="hover:text-white transition-colors">Termos</Link>
+          <div className="flex items-center gap-3 text-[11px] font-sans text-white/40">
+            <Link to="/politicas" className="hover:text-accent transition-colors">Privacidade</Link>
+            <span className="text-white/10">|</span>
+            <Link to="/politicas" className="hover:text-accent transition-colors">Termos</Link>
           </div>
         </div>
       </div>

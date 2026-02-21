@@ -1,14 +1,14 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
-import { HeroSection } from "@/components/store/sections/HeroSection";
-import { CategoriesSection } from "@/components/store/sections/CategoriesSection";
+import { SportHeroSection } from "@/components/store/sections/SportHeroSection";
+import { SportPromoPanels } from "@/components/store/sections/SportPromoPanels";
+import { SportBenefitsSection } from "@/components/store/sections/SportBenefitsSection";
+import { MotivationalBanner } from "@/components/store/sections/MotivationalBanner";
 import { FeaturedProducts } from "@/components/store/sections/FeaturedProducts";
 import { FeaturedCollections } from "@/components/store/sections/FeaturedCollections";
-import { BenefitsSection } from "@/components/store/sections/BenefitsSection";
+import { CategoriesSection } from "@/components/store/sections/CategoriesSection";
 import { NewsletterSection } from "@/components/store/sections/NewsletterSection";
-import { MascotPromoPanel } from "@/components/store/sections/MascotPromoPanel";
-import PromoTriplePanel from "@/components/store/sections/PromoTriplePanel";
 import { MosaicCollections } from "@/components/store/sections/MosaicCollections";
 import { ShowcaseCountdown } from "@/components/store/sections/ShowcaseCountdown";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -30,7 +30,6 @@ const Index = () => {
   const { showcase } = useActiveShowcase();
   const [searchParams] = useSearchParams();
   
-  // Allow preview override via query param (admin preview, no save)
   const previewTemplate = searchParams.get("preview_template") as HomeTemplate | null;
   const activeTemplate = previewTemplate || homeTemplate;
 
@@ -49,16 +48,16 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen">
-        <Skeleton className="h-[400px] w-full" />
+      <div className="min-h-screen bg-background">
+        <Skeleton className="h-[600px] w-full bg-muted" />
         <div className="container py-16">
-          <Skeleton className="h-8 w-64 mx-auto mb-8" />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
+          <Skeleton className="h-8 w-64 mx-auto mb-8 bg-muted" />
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
               <div key={i} className="space-y-3">
-                <Skeleton className="aspect-square rounded-2xl" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="aspect-square rounded-2xl bg-muted" />
+                <Skeleton className="h-4 w-3/4 bg-muted" />
+                <Skeleton className="h-4 w-1/2 bg-muted" />
               </div>
             ))}
           </div>
@@ -67,140 +66,44 @@ const Index = () => {
     );
   }
 
-  // Mosaic template: Hero + Mosaic grid + rest of sections
-  if (activeTemplate === "mosaic_collections_v1") {
-    const heroSection = sections.find((s) => s.section_type === "hero");
-    const otherSections = sections.filter((s) => s.section_type !== "hero" && s.section_type !== "featured_collections");
-
-    // Build override banner object for the HeroSection when showcase is active
-    const showcaseBannerOverride = showcase?.banner_desktop_url
-      ? {
-          desktop_image_url: showcase.banner_desktop_url,
-          mobile_image_url: showcase.banner_mobile_url || showcase.banner_desktop_url,
-          link: showcase.banner_link || undefined,
-          show_text: !showcase.banner_clean_mode,
-          overlay_opacity: showcase.banner_overlay_opacity ?? 0,
-          content_position: showcase.banner_text_position || "center",
-        }
-      : null;
-
-    // If showcase has collections, pass them to MosaicCollections
-    const showcaseCollections = showcase?.collections;
-
-    return (
-      <main className="min-h-screen">
-        {heroSection && (
-          <HeroSection
-            config={heroSection.config}
-            overrideBanner={showcaseBannerOverride}
-          />
-        )}
-
-        {/* Promo strip — premium animated */}
-        {showcase?.enable_promo_strip && showcase.promo_strip_text && (
-          <div className="w-full relative overflow-hidden">
-            {/* Shimmer background */}
-            <div className="absolute inset-0 premium-gradient opacity-90" />
-            <div
-              className="absolute inset-0 opacity-10"
-              style={{
-                backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(255,255,255,0.08) 10px, rgba(255,255,255,0.08) 20px)`,
-              }}
-            />
-            <div className="relative py-3 flex items-center justify-center gap-2">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-foreground/40 animate-pulse" />
-              <p className="text-accent-foreground text-xs md:text-sm font-semibold tracking-wide font-sans">
-                {showcase.promo_strip_text}
-              </p>
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-foreground/40 animate-pulse" />
-            </div>
-          </div>
-        )}
-
-        {/* Countdown */}
-        {showcase?.enable_countdown && (
-          <ShowcaseCountdown
-            endsAt={showcase.ends_at}
-            title={showcase.section_title || showcase.name}
-          />
-        )}
-
-        <MosaicCollections
-          overrideTitle={showcase?.section_title}
-          overrideSubtitle={showcase?.section_subtitle}
-          overrideCollections={showcaseCollections}
-        />
-
-        {(() => {
-          let featuredProductsCount = 0;
-          return otherSections.map((section) => {
-            switch (section.section_type) {
-              case "featured_products": {
-                featuredProductsCount++;
-                return (
-                  <div key={section.id}>
-                    <FeaturedProducts config={section.config} title={section.title || undefined} />
-                    {featuredProductsCount === 1 && (
-                      <>
-                        <MascotPromoPanel />
-                        <PromoTriplePanel />
-                      </>
-                    )}
-                  </div>
-                );
-              }
-              case "benefits":
-                return <BenefitsSection key={section.id} config={section.config} />;
-              case "newsletter":
-                return <NewsletterSection key={section.id} config={section.config} />;
-              default:
-                return null;
-            }
-          });
-        })()}
-      </main>
-    );
-  }
-
-  // Classic template (default)
+  // Default sport layout
   return (
     <main className="min-h-screen">
-      {(() => {
-        let featuredProductsCount = 0;
-        return sections.map((section) => {
-          switch (section.section_type) {
-            case "hero":
-              return (
-                <div key={section.id}>
-                  <HeroSection config={section.config} />
-                  <CategoriesSection />
-                </div>
-              );
-            case "featured_products": {
-              featuredProductsCount++;
-              return (
-                <div key={section.id}>
-                  <FeaturedProducts config={section.config} title={section.title || undefined} />
-                  {featuredProductsCount === 1 && (
-                    <>
-                      <MascotPromoPanel />
-                      <PromoTriplePanel />
-                    </>
-                  )}
-                </div>
-              );
-            }
-            case "featured_collections":
-              return <FeaturedCollections key={section.id} config={section.config} title={section.title || undefined} />;
-            case "benefits":
-              return <BenefitsSection key={section.id} config={section.config} />;
-            case "newsletter":
-              return <NewsletterSection key={section.id} config={section.config} />;
-            default:
-              return null;
-          }
-        });
-      })()}
+      {/* Hero */}
+      <SportHeroSection />
+
+      {/* Promo Panels */}
+      <SportPromoPanels />
+
+      {/* Featured Products from DB sections */}
+      {sections
+        .filter((s) => s.section_type === "featured_products")
+        .map((section) => (
+          <FeaturedProducts key={section.id} config={section.config} title={section.title || undefined} />
+        ))}
+
+      {/* Benefits */}
+      <SportBenefitsSection />
+
+      {/* Motivational Banner */}
+      <MotivationalBanner />
+
+      {/* Categories */}
+      <CategoriesSection />
+
+      {/* Collections */}
+      {sections
+        .filter((s) => s.section_type === "featured_collections")
+        .map((section) => (
+          <FeaturedCollections key={section.id} config={section.config} title={section.title || undefined} />
+        ))}
+
+      {/* Newsletter */}
+      {sections
+        .filter((s) => s.section_type === "newsletter")
+        .map((section) => (
+          <NewsletterSection key={section.id} config={section.config} />
+        ))}
     </main>
   );
 };
