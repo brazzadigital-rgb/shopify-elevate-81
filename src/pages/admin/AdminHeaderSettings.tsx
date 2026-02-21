@@ -55,10 +55,32 @@ export default function AdminHeaderSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Default values for all header settings — ensures they exist in state even if not in DB
+  const HEADER_DEFAULTS: SettingsMap = {
+    header_bg_color: "",
+    header_text_color: "",
+    header_search_bg_color: "",
+    header_height: "88",
+    header_shadow_intensity: "50",
+    header_sticky_enabled: "true",
+    header_account_enabled: "true",
+    header_track_enabled: "true",
+    header_cart_enabled: "true",
+    header_account_top_text: "",
+    header_track_top_text: "",
+    header_search_placeholder: "",
+    header_logo_width: "160",
+    header_logo_height: "48",
+    header_logo_mobile_width: "120",
+    header_logo_mobile_height: "36",
+    logo_url: "",
+    logo_mobile_url: "",
+  };
+
   useEffect(() => {
     const fetchSettings = async () => {
       const { data } = await supabase.from("store_settings").select("key, value");
-      const map: SettingsMap = {};
+      const map: SettingsMap = { ...HEADER_DEFAULTS };
       data?.forEach((s: any) => { map[s.key] = s.value; });
       setSettings(map);
       setLoading(false);
@@ -70,9 +92,13 @@ export default function AdminHeaderSettings() {
 
   const handleSave = async () => {
     setSaving(true);
-    const headerKeys = Object.keys(settings).filter(k => k.startsWith("header_") || k === "logo_url" || k === "logo_mobile_url");
-    const promises = headerKeys.map((key) =>
-      supabase.from("store_settings").upsert({ key, value: settings[key] }, { onConflict: "key" })
+    // Save all known header keys (from defaults + any extra header_ keys in state)
+    const allHeaderKeys = new Set([
+      ...Object.keys(HEADER_DEFAULTS),
+      ...Object.keys(settings).filter(k => k.startsWith("header_") || k === "logo_url" || k === "logo_mobile_url"),
+    ]);
+    const promises = Array.from(allHeaderKeys).map((key) =>
+      supabase.from("store_settings").upsert({ key, value: settings[key] || "" }, { onConflict: "key" })
     );
     await Promise.all(promises);
     await queryClient.invalidateQueries({ queryKey: ["store-settings"] });
