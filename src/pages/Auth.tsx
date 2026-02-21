@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, ArrowRight, ArrowLeft, Sparkles, Diamond, Loader2, MapPin, User, Store } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, ArrowLeft, Sparkles, Diamond, Loader2, MapPin, User, Store, Monitor } from "lucide-react";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useCepLookup } from "@/hooks/useCepLookup";
 import authHeroImgDefault from "@/assets/auth-jewelry-hero.jpg";
@@ -34,6 +34,9 @@ export default function Auth() {
   const logoUrl = getSetting("logo_url");
   const storeName = getSetting("store_name");
   const authHeroImg = getSetting("auth_hero_image") || authHeroImgDefault;
+  const demoEnabled = getSetting("demo_enabled") === "true";
+  const demoEmail = getSetting("demo_email") || "";
+  const demoPassword = getSetting("demo_password") || "";
 
   const [addr, setAddr] = useState({
     zip_code: "", street: "", number: "", complement: "",
@@ -158,6 +161,27 @@ export default function Auth() {
     setRegisterStep(1);
   };
 
+  const handleDemoLogin = async () => {
+    if (!demoEmail || !demoPassword) return;
+    setLoading(true);
+    const { error, data } = await signIn(demoEmail, demoPassword);
+    if (error) {
+      toast({ title: "Erro no acesso demo", description: error.message, variant: "destructive" });
+    } else {
+      const userId = data?.user?.id;
+      if (userId) {
+        const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+        const roleList = roles?.map((r: any) => r.role) || [];
+        if (roleList.includes("admin")) navigate("/admin");
+        else if (roleList.includes("seller")) navigate("/vendedor");
+        else navigate("/");
+      } else {
+        navigate("/admin");
+      }
+    }
+    setLoading(false);
+  };
+
   const titles: Record<AuthMode, { badge: string; heading: string; sub: string }> = {
     login: { badge: "Bem-vinda(o) de volta", heading: "Acesse sua Conta", sub: "Entre na sua área exclusiva" },
     register: { badge: "Junte-se a nós", heading: registerStep === 1 ? "Dados Pessoais" : "Endereço de Entrega", sub: registerStep === 1 ? "Preencha seus dados para começar" : "Informe seu endereço principal" },
@@ -238,6 +262,32 @@ export default function Auth() {
                 <p className="text-muted-foreground text-xs mb-5">{current.sub}</p>
 
                 <form onSubmit={handleSubmit} className="space-y-3.5">
+                  {/* Demo access card */}
+                  {demoEnabled && demoEmail && mode === "login" && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-accent/10 border border-accent/20 rounded-xl p-3.5 space-y-2"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Monitor className="w-4 h-4 text-accent" />
+                        <span className="text-xs font-bold text-foreground uppercase tracking-wide">Acesso Demo</span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">Explore o painel administrativo com acesso de demonstração.</p>
+                      <div className="flex gap-3 text-[10px] text-muted-foreground">
+                        <span><strong>Email:</strong> {demoEmail}</span>
+                        <span><strong>Senha:</strong> {demoPassword}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleDemoLogin}
+                        disabled={loading}
+                        className="w-full h-9 rounded-lg bg-accent text-accent-foreground text-xs font-bold uppercase tracking-wide hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-1.5"
+                      >
+                        <Monitor className="w-3.5 h-3.5" /> {loading ? "Entrando..." : "Entrar como Demo"}
+                      </button>
+                    </motion.div>
+                  )}
                   {/* === REGISTER STEP 1: Personal Data === */}
                   {mode === "register" && registerStep === 1 && (
                     <>
