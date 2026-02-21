@@ -20,7 +20,7 @@ export function HeaderEditorialMinimal() {
 
   return (
     <>
-      {h.topbarEnabled && <Topbar text={h.topbarText} variant="accent" />}
+      {h.topbarEnabled && <Topbar text={h.topbarText} variant="accent" bgColor={h.topbarBgColor} textColor={h.topbarTextColor} />}
 
       <header className="sticky top-0 z-50 bg-background transition-all duration-300 border-b border-border/30">
         {/* Main bar: LEFT actions — CENTER logo — RIGHT actions */}

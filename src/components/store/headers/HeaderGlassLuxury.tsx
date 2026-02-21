@@ -11,7 +11,7 @@ export function HeaderGlassLuxury() {
 
   return (
     <>
-      {h.topbarEnabled && <Topbar text={h.topbarText} variant="accent" />}
+      {h.topbarEnabled && <Topbar text={h.topbarText} variant="accent" bgColor={h.topbarBgColor} textColor={h.topbarTextColor} />}
 
       <header
         className={`sticky top-0 z-50 transition-all duration-500 ${

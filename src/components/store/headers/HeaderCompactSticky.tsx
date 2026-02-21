@@ -23,7 +23,7 @@ export function HeaderCompactSticky() {
 
   return (
     <>
-      {h.topbarEnabled && !h.scrolled && <Topbar text={h.topbarText} variant="white" />}
+      {h.topbarEnabled && !h.scrolled && <Topbar text={h.topbarText} variant="white" bgColor={h.topbarBgColor} textColor={h.topbarTextColor} />}
 
       <header
         className="sticky top-0 z-50 transition-all duration-500"

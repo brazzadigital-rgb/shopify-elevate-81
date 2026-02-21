@@ -60,6 +60,8 @@ export default function AdminHeaderSettings() {
     header_bg_color: "",
     header_text_color: "",
     header_search_bg_color: "",
+    header_topbar_bg_color: "",
+    header_topbar_text_color: "",
     header_height: "88",
     header_shadow_intensity: "50",
     header_sticky_enabled: "true",
@@ -157,10 +159,12 @@ export default function AdminHeaderSettings() {
           <CardTitle className="font-display text-lg flex items-center gap-2"><Palette className="w-5 h-5 text-accent" /> Cores do Header</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {colorField("header_bg_color", "Cor de Fundo")}
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {colorField("header_bg_color", "Cor de Fundo do Header")}
             {colorField("header_text_color", "Cor do Texto / Ícones")}
             {colorField("header_search_bg_color", "Cor do Campo de Busca")}
+            {colorField("header_topbar_bg_color", "Cor de Fundo do Top Bar")}
+            {colorField("header_topbar_text_color", "Cor do Texto do Top Bar")}
           </div>
         </CardContent>
       </div>
