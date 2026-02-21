@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, ArrowRight, ArrowLeft, Sparkles, Diamond, Loader2, MapPin, User, Store } from "lucide-react";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useCepLookup } from "@/hooks/useCepLookup";
-import authHeroImg from "@/assets/auth-jewelry-hero.jpg";
+import authHeroImgDefault from "@/assets/auth-jewelry-hero.jpg";
 
 type AuthMode = "login" | "register" | "recover";
 
@@ -33,6 +33,7 @@ export default function Auth() {
   const redirectTo = searchParams.get("redirect") || "/";
   const logoUrl = getSetting("logo_url");
   const storeName = getSetting("store_name");
+  const authHeroImg = getSetting("auth_hero_image") || authHeroImgDefault;
 
   const [addr, setAddr] = useState({
     zip_code: "", street: "", number: "", complement: "",

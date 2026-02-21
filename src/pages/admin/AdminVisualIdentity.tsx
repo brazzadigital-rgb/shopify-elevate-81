@@ -282,7 +282,7 @@ export default function AdminVisualIdentity() {
           <CardTitle className="font-display text-lg flex items-center gap-2"><ImageIcon className="w-5 h-5 text-accent" /> Logos</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label className="font-sans text-sm">Logo Principal</Label>
               <ImageUpload value={settings.logo_url || ""} onChange={(v) => update("logo_url", v)} folder="logos" label="Upload Logo" />
@@ -294,6 +294,11 @@ export default function AdminVisualIdentity() {
             <div className="space-y-2">
               <Label className="font-sans text-sm">Favicon</Label>
               <ImageUpload value={settings.favicon_url || ""} onChange={(v) => update("favicon_url", v)} folder="logos" label="Upload Favicon" />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-sans text-sm">Imagem da Tela de Login</Label>
+              <p className="text-[10px] text-muted-foreground">Exibida ao lado do formulário de login/cadastro</p>
+              <ImageUpload value={settings.auth_hero_image || ""} onChange={(v) => update("auth_hero_image", v)} folder="auth" label="Upload Imagem Login" />
             </div>
           </div>
         </CardContent>
