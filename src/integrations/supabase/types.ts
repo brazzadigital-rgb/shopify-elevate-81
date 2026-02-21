@@ -1759,32 +1759,47 @@ export type Database = {
       promo_panels: {
         Row: {
           alt_text: string
+          bg_image_url: string | null
           created_at: string
+          cta_text: string
+          gradient: string
           id: string
           image_url: string
           is_active: boolean
           link: string | null
           sort_order: number
+          subtitle: string
+          title: string
           updated_at: string
         }
         Insert: {
           alt_text?: string
+          bg_image_url?: string | null
           created_at?: string
+          cta_text?: string
+          gradient?: string
           id?: string
           image_url: string
           is_active?: boolean
           link?: string | null
           sort_order?: number
+          subtitle?: string
+          title?: string
           updated_at?: string
         }
         Update: {
           alt_text?: string
+          bg_image_url?: string | null
           created_at?: string
+          cta_text?: string
+          gradient?: string
           id?: string
           image_url?: string
           is_active?: boolean
           link?: string | null
           sort_order?: number
+          subtitle?: string
+          title?: string
           updated_at?: string
         }
         Relationships: []
