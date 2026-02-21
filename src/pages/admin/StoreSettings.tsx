@@ -121,6 +121,14 @@ const settingsGroups = [
   },
 ];
 
+// Build default values from all settings groups
+const STORE_DEFAULTS: SettingsMap = {};
+settingsGroups.forEach(group => {
+  group.settings.forEach(s => {
+    STORE_DEFAULTS[s.key] = s.type === "toggle" ? "false" : "";
+  });
+});
+
 export default function StoreSettings() {
   const [settings, setSettings] = useState<SettingsMap>({});
   const [loading, setLoading] = useState(true);
@@ -130,7 +138,7 @@ export default function StoreSettings() {
   useEffect(() => {
     const fetch = async () => {
       const { data } = await supabase.from("store_settings").select("key, value");
-      const map: SettingsMap = {};
+      const map: SettingsMap = { ...STORE_DEFAULTS };
       data?.forEach((s: any) => { map[s.key] = s.value; });
       setSettings(map);
       setLoading(false);
