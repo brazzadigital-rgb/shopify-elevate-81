@@ -15,8 +15,8 @@ import { useQueryClient } from "@tanstack/react-query";
 interface SettingsMap { [key: string]: string; }
 
 const colorSettings = [
-  { key: "color_primary", label: "Cor Principal (Bordô)", description: "Header, títulos, destaques" },
-  { key: "color_secondary", label: "Cor Secundária (Bege)", description: "Fundos suaves, bordas" },
+  { key: "color_primary", label: "Cor Principal", description: "Header, títulos, destaques" },
+  { key: "color_secondary", label: "Cor Secundária", description: "Fundos suaves, bordas" },
   { key: "color_buttons", label: "Cor dos Botões", description: "CTAs de compra" },
   { key: "color_background", label: "Cor de Fundo", description: "Fundo principal do site" },
   { key: "color_text", label: "Cor dos Textos", description: "Corpo de texto" },
@@ -31,7 +31,26 @@ const fontSettings = [
   { key: "font_size_base", label: "Tamanho Base (px)" },
 ];
 
-const themePresets: { name: string; icon: string; colors: Record<string, string> }[] = [
+const themePresets: { name: string; icon: string; colors: Record<string, string>; fonts?: Record<string, string> }[] = [
+  {
+    name: "Zenith Sport",
+    icon: "🔥",
+    colors: {
+      color_primary: "16 100% 50%",
+      color_secondary: "0 0% 10%",
+      color_buttons: "16 100% 50%",
+      color_background: "0 0% 100%",
+      color_text: "0 0% 7%",
+      color_links: "16 100% 45%",
+      color_promotions: "0 75% 50%",
+    },
+    fonts: {
+      font_headings: "Orbitron",
+      font_body: "Exo 2",
+      font_weight: "700",
+      font_size_base: "16",
+    },
+  },
   {
     name: "Bordô Luxo",
     icon: "🍷",
@@ -43,6 +62,12 @@ const themePresets: { name: string; icon: string; colors: Record<string, string>
       color_text: "345 15% 15%",
       color_links: "345 45% 30%",
       color_promotions: "0 65% 48%",
+    },
+    fonts: {
+      font_headings: "Playfair Display",
+      font_body: "Lato",
+      font_weight: "600",
+      font_size_base: "16",
     },
   },
   {
@@ -59,7 +84,7 @@ const themePresets: { name: string; icon: string; colors: Record<string, string>
     },
   },
   {
-    name: "Champagne Claro",
+    name: "Champagne",
     icon: "🥂",
     colors: {
       color_primary: "38 35% 42%",
@@ -112,11 +137,11 @@ function hexToHsl(hex: string): string {
 
 /* ─── Live Preview Component ─── */
 function ThemePreview({ settings }: { settings: SettingsMap }) {
-  const primary = settings.color_primary || "345 45% 25%";
-  const secondary = settings.color_secondary || "30 30% 88%";
+  const primary = settings.color_primary || "16 100% 50%";
+  const secondary = settings.color_secondary || "0 0% 10%";
   const buttons = settings.color_buttons || primary;
-  const bg = settings.color_background || "30 15% 97%";
-  const text = settings.color_text || "345 15% 15%";
+  const bg = settings.color_background || "0 0% 100%";
+  const text = settings.color_text || "0 0% 7%";
 
   return (
     <div className="rounded-2xl overflow-hidden border border-border shadow-premium" style={{ backgroundColor: `hsl(${bg})` }}>
@@ -199,7 +224,7 @@ export default function AdminVisualIdentity() {
   const update = (key: string, value: string) => setSettings((p) => ({ ...p, [key]: value }));
 
   const applyPreset = (preset: typeof themePresets[0]) => {
-    setSettings((prev) => ({ ...prev, ...preset.colors }));
+    setSettings((prev) => ({ ...prev, ...preset.colors, ...(preset.fonts || {}) }));
     toast({ title: `Preset "${preset.name}" aplicado`, description: "Clique em Salvar para confirmar." });
   };
 
