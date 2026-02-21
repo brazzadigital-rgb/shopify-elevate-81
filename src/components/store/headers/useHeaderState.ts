@@ -41,6 +41,8 @@ export function useHeaderState() {
   const cartEnabled = getSetting("header_cart_enabled", "true") === "true";
   const topbarEnabled = isEnabled("topbar_enabled");
   const topbarText = getSetting("topbar_text", "✈️ Frete Grátis para todo Brasil");
+  const topbarBgColor = getSetting("header_topbar_bg_color", "");
+  const topbarTextColor = getSetting("header_topbar_text_color", "");
   const accountLink = user ? (isAdmin ? "/admin" : "/conta") : "/auth";
 
   return {
@@ -51,7 +53,7 @@ export function useHeaderState() {
     handleSearch,
     logoUrl, logoMobileUrl, storeName,
     accountEnabled, trackEnabled, cartEnabled,
-    topbarEnabled, topbarText,
+    topbarEnabled, topbarText, topbarBgColor, topbarTextColor,
     accountLink,
     setIsOpen, itemCount,
     location, navigate,

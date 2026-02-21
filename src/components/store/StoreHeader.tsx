@@ -186,15 +186,24 @@ export function StoreHeader() {
   return (
     <>
       {/* Top bar — info strip */}
-      {isEnabled("topbar_enabled") && (
-        <div className="bg-white">
-          <div className="container flex items-center justify-center h-8 gap-4">
-            <p className="text-[11px] font-sans font-medium tracking-widest uppercase truncate text-center text-primary" style={{ opacity: 0.9 }}>
-              {getSetting("topbar_text", "✈️ Frete Grátis para todo Brasil")}
-            </p>
+      {isEnabled("topbar_enabled") && (() => {
+        const tbBg = getSetting("header_topbar_bg_color", "");
+        const tbText = getSetting("header_topbar_text_color", "");
+        const hasBg = tbBg.length > 3;
+        const hasText = tbText.length > 3;
+        return (
+          <div className={!hasBg ? "bg-white" : undefined} style={hasBg ? { backgroundColor: `hsl(${tbBg})` } : undefined}>
+            <div className="container flex items-center justify-center h-8 gap-4">
+              <p
+                className={`text-[11px] font-sans font-medium tracking-widest uppercase truncate text-center ${!hasText ? "text-primary" : ""}`}
+                style={{ opacity: 0.9, ...(hasText ? { color: `hsl(${tbText})` } : {}) }}
+              >
+                {getSetting("topbar_text", "✈️ Frete Grátis para todo Brasil")}
+              </p>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Main header */}
       <header

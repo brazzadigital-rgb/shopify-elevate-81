@@ -96,14 +96,21 @@ export function MobileDrawer({
 /**
  * Topbar component.
  */
-export function Topbar({ text, variant = "accent" }: { text: string; variant?: "accent" | "white" }) {
+export function Topbar({ text, variant = "accent", bgColor, textColor }: { text: string; variant?: "accent" | "white"; bgColor?: string; textColor?: string }) {
+  const hasBg = bgColor && bgColor.length > 3;
+  const hasText = textColor && textColor.length > 3;
+
   return (
-    <div className={variant === "white" ? "bg-white" : "bg-accent"}>
+    <div
+      className={!hasBg ? (variant === "white" ? "bg-white" : "bg-accent") : undefined}
+      style={hasBg ? { backgroundColor: `hsl(${bgColor})` } : undefined}
+    >
       <div className="container flex items-center justify-center h-8">
         <p
           className={`text-[11px] font-sans font-medium tracking-widest uppercase truncate text-center ${
-            variant === "white" ? "text-primary" : "text-accent-foreground/90"
+            !hasText ? (variant === "white" ? "text-primary" : "text-accent-foreground/90") : ""
           }`}
+          style={hasText ? { color: `hsl(${textColor})` } : undefined}
         >
           {text}
         </p>
