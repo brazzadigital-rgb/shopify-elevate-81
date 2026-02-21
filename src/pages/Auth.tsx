@@ -204,7 +204,7 @@ export default function Auth() {
               <div className="bg-card/90 backdrop-blur-sm rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.08)] border border-border/40 p-5 sm:p-7 md:p-8">
                 {logoUrl && (
                   <div className="flex justify-center mb-4">
-                    <img src={logoUrl} alt="Logo da loja" className="w-20 h-20 sm:w-28 sm:h-28 object-contain drop-shadow-md" />
+                    <img src={logoUrl} alt="Logo da loja" className="w-28 h-28 sm:w-36 sm:h-36 object-contain drop-shadow-md" />
                   </div>
                 )}
 
