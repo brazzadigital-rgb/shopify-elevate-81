@@ -9,7 +9,7 @@ const panels = [
     subtitle: "TREINO SEM LIMITES",
     cta: "APROVEITE!",
     link: "/produtos",
-    gradient: "from-black via-gray-900 to-black",
+    gradient: "from-gray-900 via-gray-800 to-gray-900",
     icon: ArrowRight,
   },
   {
@@ -25,7 +25,7 @@ const panels = [
     subtitle: "PEDIDO",
     cta: "RASTREAR!",
     link: "/rastreamento",
-    gradient: "from-sport-charcoal via-gray-800 to-black",
+    gradient: "from-gray-800 via-gray-700 to-gray-900",
     icon: MapPin,
   },
 ];
