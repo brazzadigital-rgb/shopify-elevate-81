@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSystemSuspension } from "@/hooks/useSystemSuspension";
 import { SystemSuspendedFullPage, SystemSuspendedTopBanner } from "@/components/owner/SystemSuspendedBanner";
 import { useNavigate } from "react-router-dom";
+import { useDynamicTheme } from "@/hooks/useDynamicTheme";
 
 const routeTitles: Record<string, string> = {
   "/admin": "Dashboard",
@@ -62,6 +63,7 @@ export default function AdminLayout() {
   const [isDark, setIsDark] = useState(() => localStorage.getItem("admin-theme") === "dark");
   const location = useLocation();
   const { isSuspended } = useSystemSuspension();
+  useDynamicTheme();
 
   useEffect(() => {
     localStorage.setItem("admin-theme", isDark ? "dark" : "light");
@@ -91,7 +93,7 @@ export default function AdminLayout() {
     <div className={`admin-panel ${isDark ? "dark" : ""} text-foreground`}>
       <NotificationProvider>
         <SidebarProvider>
-          <div className="min-h-screen flex w-full overflow-x-hidden bg-slate-50/70">
+          <div className="min-h-screen flex w-full overflow-x-hidden bg-muted/30">
             <AdminSidebar />
             <SidebarInset className="flex-1 min-w-0 flex flex-col bg-transparent">
               {/* Suspended top banner */}
@@ -99,21 +101,21 @@ export default function AdminLayout() {
 
               {/* Premium Topbar */}
               <header
-                className="h-16 flex items-center justify-between gap-4 px-4 md:px-8 sticky top-0 z-10 bg-white/80 backdrop-blur-xl border-b border-slate-200/60"
+                className="h-16 flex items-center justify-between gap-4 px-4 md:px-8 sticky top-0 z-10 bg-card/80 backdrop-blur-xl border-b border-border/60"
               >
                 <div className="flex items-center gap-3">
-                  <SidebarTrigger className="text-slate-500 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors" />
-                  <h1 className="font-semibold text-lg text-slate-800">{pageTitle}</h1>
+                  <SidebarTrigger className="text-muted-foreground min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl hover:bg-muted transition-colors" />
+                  <h1 className="font-semibold text-lg text-foreground">{pageTitle}</h1>
                 </div>
 
                 {/* Center search */}
                 <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
                   <div className="relative w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input
                       type="text"
                       placeholder="Buscar dados, pedidos ou produtos..."
-                      className="w-full h-10 pl-10 pr-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 transition-all"
+                      className="w-full h-10 pl-10 pr-4 rounded-xl bg-muted border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
                       disabled={isSuspended}
                     />
                   </div>
@@ -125,19 +127,19 @@ export default function AdminLayout() {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsDark(d => !d)}
-                    className="text-slate-500 rounded-xl h-10 w-10 hover:bg-slate-100"
+                    className="text-muted-foreground rounded-xl h-10 w-10 hover:bg-muted"
                     aria-label="Alternar tema"
                   >
                     {isDark ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
                   </Button>
                   <button
                     onClick={() => navigate("/admin/configuracoes")}
-                    className="h-10 w-10 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"
+                    className="h-10 w-10 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
                   >
                     <Settings className="w-[18px] h-[18px]" />
                   </button>
-                  <div className="w-9 h-9 rounded-full bg-emerald-500 flex items-center justify-center ml-1">
-                    <span className="text-white text-sm font-bold">
+                  <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center ml-1">
+                    <span className="text-primary-foreground text-sm font-bold">
                       {(user?.email?.charAt(0) || "A").toUpperCase()}
                     </span>
                   </div>

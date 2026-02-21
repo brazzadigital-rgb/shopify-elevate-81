@@ -50,10 +50,10 @@ const statusPillClass: Record<string, string> = {
 function ChartTooltipCustom({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-lg">
-      <p className="text-[11px] text-slate-400 mb-1">{label}</p>
+    <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-lg">
+      <p className="text-[11px] text-muted-foreground mb-1">{label}</p>
       {payload.map((p: any, i: number) => (
-        <p key={i} className="text-sm font-semibold text-slate-800">
+        <p key={i} className="text-sm font-semibold text-foreground">
           {p.name}: {formatBRL(p.value)}
         </p>
       ))}
@@ -136,10 +136,10 @@ export default function Dashboard() {
     <div className="space-y-6">
       {/* ═══ Header + Toggle ═══ */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-800">Dashboard</h2>
+        <h2 className="text-lg font-semibold text-foreground">Dashboard</h2>
         <button
           onClick={toggle}
-          className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-100"
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted"
           title={hidden ? "Mostrar valores" : "Ocultar valores"}
         >
           {hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -151,10 +151,10 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {kpis.map((kpi, i) => (
           <motion.div key={kpi.label} {...fadeUp(i)}>
-            <div className="group bg-white rounded-2xl border border-slate-100 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-slate-200 cursor-default h-full">
+            <div className="group admin-card p-5 cursor-default h-full">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">{kpi.label}</span>
-                <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
+                <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{kpi.label}</span>
+                <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                   <kpi.icon className="w-4 h-4" />
                 </div>
               </div>
@@ -162,18 +162,18 @@ export default function Dashboard() {
               {loading ? (
                 <Skeleton className="h-7 w-24 rounded-lg" />
               ) : (
-                <p className={`text-xl font-bold text-slate-800 tracking-tight ${kpi.isMoney && hidden ? BLUR_CLASS : ""}`}>{kpi.value}</p>
+                <p className={`text-xl font-bold text-foreground tracking-tight ${kpi.isMoney && hidden ? BLUR_CLASS : ""}`}>{kpi.value}</p>
               )}
 
               {kpi.trend && (
                 <div className="flex items-center gap-1 mt-2">
                   <TrendingUp className="w-3 h-3 text-emerald-500" />
                   <span className="text-xs font-semibold text-emerald-600">{kpi.trend}</span>
-                  <span className="text-[10px] text-slate-400 ml-0.5">{kpi.sub}</span>
+                  <span className="text-[10px] text-muted-foreground ml-0.5">{kpi.sub}</span>
                 </div>
               )}
               {!kpi.trend && kpi.sub && (
-                <p className="text-[11px] text-slate-400 mt-2">{kpi.sub}</p>
+                <p className="text-[11px] text-muted-foreground mt-2">{kpi.sub}</p>
               )}
             </div>
           </motion.div>
@@ -184,21 +184,21 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Revenue chart */}
         <motion.div className="lg:col-span-2" {...fadeUp(6)}>
-          <div className="bg-white rounded-2xl border border-slate-100 p-6">
+          <div className="admin-card p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-base font-semibold text-slate-800">Receita Diária</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Vendas realizadas no período</p>
+                <h3 className="text-base font-semibold text-foreground">Receita Diária</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">Vendas realizadas no período</p>
               </div>
-              <div className="flex gap-1 bg-slate-50 rounded-xl p-1 border border-slate-100">
+              <div className="flex gap-1 bg-muted rounded-xl p-1 border border-border">
                 {periods.map(p => (
                   <button
                     key={p.key}
                     onClick={() => setPeriod(p.key)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
                       period === p.key
-                        ? "bg-white text-slate-800 shadow-sm border border-slate-200"
-                        : "text-slate-400 hover:text-slate-600"
+                        ? "bg-card text-foreground shadow-sm border border-border"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {p.label}
@@ -214,23 +214,23 @@ export default function Dashboard() {
                   <AreaChart data={stats.dailyRevenue}>
                     <defs>
                       <linearGradient id="adminRevenueGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#10b981" stopOpacity={0.15} />
-                        <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                        <stop offset="0%" stopColor="hsl(17, 100%, 50%)" stopOpacity={0.15} />
+                        <stop offset="100%" stopColor="hsl(17, 100%, 50%)" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${v}`} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(0, 0%, 90%)" />
+                    <XAxis dataKey="date" tick={{ fill: "hsl(0, 0%, 60%)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: "hsl(0, 0%, 60%)", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${v}`} />
                     <Tooltip content={<ChartTooltipCustom />} />
                     <Area
                       type="monotone"
                       dataKey="revenue"
                       name="Receita"
-                      stroke="#10b981"
+                      stroke="hsl(17, 100%, 50%)"
                       strokeWidth={2.5}
                       fill="url(#adminRevenueGrad)"
                       dot={false}
-                      activeDot={{ r: 5, fill: "#10b981", stroke: "#fff", strokeWidth: 2 }}
+                      activeDot={{ r: 5, fill: "hsl(17, 100%, 50%)", stroke: "#fff", strokeWidth: 2 }}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -241,9 +241,9 @@ export default function Dashboard() {
 
         {/* Orders by Status */}
         <motion.div {...fadeUp(7)}>
-          <div className="bg-white rounded-2xl border border-slate-100 p-6 h-full flex flex-col">
-            <h3 className="text-base font-semibold text-slate-800 mb-1">Pedidos por Status</h3>
-            <p className="text-xs text-slate-400 mb-5">Distribuição dos últimos 30 dias</p>
+          <div className="admin-card p-6 h-full flex flex-col">
+            <h3 className="text-base font-semibold text-foreground mb-1">Pedidos por Status</h3>
+            <p className="text-xs text-muted-foreground mb-5">Distribuição dos últimos 30 dias</p>
 
             {loading ? (
               <Skeleton className="h-[200px] w-full rounded-xl" />
@@ -273,7 +273,7 @@ export default function Dashboard() {
                 </div>
                 <div className="flex flex-wrap gap-2 mt-3">
                   {stats.ordersByStatus.map((s, i) => (
-                    <span key={s.name} className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                    <span key={s.name} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                       <span className="w-2 h-2 rounded-full" style={{ background: STATUS_COLORS[i % STATUS_COLORS.length] }} />
                       {statusLabel[s.name] || s.name} ({s.value})
                     </span>
@@ -282,7 +282,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="flex-1 flex items-center justify-center">
-                <p className="text-sm text-slate-400">Sem dados no período</p>
+                <p className="text-sm text-muted-foreground">Sem dados no período</p>
               </div>
             )}
           </div>
@@ -293,15 +293,15 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         {/* Recent Orders */}
         <motion.div className="lg:col-span-3" {...fadeUp(8)}>
-          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+          <div className="admin-card overflow-hidden">
             <div className="px-6 pt-6 pb-4 flex items-center justify-between">
               <div>
-                <h3 className="text-base font-semibold text-slate-800">Últimos Pedidos</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Pedidos mais recentes da loja</p>
+                <h3 className="text-base font-semibold text-foreground">Últimos Pedidos</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">Pedidos mais recentes da loja</p>
               </div>
               <button
                 onClick={() => navigate("/admin/pedidos")}
-                className="flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-emerald-600 transition-colors"
+                className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
               >
                 Ver todos <ArrowUpRight className="w-3 h-3" />
               </button>
@@ -313,7 +313,7 @@ export default function Dashboard() {
               </div>
             ) : stats.recentOrders.length > 0 ? (
               <div className="px-4 pb-4">
-                <div className="grid grid-cols-12 gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-300">
+                <div className="grid grid-cols-12 gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
                   <span className="col-span-1">Nº</span>
                   <span className="col-span-3">Cliente</span>
                   <span className="col-span-2">Pedido</span>
@@ -326,20 +326,20 @@ export default function Dashboard() {
                     <div
                       key={order.id}
                       onClick={() => navigate(`/admin/pedidos/${order.id}`)}
-                      className="grid grid-cols-12 gap-2 items-center px-3 py-3 rounded-xl transition-colors duration-150 hover:bg-slate-50 cursor-pointer"
+                      className="grid grid-cols-12 gap-2 items-center px-3 py-3 rounded-xl transition-colors duration-150 hover:bg-muted cursor-pointer"
                     >
-                      <span className="col-span-1 text-xs text-slate-400 font-mono">{idx + 1}.</span>
-                      <span className="col-span-3 text-xs text-slate-600 font-medium truncate">
+                      <span className="col-span-1 text-xs text-muted-foreground font-mono">{idx + 1}.</span>
+                      <span className="col-span-3 text-xs text-foreground/70 font-medium truncate">
                         {order.customer_name || "—"}
                       </span>
-                      <span className="col-span-2 text-xs text-slate-400 font-mono">#{order.order_number}</span>
-                      <span className={`col-span-2 text-sm font-semibold text-slate-800 ${hidden ? BLUR_CLASS : ""}`}>{formatBRL(Number(order.total))}</span>
+                      <span className="col-span-2 text-xs text-muted-foreground font-mono">#{order.order_number}</span>
+                      <span className={`col-span-2 text-sm font-semibold text-foreground ${hidden ? BLUR_CLASS : ""}`}>{formatBRL(Number(order.total))}</span>
                       <span className="col-span-2">
-                        <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${statusPillClass[order.status] || "bg-slate-50 text-slate-600"}`}>
+                        <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${statusPillClass[order.status] || "bg-muted text-muted-foreground"}`}>
                           {statusLabel[order.status] || order.status}
                         </span>
                       </span>
-                      <span className="col-span-2 text-[11px] text-slate-400 text-right">
+                      <span className="col-span-2 text-[11px] text-muted-foreground text-right">
                         {format(new Date(order.created_at), "dd MMM", { locale: ptBR })}
                       </span>
                     </div>
@@ -348,8 +348,8 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="px-6 pb-8 text-center">
-                <ShoppingCart className="w-10 h-10 text-slate-200 mx-auto mb-2" />
-                <p className="text-sm text-slate-400">Nenhum pedido recente</p>
+                <ShoppingCart className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Nenhum pedido recente</p>
               </div>
             )}
           </div>
@@ -357,9 +357,9 @@ export default function Dashboard() {
 
         {/* Quick Actions */}
         <motion.div className="lg:col-span-2" {...fadeUp(9)}>
-          <div className="bg-white rounded-2xl border border-slate-100 p-6 h-full flex flex-col">
-            <h3 className="text-base font-semibold text-slate-800 mb-1">Ações Rápidas</h3>
-            <p className="text-xs text-slate-400 mb-5">Gerencie sua loja</p>
+          <div className="admin-card p-6 h-full flex flex-col">
+            <h3 className="text-base font-semibold text-foreground mb-1">Ações Rápidas</h3>
+            <p className="text-xs text-muted-foreground mb-5">Gerencie sua loja</p>
 
             <div className="space-y-1 flex-1">
               {[
@@ -371,21 +371,21 @@ export default function Dashboard() {
                 <button
                   key={action.label}
                   onClick={() => navigate(action.path)}
-                  className="w-full flex items-center justify-between p-3.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors group"
+                  className="w-full flex items-center justify-between p-3.5 rounded-xl text-sm font-medium text-foreground/70 hover:bg-muted transition-colors group"
                 >
                   <div className="flex items-center gap-3">
-                    <action.icon className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
+                    <action.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                     {action.label}
                   </div>
-                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-emerald-500 transition-colors" />
+                  <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground/50 group-hover:text-primary transition-colors" />
                 </button>
               ))}
             </div>
 
             {/* Alerts section */}
             {(stats.pendingOrders > 0 || stats.lowStockProducts > 0) && (
-              <div className="mt-4 pt-4 border-t border-slate-100 space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-2">Alertas</p>
+              <div className="mt-4 pt-4 border-t border-border space-y-2">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50 mb-2">Alertas</p>
                 {stats.pendingOrders > 0 && (
                   <div
                     onClick={() => navigate("/admin/pedidos")}

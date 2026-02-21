@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PremiumToggle3D } from "@/components/ui/premium-toggle-3d";
 import { Input } from "@/components/ui/input";
@@ -141,12 +142,15 @@ export default function StoreSettings() {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
+  const queryClient = useQueryClient();
+
   const handleSave = async () => {
     setSaving(true);
     const promises = Object.entries(settings).map(([key, value]) =>
-      supabase.from("store_settings").update({ value }).eq("key", key)
+      supabase.from("store_settings").upsert({ key, value }, { onConflict: "key" })
     );
     await Promise.all(promises);
+    queryClient.invalidateQueries({ queryKey: ["store-settings"] });
     toast({ title: "Configurações salvas!" });
     setSaving(false);
   };
