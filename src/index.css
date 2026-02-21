@@ -165,26 +165,26 @@
 
 @layer components {
   .admin-card {
-    @apply bg-white rounded-2xl border border-slate-100 shadow-sm transition-all duration-200;
+    @apply bg-white rounded-2xl border border-border shadow-sm transition-all duration-200;
   }
   .admin-card:hover {
-    @apply shadow-md border-slate-200;
+    @apply shadow-md;
   }
   
   .admin-input {
-    @apply h-10 rounded-xl border-0 bg-slate-50 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:bg-white transition-all text-slate-800 placeholder:text-slate-400;
+    @apply h-10 rounded-xl border-0 bg-muted text-sm focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-foreground placeholder:text-muted-foreground;
   }
 
   .admin-btn-primary {
-    @apply bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow-md transition-all rounded-xl text-sm font-medium px-4 py-2.5 flex items-center gap-2;
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all rounded-xl text-sm font-medium px-4 py-2.5 flex items-center gap-2;
   }
 
   .admin-table-th {
-    @apply px-4 py-3 text-[11px] uppercase tracking-wider font-bold text-slate-400 border-b border-slate-100 bg-white sticky top-0 z-10;
+    @apply px-4 py-3 text-[11px] uppercase tracking-wider font-bold text-muted-foreground border-b border-border bg-white sticky top-0 z-10;
   }
 
   .admin-table-td {
-    @apply px-4 py-3 text-sm text-slate-600 border-b border-slate-50 transition-colors;
+    @apply px-4 py-3 text-sm text-foreground/70 border-b border-border/50 transition-colors;
   }
 
   .admin-status-pill {
@@ -195,7 +195,7 @@
   .admin-status-warning { @apply bg-amber-50 text-amber-700 border-amber-100; }
   .admin-status-danger { @apply bg-red-50 text-red-700 border-red-100; }
   .admin-status-info { @apply bg-blue-50 text-blue-700 border-blue-100; }
-  .admin-status-muted { @apply bg-slate-50 text-slate-500 border-slate-100; }
+  .admin-status-muted { @apply bg-muted text-muted-foreground border-border; }
 
   /* Sport neon button */
   .btn-neon {

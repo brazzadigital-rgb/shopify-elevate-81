@@ -75,7 +75,7 @@ type MenuItem = { title: string; url: string; icon: any; badgeKey?: "orders" | "
 function SidebarSection({ label, items, badges }: { label: string; items: MenuItem[]; badges?: Record<string, number> }) {
   return (
     <div className="mb-1">
-      <p className="px-4 pt-5 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+      <p className="px-4 pt-5 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </p>
       <nav className="space-y-0.5 px-2">
@@ -89,8 +89,8 @@ function SidebarSection({ label, items, badges }: { label: string; items: MenuIt
               className={({ isActive }) => cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150",
                 isActive
-                  ? "bg-emerald-500 text-white shadow-sm"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-foreground/60 hover:bg-muted hover:text-foreground"
               )}
             >
               <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
@@ -156,22 +156,22 @@ export function AdminSidebar() {
   };
 
   return (
-    <Sidebar className="border-r border-slate-200/80 bg-white">
+    <Sidebar className="border-r border-border bg-card">
       {/* Header */}
       <SidebarHeader className="px-5 py-5 pb-3">
         <div className="flex items-center gap-3">
           {logoUrl ? (
             <img src={logoUrl} alt="Logo" className="h-8 max-w-[120px] object-contain" />
           ) : (
-            <div className="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center">
-              <span className="text-white text-sm font-bold">
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground text-sm font-bold">
                 {storeName.charAt(0).toUpperCase()}
               </span>
             </div>
           )}
           <div className="flex flex-col min-w-0">
-            <span className="font-bold text-sm text-slate-800 truncate">{storeName}</span>
-            <span className="text-[10px] text-slate-400 font-medium">Painel de Gestão</span>
+            <span className="font-bold text-sm text-foreground truncate">{storeName}</span>
+            <span className="text-[10px] text-muted-foreground font-medium">Painel de Gestão</span>
           </div>
         </div>
       </SidebarHeader>
@@ -187,23 +187,23 @@ export function AdminSidebar() {
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter className="p-3 space-y-1 border-t border-slate-100">
+      <SidebarFooter className="p-3 space-y-1 border-t border-border">
         <SidebarPlanWidget />
 
         {/* User info */}
         <div className="flex items-center gap-3 px-3 py-2.5">
-          <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-xs font-bold">
+          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <span className="text-primary-foreground text-xs font-bold">
               {(user?.email?.charAt(0) || "A").toUpperCase()}
             </span>
           </div>
           <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-xs font-semibold text-slate-700 truncate">{user?.email?.split("@")[0] || "Admin"}</span>
-            <span className="text-[10px] text-slate-400 truncate">{user?.email || ""}</span>
+            <span className="text-xs font-semibold text-foreground truncate">{user?.email?.split("@")[0] || "Admin"}</span>
+            <span className="text-[10px] text-muted-foreground truncate">{user?.email || ""}</span>
           </div>
           <button
             onClick={handleSignOut}
-            className="text-slate-400 hover:text-red-500 transition-colors flex-shrink-0"
+            className="text-muted-foreground hover:text-red-500 transition-colors flex-shrink-0"
             title="Sair"
           >
             <LogOut className="w-4 h-4" />
@@ -213,7 +213,7 @@ export function AdminSidebar() {
         {/* Store link */}
         <button
           onClick={() => navigate("/")}
-          className="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-150 w-full text-[13px] font-medium"
+          className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all duration-150 w-full text-[13px] font-medium"
         >
           <ShoppingBag className="w-4 h-4" />
           <span>Ver Loja</span>
