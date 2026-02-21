@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Save, Settings, Flame, CreditCard, Package, MessageCircle, Phone, Truck, Store } from "lucide-react";
+import { Save, Settings, Flame, CreditCard, Package, MessageCircle, Phone, Truck, Store, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -117,6 +117,17 @@ const settingsGroups = [
     settings: [
       { key: "sold_by_enabled", label: "Mostrar 'Vendido e enviado por'", type: "toggle" },
       { key: "sold_by_name", label: "Nome do vendedor", type: "text" },
+    ],
+  },
+  {
+    id: "demo",
+    title: "Modo Demo",
+    icon: Monitor,
+    description: "Ative o modo demonstração para compradores testarem o painel",
+    settings: [
+      { key: "demo_enabled", label: "Ativar Modo Demo", type: "toggle" },
+      { key: "demo_email", label: "Email do Demo", type: "text" },
+      { key: "demo_password", label: "Senha do Demo", type: "text" },
     ],
   },
 ];
