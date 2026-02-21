@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ShieldCheck, ArrowRight } from "lucide-react";
-import mascotImg from "@/assets/mascot-sport.png";
 import heroBg from "@/assets/hero-sport-bg.jpg";
 
 export function SportHeroSection() {
@@ -72,23 +71,6 @@ export function SportHeroSection() {
           </div>
         </motion.div>
 
-        {/* Mascot */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.3 }}
-          className="flex-shrink-0 relative"
-        >
-          <div
-            className="absolute inset-0 -inset-x-8 rounded-full opacity-30 blur-3xl pointer-events-none"
-            style={{ background: "radial-gradient(circle, hsl(17 100% 50% / 0.5), transparent)" }}
-          />
-          <img
-            src={mascotImg}
-            alt="Mascote esportivo"
-            className="relative z-10 w-[280px] md:w-[360px] lg:w-[420px] h-auto drop-shadow-2xl"
-          />
-        </motion.div>
       </div>
     </section>
   );
