@@ -204,6 +204,29 @@ function ThemePreview({ settings }: { settings: SettingsMap }) {
   );
 }
 
+const VISUAL_DEFAULTS: SettingsMap = {
+  color_primary: "16 100% 50%",
+  color_secondary: "0 0% 10%",
+  color_buttons: "16 100% 50%",
+  color_background: "0 0% 100%",
+  color_text: "0 0% 7%",
+  color_links: "16 100% 45%",
+  color_promotions: "0 75% 50%",
+  font_headings: "Orbitron",
+  font_body: "Exo 2",
+  font_weight: "700",
+  font_size_base: "16",
+  logo_url: "",
+  logo_mobile_url: "",
+  favicon_url: "",
+  jewel_enabled: "false",
+  jewel_color: "gold",
+  jewel_reflex_intensity: "medium",
+  jewel_reflex_frequency: "normal",
+  jewel_shine_tap: "true",
+  jewel_active_highlight: "true",
+};
+
 export default function AdminVisualIdentity() {
   const [settings, setSettings] = useState<SettingsMap>({});
   const [loading, setLoading] = useState(true);
@@ -213,7 +236,7 @@ export default function AdminVisualIdentity() {
   useEffect(() => {
     const fetch = async () => {
       const { data } = await supabase.from("store_settings").select("key, value");
-      const map: SettingsMap = {};
+      const map: SettingsMap = { ...VISUAL_DEFAULTS };
       data?.forEach((s: any) => { map[s.key] = s.value; });
       setSettings(map);
       setLoading(false);
