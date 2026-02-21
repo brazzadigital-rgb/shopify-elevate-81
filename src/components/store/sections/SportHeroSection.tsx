@@ -6,14 +6,14 @@ import heroBg from "@/assets/hero-sport-bg.jpg";
 
 export function SportHeroSection() {
   return (
-    <section className="relative w-full min-h-[600px] md:min-h-[700px] overflow-hidden flex items-center">
+    <section className="relative w-full min-h-[600px] md:min-h-[700px] overflow-hidden flex items-center bg-gradient-to-br from-gray-900 via-gray-800 to-black">
       {/* Background */}
       <div
-        className="absolute inset-0 bg-cover bg-center"
+        className="absolute inset-0 bg-cover bg-center opacity-30"
         style={{ backgroundImage: `url(${heroBg})` }}
       />
       {/* Radial glow overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
       <div
         className="absolute top-1/2 right-1/3 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-20 pointer-events-none"
         style={{ background: "radial-gradient(circle, hsl(17 100% 50% / 0.4), transparent 70%)" }}
@@ -43,17 +43,17 @@ export function SportHeroSection() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/30 mb-6">
             <ShieldCheck className="w-4 h-4 text-accent" />
-            <span className="text-xs font-display font-bold text-accent uppercase tracking-wider">
+            <span className="text-xs font-bold text-accent uppercase tracking-wider" style={{ fontFamily: "'Orbitron', sans-serif" }}>
               Proteção Garantida
             </span>
           </div>
 
-          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] text-foreground mb-4">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] text-white mb-4" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             COMPRA <span className="text-gradient-primary">100% SEGURA</span> E{" "}
             <span className="italic">GARANTIDA</span>
           </h1>
 
-          <p className="text-muted-foreground text-base md:text-lg mb-8 max-w-md font-sans">
+          <p className="text-white/70 text-base md:text-lg mb-8 max-w-md" style={{ fontFamily: "'Exo 2', sans-serif" }}>
             Equipamentos esportivos premium com entrega rastreada e blindagem digital em todas as transações.
           </p>
 
@@ -65,7 +65,7 @@ export function SportHeroSection() {
               </button>
             </Link>
             <Link to="/colecoes">
-              <button className="btn-neon-outline h-12 px-8 rounded-lg flex items-center gap-2">
+              <button className="btn-neon-outline h-12 px-8 rounded-lg flex items-center gap-2 text-white border-white/30 hover:bg-white/10">
                 VER COLEÇÃO
               </button>
             </Link>
@@ -86,7 +86,7 @@ export function SportHeroSection() {
           <img
             src={mascotImg}
             alt="Mascote esportivo"
-            className="relative z-10 w-[280px] md:w-[360px] lg:w-[420px] h-auto drop-shadow-2xl animate-float"
+            className="relative z-10 w-[280px] md:w-[360px] lg:w-[420px] h-auto drop-shadow-2xl"
           />
         </motion.div>
       </div>
