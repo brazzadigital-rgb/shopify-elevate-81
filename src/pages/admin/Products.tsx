@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Package, Filter, Upload, Download, Loader2, CheckCircle, AlertCircle, MoreVertical, Search } from "lucide-react";
+import { useIsDemo } from "@/hooks/useIsDemo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -32,6 +33,7 @@ interface Product {
 }
 
 export default function Products() {
+  const { blockIfDemo } = useIsDemo();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -66,6 +68,7 @@ export default function Products() {
   useEffect(() => { fetchProducts(); fetchSuppliers(); }, []);
 
   const handleDelete = async (id: string) => {
+    if (blockIfDemo()) return;
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) toast({ title: "Erro ao deletar", description: error.message, variant: "destructive" });
     else { toast({ title: "Produto removido" }); fetchProducts(); }

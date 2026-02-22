@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Image } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useIsDemo } from "@/hooks/useIsDemo";
 
 interface Section {
   id: string;
@@ -114,6 +115,7 @@ function formToConfig(form: FormState): any {
 }
 
 export default function AdminSections() {
+  const { blockIfDemo } = useIsDemo();
   const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -131,6 +133,7 @@ export default function AdminSections() {
   useEffect(() => { fetchSections(); }, []);
 
   const handleSave = async () => {
+    if (blockIfDemo()) return;
     setSaving(true);
     const config = formToConfig(form);
     const payload = {
@@ -173,6 +176,7 @@ export default function AdminSections() {
   };
 
   const handleDelete = async (id: string) => {
+    if (blockIfDemo()) return;
     const { error } = await supabase.from("home_sections").delete().eq("id", id);
     if (error) toast({ title: "Erro", description: error.message, variant: "destructive" });
     else { toast({ title: "Seção removida" }); fetchSections(); }

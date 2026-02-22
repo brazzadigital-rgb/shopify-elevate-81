@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, FolderOpen, ImageIcon, Search } from "lucide-react";
+import { useIsDemo } from "@/hooks/useIsDemo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImageUpload } from "@/components/store/ImageUpload";
 import { motion } from "framer-motion";
@@ -27,6 +28,7 @@ interface Collection {
 const emptyCollection = { name: "", slug: "", description: "", image_url: "", banner_url: "", is_active: true, sort_order: 0 };
 
 export default function Collections() {
+  const { blockIfDemo } = useIsDemo();
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -48,6 +50,7 @@ export default function Collections() {
     name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
   const handleSave = async () => {
+    if (blockIfDemo()) return;
     if (!form.name) { toast({ title: "Nome obrigatório", variant: "destructive" }); return; }
     setSaving(true);
     const slug = form.slug || generateSlug(form.name);
@@ -77,6 +80,7 @@ export default function Collections() {
   };
 
   const handleDelete = async (id: string) => {
+    if (blockIfDemo()) return;
     const { error } = await supabase.from("collections").delete().eq("id", id);
     if (error) toast({ title: "Erro", description: error.message, variant: "destructive" });
     else { toast({ title: "Coleção removida" }); fetchCollections(); }

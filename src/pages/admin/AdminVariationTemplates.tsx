@@ -12,6 +12,7 @@ import {
   Plus, Trash2, Loader2, Layers, Copy, Star, StarOff, Pencil, X, Save, GripVertical
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useIsDemo } from "@/hooks/useIsDemo";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
@@ -113,6 +114,7 @@ const emptyValue = (sort: number): TemplateValue => ({
 });
 
 export default function AdminVariationTemplates() {
+  const { blockIfDemo } = useIsDemo();
   const qc = useQueryClient();
   const { data: templates = [], isLoading } = useQuery({ queryKey: ["variation-templates"], queryFn: fetchTemplates });
 
@@ -159,6 +161,7 @@ export default function AdminVariationTemplates() {
   };
 
   const handleDelete = async (id: string) => {
+    if (blockIfDemo()) return;
     await supabase.from("variation_templates").delete().eq("id", id);
     qc.invalidateQueries({ queryKey: ["variation-templates"] });
     toast({ title: "Template excluído" });
@@ -174,6 +177,7 @@ export default function AdminVariationTemplates() {
   };
 
   const handleSave = async () => {
+    if (blockIfDemo()) return;
     if (!formName.trim()) { toast({ title: "Nome obrigatório", variant: "destructive" }); return; }
     setSaving(true);
 

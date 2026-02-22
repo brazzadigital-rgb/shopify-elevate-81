@@ -10,6 +10,7 @@ import { PremiumToggle3D } from "@/components/ui/premium-toggle-3d";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
+import { useIsDemo } from "@/hooks/useIsDemo";
 import {
   ArrowLeft, Save, Loader2, Plus, Trash2, Eye,
   PackageOpen, Image, DollarSign, Warehouse, Truck, Layers, Search, Wrench, Settings2, Check
@@ -83,6 +84,7 @@ const tabs = [
 ];
 
 export default function ProductEditor() {
+  const { blockIfDemo } = useIsDemo();
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditing = !!id;
@@ -167,6 +169,7 @@ export default function ProductEditor() {
   }, [id]);
 
   const handleSave = async () => {
+    if (blockIfDemo()) return;
     if (!form.name) { toast({ title: "Nome obrigatório", variant: "destructive" }); return; }
     setSaving(true);
     const slug = form.slug || generateSlug(form.name);

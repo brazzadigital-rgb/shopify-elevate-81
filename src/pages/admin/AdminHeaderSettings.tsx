@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { useIsDemo } from "@/hooks/useIsDemo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PremiumToggle3D } from "@/components/ui/premium-toggle-3d";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,7 @@ function hexToHsl(hex: string): string {
 }
 
 export default function AdminHeaderSettings() {
+  const { blockIfDemo } = useIsDemo();
   const queryClient = useQueryClient();
   const [settings, setSettings] = useState<SettingsMap>({});
   const [loading, setLoading] = useState(true);
@@ -93,6 +95,7 @@ export default function AdminHeaderSettings() {
   const update = (key: string, value: string) => setSettings((p) => ({ ...p, [key]: value }));
 
   const handleSave = async () => {
+    if (blockIfDemo()) return;
     setSaving(true);
     // Save all known header keys (from defaults + any extra header_ keys in state)
     const allHeaderKeys = new Set([

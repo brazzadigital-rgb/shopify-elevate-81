@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Save, Settings } from "lucide-react";
+import { useIsDemo } from "@/hooks/useIsDemo";
 import { motion } from "framer-motion";
 
 interface FinSettings {
@@ -33,6 +34,7 @@ const fields: { key: keyof FinSettings; label: string; type?: string }[] = [
 ];
 
 export default function FinancialSettingsPage() {
+  const { blockIfDemo } = useIsDemo();
   const { toast } = useToast();
   const [settings, setSettings] = useState<FinSettings>(defaultSettings);
   const [saving, setSaving] = useState(false);
@@ -53,6 +55,7 @@ export default function FinancialSettingsPage() {
   }, []);
 
   const handleSave = async () => {
+    if (blockIfDemo()) return;
     setSaving(true);
     for (const [key, value] of Object.entries(settings)) {
       const dbKey = `fin_${key}`;

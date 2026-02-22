@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsDemo } from "@/hooks/useIsDemo";
 import { Card, CardContent } from "@/components/ui/card";
 import { PremiumToggle3D } from "@/components/ui/premium-toggle-3d";
 import { Input } from "@/components/ui/input";
@@ -73,6 +74,7 @@ const PROVIDER_SECRET_FIELDS: Record<string, { key: string; label: string; place
 };
 
 export default function AdminPaymentSettings() {
+  const { blockIfDemo } = useIsDemo();
   const [gateways, setGateways] = useState<GatewayConfig[]>([]);
   const [secrets, setSecrets] = useState<Record<string, Record<string, string>>>({});
   const [loading, setLoading] = useState(true);
@@ -133,6 +135,7 @@ export default function AdminPaymentSettings() {
   };
 
   const handleSave = async () => {
+    if (blockIfDemo()) return;
     setSaving(true);
     try {
       const configPromises = gateways.map(g =>

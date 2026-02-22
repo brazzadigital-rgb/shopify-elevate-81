@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ImageUpload } from "@/components/store/ImageUpload";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Image, Eye, EyeOff, Filter } from "lucide-react";
+import { useIsDemo } from "@/hooks/useIsDemo";
 import { Slider } from "@/components/ui/slider";
 import { motion } from "framer-motion";
 
@@ -40,6 +41,7 @@ const emptyForm = {
 };
 
 export default function AdminBanners() {
+  const { blockIfDemo } = useIsDemo();
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -58,6 +60,7 @@ export default function AdminBanners() {
   useEffect(() => { fetchBanners(); }, []);
 
   const handleSave = async () => {
+    if (blockIfDemo()) return;
     setSaving(true);
     const payload: any = {
       title: form.title || null, location: form.location,
@@ -104,6 +107,7 @@ export default function AdminBanners() {
   };
 
   const handleDelete = async (id: string) => {
+    if (blockIfDemo()) return;
     await supabase.from("banners").delete().eq("id", id);
     toast({ title: "Banner removido" });
     fetchBanners();

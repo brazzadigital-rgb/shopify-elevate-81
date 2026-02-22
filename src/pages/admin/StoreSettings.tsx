@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PremiumToggle3D } from "@/components/ui/premium-toggle-3d";
+import { useIsDemo } from "@/hooks/useIsDemo";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
@@ -141,6 +142,7 @@ settingsGroups.forEach(group => {
 });
 
 export default function StoreSettings() {
+  const { blockIfDemo } = useIsDemo();
   const [settings, setSettings] = useState<SettingsMap>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -164,6 +166,7 @@ export default function StoreSettings() {
   const queryClient = useQueryClient();
 
   const handleSave = async () => {
+    if (blockIfDemo()) return;
     setSaving(true);
     const promises = Object.entries(settings).map(([key, value]) =>
       supabase.from("store_settings").upsert({ key, value }, { onConflict: "key" })
