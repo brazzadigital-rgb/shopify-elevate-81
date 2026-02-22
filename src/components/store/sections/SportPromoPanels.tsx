@@ -100,12 +100,14 @@ export function SportPromoPanels() {
                   </>
                 )}
 
-                {/* Decorative image (mascot) */}
-                <img
-                  src={panel.image_url && panel.image_url !== "placeholder" ? panel.image_url : mascotImg}
-                  alt=""
-                  className="absolute right-0 bottom-0 h-[160px] opacity-20 group-hover:opacity-30 transition-opacity"
-                />
+                {/* Decorative image (only if panel has a custom image) */}
+                {panel.image_url && panel.image_url !== "placeholder" && panel.image_url !== "" && (
+                  <img
+                    src={panel.image_url}
+                    alt=""
+                    className="absolute right-0 bottom-0 h-[160px] opacity-20 group-hover:opacity-30 transition-opacity"
+                  />
+                )}
 
                 <div className="relative z-10">
                   <h3 className="font-display text-lg font-black text-white leading-tight">

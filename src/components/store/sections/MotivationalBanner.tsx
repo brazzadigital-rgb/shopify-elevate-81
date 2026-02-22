@@ -11,7 +11,7 @@ export function MotivationalBanner() {
           className="relative rounded-2xl overflow-hidden min-h-[200px] md:min-h-[280px] flex items-center justify-center"
           style={{ backgroundImage: `url(${motivBg})`, backgroundSize: "cover", backgroundPosition: "center" }}
         >
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 bg-black/30" />
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
