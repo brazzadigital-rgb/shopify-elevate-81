@@ -8,7 +8,7 @@ export function SportHeroSection() {
     <section className="relative w-full min-h-[600px] md:min-h-[700px] overflow-hidden flex items-center bg-gradient-to-br from-gray-900 via-gray-800 to-black">
       {/* Background */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-30"
+        className="absolute inset-0 bg-cover bg-center opacity-60"
         style={{ backgroundImage: `url(${heroBg})` }}
       />
       {/* Radial glow overlay */}
