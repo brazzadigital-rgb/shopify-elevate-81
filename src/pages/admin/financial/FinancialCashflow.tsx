@@ -12,12 +12,14 @@ import { PeriodFilter } from "@/components/admin/financial/PeriodFilter";
 import { KpiCard } from "@/components/admin/financial/KpiCard";
 import { formatBRL } from "@/lib/exportCsv";
 import { ArrowUpCircle, ArrowDownCircle, Wallet, Plus, Trash2 } from "lucide-react";
+import { useIsDemo } from "@/hooks/useIsDemo";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 import { format, eachDayOfInterval } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 
 export default function FinancialCashflow() {
+  const { blockIfDemo } = useIsDemo();
   const filters = useFinancialFilters("30d");
   const { toast } = useToast();
   const [entries, setEntries] = useState<any[]>([]);
@@ -51,6 +53,7 @@ export default function FinancialCashflow() {
   })();
 
   const handleCreate = async () => {
+    if (blockIfDemo()) return;
     if (!form.description || !form.amount) {
       toast({ title: "Preencha descrição e valor", variant: "destructive" });
       return;
@@ -70,6 +73,7 @@ export default function FinancialCashflow() {
   };
 
   const handleDelete = async (id: string) => {
+    if (blockIfDemo()) return;
     await supabase.from("cashflow_entries").delete().eq("id", id);
     toast({ title: "Lançamento removido" });
     fetchData();

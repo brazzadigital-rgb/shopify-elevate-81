@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Tag, Search } from "lucide-react";
+import { useIsDemo } from "@/hooks/useIsDemo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatBRL } from "@/lib/exportCsv";
 import { motion } from "framer-motion";
@@ -33,6 +34,7 @@ const emptyCoupon = {
 };
 
 export default function AdminCoupons() {
+  const { blockIfDemo } = useIsDemo();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -51,6 +53,7 @@ export default function AdminCoupons() {
   useEffect(() => { fetchCoupons(); }, []);
 
   const handleSave = async () => {
+    if (blockIfDemo()) return;
     if (!form.code) { toast({ title: "Código obrigatório", variant: "destructive" }); return; }
     setSaving(true);
     const payload = {
@@ -91,6 +94,7 @@ export default function AdminCoupons() {
   };
 
   const handleDelete = async (id: string) => {
+    if (blockIfDemo()) return;
     const { error } = await supabase.from("coupons").delete().eq("id", id);
     if (error) toast({ title: "Erro", description: error.message, variant: "destructive" });
     else { toast({ title: "Cupom removido" }); fetchCoupons(); }

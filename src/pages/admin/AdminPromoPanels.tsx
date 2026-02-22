@@ -11,6 +11,7 @@ import { ImageUpload } from "@/components/store/ImageUpload";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Image, Eye, EyeOff, GripVertical } from "lucide-react";
+import { useIsDemo } from "@/hooks/useIsDemo";
 
 interface PromoPanel {
   id: string;
@@ -50,6 +51,7 @@ const emptyForm = {
 };
 
 export default function AdminPromoPanels() {
+  const { blockIfDemo } = useIsDemo();
   const [panels, setPanels] = useState<PromoPanel[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -70,6 +72,7 @@ export default function AdminPromoPanels() {
   useEffect(() => { fetchPanels(); }, []);
 
   const handleSave = async () => {
+    if (blockIfDemo()) return;
     if (!form.title) {
       toast({ title: "Título obrigatório", variant: "destructive" });
       return;
@@ -122,6 +125,7 @@ export default function AdminPromoPanels() {
   };
 
   const handleDelete = async (id: string) => {
+    if (blockIfDemo()) return;
     await supabase.from("promo_panels").delete().eq("id", id);
     toast({ title: "Painel removido" });
     fetchPanels();

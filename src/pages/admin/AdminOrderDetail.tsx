@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "@/hooks/use-toast";
+import { useIsDemo } from "@/hooks/useIsDemo";
 import {
   ArrowLeft, User, MapPin, Package, CreditCard, Truck, Clock,
   Copy, Check, Printer, Save, ShoppingCart, Link2
@@ -66,6 +67,7 @@ function statusColor(status: string) {
 }
 
 export default function AdminOrderDetail() {
+  const { blockIfDemo } = useIsDemo();
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -120,6 +122,7 @@ export default function AdminOrderDetail() {
   };
 
   const handleSave = async () => {
+    if (blockIfDemo()) return;
     if (!order) return;
     setSaving(true);
 

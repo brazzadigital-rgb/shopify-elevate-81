@@ -5,7 +5,7 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Search, Settings } from "lucide-react";
+import { Moon, Sun, Search, Settings, Monitor } from "lucide-react";
 import { NotificationProvider } from "@/hooks/useNotifications";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,6 +13,7 @@ import { useSystemSuspension } from "@/hooks/useSystemSuspension";
 import { SystemSuspendedFullPage, SystemSuspendedTopBanner } from "@/components/owner/SystemSuspendedBanner";
 import { useNavigate } from "react-router-dom";
 import { useDynamicTheme } from "@/hooks/useDynamicTheme";
+import { useIsDemo } from "@/hooks/useIsDemo";
 
 const routeTitles: Record<string, string> = {
   "/admin": "Dashboard",
@@ -63,6 +64,7 @@ export default function AdminLayout() {
   const [isDark, setIsDark] = useState(() => localStorage.getItem("admin-theme") === "dark");
   const location = useLocation();
   const { isSuspended } = useSystemSuspension();
+  const { isDemo } = useIsDemo();
   useDynamicTheme();
 
   useEffect(() => {
@@ -96,6 +98,15 @@ export default function AdminLayout() {
           <div className="min-h-screen flex w-full overflow-x-hidden bg-muted/30">
             <AdminSidebar />
             <SidebarInset className="flex-1 min-w-0 flex flex-col bg-transparent">
+              {/* Demo banner */}
+              {isDemo && (
+                <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 md:px-8 py-2 flex items-center gap-2">
+                  <Monitor className="w-4 h-4 text-amber-600" />
+                  <p className="text-xs font-medium text-amber-700 dark:text-amber-400">
+                    <strong>Modo Demo</strong> — Você está visualizando o painel em modo demonstração. Alterações estão desativadas.
+                  </p>
+                </div>
+              )}
               {/* Suspended top banner */}
               {isSuspended && <SystemSuspendedTopBanner />}
 

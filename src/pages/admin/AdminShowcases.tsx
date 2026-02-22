@@ -18,6 +18,7 @@ import {
   Plus, Pencil, Trash2, Calendar, Eye, Sparkles, Clock, Tag
 } from "lucide-react";
 import { format } from "date-fns";
+import { useIsDemo } from "@/hooks/useIsDemo";
 
 interface Showcase {
   id: string;
@@ -96,6 +97,7 @@ const statusColors: Record<string, "default" | "secondary" | "destructive" | "ou
 };
 
 export default function AdminShowcases() {
+  const { blockIfDemo } = useIsDemo();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -131,6 +133,7 @@ export default function AdminShowcases() {
     name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
   const handleSave = async () => {
+    if (blockIfDemo()) return;
     if (!form.name || !form.starts_at || !form.ends_at) {
       toast.error("Preencha nome, data início e fim.");
       return;
@@ -231,6 +234,7 @@ export default function AdminShowcases() {
   };
 
   const handleDelete = async (id: string) => {
+    if (blockIfDemo()) return;
     await supabase.from("seasonal_showcases").delete().eq("id", id);
     toast.success("Vitrine removida.");
     queryClient.invalidateQueries({ queryKey: ["admin-showcases"] });

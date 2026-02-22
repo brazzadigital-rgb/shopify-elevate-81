@@ -11,6 +11,7 @@ import { ImageUpload } from "@/components/store/ImageUpload";
 import { toast } from "@/hooks/use-toast";
 import { Save, Palette, Type, ImageIcon, Gem, Eye, Sparkles, ShoppingCart } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useIsDemo } from "@/hooks/useIsDemo";
 
 interface SettingsMap { [key: string]: string; }
 
@@ -232,6 +233,7 @@ export default function AdminVisualIdentity() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
+  const { blockIfDemo } = useIsDemo();
 
   useEffect(() => {
     const fetch = async () => {
@@ -252,6 +254,7 @@ export default function AdminVisualIdentity() {
   };
 
   const handleSave = async () => {
+    if (blockIfDemo()) return;
     setSaving(true);
     const promises = Object.entries(settings).map(([key, value]) =>
       supabase.from("store_settings").upsert({ key, value }, { onConflict: "key" })
