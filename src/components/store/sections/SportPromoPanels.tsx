@@ -111,7 +111,7 @@ export function SportPromoPanels() {
                   <h3 className="font-display text-lg font-black text-white leading-tight">
                     {panel.title}
                   </h3>
-                  <p className="font-display text-xl font-black text-accent italic">
+                  <p className={`font-display text-xl font-black italic ${panel.gradient.includes("orange") || panel.gradient.includes("red") ? "text-white/90" : "text-accent"}`}>
                     {panel.subtitle}
                   </p>
                 </div>
